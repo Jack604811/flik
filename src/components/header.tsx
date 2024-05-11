@@ -12,11 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import {
-  APP_NAME,
-  APP_ROUTES,
-  USER_ROUTES
-} from "@/app_settings";
+import { APP_NAME, APP_ROUTES, USER_ROUTES } from "@/app_settings";
 import { LogoutButton } from "./auth/logout-button";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth/options";
@@ -45,24 +41,29 @@ export async function Header() {
 
             <span className="sr-only">{APP_NAME}</span>
           </Link>
-          {navigationLinks.filter(route => route.visibleBy === 'all').map((link) => (
-            <Link
-              href={link.path}
-              className="text-foreground transition-colors hover:text-foreground/90 capitalize"
-              key={link.path}
-            >
-              {link.name}
-            </Link>
-          ))}
-          {(session?.user?.subscriptionId || session?.user?.oneTimeProductId) && navigationLinks.filter(route => route.visibleBy === 'subscribed').map((link) => (
-            <Link
-              href={link.path}
-              className="text-foreground transition-colors hover:text-foreground/90 capitalize"
-              key={link.path}
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navigationLinks
+            .filter((route) => route.visibleBy === "all")
+            .map((link) => (
+              <Link
+                href={link.path}
+                className="text-foreground transition-colors hover:text-foreground/90 capitalize"
+                key={link.path}
+              >
+                {link.name}
+              </Link>
+            ))}
+          {(session?.user?.subscriptionId || session?.user?.oneTimeProductId) &&
+            navigationLinks
+              .filter((route) => route.visibleBy === "subscribed")
+              .map((link) => (
+                <Link
+                  href={link.path}
+                  className="text-foreground transition-colors hover:text-foreground/90 capitalize"
+                  key={link.path}
+                >
+                  {link.name}
+                </Link>
+              ))}
         </nav>
         <Sheet>
           <SheetTrigger asChild>
@@ -120,13 +121,15 @@ export async function Header() {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {
-                  USER_ROUTES.map((link) => (
-                    <DropdownMenuItem className="cursor-pointer" asChild key={link.path}>
-                      <Link href={link.path}>{link.name}</Link>
-                    </DropdownMenuItem>
-                  ))
-                }
+                {USER_ROUTES.map((link) => (
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    asChild
+                    key={link.path}
+                  >
+                    <Link href={link.path}>{link.name}</Link>
+                  </DropdownMenuItem>
+                ))}
                 <CustomerPortalLink className="w-full text-left flex justify-start text-foreground font-normal hover:no-underline outline-none ring-0 border-none text-sm px-2 hover:bg-accent py-2 rounded">
                   Customer
                 </CustomerPortalLink>
@@ -136,7 +139,7 @@ export async function Header() {
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link href={'/signin'}>Get Started</Link>
+              <Link href={"/signin"}>Get Started</Link>
             </Button>
           )}
         </div>
@@ -145,7 +148,6 @@ export async function Header() {
   );
 }
 
-
 export async function MainHeader() {
   const session = await getServerSession(authOptions);
   return (
@@ -153,43 +155,44 @@ export async function MainHeader() {
       <div className="flex h-16 items-center justify-end gap-4 px-4 max-w-screen-2xl mx-auto">
         <nav className="font-medium flex items-center gap-5 text-sm">
           <ModeToggle />
-        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4  justify-end">
-          {/** show user menu only if there is a user on the session */}
-          {session?.user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="rounded-full"
-                >
-                  <CircleUser className="h-5 w-5" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {
-                  USER_ROUTES.map((link) => (
-                    <DropdownMenuItem className="cursor-pointer" asChild key={link.path}>
-                      <Link href={link.path}>{link.name}</Link>
-                    </DropdownMenuItem>
-                  ))
-                }
-                <CustomerPortalLink className="w-full text-left flex justify-start text-foreground font-normal hover:no-underline outline-none ring-0 border-none text-sm px-2 hover:bg-accent py-2 rounded">
-                  Customer
-                </CustomerPortalLink>
-                <DropdownMenuSeparator />
-                <LogoutButton />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button asChild>
-              <Link href={'/signin'}>Get Started</Link>
-            </Button>
-          )}
-        </div>
+          <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4  justify-end">
+            {/** show user menu only if there is a user on the session */}
+            {session?.user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="rounded-full"
+                  >
+                    <CircleUser className="h-5 w-5" />
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {USER_ROUTES.filter((e) => e.path !== "/dashboard").map(
+                    (link) => (
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        asChild
+                        key={link.path}
+                      >
+                        <Link href={link.path}>{link.name}</Link>
+                      </DropdownMenuItem>
+                    )
+                  )}
+                  <DropdownMenuSeparator />
+                  <LogoutButton />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild>
+                <Link href={"/signin"}>Get Started</Link>
+              </Button>
+            )}
+          </div>
         </nav>
       </div>
     </header>
