@@ -7,13 +7,11 @@ import {
   SEO_TITLE,
 } from "@/app_settings";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Header } from "@/components/header";
 import "./globals.css";
 import { TailwindScreen } from "@/components/dev/tailwind-screen";
 import { APP_NAME, APP_DOMAIN } from "@/app_settings";
 import NextTopLoader from "nextjs-toploader";
 import dynamic from "next/dynamic";
-import { Footer } from "@/components/blocks/footers/footer1";
 
 export const metadata: Metadata = {
   title: SEO_TITLE,
@@ -69,10 +67,8 @@ export default function RootLayout({
         <CrispWithNoSSR />
         <body>
           <ThemeProvider attribute="class" defaultTheme="system">
-            <Header />
             <NextTopLoader />
             {children}
-            <Footer />
             <TailwindScreen />
           </ThemeProvider>
         </body>

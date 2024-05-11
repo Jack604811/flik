@@ -144,3 +144,54 @@ export async function Header() {
     </header>
   );
 }
+
+
+export async function MainHeader() {
+  const session = await getServerSession(authOptions);
+  return (
+    <header className="sticky top-0 border-b bg-background w-full z-10">
+      <div className="flex h-16 items-center justify-end gap-4 px-4 max-w-screen-2xl mx-auto">
+        <nav className="font-medium flex items-center gap-5 text-sm">
+          <ModeToggle />
+        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4  justify-end">
+          {/** show user menu only if there is a user on the session */}
+          {session?.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-full"
+                >
+                  <CircleUser className="h-5 w-5" />
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {
+                  USER_ROUTES.map((link) => (
+                    <DropdownMenuItem className="cursor-pointer" asChild key={link.path}>
+                      <Link href={link.path}>{link.name}</Link>
+                    </DropdownMenuItem>
+                  ))
+                }
+                <CustomerPortalLink className="w-full text-left flex justify-start text-foreground font-normal hover:no-underline outline-none ring-0 border-none text-sm px-2 hover:bg-accent py-2 rounded">
+                  Customer
+                </CustomerPortalLink>
+                <DropdownMenuSeparator />
+                <LogoutButton />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild>
+              <Link href={'/signin'}>Get Started</Link>
+            </Button>
+          )}
+        </div>
+        </nav>
+      </div>
+    </header>
+  );
+}
