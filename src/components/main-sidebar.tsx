@@ -13,7 +13,7 @@ export const MainSidebar = ()  => {
   const  pathname  = usePathname();
 
   return (
-    <div className="flex flex-col w-[300px] h-screen p-4 gap-10 border-r">
+    <div className="flex flex-col w-[300px] h-screen p-4 gap-10 border-r sticky top-0">
       <Link href="/">
         <div className="flex items-center gap-2">
           <img 

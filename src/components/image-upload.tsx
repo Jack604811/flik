@@ -264,6 +264,7 @@ export default function ImageUpload() {
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
                         if (fileUploadProgress.source)
                           fileUploadProgress.source.cancel("Upload cancelled");
@@ -306,6 +307,7 @@ export default function ImageUpload() {
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => removeFile(file)}
                     className="bg-red-500 text-white transition-all items-center justify-center px-2 hidden group-hover:flex"
                   >

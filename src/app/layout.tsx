@@ -12,6 +12,7 @@ import { TailwindScreen } from "@/components/dev/tailwind-screen";
 import { APP_NAME, APP_DOMAIN } from "@/app_settings";
 import NextTopLoader from "nextjs-toploader";
 import dynamic from "next/dynamic";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: SEO_TITLE,
@@ -44,7 +45,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 const CrispWithNoSSR = dynamic(() => import("@/components/support/crisp-chat"));
 
 export default function RootLayout({
@@ -56,9 +56,23 @@ export default function RootLayout({
     <NextAuthProvider>
       <html lang={APP_LANG}>
         <head>
-          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+          <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+          />
           <link rel="manifest" href="/site.webmanifest" />
           <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
           <meta name="msapplication-TileColor" content="#da532c" />
@@ -68,6 +82,7 @@ export default function RootLayout({
         <body>
           <ThemeProvider attribute="class" defaultTheme="system">
             <NextTopLoader />
+            <Toaster position="top-center" />
             {children}
             <TailwindScreen />
           </ThemeProvider>

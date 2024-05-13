@@ -1,4 +1,4 @@
-import { type DefaultSession } from "next-auth";
+import { getServerSession, type DefaultSession } from "next-auth";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -33,5 +33,13 @@ import { providers } from "./providers";
 import { events } from "./events";
 import { callbacks } from "./callbacks";
 import { pages } from "./pages";
+import { authOptions } from "./options";
+
+
+export const getCurrentUser = async () => {
+  const userSession = await getServerSession(authOptions);
+
+  return userSession?.user
+}
 
 export { providers, events, callbacks, pages };
