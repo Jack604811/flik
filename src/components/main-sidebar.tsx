@@ -46,10 +46,10 @@ export const MainSidebar = ()  => {
               <CommandItem className="h-[32px]">
                   <Button
                   asChild
-                  variant={ pathname.includes("/reservations")? "secondary" : "ghost"}
+                  variant={ pathname.includes("/bookings")? "secondary" : "ghost"}
                   className="justify-start px-2 w-full h-[32px]">
                   <Link href={{
-                      pathname: "/reservations",
+                      pathname: "/bookings",
                       
                   }}> 
                     <div className="flex items-center gap-2">

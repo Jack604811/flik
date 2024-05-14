@@ -59,7 +59,7 @@ const formSchema = z.object({
   name: z.string({ required_error: "Spot Name is required" }),
   description: z.string({ required_error: "Spot Description is required" }),
   status: z.enum(["Draft", "Archived", "Active"]),
-  minGuest: z.string(),
+  maxGuest: z.string(),
   additionalGuestPrice: z.string(),
   allowAdditionalGuest: z.boolean(),
   module: z.string(),
@@ -70,7 +70,7 @@ function CreateSpotForm({userId}: {userId: string}) {
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { status: "Draft", allowAdditionalGuest: false, minGuest: "1" },
+    defaultValues: { status: "Draft", allowAdditionalGuest: false, maxGuest: "1" },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -79,7 +79,7 @@ function CreateSpotForm({userId}: {userId: string}) {
         ...values,
         price: 38.94,
         images: [],
-        minGuest: Number(values.minGuest)
+        minGuest: Number(values.maxGuest)
     });
     console.log("Saving...", values)
     toast.promise(promise, {
@@ -180,9 +180,10 @@ function CreateSpotForm({userId}: {userId: string}) {
                       <FormField
                         control={form.control}
                         name="module"
+                        defaultValue="1"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Modules</FormLabel>
+                            <FormLabel>Total Units Available for Booking</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" />
                             </FormControl>
@@ -191,13 +192,35 @@ function CreateSpotForm({userId}: {userId: string}) {
                         )}
                       />
                     </div>
+                    
+                    <div className="flex items-center gap-2">
+                    <FormField
+                      control={form.control}
+                      name="allowAdditionalGuest"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2">
+                          <FormLabel className="block">
+                            Allow Additional Guests
+                          </FormLabel>
+                          <FormControl>
+                            <Switch
+                              onCheckedChange={field.onChange}
+                              checked={field.value}
+                              
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    </div>
                     <div className="grid gap-3">
                       <FormField
                         control={form.control}
-                        name="minGuest"
+                        name="maxGuest"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Minimum People</FormLabel>
+                            <FormLabel>Max Guests</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" datatype="number" />
                             </FormControl>
@@ -206,34 +229,13 @@ function CreateSpotForm({userId}: {userId: string}) {
                         )}
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FormField
-                        control={form.control}
-                        name="allowAdditionalGuest"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="block">
-                              Allow Additional People
-                            </FormLabel>
-                            <FormControl>
-                              <Switch
-                                onCheckedChange={field.onChange}
-                                checked={field.value}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
                     <div className="grid gap-3">
                       <FormField
                         control={form.control}
                         name="additionalGuestPrice"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Price Per Additional Person</FormLabel>
+                            <FormLabel>Price Per Additional Guest</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" />
                             </FormControl>
@@ -257,30 +259,47 @@ function CreateSpotForm({userId}: {userId: string}) {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[100px]">Day</TableHead>
-                        <TableHead>Check In</TableHead>
-                        <TableHead>Check Out</TableHead>
+                        <TableHead>Open</TableHead>
+                        <TableHead>Close</TableHead>
                         <TableHead>Price</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       <TableRow>
-                        <TableCell className="font-semibold">Monday</TableCell>
+                        <TableCell className="font-semibold">
+                        <Select  defaultValue="Monday">
+                                <SelectTrigger
+                                  aria-label="Select a day"
+                                  id="day">
+                                  <SelectValue placeholder="Select a day" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Sunday">Sunday</SelectItem>
+                                  <SelectItem value="Monday">Monday</SelectItem>
+                                  <SelectItem value="Tuesday">Tuesday</SelectItem>
+                                  <SelectItem value="Wednesday">Wednesday</SelectItem>
+                                  <SelectItem value="Thursday">Thursday</SelectItem>
+                                  <SelectItem value="Friday">Friday</SelectItem>
+                                  <SelectItem value="Saturday">Saturday</SelectItem>
+                                </SelectContent>
+                              </Select>
+                        </TableCell>
                         <TableCell>
                           <Label className="sr-only" htmlFor="open-monday">
-                            Check In
+                            Open
                           </Label>
                           <Input
-                            defaultValue="09:00"
+                            defaultValue="15:00"
                             id="open-monday"
                             type="time"
                           />
                         </TableCell>
                         <TableCell>
                           <Label className="sr-only" htmlFor="close-monday">
-                            Check Out
+                            Close
                           </Label>
                           <Input
-                            defaultValue="17:00"
+                            defaultValue="00:00"
                             id="close-monday"
                             type="time"
                           />
@@ -367,7 +386,7 @@ function CreateSpotForm({userId}: {userId: string}) {
                         className="w-full"
                         id="name"
                         defaultValue=""
-                        placeholder="/my-spot"
+                        placeholder="my-spot"
                         type="text"
                       />
                       <div className="flex flex-row items-center gap-2">
@@ -387,7 +406,8 @@ function CreateSpotForm({userId}: {userId: string}) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 ">
+                  <button>
                     <Image
                       alt="Image"
                       className="aspect-square w-full rounded-md object-cover"
@@ -395,6 +415,7 @@ function CreateSpotForm({userId}: {userId: string}) {
                       src="/placeholder.svg"
                       width="300"
                     />
+                    </button>
                     <div className="grid grid-cols-3 gap-2">
                       <button>
                         <Image

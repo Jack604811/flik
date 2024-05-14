@@ -44,7 +44,7 @@ export default async function Page() {
                 <TableRow>
                   <TableHead>Spot Name</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Min. Guest</TableHead>
+                  <TableHead>Max. Guest</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -80,9 +80,9 @@ export default function RootLayout({
         </head>
         <CrispWithNoSSR />
         <body>
-          <ThemeProvider attribute="class" defaultTheme="system">
+          <ThemeProvider attribute="class" defaultTheme="dark">
             <NextTopLoader />
-            <Toaster position="top-center" />
+            <Toaster position="bottom-center" />
             {children}
             <TailwindScreen />
           </ThemeProvider>
