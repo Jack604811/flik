@@ -61,8 +61,10 @@ model Spot {
   name        String
   description String
   status      SpotStatus
-  price       Float
-  minGuest    Int
+  units       Int?
+  maxGuest    Int?
+  allowAdditionalGuest   Boolean      @default(false)
+  additionalGuestPrice   Float?
   workingHours Json        @default("[]")
   owner       User         @relation(fields: [userId], references: [id])
   userId      String // Foreign key referencing User's id

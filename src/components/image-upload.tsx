@@ -15,6 +15,7 @@ import { useDropzone } from "react-dropzone";
 import { Input } from "./ui/input";
 import ProgressBar from "./ui/progress";
 import { ScrollArea } from "./ui/scroll-area";
+import supabase from "@/server/helpers/supabase";
 interface FileUploadProgress {
   progress: number;
   File: File;
@@ -54,7 +55,7 @@ const OtherColor = {
   fillColor: "fill-gray-400",
 };
 
-export default function ImageUpload() {
+export default function ImageUpload({userId, folder}: {userId: string, folder: string}) {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [filesToUpload, setFilesToUpload] = useState<FileUploadProgress[]>([]);
 
@@ -172,28 +173,19 @@ export default function ImageUpload() {
 
     // cloudinary upload
 
-    // const fileUploadBatch = acceptedFiles.map((file) => {
-    //   const formData = new FormData();
-    //   formData.append("file", file);
-    //   formData.append(
-    //     "upload_preset",
-    //     process.env.NEXT_PUBLIC_UPLOAD_PRESET as string
-    //   );
+    const fileUploadBatch = acceptedFiles.map((file) => {
 
-    //   const cancelSource = axios.CancelToken.source();
-    //   return uploadImageToCloudinary(
-    //     formData,
-    //     (progressEvent) => onUploadProgress(progressEvent, file, cancelSource),
-    //     cancelSource
-    //   );
-    // });
+      return supabase.storage.from(userId).upload(`${folder}/${file.name}`, file, {
+        upsert: true,
+      })
+    });
 
-    // try {
-    //   await Promise.all(fileUploadBatch);
-    //   alert("All files uploaded successfully");
-    // } catch (error) {
-    //   console.error("Error uploading files: ", error);
-    // }
+    try {
+      await Promise.all(fileUploadBatch);
+      alert("All files uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading files: ", error);
+    }
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });

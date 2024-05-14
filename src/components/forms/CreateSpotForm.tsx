@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -19,11 +19,17 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Switch } from "../ui/switch";
-import { ChevronLeftIcon, CirclePlusIcon, UploadIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  CirclePlusIcon,
+  DeleteIcon,
+  UploadIcon,
+} from "lucide-react";
 import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -62,35 +68,56 @@ const formSchema = z.object({
   maxGuest: z.string(),
   additionalGuestPrice: z.string(),
   allowAdditionalGuest: z.boolean(),
-  module: z.string(),
+  units: z.string(),
+  workingHours: z.array(
+    z.object({
+      day: z.string(),
+      openTime: z.string(),
+      closeTime: z.string(),
+      price: z.string(),
+    })
+  ),
 });
 
 // LR.registerBlocks(LR);
-function CreateSpotForm({userId}: {userId: string}) {
+function CreateSpotForm({ userId }: { userId: string }) {
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { status: "Draft", allowAdditionalGuest: false, maxGuest: "1" },
+    defaultValues: {
+      status: "Draft",
+      allowAdditionalGuest: false,
+      maxGuest: "1",
+      units: "1"
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const promise = createNewSpot({
-        userId,
-        ...values,
-        price: 38.94,
-        images: [],
-        minGuest: Number(values.maxGuest)
+      userId,
+      ...values,
+      images: [],
+      maxGuest: Number(values.maxGuest),
+      workingHours: values.workingHours.map(w => ({...w, price: Number(w.price)}) ),
+      units: Number(values.units),
+      additionalGuestPrice: Number(values.additionalGuestPrice)
     });
-    console.log("Saving...", values)
     toast.promise(promise, {
-    loading: "Loading...",
-    success: () => {
-        router.push("/spots")
-        return "spot created/updated successfully"
-    },
-    error: "Error add/updating spot",
+      loading: "Loading...",
+      success: () => {
+        router.push("/spots");
+        return "spot created/updated successfully";
+      },
+      error: "Error add/updating spot",
     });
   };
+
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
+    {
+      control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
+      name: "workingHours", // unique name for your Field Array
+    }
+  );
 
   return (
     <Form {...form}>
@@ -179,11 +206,12 @@ function CreateSpotForm({userId}: {userId: string}) {
                     <div className="grid gap-3">
                       <FormField
                         control={form.control}
-                        name="module"
-                        defaultValue="1"
+                        name="units"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Total Units Available for Booking</FormLabel>
+                            <FormLabel>
+                              Total Units Available for Booking
+                            </FormLabel>
                             <FormControl>
                               <Input {...field} type="number" />
                             </FormControl>
@@ -192,27 +220,26 @@ function CreateSpotForm({userId}: {userId: string}) {
                         )}
                       />
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
-                    <FormField
-                      control={form.control}
-                      name="allowAdditionalGuest"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center gap-2">
-                          <FormLabel className="block">
-                            Allow Additional Guests
-                          </FormLabel>
-                          <FormControl>
-                            <Switch
-                              onCheckedChange={field.onChange}
-                              checked={field.value}
-                              
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name="allowAdditionalGuest"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center gap-2">
+                            <FormLabel className="block">
+                              Allow Additional Guests
+                            </FormLabel>
+                            <FormControl>
+                              <Switch
+                                onCheckedChange={field.onChange}
+                                checked={field.value}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                     <div className="grid gap-3">
                       <FormField
@@ -222,7 +249,11 @@ function CreateSpotForm({userId}: {userId: string}) {
                           <FormItem>
                             <FormLabel>Max Guests</FormLabel>
                             <FormControl>
-                              <Input {...field} type="number" datatype="number" />
+                              <Input
+                                {...field}
+                                type="number"
+                                datatype="number"
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -258,6 +289,7 @@ function CreateSpotForm({userId}: {userId: string}) {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-[10px]"></TableHead>
                         <TableHead className="w-[100px]">Day</TableHead>
                         <TableHead>Open</TableHead>
                         <TableHead>Close</TableHead>
@@ -265,72 +297,110 @@ function CreateSpotForm({userId}: {userId: string}) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
+                      {fields.map((field, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              className="text-destructive"
+                              size="icon"
+                              onClick={() => remove(index)}
+                            >
+                              <DeleteIcon size={15} />
+                            </Button>
+                          </TableCell>
+                          <TableCell className="font-semibold">
+                            <Select
+                              defaultValue={field.day}
+                              {...form.register(`workingHours.${index}.day`)}
+                              onValueChange={(value) =>
+                                form.setValue(
+                                  `workingHours.${index}.day`,
+                                  value
+                                )
+                              }
+                            >
+                              <SelectTrigger aria-label="Select a day">
+                                <SelectValue placeholder="Select a day" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Sunday">Sunday</SelectItem>
+                                <SelectItem value="Monday">Monday</SelectItem>
+                                <SelectItem value="Tuesday">Tuesday</SelectItem>
+                                <SelectItem value="Wednesday">
+                                  Wednesday
+                                </SelectItem>
+                                <SelectItem value="Thursday">
+                                  Thursday
+                                </SelectItem>
+                                <SelectItem value="Friday">Friday</SelectItem>
+                                <SelectItem value="Saturday">
+                                  Saturday
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            <Label className="sr-only" htmlFor="open-monday">
+                              Open
+                            </Label>
+                            <Input
+                              {...form.register(
+                                `workingHours.${index}.openTime`
+                              )}
+                              id="open-monday"
+                              type="time"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Label className="sr-only" htmlFor="close-monday">
+                              Close
+                            </Label>
+                            <Input
+                              {...form.register(
+                                `workingHours.${index}.closeTime`
+                              )}
+                              type="time"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Label className="sr-only" htmlFor="price-monday">
+                              Price
+                            </Label>
+                            <Input
+                              {...form.register(`workingHours.${index}.price`)}
+                              prefix="$"
+                              step="0.01"
+                              type="number"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                    <TableFooter>
                       <TableRow>
-                        <TableCell className="font-semibold">
-                        <Select  defaultValue="Monday">
-                                <SelectTrigger
-                                  aria-label="Select a day"
-                                  id="day">
-                                  <SelectValue placeholder="Select a day" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Sunday">Sunday</SelectItem>
-                                  <SelectItem value="Monday">Monday</SelectItem>
-                                  <SelectItem value="Tuesday">Tuesday</SelectItem>
-                                  <SelectItem value="Wednesday">Wednesday</SelectItem>
-                                  <SelectItem value="Thursday">Thursday</SelectItem>
-                                  <SelectItem value="Friday">Friday</SelectItem>
-                                  <SelectItem value="Saturday">Saturday</SelectItem>
-                                </SelectContent>
-                              </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Label className="sr-only" htmlFor="open-monday">
-                            Open
-                          </Label>
-                          <Input
-                            defaultValue="15:00"
-                            id="open-monday"
-                            type="time"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Label className="sr-only" htmlFor="close-monday">
-                            Close
-                          </Label>
-                          <Input
-                            defaultValue="00:00"
-                            id="close-monday"
-                            type="time"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Label className="sr-only" htmlFor="price-monday">
-                            Price
-                          </Label>
-                          <Input
-                            defaultValue="100"
-                            id="price-monday"
-                            prefix="$"
-                            step="0.01"
-                            type="number"
-                          />
-                        </TableCell>
-                      </TableRow>
-                      {/* Other days */}
-                      <TableRow>
-                        <TableCell colSpan={4}>
+                        <TableCell colSpan={5}>
                           <Button
                             className="gap-1 w-full"
                             size="sm"
                             variant="ghost"
+                            type="button"
+                            onClick={() =>
+                              append({
+                                day: "",
+                                price: "",
+                                openTime: "",
+                                closeTime: "",
+                              })
+                            }
                           >
                             <CirclePlusIcon className="h-3.5 w-3.5" />
                             Add Working Hours
                           </Button>
                         </TableCell>
                       </TableRow>
-                    </TableBody>
+                    </TableFooter>
                   </Table>
                 </CardContent>
               </Card>
@@ -350,7 +420,10 @@ function CreateSpotForm({userId}: {userId: string}) {
                           <FormItem>
                             {/* <FormLabel>Status</FormLabel> */}
                             <FormControl>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <SelectTrigger
                                   aria-label="Select status"
                                   id="status"
@@ -407,14 +480,14 @@ function CreateSpotForm({userId}: {userId: string}) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2 ">
-                  <button>
-                    <Image
-                      alt="Image"
-                      className="aspect-square w-full rounded-md object-cover"
-                      height="300"
-                      src="/placeholder.svg"
-                      width="300"
-                    />
+                    <button>
+                      <Image
+                        alt="Image"
+                        className="aspect-square w-full rounded-md object-cover"
+                        height="300"
+                        src="/placeholder.svg"
+                        width="300"
+                      />
                     </button>
                     <div className="grid grid-cols-3 gap-2">
                       <button>
@@ -452,7 +525,7 @@ function CreateSpotForm({userId}: {userId: string}) {
                             </DialogDescription>
                           </DialogHeader>
                           <div className="grid gap-4 py-4">
-                            <ImageUpload />
+                            <ImageUpload userId={userId} folder="spot-id" />
                           </div>
                         </DialogContent>
                       </Dialog>

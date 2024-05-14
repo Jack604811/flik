@@ -15,8 +15,11 @@ type NEW_SPOT_PARAMS = {
   description: string;
   status: SpotStatus;
   images: String[];
-  price: number;
-  minGuest: number;
+  maxGuest: number;
+  units: number;
+  workingHours: any;
+  additionalGuestPrice: number;
+  allowAdditionalGuest: boolean
 };
 
 export const createNewSpot = async ({
@@ -25,11 +28,14 @@ export const createNewSpot = async ({
   description,
   status,
   images,
-  price,
-  minGuest,
+  maxGuest,
+  units,
+  workingHours,
+  additionalGuestPrice,
+  allowAdditionalGuest
 }: NEW_SPOT_PARAMS) => {
   const spot = await db.spot.create({
-    data: { name, description, status, price, minGuest, userId },
+    data: { name, description, status, maxGuest, userId, units, workingHours, allowAdditionalGuest, additionalGuestPrice },
   });
 
   return spot;

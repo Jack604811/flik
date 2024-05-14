@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 export const events: Partial<EventCallbacks | undefined> = {
   //add customer id to the new user
   createUser: async ({ user }) => {
-
+    if(user.customerId) return;
     // create the stripe customer
     const customer = await createStripeCustomer({
       email: user.email,

@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { getSpotsByUser } from "@/server/actions/spot.action";
 import { getCurrentUser } from "@/server/auth";
+import Image from "next/image";
 import Link from "next/link";
 
 export default async function Page() {
@@ -27,40 +29,60 @@ export default async function Page() {
         <Card x-chunk="dashboard-07-chunk-1" className="m-4">
           <CardHeader>
             <div className="flex justify-between items-center">
-            <div className="space-y-3">
-              <CardTitle>Spots</CardTitle>
-              <CardDescription>
-                Available spots shows here and you can edit them
-              </CardDescription>
-            </div>
-            <Link href="/spots/new">
-              <Button className="mt-4">Add a new spot</Button>
-            </Link>
+              <div className="space-y-3">
+                <CardTitle>Spots</CardTitle>
+                <CardDescription>
+                  Available spots shows here and you can edit them
+                </CardDescription>
+              </div>
+              <Link href="/spots/new">
+                <Button className="mt-4">Add a new spot</Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Spot Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Max. Guest</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {spots.map((spot) => (
-                  <TableRow key={spot.id}>
-                    <TableCell className="font-semibold">
-                      <Link href={`/spots/${spot.id}`} className="text-primary">
-                      {spot.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{spot.status}</TableCell>
-                    <TableCell>{spot.minGuest} guest(s)</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 m-3">
+              {spots.map((spot) => (
+                <div
+                  className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+                  key={spot.id}
+                >
+                  <Link href={`/spots/${spot.id}`}>
+                    <div className="relative">
+                      <Image
+                        alt={spot.name}
+                        className="w-full h-64 object-cover"
+                        height={500}
+                        src="/placeholder.svg"
+                        style={{
+                          aspectRatio: "800/500",
+                          objectFit: "cover",
+                        }}
+                        width={800}
+                      />
+                      <Badge
+                        variant={
+                          spot.status === "Active"
+                            ? "default"
+                            : spot.status === "Draft"
+                            ? "secondary"
+                            : "destructive"
+                        }
+                        className="absolute bottom-4 right-4 px-4 py-2 rounded-md"
+                      >
+                        {spot.status}
+                      </Badge>
+                    </div>
+                    <div className="p-6">
+                      <h2 className="text-2xl font-bold mb-2">{spot.name}</h2>
+                      <p className="text-gray-600 dark:text-gray-400 line-clamp-3">
+                        {spot.description}
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       ) : (
