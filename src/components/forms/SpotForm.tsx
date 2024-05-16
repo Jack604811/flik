@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   Form,
@@ -59,49 +59,97 @@ import { z } from "zod";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createNewSpot } from "@/server/actions/spot.action";
+import { createNewSpot, updateSpot } from "@/server/actions/spot.action";
+import { Spot } from "@prisma/client";
+import { useDropzone } from "react-dropzone";
+import { uploadSpotImage } from "@/server/actions/superbase.action";
 
-const formSchema = z.object({
-  name: z.string({ required_error: "Spot Name is required" }),
-  description: z.string({ required_error: "Spot Description is required" }),
-  status: z.enum(["Draft", "Archived", "Active"]),
-  maxGuest: z.string(),
-  additionalGuestPrice: z.string(),
-  allowAdditionalGuest: z.boolean(),
-  units: z.string(),
-  workingHours: z.array(
-    z.object({
-      day: z.string(),
-      openTime: z.string(),
-      closeTime: z.string(),
-      price: z.string(),
-    })
-  ),
-});
+const formSchema = z
+  .object({
+    name: z.string({ required_error: "Spot Name is required" }),
+    description: z.string({ required_error: "Spot Description is required" }),
+    status: z.enum(["Draft", "Archived", "Active"]),
+    maxGuest: z.string(),
+    additionalGuestPrice: z.string().optional(),
+    allowAdditionalGuest: z.boolean(),
+    units: z.string(),
+    workingHours: z.array(
+      z.object({
+        day: z.string(),
+        openTime: z.string(),
+        closeTime: z.string(),
+        price: z.string(),
+      })
+    ),
+  })
+  .superRefine((data, refineContext) => {
+    if (!!data.allowAdditionalGuest && !data.additionalGuestPrice)
+      return refineContext.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["additionalGuestPrice"],
+      });
+
+    return refineContext;
+  });
 
 // LR.registerBlocks(LR);
-function CreateSpotForm({ userId }: { userId: string }) {
+function SpotForm({
+  userId,
+  spot,
+}: {
+  userId: string;
+  spot?: Spot & { images: Record<string, string>[] };
+}) {
   const router = useRouter();
+  const [files, setFiles] = useState<(File & { url: string })[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       status: "Draft",
       allowAdditionalGuest: false,
-      maxGuest: "1",
-      units: "1"
+      ...(spot ?? {}),
+      maxGuest: spot?.maxGuest ? String(spot?.maxGuest) : "1",
+      units: spot?.units ? String(spot.units) : "1",
+      additionalGuestPrice: spot?.additionalGuestPrice
+        ? String(spot?.additionalGuestPrice)
+        : undefined,
+      workingHours:
+        (spot?.workingHours as Array<Record<string, string>>)?.map((w) => ({
+          ...w,
+          price: String(w.price),
+        })) ?? undefined,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const promise = createNewSpot({
+    let obj = {
       userId,
       ...values,
       images: [],
       maxGuest: Number(values.maxGuest),
-      workingHours: values.workingHours.map(w => ({...w, price: Number(w.price)}) ),
+      workingHours: values.workingHours.map((w) => ({
+        ...w,
+        price: Number(w.price),
+      })),
       units: Number(values.units),
-      additionalGuestPrice: Number(values.additionalGuestPrice)
-    });
+      additionalGuestPrice: Number(values.additionalGuestPrice),
+    };
+
+    const promise = async () => {
+      const nSpot = await (spot?.id
+        ? updateSpot({ ...obj, id: spot.id })
+        : createNewSpot(obj));
+      const fileUploads = files.map((file) =>
+        uploadSpotImage({ file, userId, spotId: nSpot.id })
+      );
+      return Promise.all(fileUploads);
+    };
+
+    // const promise = spot?.id
+    //   ? updateSpot({ ...obj, id: spot.id })
+    //   : createNewSpot(obj);
     toast.promise(promise, {
       loading: "Loading...",
       success: () => {
@@ -111,6 +159,19 @@ function CreateSpotForm({ userId }: { userId: string }) {
       error: "Error add/updating spot",
     });
   };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const newFiles = acceptedFiles.map((file) =>
+      Object.assign(file, {
+        url: URL.createObjectURL(file),
+      })
+    );
+    setFiles((prev) => [...prev, ...newFiles]);
+  }, []);
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: { images: ["image/*"] },
+  });
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
     {
@@ -136,10 +197,10 @@ function CreateSpotForm({ userId }: { userId: string }) {
               </Button>
             </Link>
             <h1 className="whitespace-nowrap text-xl font-semibold tracking-tight ">
-              New Spot
+              {spot?.id ? "Edit" : "New"} Spot
             </h1>
             <Badge className="ml-0" variant="outline">
-              Draft
+              {form.getValues().status}
             </Badge>
             <div className="items-center gap-2 md:ml-auto flex">
               {/* <Button type="button" onClick={() => router.refresh()} size="sm" variant="outline">
@@ -260,21 +321,23 @@ function CreateSpotForm({ userId }: { userId: string }) {
                         )}
                       />
                     </div>
-                    <div className="grid gap-3">
-                      <FormField
-                        control={form.control}
-                        name="additionalGuestPrice"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Price Per Additional Guest</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="number" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    {form.getValues().allowAdditionalGuest && (
+                      <div className="grid gap-3">
+                        <FormField
+                          control={form.control}
+                          name="additionalGuestPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price Per Additional Guest</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="number" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -447,7 +510,7 @@ function CreateSpotForm({ userId }: { userId: string }) {
                   </div>
                 </CardContent>
               </Card>
-              <Card x-chunk="dashboard-07-chunk-3">
+              {/* <Card x-chunk="dashboard-07-chunk-3">
                 <CardHeader>
                   <CardTitle>Path Url</CardTitle>
                 </CardHeader>
@@ -470,7 +533,7 @@ function CreateSpotForm({ userId }: { userId: string }) {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </Card> */}
               <Card className="overflow-hidden" x-chunk="dashboard-07-chunk-4">
                 <CardHeader>
                   <CardTitle>Images</CardTitle>
@@ -480,7 +543,15 @@ function CreateSpotForm({ userId }: { userId: string }) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2 ">
-                    <button>
+                    {spot?.images.length || files.length ? (
+                      <Image
+                        alt={[...spot!.images,...files][0].name}
+                        className="aspect-square w-full rounded-md object-cover"
+                        height="300"
+                        src={[...spot!.images,...files][0].url}
+                        width="300"
+                      />
+                    ) : (
                       <Image
                         alt="Image"
                         className="aspect-square w-full rounded-md object-cover"
@@ -488,47 +559,38 @@ function CreateSpotForm({ userId }: { userId: string }) {
                         src="/placeholder.svg"
                         width="300"
                       />
-                    </button>
+                    )}
+
                     <div className="grid grid-cols-3 gap-2">
-                      <button>
+                      {[
+                        ...(spot?.images??[]),
+                        ...files,
+                      ].slice(1).map((file, index) => (
                         <Image
-                          alt="Image"
+                          key={index}
                           className="aspect-square w-full rounded-md object-cover"
                           height="84"
-                          src="/placeholder.svg"
+                          src={file.url}
+                          alt={file.name}
                           width="84"
                         />
-                      </button>
-                      <button>
-                        <Image
-                          alt="Image"
-                          className="aspect-square w-full rounded-md object-cover"
-                          height="84"
-                          src="/placeholder.svg"
-                          width="84"
+                      ))}
+
+                      <button
+                        {...getRootProps()}
+                        type="button"
+                        className="flex aspect-square w-full items-center justify-center rounded-md border border-dashed"
+                      >
+                        <Input
+                          {...getInputProps()}
+                          id="dropzone-file"
+                          accept="image/png, image/jpeg"
+                          type="file"
+                          className="hidden"
                         />
+                        <UploadIcon className="h-4 w-4 text-muted-foreground" />
+                        <span className="sr-only">Upload</span>
                       </button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <button className="flex aspect-square w-full items-center justify-center rounded-md border border-dashed">
-                            <UploadIcon className="h-4 w-4 text-muted-foreground" />
-                            <span className="sr-only">Upload</span>
-                          </button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle className="text-center">
-                              Upload your files
-                            </DialogTitle>
-                            <DialogDescription className="text-center">
-                              The only file upload you will ever need
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <ImageUpload userId={userId} folder="spot-id" />
-                          </div>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </div>
                 </CardContent>
@@ -560,4 +622,4 @@ function CreateSpotForm({ userId }: { userId: string }) {
   );
 }
 
-export default CreateSpotForm;
+export default SpotForm;

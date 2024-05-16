@@ -82,7 +82,7 @@ export default function RootLayout({
         <body>
           <ThemeProvider attribute="class" defaultTheme="dark">
             <NextTopLoader />
-            <Toaster position="bottom-center" />
+            <Toaster position="top-center" />
             {children}
             <TailwindScreen />
           </ThemeProvider>

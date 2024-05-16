@@ -1,35 +1,22 @@
-'use client'
 import React from 'react';
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
-import MainSidebar from '@/components/main-sidebar';
+import { getUser } from '@/server/actions/user.action';
+import { getCurrentUser } from '@/server/auth';
+import PersonalInfoForm from '@/components/forms/PersonalInfoForm';
+import { User } from '@prisma/client';
 
 
-function Profile() {
+async function Profile() {
+  const currentUser = await getCurrentUser()
+  const user = await getUser(currentUser!.id);
   return (
       <main className="flex-1 p-6">
         <section className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium">Personal Information</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Update your basic profile details.</p>
-          </div>
-          <form className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input defaultValue="John Doe" id="name" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input defaultValue="john.doe@example.com" id="email" type="email" />
-            </div>
-            
-            <Button className="w-fit" type="submit">
-              Save Changes
-            </Button>
-          </form>
+          <PersonalInfoForm user={user as User} />
         </section>
         <Separator className="my-8" />
         <section className="space-y-6">

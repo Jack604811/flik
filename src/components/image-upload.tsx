@@ -55,7 +55,7 @@ const OtherColor = {
   fillColor: "fill-gray-400",
 };
 
-export default function ImageUpload({userId, folder}: {userId: string, folder: string}) {
+export default function ImageUpload({userId, folder, onFiles}: {userId: string, folder: string, onFiles?: React.Dispatch<React.SetStateAction<File[]>>}) {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [filesToUpload, setFilesToUpload] = useState<FileUploadProgress[]>([]);
 
@@ -171,24 +171,32 @@ export default function ImageUpload({userId, folder}: {userId: string, folder: s
       ];
     });
 
+    if(onFiles) onFiles((prev) => ([...prev, ...acceptedFiles]))
+
     // cloudinary upload
 
-    const fileUploadBatch = acceptedFiles.map((file) => {
-
-      return supabase.storage.from(userId).upload(`${folder}/${file.name}`, file, {
-        upsert: true,
+    const fileUploadBatch = acceptedFiles.map(async (file) => {
+      return supabase.storage.from("spots").upload(`${userId}/${folder}/${file.name}`, file).then(res => {
+        if(!res.error) {
+          setUploadedFiles((prevUploadedFiles) => {
+            return [...prevUploadedFiles, file];
+          });
+    
+          setFilesToUpload((prevUploadProgress) => {
+            return prevUploadProgress.filter((item) => item.File !== file);
+          });
+        }
       })
     });
 
     try {
       await Promise.all(fileUploadBatch);
-      alert("All files uploaded successfully");
     } catch (error) {
       console.error("Error uploading files: ", error);
     }
   }, []);
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: {images: ["images/*"]} });
 
   return (
     <div>

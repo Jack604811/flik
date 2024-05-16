@@ -53,7 +53,7 @@ export default async function Page() {
                         alt={spot.name}
                         className="w-full h-64 object-cover"
                         height={500}
-                        src="/placeholder.svg"
+                        src={spot.images[0]?.url ?? "/placeholder.svg"}
                         style={{
                           aspectRatio: "800/500",
                           objectFit: "cover",

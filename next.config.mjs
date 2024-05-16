@@ -6,6 +6,12 @@ jiti("./src/env");
 
 /** @type {import('next').NextConfig} */
 
-const nextConfig = {};
+const nextConfig = {
+    images: {
+        remotePatterns: [
+            { hostname: "mbcobsjjxvpydprpyybp.supabase.co", protocol: "https"}
+        ]
+    }
+};
 
 export default nextConfig;
