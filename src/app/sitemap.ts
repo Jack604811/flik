@@ -6,7 +6,7 @@ export default async function sitemap() {
     url: `${APP_DOMAIN}${route.path}`,
     lastModified: new Date().toISOString(),
   }));
-
+s
   const blogPosts = await getPostsList();
 
   const postsRoutes = await Promise.all(

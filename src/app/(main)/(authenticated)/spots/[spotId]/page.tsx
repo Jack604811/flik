@@ -3,11 +3,14 @@ import SpotForm from '@/components/forms/SpotForm';
 import { getCurrentUser } from '@/server/auth';
 import { getSpotById } from '@/server/actions/spot.action';
 import { Spot } from '@prisma/client';
+import { redirect } from 'next/navigation';
 
 
 async function Page({params: { spotId }}: {params: {spotId: string}}) {
   const currentUser = await getCurrentUser();
   const spot = await getSpotById(spotId);
+
+  if(!spot) redirect("/spots/new")
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 mt-16 mb-24">

@@ -23,7 +23,9 @@ import {
   ChevronLeftIcon,
   CirclePlusIcon,
   DeleteIcon,
+  Dot,
   UploadIcon,
+  X,
 } from "lucide-react";
 import {
   Table,
@@ -59,10 +61,16 @@ import { z } from "zod";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createNewSpot, updateSpot } from "@/server/actions/spot.action";
+import {
+  createNewSpot,
+  deleteSpot,
+  deleteSpotImage,
+  updateSpot,
+} from "@/server/actions/spot.action";
 import { Spot } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
 import { uploadSpotImage } from "@/server/actions/superbase.action";
+import ConfirmModal from "../confirm-modal";
 
 const formSchema = z
   .object({
@@ -103,6 +111,7 @@ function SpotForm({
 }) {
   const router = useRouter();
   const [files, setFiles] = useState<(File & { url: string })[]>([]);
+  const [spotImages, setSpotImages] = useState<Record<string, string>[]>(spot?.images ?? []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -138,13 +147,12 @@ function SpotForm({
     };
 
     const promise = async () => {
-      const nSpot = await (spot?.id
-        ? updateSpot({ ...obj, id: spot.id })
-        : createNewSpot(obj));
-      const fileUploads = files.map((file) =>
-        uploadSpotImage({ file, userId, spotId: nSpot.id })
-      );
-      return Promise.all(fileUploads);
+      const formData = new FormData();
+      files.forEach((file) => formData.append("files", file));
+      const nSpot = spot?.id
+        ? updateSpot({ ...obj, id: spot.id, files: formData })
+        : createNewSpot({ ...obj, files: formData });
+      return nSpot;
     };
 
     // const promise = spot?.id
@@ -179,6 +187,15 @@ function SpotForm({
       name: "workingHours", // unique name for your Field Array
     }
   );
+
+  const onDeleteImage = async (file: any, index: number) => {
+    if (!file.id) {
+      setFiles((files) => files.filter((f, ind) => f !== file));
+      return;
+    }
+    const deleted = await deleteSpotImage(file.id);
+    setSpotImages((prev) => prev.filter((im) => im.id !== file.id));
+  };
 
   return (
     <Form {...form}>
@@ -543,14 +560,26 @@ function SpotForm({
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2 ">
-                    {spot?.images.length || files.length ? (
-                      <Image
-                        alt={[...spot!.images,...files][0].name}
-                        className="aspect-square w-full rounded-md object-cover"
-                        height="300"
-                        src={[...spot!.images,...files][0].url}
-                        width="300"
-                      />
+                    {spotImages.length || files.length ? (
+                      <div className="relative">
+                        <div className="absolute right-0.5 top-0">
+                          <Button
+                            type="button"
+                            className="!p-0.5 rounded-full h-auto"
+                            variant="destructive"
+                            onClick={() => onDeleteImage([...spotImages, ...files][0], 0)}
+                          >
+                            <X size={12} />
+                          </Button>
+                        </div>
+                        <Image
+                          alt={"Spot Image"}
+                          className="aspect-square w-full rounded-md object-cover"
+                          height="300"
+                          src={[...spotImages, ...files][0].url}
+                          width="300"
+                        />
+                      </div>
                     ) : (
                       <Image
                         alt="Image"
@@ -562,19 +591,29 @@ function SpotForm({
                     )}
 
                     <div className="grid grid-cols-3 gap-2">
-                      {[
-                        ...(spot?.images??[]),
-                        ...files,
-                      ].slice(1).map((file, index) => (
-                        <Image
-                          key={index}
-                          className="aspect-square w-full rounded-md object-cover"
-                          height="84"
-                          src={file.url}
-                          alt={file.name}
-                          width="84"
-                        />
-                      ))}
+                      {[...(spotImages ?? []), ...files]
+                        .slice(1)
+                        .map((file, index) => (
+                          <div key={index} className="relative">
+                            <div className="absolute right-0.5 top-0">
+                              <Button
+                                type="button"
+                                className="!p-0.5 rounded-full h-auto"
+                                variant="destructive"
+                                onClick={() => onDeleteImage(file, index)}
+                              >
+                                <X size={12} />
+                              </Button>
+                            </div>
+                            <Image
+                              className="aspect-square w-full rounded-md object-cover"
+                              height="84"
+                              src={file.url}
+                              alt={"Spot Image"}
+                              width="84"
+                            />
+                          </div>
+                        ))}
 
                       <button
                         {...getRootProps()}
@@ -595,25 +634,35 @@ function SpotForm({
                   </div>
                 </CardContent>
               </Card>
-              <Card x-chunk="dashboard-07-chunk-5">
-                <CardHeader>
-                  <CardTitle>Delete</CardTitle>
-                  <CardDescription>
-                    Lipsum dolor sit amet, consectetur adipiscing elit.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex" />
-                  <Button
-                    className="w-full bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600"
-                    size="sm"
-                    variant="secondary"
-                    type="button"
-                  >
-                    Delete
-                  </Button>
-                </CardContent>
-              </Card>
+              {spot?.id && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Delete</CardTitle>
+                    <CardDescription>
+                      Lipsum dolor sit amet, consectetur adipiscing elit.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ConfirmModal
+                      onConfirm={async () => {
+                        await deleteSpot(spot.id);
+                        toast.success("Spot deleted Successfully");
+                        router.push("/spots");
+                      }}
+                      warningText=""
+                    >
+                      <Button
+                        className="w-full bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600"
+                        size="sm"
+                        variant="secondary"
+                        type="button"
+                      >
+                        Delete
+                      </Button>
+                    </ConfirmModal>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>
