@@ -78,16 +78,8 @@ const formSchema = z
   .object({
     name: z.string({ required_error: "Spot Name is required" }),
     description: z.string({ required_error: "Spot Description is required" }),
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
     maxGuest: z.string().optional(),
-=======
-=======
->>>>>>> Stashed changes
-    status: z.enum(["Private", "Public", "Disabled"]),
-    maxGuest: z.string(),
->>>>>>> Stashed changes
     additionalGuestPrice: z.string().optional(),
     allowAdditionalGuest: z.boolean(),
     units: z.string(),
@@ -132,15 +124,7 @@ function SpotForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      status: "Disabled",
-=======
       status: "Private",
->>>>>>> Stashed changes
-=======
-      status: "Private",
->>>>>>> Stashed changes
       allowAdditionalGuest: false,
       ...(spot ?? {}),
       maxGuest: spot?.maxGuest ? String(spot?.maxGuest) : "1",
@@ -343,35 +327,7 @@ function SpotForm({
                         )}
                       />
                     </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                     {form.getValues().allowAdditionalGuest && (
-                    <>
-                    <div className="grid gap-3">
-                      <FormField
-                        control={form.control}
-                        name="maxGuest"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Max Guests</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="number"
-                                datatype="number"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-=======
-=======
->>>>>>> Stashed changes
-                    
-                    {form.getValues().allowAdditionalGuest && (
->>>>>>> Stashed changes
                       <div className="grid gap-3">
                         <FormField
                           control={form.control}
@@ -400,7 +356,6 @@ function SpotForm({
                           )}
                         />
                       </div>
-                    </>
                     )}
                   </div>
                 </CardContent>
@@ -569,21 +524,9 @@ function SpotForm({
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                                   <SelectItem value={SpotStatus.Disabled}>Disabled</SelectItem>
                                   <SelectItem value={SpotStatus.Public}>Public</SelectItem>
                                   <SelectItem value={SpotStatus.Private}>Private</SelectItem>
-=======
-                                  <SelectItem value="Private">Private</SelectItem>
-                                  <SelectItem value="Public">Public</SelectItem>
-                                  <SelectItem value="Disabled">Disabled</SelectItem>
->>>>>>> Stashed changes
-=======
-                                  <SelectItem value="Private">Private</SelectItem>
-                                  <SelectItem value="Public">Public</SelectItem>
-                                  <SelectItem value="Disabled">Disabled</SelectItem>
->>>>>>> Stashed changes
                                 </SelectContent>
                               </Select>
                             </FormControl>

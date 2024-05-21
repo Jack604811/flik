@@ -5,8 +5,6 @@ import { z } from "zod"
 // IRL, you will have a schema for your data models.
 export const bookingSchema = z.object({
   id: z.string(),
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   totalPrice: z.number(),
   status: z.nativeEnum(BookingStatus),
   createdAt: z.date(),
@@ -20,17 +18,6 @@ export const bookingSchema = z.object({
     email: z.string(),
     phone: z.string(),
   })
-=======
-=======
->>>>>>> Stashed changes
-  name: z.string(),
-  status: z.string(),
-  label: z.string(),
-  date: z.string(),
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 })
 
 export type Booking = z.infer<typeof bookingSchema>

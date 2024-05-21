@@ -66,23 +66,10 @@ export default async function Page() {
                       <Badge
                         variant={
                           spot.status === "Public"
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                             ? "default"
                             : spot.status === "Private"
                             ? "secondary"
                             : "destructive"
-=======
-=======
->>>>>>> Stashed changes
-                            ? "outline"
-                            : spot.status === "Private"
-                            ? "outline"
-                            : "outline"
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                         }
                         className="h-6 mb-2 px-2 py-0 rounded-2xl"
                       >
