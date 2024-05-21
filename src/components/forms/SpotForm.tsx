@@ -325,6 +325,8 @@ function SpotForm({
                         )}
                       />
                     </div>
+                    {form.getValues().allowAdditionalGuest && (
+                    <>
                     <div className="grid gap-3">
                       <FormField
                         control={form.control}
@@ -344,7 +346,6 @@ function SpotForm({
                         )}
                       />
                     </div>
-                    {form.getValues().allowAdditionalGuest && (
                       <div className="grid gap-3">
                         <FormField
                           control={form.control}
@@ -360,6 +361,7 @@ function SpotForm({
                           )}
                         />
                       </div>
+                    </>
                     )}
                   </div>
                 </CardContent>
