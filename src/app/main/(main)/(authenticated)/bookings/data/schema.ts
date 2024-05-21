@@ -6,6 +6,7 @@ import { z } from "zod"
 export const bookingSchema = z.object({
   id: z.string(),
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   totalPrice: z.number(),
   status: z.nativeEnum(BookingStatus),
   createdAt: z.date(),
@@ -20,10 +21,15 @@ export const bookingSchema = z.object({
     phone: z.string(),
   })
 =======
+=======
+>>>>>>> Stashed changes
   name: z.string(),
   status: z.string(),
   label: z.string(),
   date: z.string(),
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 })
 
