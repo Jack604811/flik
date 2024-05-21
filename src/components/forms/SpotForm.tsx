@@ -24,6 +24,8 @@ import {
   CirclePlusIcon,
   DeleteIcon,
   Dot,
+  MoreHorizontal,
+  MoreVertical,
   UploadIcon,
   X,
 } from "lucide-react";
@@ -47,13 +49,13 @@ import {
 } from "../ui/select";
 import Link from "next/link";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import ImageUpload from "../image-upload";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,8 +78,13 @@ const formSchema = z
   .object({
     name: z.string({ required_error: "Spot Name is required" }),
     description: z.string({ required_error: "Spot Description is required" }),
+<<<<<<< Updated upstream
     status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
     maxGuest: z.string().optional(),
+=======
+    status: z.enum(["Private", "Public", "Disabled"]),
+    maxGuest: z.string(),
+>>>>>>> Stashed changes
     additionalGuestPrice: z.string().optional(),
     allowAdditionalGuest: z.boolean(),
     units: z.string(),
@@ -122,7 +129,11 @@ function SpotForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+<<<<<<< Updated upstream
       status: "Disabled",
+=======
+      status: "Private",
+>>>>>>> Stashed changes
       allowAdditionalGuest: false,
       ...(spot ?? {}),
       maxGuest: spot?.maxGuest ? String(spot?.maxGuest) : "1",
@@ -325,6 +336,7 @@ function SpotForm({
                         )}
                       />
                     </div>
+<<<<<<< Updated upstream
                     {form.getValues().allowAdditionalGuest && (
                     <>
                     <div className="grid gap-3">
@@ -346,7 +358,24 @@ function SpotForm({
                         )}
                       />
                     </div>
+=======
+                    
+                    {form.getValues().allowAdditionalGuest && (
+>>>>>>> Stashed changes
                       <div className="grid gap-3">
+                        <FormField
+                          control={form.control}
+                          name="maxGuest"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Max Guests</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="number" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         <FormField
                           control={form.control}
                           name="additionalGuestPrice"
@@ -374,30 +403,21 @@ function SpotForm({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[10px]"></TableHead>
-                        <TableHead className="w-[100px]">Day</TableHead>
+                        
+                        <TableHead>Day</TableHead>
                         <TableHead>Open</TableHead>
                         <TableHead>Close</TableHead>
                         <TableHead>Price</TableHead>
+                        <TableHead ></TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody className="gap-2">
                       {fields.map((field, index) => (
                         <TableRow key={index}>
-                          <TableCell>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              className="text-destructive"
-                              size="icon"
-                              onClick={() => remove(index)}
-                            >
-                              <DeleteIcon size={15} />
-                            </Button>
-                          </TableCell>
+                          
                           <TableCell className="font-semibold">
                             <Select
                               defaultValue={field.day}
@@ -459,9 +479,29 @@ function SpotForm({
                             <Input
                               {...form.register(`workingHours.${index}.price`)}
                               prefix="$"
-                              step="0.01"
+                              step="1"
                               type="number"
+                              
                             />
+                          </TableCell>
+                          <TableCell>
+                          <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            
+                            <DropdownMenuItem>Clone</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => remove(index)}>
+                              Delete 
+                           </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
                           </TableCell>
                         </TableRow>
                       ))}
@@ -519,9 +559,15 @@ function SpotForm({
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
+<<<<<<< Updated upstream
                                   <SelectItem value={SpotStatus.Disabled}>Disabled</SelectItem>
                                   <SelectItem value={SpotStatus.Public}>Public</SelectItem>
                                   <SelectItem value={SpotStatus.Private}>Private</SelectItem>
+=======
+                                  <SelectItem value="Private">Private</SelectItem>
+                                  <SelectItem value="Public">Public</SelectItem>
+                                  <SelectItem value="Disabled">Disabled</SelectItem>
+>>>>>>> Stashed changes
                                 </SelectContent>
                               </Select>
                             </FormControl>
@@ -568,14 +614,14 @@ function SpotForm({
                   <div className="grid gap-2 ">
                     {spotImages.length || files.length ? (
                       <div className="relative">
-                        <div className="absolute right-0.5 top-0">
+                        <div className="absolute right-2 top-2">
                           <Button
                             type="button"
                             className="!p-0.5 rounded-full h-auto"
                             variant="destructive"
                             onClick={() => onDeleteImage([...spotImages, ...files][0], 0)}
                           >
-                            <X size={12} />
+                            <X size={16} />
                           </Button>
                         </div>
                         <Image
@@ -587,13 +633,7 @@ function SpotForm({
                         />
                       </div>
                     ) : (
-                      <Image
-                        alt="Image"
-                        className="aspect-square w-full rounded-md object-cover"
-                        height="300"
-                        src="/placeholder.svg"
-                        width="300"
-                      />
+                      null
                     )}
 
                     <div className="grid grid-cols-3 gap-2">
@@ -601,7 +641,7 @@ function SpotForm({
                         .slice(1)
                         .map((file, index) => (
                           <div key={index} className="relative">
-                            <div className="absolute right-0.5 top-0">
+                            <div className="absolute right-1 top-0">
                               <Button
                                 type="button"
                                 className="!p-0.5 rounded-full h-auto"
@@ -629,7 +669,7 @@ function SpotForm({
                         <Input
                           {...getInputProps()}
                           id="dropzone-file"
-                          accept="image/png, image/jpeg"
+                          accept="image/png, image/jpeg, image/jpg"
                           type="file"
                           className="hidden"
                         />

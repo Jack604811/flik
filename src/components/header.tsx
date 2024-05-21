@@ -24,7 +24,7 @@ export async function Header() {
   const session = await getServerSession(authOptions);
   return (
     <header className="sticky top-0 border-b bg-background w-full z-10">
-      <div className="flex h-16 items-center gap-4 px-4 md:px-12 max-w-screen-2xl mx-auto   ">
+      <div className="flex h-16 items-center gap-4 px-4 md:px-12 w-full mx-auto   ">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 ">
           <ModeToggle />
           <Link
@@ -152,7 +152,7 @@ export async function MainHeader() {
   const session = await getServerSession(authOptions);
   return (
     <header className="sticky top-0 border-b bg-background w-full z-10">
-      <div className="flex h-16 items-center justify-end gap-4 px-4 max-w-screen-2xl mx-auto">
+      <div className="flex h-16 items-center justify-end gap-4 px-4 w-full mx-auto">
         <nav className="font-medium flex items-center gap-5 text-sm">
           <ModeToggle />
           <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4  justify-end">
