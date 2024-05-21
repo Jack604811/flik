@@ -7,6 +7,7 @@ import {
   SEO_TITLE,
 } from "@/app_settings";
 import { ThemeProvider } from "@/components/theme-provider";
+import 'rsuite/dist/rsuite-no-reset.min.css';
 import "./globals.css";
 import { TailwindScreen } from "@/components/dev/tailwind-screen";
 import { APP_NAME, APP_DOMAIN } from "@/app_settings";

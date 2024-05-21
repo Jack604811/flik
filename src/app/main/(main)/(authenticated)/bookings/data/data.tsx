@@ -1,3 +1,4 @@
+import { BookingStatus } from "@prisma/client"
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -9,44 +10,19 @@ import {
   StopwatchIcon,
 } from "@radix-ui/react-icons"
 
-export const labels = [
-  {
-    value: "bug",
-    label: "Bug",
-  },
-  {
-    value: "feature",
-    label: "Feature",
-  },
-  {
-    value: "documentation",
-    label: "Documentation",
-  },
-]
-
 export const statuses = [
   {
-    value: "backlog",
-    label: "Backlog",
-    icon: QuestionMarkCircledIcon,
-  },
-  {
-    value: "todo",
-    label: "Todo",
-    icon: CircleIcon,
-  },
-  {
-    value: "in progress",
-    label: "In Progress",
+    value: BookingStatus.Pending,
+    label: "Waiting for Payment",
     icon: StopwatchIcon,
   },
   {
-    value: "done",
-    label: "Done",
+    value: BookingStatus.Confirmed,
+    label: "Approved",
     icon: CheckCircledIcon,
   },
   {
-    value: "canceled",
+    value: BookingStatus.Cancelled,
     label: "Canceled",
     icon: CrossCircledIcon,
   },

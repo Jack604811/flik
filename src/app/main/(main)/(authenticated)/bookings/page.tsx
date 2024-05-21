@@ -4,18 +4,21 @@ import { Metadata } from "next"
 import Image from "next/image"
 import { z } from "zod"
 
-import { columns } from "./components/columns"
-import { DataTable } from "./components/data-table"
-import { Task, taskSchema } from "./data/schema"
+import { columns } from "./_components/columns"
+import { DataTable } from "./_components/data-table"
+import { getBookings } from "@/server/actions/booking.action"
+import { getCurrentUser } from "@/server/auth"
+import { Booking } from "./data/schema"
 
 export const metadata: Metadata = {
-  title: "Tasks",
-  description: "A task and issue tracker build using Tanstack Table.",
+  title: "Bookings",
+  description: "A booking tracker for your spots",
 }
 
 
 export default async function TaskPage() {
-  const tasks: Task[] = []
+  const currentUser = await getCurrentUser()
+  const bookings = await getBookings(currentUser!.id) as any as Booking[]
 
   return (
     <>
@@ -28,7 +31,7 @@ export default async function TaskPage() {
             </p>
           </div>
         </div>
-        <DataTable data={tasks} columns={columns} />
+        <DataTable data={bookings} columns={columns} />
       </div>
     </>
   )

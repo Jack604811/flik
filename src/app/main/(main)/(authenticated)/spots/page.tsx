@@ -62,9 +62,9 @@ export default async function Page() {
                       />
                       <Badge
                         variant={
-                          spot.status === "Active"
+                          spot.status === "Public"
                             ? "default"
-                            : spot.status === "Draft"
+                            : spot.status === "Private"
                             ? "secondary"
                             : "destructive"
                         }

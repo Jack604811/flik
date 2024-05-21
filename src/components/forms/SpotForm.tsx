@@ -67,7 +67,7 @@ import {
   deleteSpotImage,
   updateSpot,
 } from "@/server/actions/spot.action";
-import { Spot } from "@prisma/client";
+import { Spot, SpotStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
 import { uploadSpotImage } from "@/server/actions/superbase.action";
 import ConfirmModal from "../confirm-modal";
@@ -76,8 +76,8 @@ const formSchema = z
   .object({
     name: z.string({ required_error: "Spot Name is required" }),
     description: z.string({ required_error: "Spot Description is required" }),
-    status: z.enum(["Draft", "Archived", "Active"]),
-    maxGuest: z.string(),
+    status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
+    maxGuest: z.string().optional(),
     additionalGuestPrice: z.string().optional(),
     allowAdditionalGuest: z.boolean(),
     units: z.string(),
@@ -91,12 +91,18 @@ const formSchema = z
     ),
   })
   .superRefine((data, refineContext) => {
-    if (!!data.allowAdditionalGuest && !data.additionalGuestPrice)
-      return refineContext.addIssue({
+    if (!!data.allowAdditionalGuest && !data.additionalGuestPrice){
+      refineContext.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Required",
         path: ["additionalGuestPrice"],
-      });
+      })
+      refineContext.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["maxGuest"],
+      })
+    }
 
     return refineContext;
   });
@@ -116,7 +122,7 @@ function SpotForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: "Draft",
+      status: "Disabled",
       allowAdditionalGuest: false,
       ...(spot ?? {}),
       maxGuest: spot?.maxGuest ? String(spot?.maxGuest) : "1",
@@ -511,11 +517,9 @@ function SpotForm({
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="Draft">Draft</SelectItem>
-                                  <SelectItem value="Active">Active</SelectItem>
-                                  <SelectItem value="Archived">
-                                    Archived
-                                  </SelectItem>
+                                  <SelectItem value={SpotStatus.Disabled}>Disabled</SelectItem>
+                                  <SelectItem value={SpotStatus.Public}>Public</SelectItem>
+                                  <SelectItem value={SpotStatus.Private}>Private</SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormControl>
