@@ -55,7 +55,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import ImageUpload from "../image-upload";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,13 +73,18 @@ import { Spot, SpotStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
 import { uploadSpotImage } from "@/server/actions/superbase.action";
 import ConfirmModal from "../confirm-modal";
-import { MultiSelect } from "../ui/multiselect";
+import MultiSelect from "../ui/multiselect";
+import { AMENITIES } from "@/lib/constant";
 
 const formSchema = z
   .object({
     name: z.string({ required_error: "Spot Name is required" }),
     description: z.string({ required_error: "Spot Description is required" }),
-    status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
+    status: z.enum([
+      SpotStatus.Disabled,
+      SpotStatus.Public,
+      SpotStatus.Private,
+    ]),
     maxGuest: z.string().optional(),
     additionalGuestPrice: z.string().optional(),
     allowAdditionalGuest: z.boolean(),
@@ -92,19 +97,22 @@ const formSchema = z
         price: z.string(),
       })
     ),
+    amenities: z.array(z.string()),
+    duration: z.string(),
+    durationType: z.string(),
   })
   .superRefine((data, refineContext) => {
-    if (!!data.allowAdditionalGuest && !data.additionalGuestPrice){
+    if (!!data.allowAdditionalGuest && !data.additionalGuestPrice) {
       refineContext.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Required",
         path: ["additionalGuestPrice"],
-      })
+      });
       refineContext.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Required",
         path: ["maxGuest"],
-      })
+      });
     }
 
     return refineContext;
@@ -120,7 +128,9 @@ function SpotForm({
 }) {
   const router = useRouter();
   const [files, setFiles] = useState<(File & { url: string })[]>([]);
-  const [spotImages, setSpotImages] = useState<Record<string, string>[]>(spot?.images ?? []);
+  const [spotImages, setSpotImages] = useState<Record<string, string>[]>(
+    spot?.images ?? []
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -138,6 +148,8 @@ function SpotForm({
           ...w,
           price: String(w.price),
         })) ?? undefined,
+      duration: spot?.duration ? String(spot.duration) : "1",
+      durationType: spot?.durationType ? String(spot.durationType) : "hours",
     },
   });
 
@@ -153,6 +165,7 @@ function SpotForm({
       })),
       units: Number(values.units),
       additionalGuestPrice: Number(values.additionalGuestPrice),
+      duration: Number(values.duration),
     };
 
     const promise = async () => {
@@ -284,30 +297,30 @@ function SpotForm({
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card x-chunk="dashboard-07-chunk-1">
                 <CardHeader>
                   <CardTitle>Working Hours</CardTitle>
                   <CardDescription>
-                  Choose the hours and days of the week you would like the service to be active in. You can choose a default strategy or customise one yourself.
+                    Choose the hours and days of the week you would like the
+                    service to be active in. You can choose a default strategy
+                    or customise one yourself.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                <Table>
+                  <Table>
                     <TableHeader>
                       <TableRow>
-                        
                         <TableHead>Day</TableHead>
                         <TableHead>Open</TableHead>
                         <TableHead>Close</TableHead>
                         <TableHead>Price</TableHead>
-                        <TableHead ></TableHead>
+                        <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody className="gap-2">
                       {fields.map((field, index) => (
                         <TableRow key={index}>
-                          
                           <TableCell className="font-semibold">
                             <Select
                               defaultValue={field.day}
@@ -371,27 +384,23 @@ function SpotForm({
                               prefix="$"
                               step="1"
                               type="number"
-                              
                             />
                           </TableCell>
                           <TableCell>
-                          <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            
-                            <DropdownMenuItem>Clone</DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => remove(index)}>
-                              Delete 
-                           </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Open menu</span>
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem>Clone</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => remove(index)}>
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -423,12 +432,27 @@ function SpotForm({
                 </CardContent>
               </Card>
               <Card>
-              <CardHeader>
+                <CardHeader>
                   <CardTitle>Amenities</CardTitle>
-              </CardHeader>                 
-              <CardContent>
-              <MultiSelect></MultiSelect>
-              </CardContent>      
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="amenities"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelect
+                            selected={field.value}
+                            options={AMENITIES}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
               </Card>
             </div>
             <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
@@ -457,9 +481,15 @@ function SpotForm({
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value={SpotStatus.Disabled}>Disabled</SelectItem>
-                                  <SelectItem value={SpotStatus.Public}>Public</SelectItem>
-                                  <SelectItem value={SpotStatus.Private}>Private</SelectItem>
+                                  <SelectItem value={SpotStatus.Disabled}>
+                                    Disabled
+                                  </SelectItem>
+                                  <SelectItem value={SpotStatus.Public}>
+                                    Public
+                                  </SelectItem>
+                                  <SelectItem value={SpotStatus.Private}>
+                                    Private
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormControl>
@@ -471,7 +501,7 @@ function SpotForm({
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* <Card x-chunk="dashboard-07-chunk-3">
                 <CardHeader>
                   <CardTitle>Path Url</CardTitle>
@@ -512,7 +542,9 @@ function SpotForm({
                             type="button"
                             className="!p-0.5 rounded-full h-auto"
                             variant="destructive"
-                            onClick={() => onDeleteImage([...spotImages, ...files][0], 0)}
+                            onClick={() =>
+                              onDeleteImage([...spotImages, ...files][0], 0)
+                            }
                           >
                             <X size={16} />
                           </Button>
@@ -525,9 +557,7 @@ function SpotForm({
                           width="300"
                         />
                       </div>
-                    ) : (
-                      null
-                    )}
+                    ) : null}
 
                     <div className="grid grid-cols-3 gap-2">
                       {[...(spotImages ?? []), ...files]
@@ -597,29 +627,54 @@ function SpotForm({
                       />
                     </div>
                     <FormItem>
-                            <FormLabel>
-                              Event Duration
-                            </FormLabel>
-                    <div className="grid w-full items-center gap-4 justify-start">
-                      <div className="grid grid-cols-2 items-center gap-2">
-                        <Input 
-                        className="w-full" 
-                        defaultValue="1"
-                        placeholder="Enter a number" 
-                        type="number" />
-                        <Select>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select" defaultValue="Hours" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="hours">Hours</SelectItem>
-                            <SelectItem value="days">Days</SelectItem>
-                            <SelectItem value="months">Months</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <FormLabel>Event Duration</FormLabel>
+                      <div className="grid w-full items-center gap-4 justify-start">
+                        <div className="grid grid-cols-2 items-center gap-2">
+                          <FormField
+                            control={form.control}
+                            name="duration"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...field} type="number" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="durationType"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="hours">
+                                        Hours
+                                      </SelectItem>
+                                      <SelectItem value="days">Days</SelectItem>
+                                      <SelectItem value="months">
+                                        Months
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Set the duration for this action.
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Set the duration for this action.</p>
-                    </div>
                     </FormItem>
                     <div className="flex items-center gap-2">
                       <FormField

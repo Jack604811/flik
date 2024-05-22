@@ -1,160 +1,84 @@
 "use client";
-
-import * as React from "react";
-import {
-  AccessibilityIcon,
-  CameraIcon,
-  CarIcon,
-  ChefHatIcon,
-  MountainSnowIcon,
-  WavesIcon,
-  WifiIcon,
-  WindIcon,
-  X,
-} from "lucide-react";
+import React from "react";
+import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
+import { Option } from "@/types";
 
-type Amenity = {
-  value: string;
-  label: React.ReactNode;
+type Props = {
+  options: Option[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
 };
 
-const AMENITIES: Amenity[] = [
-    {
-        value: "mountain_view",
-        label: (
-          <>
-            <MountainSnowIcon className="w-6 h-6 mr-2" />
-            Mountain view
-          </>
-        ),
-      },
-      {
-        value: "beach_access",
-        label: (
-          <>
-            <WavesIcon className="w-6 h-6 mr-2" />
-            Beach access
-          </>
-        ),
-      },
-      {
-        value: "private_chef",
-        label: (
-          <>
-            <ChefHatIcon className="w-6 h-6 mr-2" />
-            Private chef
-          </>
-        ),
-      },
-      {
-        value: "wifi",
-        label: (
-          <>
-            <WifiIcon className="w-6 h-6 mr-2" />
-            Wifi
-          </>
-        ),
-      },
-      {
-        value: "parking",
-        label: (
-          <>
-            <CarIcon className="w-6 h-6 mr-1" />
-            Parking
-          </>
-        ),
-      },
-      {
-        value: "security_cameras",
-        label: (
-          <>
-            <CameraIcon className="w-6 h-6 mr-2" />
-            Security cameras
-          </>
-        ),
-      },
-      {
-        value: "wheelchair_accessible",
-        label: (
-          <>
-            <AccessibilityIcon className="w-6 h-6 mr-2" />
-            Wheelchair accessible
-          </>
-        ),
-      },
-      {
-        value: "patio",
-        label: (
-          <>
-            <WindIcon className="w-6 h-6 mr-2" />
-            Patio
-          </>
-        ),
-      },
-      
-];
-
-export function MultiSelect() {
+export default function MultiSelect({ options, onChange, selected }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<Amenity[]>([AMENITIES[4]]);
   const [inputValue, setInputValue] = React.useState("");
 
-  const handleUnselect = React.useCallback((amenity: Amenity) => {
-    setSelected(prev => prev.filter(s => s.value !== amenity.value));
-  }, []);
+  const handleUnselect = React.useCallback((amenity: Option) => {
+    onChange(selected.filter((value) => amenity.value !== value));
+  }, [selected]);
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const input = inputRef.current;
       if (!input) return;
-      
+
       if ((e.key === "Delete" || e.key === "Backspace") && input.value === "") {
-        setSelected(prev => prev.slice(0, -1));
+        onChange(selected.slice(0,selected.length - 1));
       }
-      
+
       if (e.key === "Escape") {
         input.blur();
       }
     },
-    []
+    [selected]
   );
 
-  const selectables = AMENITIES.filter(amenity => !selected.includes(amenity));
+  const selectables = options.filter(
+    (option) => !selected.includes(option.value)
+  );
 
   return (
-    <Command onKeyDown={handleKeyDown} className="overflow-visible bg-transparent">
-      <div className="group border border-input px-3 py-2 text-sm ring-offset-background rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-        <div className="flex gap-2 flex-wrap">
-          {selected.map(amenity => (
-            <Badge key={amenity.value} variant="secondary">
-              {amenity.label}
-              <button
-                className="flex justify-between items-center gap-8 ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleUnselect(amenity);
-                  }
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onClick={() => handleUnselect(amenity)}
-              >
-                <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-              </button>
-            </Badge>
-            
-          ))}
-          <CommandPrimitive.Input
+    <>
+      <Command
+        onKeyDown={handleKeyDown}
+        className="overflow-visible bg-transparent"
+      >
+        <div className="group border border-input px-3 py-2 text-sm ring-offset-background rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+          <div className="flex gap-2 flex-wrap">
+            {selected.map((value) => {
+              const option = options.find((option) => option.value === value)!;
+              return (
+                <Badge key={option.value} variant="secondary">
+                  {option.label}
+                  <button
+                    type="button"
+                    className="flex justify-between items-center gap-8 ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleUnselect(option);
+                      }
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={() => handleUnselect(option)}
+                  >
+                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </Badge>
+              );
+            })}
+            <CommandPrimitive.Input
             ref={inputRef}
             value={inputValue}
             onValueChange={setInputValue}
@@ -163,34 +87,35 @@ export function MultiSelect() {
             placeholder="Select amenities..."
             className="ml-2 bg-transparent outline-none placeholder:text-muted-foreground flex-1"
           />
+          </div>
         </div>
-      </div>
-      <div className="relative mt-2">
-        {open && selectables.length > 1 ? (
-          <div className="absolute w-full z-10 top-0 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
-            <CommandGroup className="h-full overflow-auto">
-              {selectables.map((amenity) => {
-                return (
-                  <CommandItem
-                    key={amenity.value}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onSelect={() => {
-                      setInputValue("");
-                      setSelected((prev) => [...prev, amenity]);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {amenity.label}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
+        {open && selectables.length > 0 ? (
+          <div className="relative mt-2">
+            <div className="absolute w-full z-10 top-0 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
+              <CommandEmpty>Option not found...</CommandEmpty>
+              <CommandGroup className="h-full overflow-auto">
+                {selectables.map((option) => {
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onSelect={() => {
+                        onChange([...selected, option.value]);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {option.label}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </div>
           </div>
         ) : null}
-      </div>
-    </Command>
+      </Command>
+    </>
   );
 }

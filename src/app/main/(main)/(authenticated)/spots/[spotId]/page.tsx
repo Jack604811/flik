@@ -2,9 +2,9 @@ import React from 'react';
 import SpotForm from '@/components/forms/SpotForm';
 import { getCurrentUser } from '@/server/auth';
 import { getSpotById } from '@/server/actions/spot.action';
-import { Spot } from '@prisma/client';
 import { redirect } from 'next/navigation';
 
+export const revalidate = 0
 
 async function Page({params: { spotId }}: {params: {spotId: string}}) {
   const currentUser = await getCurrentUser();

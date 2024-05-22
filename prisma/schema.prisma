@@ -66,6 +66,9 @@ model Spot {
   status               SpotStatus
   units                Int?
   maxGuest             Int?
+  duration             Int?
+  durationType         String?
+  amenities            String[]
   allowAdditionalGuest Boolean      @default(false)
   additionalGuestPrice Float?
   workingHours         Json         @default("[]")

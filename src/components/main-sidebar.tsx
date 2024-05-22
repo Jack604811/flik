@@ -5,6 +5,7 @@ import { useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Archive, CreditCard, MapPin, Square, Star, StickyNote, Settings, Zap, Calendar } from "lucide-react";
+import Image from 'next/image';
 
 export const MainSidebar = ()  => {
   const searchParams = useSearchParams();
@@ -16,7 +17,7 @@ export const MainSidebar = ()  => {
     <div className="flex flex-col min-w-[280px] h-screen p-4 gap-10 border-r sticky top-0">
       <Link href="/">
         <div className="flex items-center gap-2">
-          <img 
+          <Image
             src="/assets/logo.svg" 
             alt="logo" 
             height={32} 

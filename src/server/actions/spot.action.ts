@@ -23,10 +23,13 @@ type NEW_SPOT_PARAMS = {
   status: SpotStatus;
   maxGuest: number;
   units: number;
+  duration: number;
+  durationType: string;
   workingHours: any;
   additionalGuestPrice: number;
   allowAdditionalGuest: boolean;
   files: FormData;
+  amenities: string[]
 };
 
 export const createNewSpot = async ({
@@ -39,7 +42,10 @@ export const createNewSpot = async ({
   workingHours,
   additionalGuestPrice,
   allowAdditionalGuest,
+  duration,
+  durationType,
   files,
+  amenities
 }: NEW_SPOT_PARAMS) => {
   const spot = await db.spot.create({
     data: {
@@ -52,6 +58,9 @@ export const createNewSpot = async ({
       workingHours,
       allowAdditionalGuest,
       additionalGuestPrice,
+      duration,
+      durationType,
+      amenities
     },
   });
   await updateSpot({
@@ -65,7 +74,10 @@ export const createNewSpot = async ({
     workingHours,
     additionalGuestPrice,
     allowAdditionalGuest,
+    duration,
+    durationType,
     files,
+    amenities
   });
 
   return spot;
@@ -83,6 +95,9 @@ export const updateSpot = async ({
   allowAdditionalGuest,
   id,
   files,
+  duration,
+  durationType,
+  amenities
 }: NEW_SPOT_PARAMS & { id: string }) => {
   const imageFiles = files.getAll("files") as File[];
   let images = await Promise.all(
@@ -101,6 +116,9 @@ export const updateSpot = async ({
       workingHours,
       allowAdditionalGuest,
       additionalGuestPrice,
+      duration,
+      durationType,
+      amenities,
       images: {
         createMany: { data: images.map((img) => ({ url: img!.url })) },
       },
