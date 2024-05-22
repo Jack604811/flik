@@ -40,6 +40,7 @@ function Subdomain({ subdomain, userId }: { subdomain: string, userId: string })
               defaultValue={subdomain!}
             />
             <Input
+              placeholder="localhost:3000"
               disabled
               readOnly
               value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}

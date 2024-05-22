@@ -66,10 +66,10 @@ export default async function Page() {
                       <Badge
                         variant={
                           spot.status === "Public"
-                            ? "default"
+                            ? "outline"
                             : spot.status === "Private"
-                            ? "secondary"
-                            : "destructive"
+                            ? "outline"
+                            : "outline"
                         }
                         className="h-6 mb-2 px-2 py-0 rounded-2xl"
                       >

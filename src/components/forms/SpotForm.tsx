@@ -73,6 +73,7 @@ import { Spot, SpotStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
 import { uploadSpotImage } from "@/server/actions/superbase.action";
 import ConfirmModal from "../confirm-modal";
+import { MultiSelect } from "../ui/multiselect";
 
 const formSchema = z
   .object({
@@ -283,88 +284,12 @@ function SpotForm({
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Advanced Options</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-3">
-                    <div className="grid gap-3">
-                      <FormField
-                        control={form.control}
-                        name="units"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              Total Units Available for Booking
-                            </FormLabel>
-                            <FormControl>
-                              <Input {...field} type="number" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <FormField
-                        control={form.control}
-                        name="allowAdditionalGuest"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center gap-2">
-                            <FormLabel className="block">
-                              Allow Additional Guests
-                            </FormLabel>
-                            <FormControl>
-                              <Switch
-                                onCheckedChange={field.onChange}
-                                checked={field.value}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    {form.getValues().allowAdditionalGuest && (
-                      <div className="grid gap-3">
-                        <FormField
-                          control={form.control}
-                          name="maxGuest"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Max Guests</FormLabel>
-                              <FormControl>
-                                <Input {...field} type="number" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="additionalGuestPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Price Per Additional Guest</FormLabel>
-                              <FormControl>
-                                <Input {...field} type="number" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              
               <Card x-chunk="dashboard-07-chunk-1">
                 <CardHeader>
                   <CardTitle>Working Hours</CardTitle>
                   <CardDescription>
-                    Lipsum dolor sit amet, consectetur adipiscing elit
+                  Choose the hours and days of the week you would like the service to be active in. You can choose a default strategy or customise one yourself.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -497,6 +422,14 @@ function SpotForm({
                   </Table>
                 </CardContent>
               </Card>
+              <Card>
+              <CardHeader>
+                  <CardTitle>Amenities</CardTitle>
+              </CardHeader>                 
+              <CardContent>
+              <MultiSelect></MultiSelect>
+              </CardContent>      
+              </Card>
             </div>
             <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
               <Card x-chunk="dashboard-07-chunk-3">
@@ -538,6 +471,7 @@ function SpotForm({
                   </div>
                 </CardContent>
               </Card>
+              
               {/* <Card x-chunk="dashboard-07-chunk-3">
                 <CardHeader>
                   <CardTitle>Path Url</CardTitle>
@@ -636,6 +570,107 @@ function SpotForm({
                         <span className="sr-only">Upload</span>
                       </button>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Advanced Options</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    <div className="grid gap-3">
+                      <FormField
+                        control={form.control}
+                        name="units"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Total Units Available for Booking
+                            </FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormItem>
+                            <FormLabel>
+                              Event Duration
+                            </FormLabel>
+                    <div className="grid w-full items-center gap-4 justify-start">
+                      <div className="grid grid-cols-2 items-center gap-2">
+                        <Input 
+                        className="w-full" 
+                        defaultValue="1"
+                        placeholder="Enter a number" 
+                        type="number" />
+                        <Select>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select" defaultValue="Hours" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hours">Hours</SelectItem>
+                            <SelectItem value="days">Days</SelectItem>
+                            <SelectItem value="months">Months</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Set the duration for this action.</p>
+                    </div>
+                    </FormItem>
+                    <div className="flex items-center gap-2">
+                      <FormField
+                        control={form.control}
+                        name="allowAdditionalGuest"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center gap-2">
+                            <FormLabel className="block">
+                              Allow Additional Guests
+                            </FormLabel>
+                            <FormControl>
+                              <Switch
+                                onCheckedChange={field.onChange}
+                                checked={field.value}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    {form.getValues().allowAdditionalGuest && (
+                      <div className="grid gap-3">
+                        <FormField
+                          control={form.control}
+                          name="maxGuest"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Max Guests</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="number" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="additionalGuestPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price Per Additional Guest</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="number" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
