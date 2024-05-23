@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { AutosizeTextarea} from "../ui/textarea";
 import {
   Card,
   CardContent,
@@ -75,6 +75,7 @@ import { uploadSpotImage } from "@/server/actions/superbase.action";
 import ConfirmModal from "../confirm-modal";
 import MultiSelect from "../ui/multiselect";
 import { AMENITIES } from "@/lib/constant";
+
 
 const formSchema = z
   .object({
@@ -284,7 +285,7 @@ function SpotForm({
                           <FormItem>
                             <FormLabel>Description</FormLabel>
                             <FormControl>
-                              <Textarea
+                              <AutosizeTextarea
                                 placeholder="Add a description"
                                 {...field}
                               />
