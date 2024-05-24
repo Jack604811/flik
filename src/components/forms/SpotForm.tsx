@@ -15,6 +15,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card";
@@ -503,30 +504,20 @@ function SpotForm({
                 </CardContent>
               </Card>
 
-              {/* <Card x-chunk="dashboard-07-chunk-3">
-                <CardHeader>
-                  <CardTitle>Path Url</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6">
-                    <div className="grid gap-3">
-                      <Label htmlFor="status">Assign a path to share</Label>
-                      <Input
-                        className="w-full"
-                        id="name"
-                        defaultValue=""
-                        placeholder="my-spot"
-                        type="text"
-                      />
-                      <div className="flex flex-row items-center gap-2">
-                        <Link href="#" className="underline">
-                          website.com/my-spot
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card> */}
+              <Card className="w-full max-w-lg">
+      <CardHeader>
+        <CardTitle>Path Url</CardTitle>
+        <CardDescription>This is your URL for this spot.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex rounded-md shadow-sm">
+          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+            localhost:3000/
+          </span>
+          <Input className="flex-1 block w-full rounded-none rounded-r-md" placeholder="spot-url" />
+        </div>
+      </CardContent>
+    </Card>
               <Card className="overflow-hidden" x-chunk="dashboard-07-chunk-4">
                 <CardHeader>
                   <CardTitle>Images</CardTitle>

@@ -44,7 +44,7 @@ function Subdomain({ subdomain, userId }: { subdomain: string, userId: string })
               disabled
               readOnly
               value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-              className="rounded-s-none w-4/6"
+              className="rounded-s-none w-4/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
             />
           </div>
         </CardContent>

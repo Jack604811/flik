@@ -61,13 +61,13 @@ export default async function Page({ params }: { params: { domain: string } }) {
                 Featured Spots
               </h2>
               <p className="mt-4 text-gray-500">
-                Discover the most popular spots.
+                Discover our most popular spots.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {siteData?.spots.slice(0).map((spot) => (
                 <div
-                  className="overflow-hidden rounded-lg shadow-lg"
+                  className="group relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   key={spot.id}
                 >
                   <Image
@@ -93,7 +93,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
                         className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         href={`/${spot.id}`}
                       >
-                        Learn More
+                        Explore
                       </Link>
                     </div>
                   </div>

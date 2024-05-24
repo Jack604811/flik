@@ -22,7 +22,7 @@ export default function SpotDetails({
     const todayWorkingHour = workingHours.find(w => w.day === moment().format("dddd"))
     return (
       <div key="1" className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
-        <section className="relative bg-gray-100 dark:bg-gray-800">
+        <section className="relative bg-gray-100 dark:bg-gray-800 rounded-xl">
           <div className="grid sm:grid-cols-4 gap-2">
             <div className="col-span-2 row-span-2 relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl sm:rounded-l-xl overflow-hidden dark:focus-visible:ring-gray-300">
               <Image
@@ -37,7 +37,7 @@ export default function SpotDetails({
             {spot.images.slice(1).map((image) => (
               <div
                 key={image.id}
-                className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-tl-xl overflow-hidden dark:focus-visible:ring-gray-300"
+                className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300"
               >
                 <Image
                   alt="Property Image 2"
@@ -51,7 +51,7 @@ export default function SpotDetails({
           </div>
         </section>
         <section className="py-8 grid md:grid-cols-2 lg:grid-cols-[1fr_400px] gap-8 sm:gap-12 md:gap-16 items-start">
-          <div className="grid gap-8">
+          <div className="grid gap-4">
             <div className="hidden md:flex flex-col gap-1">
               <h2 className="text-3xl font-semibold">{spot.name}</h2>
             </div>
