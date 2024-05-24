@@ -1,5 +1,4 @@
 import { Option } from "@/types"
-import { access } from "fs"
 import { MountainSnowIcon, Mountain, WavesIcon, ChefHatIcon, WifiIcon, Wifi, CarIcon, CameraIcon, AccessibilityIcon, WindIcon } from "lucide-react"
 
 export const AMENITIES: Option[] = [

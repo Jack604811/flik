@@ -17,7 +17,7 @@ type Props = {
   onChange: (selected: string[]) => void;
 };
 
-export default function MultiSelect({ options, onChange, selected }: Props) {
+export default function MultiSelect({ options, onChange, selected=[] }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");

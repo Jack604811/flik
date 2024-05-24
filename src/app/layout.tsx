@@ -81,7 +81,7 @@ export default function RootLayout({
         </head>
         <CrispWithNoSSR />
         <body>
-          <ThemeProvider attribute="class" defaultTheme="dark">
+          <ThemeProvider attribute="class" defaultTheme="light">
             <NextTopLoader />
             <Toaster position="top-center" />
             {children}

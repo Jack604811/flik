@@ -20,7 +20,7 @@ function Subdomain({ subdomain, userId }: { subdomain: string, userId: string })
     toast.promise(promise, {
         loading: "Saving...",
         success: "Subdomain Updated Successfully!",
-        error: "There was an error updating subdomain!"
+        error: "Subdomain already taken!"
     })
   };
   return (
