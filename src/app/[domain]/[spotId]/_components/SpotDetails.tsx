@@ -173,9 +173,41 @@ export default function SpotDetails({
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="max-w-md my-4 p-0 space-y-4">
+      <h2 className="text-xl font-bold">Select a Time Slot</h2>
+      <div className="grid grid-cols-3 gap-2">
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
+          9:00 AM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
+          10:00 AM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
+          11:00 AM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
+          12:00 PM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
+          1:00 PM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
+          2:00 PM
+        </button>
+        <button className="bg-primary text-white hover:bg-primary-700 rounded-md py-2 px-4 transition-colors">
+          3:00 PM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-4 transition-colors">
+          4:00 PM
+        </button>
+        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-4 transition-colors">
+          5:00 PM
+        </button>
+      </div>
+    </div>
                   <div>
                     <Button className="w-full h-12 mt-3" size="lg">
-                      Reserve
+                      Continue
                     </Button>
                   </div>
                   <div className="text-sm text-gray-500 text-center dark:text-gray-400">

@@ -1,76 +1,62 @@
-import * as React from "react";
-import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { Column } from "@tanstack/react-table";
-import { DateRangePicker } from "rsuite";
-import { addDays } from "date-fns";
+"use client"
 
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
+import * as React from "react"
+import { addDays, format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { daDK } from "rsuite/esm/locales";
+} from "@/components/ui/popover"
 
-interface DataTableDateFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>;
-  title?: string;
-}
-
-const predefinedRanges = [
-  {
-    label: "Today",
-    value: [new Date(), new Date()],
-    placement: "left",
-  },
-  {
-    label: "Yesterday",
-    value: [addDays(new Date(), -1), addDays(new Date(), -1)],
-    placement: "left",
-  },
-  {
-    label: "Last 7 Days",
-    value: [addDays(new Date(), -7), new Date()],
-    placement: "left",
-  },
-  {
-    label: "Last 30 Days",
-    value: [addDays(new Date(), -30), new Date()],
-    placement: "left",
-  },
-];
-
-export function DataTableDateFilter<TData, TValue>({
-  column,
-  title,
-}: DataTableDateFilterProps<TData, TValue>) {
-  const selectedValue = column?.getFilterValue() as [Date, Date] | null;
+export function DataTableDateFilter({
+  className,
+}: React.HTMLAttributes<HTMLDivElement>) {
+  const [date, setDate] = React.useState<DateRange | undefined>()
 
   return (
-    <>
-      <DateRangePicker
-        showHeader={false}
-        showOneCalendar
-        ranges={predefinedRanges as any}
-        format="MM/dd/yyyy HH:mm"
-        editable={false}
-        placeholder={title}
-        value={selectedValue??null}
-        defaultValue={selectedValue??null}
-        onChange={(v) =>column?.setFilterValue(v)}
-      />
-    </>
-  );
+    <div className={cn("grid gap-2", className)}>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "LLL dd, y")} -{" "}
+                  {format(date.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(date.from, "LLL dd, y")
+              )
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={setDate}
+            numberOfMonths={1}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
 }

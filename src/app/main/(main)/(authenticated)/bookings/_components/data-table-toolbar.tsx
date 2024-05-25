@@ -29,8 +29,15 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("guest")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-10 w-[150px] lg:w-[250px]"
         />
+        
+        {table.getColumn("createdAt") && (
+          <DataTableDateFilter
+            
+            title="Booking Date"
+          />
+        )}
         {table.getColumn("status") && (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
@@ -38,17 +45,11 @@ export function DataTableToolbar<TData>({
             options={statuses}
           />
         )}
-        {table.getColumn("createdAt") && (
-          <DataTableDateFilter
-            column={table.getColumn("createdAt")}
-            title="Booking Date"
-          />
-        )}
         {isFiltered && (
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
+            className="h-10 px-2 lg:px-3"
           >
             Reset
             <Cross2Icon className="ml-2 h-4 w-4" />

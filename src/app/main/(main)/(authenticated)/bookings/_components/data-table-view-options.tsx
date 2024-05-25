@@ -27,7 +27,7 @@ export function DataTableViewOptions<TData>({
         <Button
           variant="default"
           size="sm"
-          className="ml-auto hidden h-8 lg:flex"
+          className="ml-auto hidden h-10 lg:flex"
         >
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           New Booking
