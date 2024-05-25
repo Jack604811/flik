@@ -50,7 +50,7 @@ export default function SpotDetails({
             ))}
           </div>
         </section>
-        <section className="py-8 grid md:grid-cols-2 lg:grid-cols-[1fr_400px] gap-8 sm:gap-12 md:gap-16 items-start">
+        <section className="py-8 grid md:grid-cols-2 lg:grid-cols-[1fr_360px] gap-8 sm:gap-12 md:gap-16 items-start">
           <div className="grid gap-4">
             <div className="hidden md:flex flex-col gap-1">
               <h2 className="text-3xl font-semibold">{spot.name}</h2>
@@ -123,88 +123,52 @@ export default function SpotDetails({
             </div>
             <Card>
               <CardHeader>
-                <CardTitle>
-                  ${todayWorkingHour?.price}
+                <CardTitle className="flex justify-center gap-8">
+                  Check Availability {todayWorkingHour?.price}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-6">
+              <CardContent className="grid gap-6 justify-center">
                 <form>
-                  <div className="grid gap-2">
-                    <div className="flex gap-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            className="w-full flex-col h-auto items-start"
-                            variant="outline"
-                          >
-                            <span className="font-semibold uppercase text-[0.65rem]">
-                              Check in
-                            </span>
-                            <span className="font-normal">4/2/2024</span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0 max-w-[276px]">
-                          <Calendar mode="single" onSelect={console.log} />
-                        </PopoverContent>
-                      </Popover>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            className="w-full flex-col h-auto items-start"
-                            variant="outline"
-                          >
-                            <span className="font-semibold uppercase text-[0.65rem]">
-                              Check out
-                            </span>
-                            <span className="font-normal">10/2/2024</span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0 max-w-[276px]">
-                          <Calendar />
-                        </PopoverContent>
-                      </Popover>
+                  <div className="grid gap-2 ">
+              <Calendar
+                className="p-0 hidden xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
+                mode="range"
+                numberOfMonths={1}
+              />
+              <Calendar className="flex xl:hidden p-0" />
+                </div>
+                <div className="max-w-md my-4 p-0 space-y-4">
+                    <h2 className="text-md font-bold">Select a Time Slot</h2>
+                    <div className="grid grid-cols-3 gap-2">
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    9:00 AM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    10:00 AM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    11:00 AM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    12:00 PM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    1:00 PM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    2:00 PM
+                  </button>
+                  <button className="text-sm bg-primary text-white hover:bg-primary-700 rounded-md py-1 px-2 transition-colors">
+                    3:00 PM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    4:00 PM
+                  </button>
+                  <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                    5:00 PM
+                  </button>
+                      </div>
                     </div>
-                    <Select>
-                      <SelectContent>
-                        <SelectItem value="1">1 adult</SelectItem>
-                        <SelectItem value="2">2 adults</SelectItem>
-                        <SelectItem value="3">2 adults + 1 child</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="max-w-md my-4 p-0 space-y-4">
-      <h2 className="text-xl font-bold">Select a Time Slot</h2>
-      <div className="grid grid-cols-3 gap-2">
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
-          9:00 AM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
-          10:00 AM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
-          11:00 AM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
-          12:00 PM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
-          1:00 PM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-2 transition-colors">
-          2:00 PM
-        </button>
-        <button className="bg-primary text-white hover:bg-primary-700 rounded-md py-2 px-4 transition-colors">
-          3:00 PM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-4 transition-colors">
-          4:00 PM
-        </button>
-        <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-2 px-4 transition-colors">
-          5:00 PM
-        </button>
-      </div>
-    </div>
                   <div>
                     <Button className="w-full h-12 mt-3" size="lg">
                       Continue
