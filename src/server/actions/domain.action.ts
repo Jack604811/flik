@@ -31,8 +31,8 @@ export const getSiteSpotData = async (domain: string, spotId:string) => {
 
   const fetcher = unstable_cache(
     async () =>
-      db.spot.findUnique({
-        where: {id: spotId, owner: subdomain ? { subdomain } : { customDomain: domain }, status: SpotStatus.Public},
+      db.spot.findFirst({
+        where: { OR: [{id: spotId}, {path: spotId}], owner: subdomain ? { subdomain } : { customDomain: domain }, status: SpotStatus.Public},
         include: { images: true, owner: true },
       }),
     [`${domain}-${spotId}-metadata`],

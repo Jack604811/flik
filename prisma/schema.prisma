@@ -55,6 +55,9 @@ model User {
   oneTimeProducts OneTimeProduct[]
   spots           Spot[]
   guests          Guest[]
+  siteName        String?
+  logo            String?
+  favicon         String?
   subdomain       String?          @unique
   customDomain    String?          @unique
 }
@@ -64,6 +67,7 @@ model Spot {
   name                 String
   description          String
   status               SpotStatus
+  path                 String     @default("")
   units                Int?
   maxGuest             Int?
   duration             Int?
@@ -107,7 +111,7 @@ model Guest {
   email    String
   phone    String
   address  String?
-  owner    User  @relation(fields: [ownerId], references: [id])
+  owner    User      @relation(fields: [ownerId], references: [id])
   ownerId  String
   bookings Booking[]
 }

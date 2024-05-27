@@ -1,5 +1,5 @@
 import supabase from "../helpers/supabase";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 export const uploadSpotImage = async ({
   file,
   spotId,
@@ -10,13 +10,13 @@ export const uploadSpotImage = async ({
   userId: string;
 }) => {
   const { data, error } = await supabase.storage
-  .from("spots")
-  .upload(`${userId}/${spotId}/${uuidv4()}_${file.name}`, file);
-  if(error) return null;
-  return {url: supabase.storage.from("spots").getPublicUrl(data!.path).data.publicUrl}
-
-}
-  
+    .from("spots")
+    .upload(`${userId}/${spotId}/${uuidv4()}_${file.name}`, file);
+  if (error) return null;
+  return {
+    url: supabase.storage.from("spots").getPublicUrl(data!.path).data.publicUrl,
+  };
+};
 
 export const getSpotImages = async ({
   userId,
@@ -40,21 +40,39 @@ export const getSpotImages = async ({
   return images;
 };
 
-
-export const deleteSpotImages = async({
+export const deleteSpotImages = async ({
   userId,
   spotId,
 }: {
   userId: string;
   spotId: string;
-}) =>  supabase.storage.from("spots").remove([`${userId}/${spotId}`])
+}) => supabase.storage.from("spots").remove([`${userId}/${spotId}`]);
 
-export const deleteSpotImageSB = async({
+export const deleteSpotImageSB = async ({
   userId,
   spotId,
-  id
+  id,
 }: {
   userId: string;
   spotId: string;
-  id: string
-}) => supabase.storage.from("spots").remove([`${userId}/${spotId}/${id}`])
+  id: string;
+}) => supabase.storage.from("spots").remove([`${userId}/${spotId}/${id}`]);
+
+export const uploadSiteImage = async (
+  userId: string,
+  fileName: string,
+  file: File
+) =>{
+  const url = await supabase.storage
+  .from("sites")
+  .upload(`${userId}/${fileName}`, file, { upsert: true })
+  .then(({ data, error }) => {
+    console.log(data, error)
+    if (!data?.path) return null;
+    return supabase.storage.from("sites").getPublicUrl(`${userId}/${fileName}`)
+      .data.publicUrl;
+  });
+
+  console.log(url)
+  return url
+}

@@ -1,0 +1,67 @@
+"use client";
+import React, { FormEvent } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { updateSiteSetting } from "@/server/actions/user.action";
+import { Label } from "@/components/ui/label";
+
+function SiteSettings({
+  userId,
+  siteName,
+}: {
+  userId: string;
+  siteName: string | null | undefined;
+}) {
+  const onSave = async (formData: FormData) => {
+    const siteName = formData.get("siteName") as string;
+    if (!siteName.length) return toast.error("Site name should not be empty!");
+    const promise = updateSiteSetting(userId, formData);
+    toast.promise(promise, {
+      loading: "Saving...",
+      success: "Site Settings Saved Successfully!",
+      error: "There was a problem saving site settings!",
+    });
+  };
+  return (
+    <Card className="w-full max-w-md">
+      <form action={onSave}>
+        <CardHeader>
+          <h2 className="text-2xl">Site Settings</h2>
+          <CardDescription>Update your site information.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="siteName">App Name</Label>
+            <Input
+              defaultValue={siteName??""}
+              id="siteName"
+              name="siteName"
+              placeholder="Enter site name"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="logo">Logo</Label>
+            <Input id="logo" name="logo" type="file" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="favicon">Favicon</Label>
+            <Input id="favicon" name="favicon" type="file" />
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button type="submit">Save Changes</Button>
+        </CardFooter>
+      </form>
+    </Card>
+  );
+}
+
+export default SiteSettings;

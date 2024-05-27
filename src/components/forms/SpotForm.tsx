@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { AutosizeTextarea} from "../ui/textarea";
+import { AutosizeTextarea } from "../ui/textarea";
 import {
   Card,
   CardContent,
@@ -76,7 +76,7 @@ import { uploadSpotImage } from "@/server/actions/superbase.action";
 import ConfirmModal from "../confirm-modal";
 import MultiSelect from "../ui/multiselect";
 import { AMENITIES } from "@/lib/constant";
-
+import { env } from "@/env";
 
 const formSchema = z
   .object({
@@ -102,6 +102,7 @@ const formSchema = z
     amenities: z.array(z.string()),
     duration: z.string(),
     durationType: z.string(),
+    path: z.string().optional()
   })
   .superRefine((data, refineContext) => {
     if (!!data.allowAdditionalGuest && !data.additionalGuestPrice) {
@@ -505,19 +506,35 @@ function SpotForm({
               </Card>
 
               <Card className="w-full max-w-lg">
-      <CardHeader>
-        <CardTitle>Path Url</CardTitle>
-        <CardDescription>This is your URL for this spot.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex rounded-md shadow-sm">
-          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-            localhost:3000/
-          </span>
-          <Input className="flex-1 block w-full rounded-none rounded-r-md" placeholder="spot-url" />
-        </div>
-      </CardContent>
-    </Card>
+                <CardHeader>
+                  <CardTitle>Path Url</CardTitle>
+                  <CardDescription>
+                    This is your URL for this spot.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex rounded-md shadow-sm">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                      {env.NEXT_PUBLIC_ROOT_DOMAIN}/
+                    </span>
+                    <FormField
+                      control={form.control}
+                      name="path"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              className="flex-1 block w-full rounded-none rounded-r-md"
+                              placeholder="spot-url"
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
               <Card className="overflow-hidden" x-chunk="dashboard-07-chunk-4">
                 <CardHeader>
                   <CardTitle>Images</CardTitle>

@@ -4,6 +4,7 @@ import { getSiteData } from "@/server/actions/domain.action";
 import Image from "next/image";
 import { env } from "@/env";
 import { Mountain } from "lucide-react";
+import Head from "next/head";
 
 export default async function Page({ params }: { params: { domain: string } }) {
   const domain = decodeURIComponent(params.domain);
@@ -91,7 +92,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
                     <div className="mt-4">
                       <Link
                         className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        href={`/${spot.id}`}
+                        href={`/${spot.path ? spot.path : spot.id}`}
                       >
                         Explore
                       </Link>
@@ -104,20 +105,37 @@ export default async function Page({ params }: { params: { domain: string } }) {
         </section>
       )}
 
-      {/* <footer className="bg-gray-900 py-8 text-white">
+      <footer className="bg-gray-900 py-8 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between md:flex-row">
             <div className="mb-4 md:mb-0">
-              <Link className="flex items-center" href="#">
-                <Mountain className="h-6 w-6 text-indigo-600" />
-                <span className="ml-2 text-lg font-bold">Travel</span>
+              <Link className="flex items-center" href="/">
+                {siteData?.logo ? (
+                  <>
+                  <Image
+                    width={50}
+                    height={50}
+                    src={siteData.logo}
+                    alt={siteData.siteName!}
+                  />
+                  <span className="ml-2 text-lg font-bold">
+                      {siteData?.siteName ?? ""}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="ml-2 text-lg font-bold">
+                      {siteData?.siteName ?? ""}
+                    </span>
+                  </>
+                )}
               </Link>
             </div>
             <div className="flex flex-col items-center space-y-4 md:flex-row md:space-y-0 md:space-x-8">
-              <Link className="text-gray-400 hover:text-white" href="#">
+              <Link className="text-gray-400 hover:text-white" href="/">
                 Home
               </Link>
-              <Link className="text-gray-400 hover:text-white" href="#">
+              {/* <Link className="text-gray-400 hover:text-white" href="#">
                 Destinations
               </Link>
               <Link className="text-gray-400 hover:text-white" href="#">
@@ -125,14 +143,14 @@ export default async function Page({ params }: { params: { domain: string } }) {
               </Link>
               <Link className="text-gray-400 hover:text-white" href="#">
                 Contact
-              </Link>
+              </Link> */}
             </div>
           </div>
           <div className="mt-8 text-center text-gray-400">
             © 2024 Travel. All rights reserved.
           </div>
         </div>
-      </footer> */}
+      </footer>
     </div>
   );
 }

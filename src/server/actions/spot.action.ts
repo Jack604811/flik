@@ -29,7 +29,8 @@ type NEW_SPOT_PARAMS = {
   additionalGuestPrice: number;
   allowAdditionalGuest: boolean;
   files: FormData;
-  amenities: string[]
+  amenities: string[],
+  path?:string
 };
 
 export const createNewSpot = async ({
@@ -45,7 +46,8 @@ export const createNewSpot = async ({
   duration,
   durationType,
   files,
-  amenities
+  amenities,
+  path
 }: NEW_SPOT_PARAMS) => {
   const spot = await db.spot.create({
     data: {
@@ -60,7 +62,8 @@ export const createNewSpot = async ({
       additionalGuestPrice,
       duration,
       durationType,
-      amenities
+      amenities,
+      path
     },
   });
   await updateSpot({
@@ -77,7 +80,8 @@ export const createNewSpot = async ({
     duration,
     durationType,
     files,
-    amenities
+    amenities,
+    path
   });
 
   return spot;
@@ -97,7 +101,8 @@ export const updateSpot = async ({
   files,
   duration,
   durationType,
-  amenities
+  amenities,
+  path
 }: NEW_SPOT_PARAMS & { id: string }) => {
   const imageFiles = files.getAll("files") as File[];
   let images = await Promise.all(
@@ -119,6 +124,7 @@ export const updateSpot = async ({
       duration,
       durationType,
       amenities,
+      path,
       images: {
         createMany: { data: images.map((img) => ({ url: img!.url })) },
       },
