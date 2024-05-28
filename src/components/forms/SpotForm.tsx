@@ -96,13 +96,13 @@ const formSchema = z
         day: z.string(),
         openTime: z.string(),
         closeTime: z.string(),
-        price: z.string(),
+        price: z.string().transform((val) => Number(val)),
       })
     ),
     amenities: z.array(z.string()),
     duration: z.string(),
     durationType: z.string(),
-    path: z.string().optional()
+    path: z.string().optional(),
   })
   .superRefine((data, refineContext) => {
     if (!!data.allowAdditionalGuest && !data.additionalGuestPrice) {
@@ -146,11 +146,7 @@ function SpotForm({
       additionalGuestPrice: spot?.additionalGuestPrice
         ? String(spot?.additionalGuestPrice)
         : undefined,
-      workingHours:
-        (spot?.workingHours as Array<Record<string, string>>)?.map((w) => ({
-          ...w,
-          price: String(w.price),
-        })) ?? undefined,
+      workingHours: (spot?.workingHours as Record<string, any>[]) ?? [],
       duration: spot?.duration ? String(spot.duration) : "1",
       durationType: spot?.durationType ? String(spot.durationType) : "hours",
     },
@@ -419,7 +415,7 @@ function SpotForm({
                             onClick={() =>
                               append({
                                 day: "",
-                                price: "",
+                                price: 0,
                                 openTime: "",
                                 closeTime: "",
                               })
@@ -527,6 +523,11 @@ function SpotForm({
                               className="flex-1 block w-full rounded-none rounded-r-md"
                               placeholder="spot-url"
                               {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/[^A-Za-z0-9]+/g, "-")
+                                )
+                              }
                             />
                           </FormControl>
                         </FormItem>
