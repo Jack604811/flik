@@ -9,6 +9,7 @@ import { priorities, statuses } from "../data/data"
 import { Booking } from "../data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
+import moment from "moment"
 
 export const columns: ColumnDef<Booking>[] = [
   {
@@ -40,7 +41,7 @@ export const columns: ColumnDef<Booking>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Booking #" />
     ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="w-[80px] truncate">{row.getValue("id")}</div>,
     enableSorting: false,
     enableHiding: false,
   },
@@ -53,7 +54,7 @@ export const columns: ColumnDef<Booking>[] = [
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            {row.original.guest.name}
+            {row.original.guest?.name}
           </span>
         </div>
       )
@@ -95,7 +96,7 @@ export const columns: ColumnDef<Booking>[] = [
 
       return (
         <div className="flex items-center">
-          <span>{row.getValue("createdAt")}</span>
+          <span>{ moment( row.getValue("createdAt")).format("MM/DD/YYYY hh:mm A")}</span>
         </div>
       )
     },

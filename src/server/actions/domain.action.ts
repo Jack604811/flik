@@ -13,7 +13,12 @@ export const getSiteData = async (domain: string) => {
     async () =>
       db.user.findUnique({
         where: subdomain ? { subdomain } : { customDomain: domain },
-        include: { spots: { where: { status: SpotStatus.Public }, include: {images: true} } },
+        include: {
+          spots: {
+            where: { status: SpotStatus.Public },
+            include: { images: true },
+          },
+        },
       }),
     [`${domain}-metadata`],
     {
@@ -24,7 +29,7 @@ export const getSiteData = async (domain: string) => {
 
   return await fetcher();
 };
-export const getSiteSpotData = async (domain: string, spotId:string) => {
+export const getSiteSpotData = async (domain: string, spotId: string) => {
   const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
     ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
     : null;
@@ -32,7 +37,11 @@ export const getSiteSpotData = async (domain: string, spotId:string) => {
   const fetcher = unstable_cache(
     async () =>
       db.spot.findFirst({
-        where: { OR: [{id: spotId}, {path: spotId}], owner: subdomain ? { subdomain } : { customDomain: domain }, status: SpotStatus.Public},
+        where: {
+          OR: [{ id: spotId }, { path: spotId }],
+          owner: subdomain ? { subdomain } : { customDomain: domain },
+          status: SpotStatus.Public,
+        },
         include: { images: true, owner: true },
       }),
     [`${domain}-${spotId}-metadata`],
@@ -43,4 +52,21 @@ export const getSiteSpotData = async (domain: string, spotId:string) => {
   );
 
   return await fetcher();
+};
+
+export const getSpotBooking = async (domain: string, bookingId: string) => {
+  domain = decodeURIComponent(domain);
+  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
+    : null;
+
+  const booking = await db.booking.findFirst({
+    where: {
+      id: bookingId,
+      spot: { owner: subdomain ? { subdomain } : { customDomain: domain } },
+    },
+    include: {guest: true, spot: {select: {name: true, description: true}}}
+  });
+
+  return booking;
 };

@@ -54,7 +54,6 @@ model User {
   subscriptionId  String?
   oneTimeProducts OneTimeProduct[]
   spots           Spot[]
-  guests          Guest[]
   siteName        String?
   logo            String?
   favicon         String?
@@ -67,7 +66,7 @@ model Spot {
   name                 String
   description          String
   status               SpotStatus
-  path                 String     @default("")
+  path                 String       @default("")
   units                Int?
   maxGuest             Int?
   duration             Int?
@@ -97,12 +96,12 @@ model Booking {
   tax        Float?
   totalPrice Float
   status     BookingStatus
-  guest      Guest         @relation(fields: [guestId], references: [id])
-  guestId    String
+  guest      Guest?        @relation(fields: [guestId], references: [id])
+  guestId    String?
   spot       Spot          @relation(fields: [spotId], references: [id])
   spotId     String // Foreign key referencing Spot's id
   createdAt  DateTime      @default(now())
-  deletedAt  DateTime
+  deletedAt  DateTime?
 }
 
 model Guest {
@@ -110,9 +109,9 @@ model Guest {
   name     String
   email    String
   phone    String
+  dni      String
   address  String?
-  owner    User      @relation(fields: [ownerId], references: [id])
-  ownerId  String
+  note     String    @default("")
   bookings Booking[]
 }
 

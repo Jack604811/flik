@@ -12,11 +12,14 @@ import {
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
+import { addBooking } from "@/server/actions/booking.action";
 import { Spot, SpotImages, User } from "@prisma/client";
 import moment from "moment";
 import Image from "next/image";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 import { DateRange } from "react-day-picker";
+import { toast } from "sonner";
 import { v4 } from "uuid";
 
 export default function SpotDetails({
@@ -24,6 +27,7 @@ export default function SpotDetails({
 }: {
   spot: Spot & { owner: User; images: SpotImages[] };
 }) {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<
     Date | DateRange | undefined
   >();
@@ -34,9 +38,73 @@ export default function SpotDetails({
     start: string;
     end: string;
   }[] = spot.workingHours as any;
-  const todayWorkingHour = workingHours.find(
-    (w) => w.day === moment().format("dddd")
-  );
+
+  const calculateDays = (
+    selectedDate: Date | DateRange | undefined
+  ): number => {
+    if (!selectedDate) return 0;
+
+    if ("from" in selectedDate && "to" in selectedDate) {
+      return (
+        moment(selectedDate.to).diff(moment(selectedDate.from), "days") + 1
+      );
+    }
+
+    return 1; // If it's a single date
+  };
+
+  const getDatesArray = (
+    selectedDate: Date | DateRange | undefined
+  ): Date[] => {
+    if (!selectedDate) return [];
+
+    if ("from" in selectedDate && "to" in selectedDate) {
+      const startDate = moment(selectedDate.from);
+      const endDate = moment(selectedDate.to);
+      const days: Date[] = [];
+      for (
+        let date = startDate;
+        date.isSameOrBefore(endDate);
+        date.add(1, "day")
+      ) {
+        days.push(date.toDate());
+      }
+      return days;
+    }
+
+    return [selectedDate as Date]; // If it's a single date
+  };
+
+  const getPriceForDay = (day: string): number => {
+    const workingHour = workingHours?.find((wh) => wh.day === day);
+    console.log(day, workingHour, workingHours);
+    return workingHour ? workingHour.price : 0;
+  };
+
+  const calculateSubtotal = (
+    selectedDate: Date | DateRange | undefined
+  ): number => {
+    const days = getDatesArray(selectedDate);
+    return days.reduce((total, date) => {
+      const dayOfWeek = moment(date).format("dddd");
+      return total + getPriceForDay(dayOfWeek);
+    }, 0);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const total = calculateSubtotal(selectedDate);
+      const booking = await addBooking({
+        subtotal: total,
+        totalPrice: total,
+        spotId: spot.id,
+      });
+      router.push(`/booking/${booking.id}`);
+    } catch (error: any) {
+      toast.error(`There was an error adding booking ${error?.message}`);
+    }
+  };
 
   return (
     <div key="1" className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
@@ -144,18 +212,11 @@ export default function SpotDetails({
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-6 justify-center">
-              <form action={`/booking/${spot.id}/${v4()}`}>
+              <form onSubmit={handleSubmit}>
                 <div className="grid gap-2 ">
                   <Calendar
                     className="p-0 hidden xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
-                    mode={
-                      spot.durationType === "hours"
-                        ? "single"
-                        : spot.durationType === "days" &&
-                          (spot.duration ?? 0) <= 1
-                        ? "single"
-                        : "range"
-                    }
+                    mode={spot.durationType === "hours" ? "single" : "range"}
                     numberOfMonths={1}
                     defaultMonth={(selectedDate as DateRange)?.from}
                     onSelect={setSelectedDate}
@@ -164,9 +225,7 @@ export default function SpotDetails({
                   />
                   {/* <Calendar className="flex xl:hidden p-0" /> */}
                 </div>
-                {(spot.durationType === "hours" ||
-                  (spot.durationType === "days" &&
-                    (spot.duration ?? 0) <= 1)) && (
+                {spot.durationType === "hours" && (
                   <div className="max-w-md my-4 p-0 space-y-4">
                     <h2 className="text-md font-bold">Select a Time Slot</h2>
                     <div className="grid grid-cols-3 gap-2">
@@ -213,33 +272,15 @@ export default function SpotDetails({
               <div className="grid gap-4">
                 <div className="flex justify-between items-center">
                   <div className="text-gray-500 dark:text-gray-400">
-                    ${todayWorkingHour?.price} x{" "}
-                    {(selectedDate as any)?.to
-                      ? moment((selectedDate as any).from).to(
-                          (selectedDate as any).to,
-                          true
-                        )
-                      : "a day"}
+                    Subtotal for {calculateDays(selectedDate)} day(s)
                   </div>
-                  <div>
-                    $
-                    {todayWorkingHour?.price ??
-                      0 *
-                        Number(
-                          (selectedDate as any)?.to
-                            ? moment((selectedDate as any).from)
-                                .to((selectedDate as any).to, true)
-                                .replace(" days", "")
-                                .replace("a day", "1")
-                            : "2"
-                        )}
-                  </div>
+                  <div>${calculateSubtotal(selectedDate)}</div>
                 </div>
               </div>
               <Separator />
               <div className="flex justify-between items-center">
                 <div className="font-semibold">Total before taxes</div>
-                <div>${todayWorkingHour?.price ?? 0 * 1}</div>
+                <div>${calculateSubtotal(selectedDate)}</div>
               </div>
             </CardContent>
           </Card>

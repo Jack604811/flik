@@ -1,8 +1,4 @@
-import { promises as fs } from "fs"
-import path from "path"
 import { Metadata } from "next"
-import Image from "next/image"
-import { z } from "zod"
 
 import { columns } from "./_components/columns"
 import { DataTable } from "./_components/data-table"
@@ -18,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function TaskPage() {
   const currentUser = await getCurrentUser()
-  const bookings = await getBookings(currentUser!.id) as any as Booking[]
+  const bookings = await getBookings(currentUser!.id) as any
 
   return (
     <>

@@ -1,17 +1,18 @@
-"use client"
-import { useState } from "react";
+import moment from "moment";
 import BookingInfo from "./info";
+import { getSpotBooking } from "@/server/actions/domain.action";
 
-export default function Page({
+export default async function Page({
   params,
 }: {
-  params: { spotId: string; bookingId: string };
+  params: { domain: string; bookingId: string };
 }) {
-  const [completed, setCompleted] = useState(false);
+  const booking = await getSpotBooking(params.domain, params.bookingId);
   return (
     <>
-      
-      {!completed ? (<BookingInfo onCompleted={setCompleted} />) : (
+      {!booking?.guestId ? (
+        <BookingInfo booking={booking} />
+      ) : (
         <div>
           <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
             <div className="container px-4 md:px-6 text-center">
@@ -36,19 +37,19 @@ export default function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Date:
                       </span>
-                      <span>June 15, 2023</span>
+                      <span>{moment(booking.createdAt).format("MMM DD, YYYY")}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
                         Time:
                       </span>
-                      <span>7:00 PM</span>
+                      <span>{moment(booking.createdAt).format("hh:mm A")}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-2">
                       <span className="text-gray-500 dark:text-gray-400">
-                        Location:
+                        Spot:
                       </span>
-                      <span>123 Main St, Anytown USA</span>
+                      <span className="text-right">{booking.spot.name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
@@ -65,7 +66,7 @@ export default function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Total:
                       </span>
-                      <span>$150.00</span>
+                      <span>${booking.totalPrice}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
@@ -73,11 +74,11 @@ export default function Page({
                       </span>
                       <span>Visa ending in 1234</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-2">
                       <span className="text-gray-500 dark:text-gray-400">
                         Transaction ID:
                       </span>
-                      <span>ABC123456789</span>
+                      <span className="uppercase">{booking.id}</span>
                     </div>
                   </div>
                 </div>
@@ -90,19 +91,19 @@ export default function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Name:
                       </span>
-                      <span>John Doe</span>
+                      <span>{booking.guest?.name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
                         Email:
                       </span>
-                      <span>john@example.com</span>
+                      <span>{booking.guest?.email}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
                         Phone:
                       </span>
-                      <span>+1 (555) 555-5555</span>
+                      <span>{booking.guest?.phone}</span>
                     </div>
                   </div>
                 </div>

@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { AutosizeTextarea } from "../ui/textarea";
+import { AutosizeTextarea } from "../ui/autosize-textarea";
 import {
   Card,
   CardContent,
