@@ -8,6 +8,8 @@ export const bookingSchema = z.object({
   totalPrice: z.number(),
   status: z.nativeEnum(BookingStatus),
   createdAt: z.date(),
+  startDate: z.date(),
+  endDate: z.date(),
   spot: z.object({
     id: z.string(),
     name: z.string()

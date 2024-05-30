@@ -91,11 +91,22 @@ export default function SpotDetails({
     }, 0);
   };
 
+  const getStartEndDates = (selectedDate: Date | DateRange | undefined) => {
+    if (!selectedDate) return { startDate: null, endDate: null };
+    if (selectedDate && "from" in selectedDate && "to" in selectedDate)
+      return { startDate: selectedDate.from!, endDate: selectedDate.to! };
+
+    return { startDate: selectedDate as Date, endDate: selectedDate as Date };
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const total = calculateSubtotal(selectedDate);
+      const { startDate, endDate } = getStartEndDates(selectedDate);
       const booking = await addBooking({
+        startDate,
+        endDate,
         subtotal: total,
         totalPrice: total,
         spotId: spot.id,

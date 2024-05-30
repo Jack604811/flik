@@ -33,11 +33,7 @@ const formSchema = z.object({
   note: z.string().optional(),
 });
 
-export default function BookingInfo({
-  booking,
-}: {
-  booking: any;
-}) {
+export default function BookingInfo({ booking }: { booking: any }) {
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,12 +42,16 @@ export default function BookingInfo({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const guest = await addGuestToBooking({...values, bookingId: booking.id});
+      const guest = await addGuestToBooking({
+        ...values,
+        bookingId: booking.id,
+      });
       router.refresh();
     } catch (error: any) {
-      toast.error(`There was an error procceding with the request, ${error.message}`)
+      toast.error(
+        `There was an error procceding with the request, ${error.message}`
+      );
     }
-
   };
 
   return (
@@ -184,10 +184,16 @@ export default function BookingInfo({
               </div>
             </div>
             <div className="flex gap-2 ml-6 mr-6 py-4 border-t dark:border-gray-800 justify-between">
-              <Button variant="outline" type="button" onClick={() => router.back()}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => router.back()}
+              >
                 Back
               </Button>
-              <Button type="submit">Book Now</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Booking..." : "Book Now"}
+              </Button>
             </div>
           </form>
         </Form>

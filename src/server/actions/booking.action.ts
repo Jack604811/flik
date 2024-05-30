@@ -16,6 +16,8 @@ export const addBooking = async (data: {
   subtotal: number;
   totalPrice: number;
   spotId: string;
+  startDate: Date|null,
+  endDate: Date|null
 }) => {
   const booking = await db.booking.create({
     data: { status: "Pending", ...data },

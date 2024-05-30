@@ -10,6 +10,7 @@ import { Booking } from "../data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 import moment from "moment"
+import Link from "next/link"
 
 export const columns: ColumnDef<Booking>[] = [
   {
@@ -41,7 +42,11 @@ export const columns: ColumnDef<Booking>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Booking #" />
     ),
-    cell: ({ row }) => <div className="w-[80px] truncate">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="w-[80px] truncate">
+      <Link href={`/bookings/${row.getValue("id")}`}>
+      {row.getValue("id")}
+      </Link>
+    </div>,
     enableSorting: false,
     enableHiding: false,
   },
@@ -88,6 +93,34 @@ export const columns: ColumnDef<Booking>[] = [
     },
   },
   {
+    accessorKey: "Start Date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Start Date" />
+    ),
+    cell: ({ row }) => {
+
+      return (
+        <div className="flex items-center">
+          <span>{ moment( row.getValue("startDate")).format("MM/DD/YYYY hh:mm A")}</span>
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "End Date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="End Date" />
+    ),
+    cell: ({ row }) => {
+
+      return (
+        <div className="flex items-center">
+          <span>{ moment( row.getValue("endDate")).format("MM/DD/YYYY hh:mm A")}</span>
+        </div>
+      )
+    },
+  },
+  {
     accessorKey: "createdAt",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Added Date" />
@@ -101,7 +134,7 @@ export const columns: ColumnDef<Booking>[] = [
       )
     },
     filterFn: (row, id, value) => {
-      return true
+      return value ?  moment(row.getValue(id)).isBetween(value?.[0], value?.[1]) : true
     },
   },
   {

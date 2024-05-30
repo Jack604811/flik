@@ -94,7 +94,9 @@ model Booking {
   subtotal   Float
   extras     Float?
   tax        Float?
-  totalPrice Float
+  totalPrice Float 
+  startDate  DateTime?
+  endDate    DateTime?
   status     BookingStatus
   guest      Guest?        @relation(fields: [guestId], references: [id])
   guestId    String?

@@ -105,6 +105,12 @@ export default async function Page({
                       </span>
                       <span>{booking.guest?.phone}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Address:
+                      </span>
+                      <span className="text-right">{booking.guest?.address}</span>
+                    </div>
                   </div>
                 </div>
               </div>

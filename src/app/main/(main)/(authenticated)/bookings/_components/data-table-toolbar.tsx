@@ -34,7 +34,7 @@ export function DataTableToolbar<TData>({
         
         {table.getColumn("createdAt") && (
           <DataTableDateFilter
-            
+            column={table.getColumn("createdAt")}
             title="Booking Date"
           />
         )}
