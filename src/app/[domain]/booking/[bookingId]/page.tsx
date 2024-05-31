@@ -1,6 +1,8 @@
 import moment from "moment";
 import BookingInfo from "./info";
 import { getSpotBooking } from "@/server/actions/domain.action";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Page({
   params,
@@ -20,10 +22,13 @@ export default async function Page({
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
                   Thank you for booking!
                 </h1>
-                <p className="max-w-[600px] mx-auto text-gray-500 md:text-xl dark:text-gray-400">
+                <p className="max-w-[600px] mx-auto text-gray-500 md:text-xl dark:text-gray-400 pb-4">
                   We appreciate your trust in us and look forward to providing
                   you with an exceptional experience.
                 </p>
+                <Link href="/">
+                  <Button>Go to home</Button>
+                </Link>
               </div>
             </div>
           </section>

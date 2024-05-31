@@ -136,6 +136,7 @@ enum BookingStatus {
   Pending
   Confirmed
   Cancelled
+  Waiting_for_payment
 }
 
 enum SpotStatus {

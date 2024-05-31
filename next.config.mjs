@@ -9,6 +9,7 @@ jiti("./src/env");
 const nextConfig = {
     images: {
         remotePatterns: [
+            { hostname: "rnetulpcbgfmgdvyrsdh.supabase.co", protocol: "https"},
             { hostname: "mbcobsjjxvpydprpyybp.supabase.co", protocol: "https"}
         ]
     }

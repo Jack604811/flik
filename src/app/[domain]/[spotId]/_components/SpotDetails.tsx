@@ -5,15 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
 import { addBooking } from "@/server/actions/booking.action";
 import { Spot, SpotImages, User } from "@prisma/client";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import moment from "moment";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -31,7 +34,7 @@ export default function SpotDetails({
   const [selectedDate, setSelectedDate] = useState<
     Date | DateRange | undefined
   >();
-  const firstSpotImage = spot.images[0];
+  const [currentIndex, setCurrentIndex] = useState(0);
   const workingHours: {
     day: string;
     price: number;
@@ -117,36 +120,45 @@ export default function SpotDetails({
     }
   };
 
-  return (
-    <div key="1" className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
-      <section className="relative bg-gray-100 dark:bg-gray-800 rounded-xl">
-        <div className="grid sm:grid-cols-4 gap-2">
-          <div className="col-span-2 row-span-2 relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl sm:rounded-l-xl overflow-hidden dark:focus-visible:ring-gray-300">
-            <Image
-              alt="Property Image 1"
-              className="aspect-square object-cover w-full h-full"
-              height={1080}
-              src={firstSpotImage.url}
-              width="1920"
-            />
-          </div>
+  const handlePrevious = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? spot.images.length - 1 : prevIndex - 1
+    );
+  };
 
-          {spot.images.slice(1).map((image) => (
-            <div
-              key={image.id}
-              className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300"
-            >
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === spot.images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+  return (
+    <div className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
+      <Carousel className="w-full max-w-6xl">
+      <CarouselContent>
+      {spot.images.map((image, index) => (
+          <CarouselItem key={image.id} className={index === currentIndex ? 'block' : 'hidden'}>
+            <div className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300">
               <Image
-                alt="Property Image 2"
-                className="aspect-square object-cover"
-                height={1080}
+                alt={`Image ${image.id}`}
+                className=" aspect-video object-cover"
+                height={450}
                 src={image.url}
-                width="1920"
+                width={1920}
               />
             </div>
-          ))}
-        </div>
-      </section>
+          </CarouselItem>
+        ))}
+        </CarouselContent>
+      <button onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
+        <ChevronLeftIcon className="w-6 h-6" />
+        <span className="sr-only">Previous slide</span>
+      </button>
+      <button onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
+        <ChevronRightIcon className="w-6 h-6" />
+        <span className="sr-only">Next slide</span>
+      </button>
+    </Carousel>
+      
       <section className="py-8 grid md:grid-cols-2 lg:grid-cols-[1fr_360px] gap-8 sm:gap-12 md:gap-16 items-start">
         <div className="grid gap-4">
           <div className="hidden md:flex flex-col gap-1">

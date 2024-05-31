@@ -27,7 +27,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const task = bookingSchema.parse(row.original)
+  //const task = bookingSchema.parse(row.original)
 
   return (
     <DropdownMenu>
