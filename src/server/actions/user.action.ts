@@ -61,7 +61,7 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
   if (favicon) {
     data.favicon = await uploadSiteImage(
       id,
-      `logo.webp`,
+      `favicon.webp`,
       favicon
     );
   }
