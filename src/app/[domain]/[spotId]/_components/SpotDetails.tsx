@@ -10,7 +10,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
@@ -31,9 +31,7 @@ export default function SpotDetails({
   spot: Spot & { owner: User; images: SpotImages[] };
 }) {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState<
-    Date | DateRange | undefined
-  >();
+  const [selectedDate, setSelectedDate] = useState<Date | DateRange | undefined>();
   const [currentIndex, setCurrentIndex] = useState(0);
   const workingHours: {
     day: string;
@@ -42,34 +40,24 @@ export default function SpotDetails({
     end: string;
   }[] = spot.workingHours as any;
 
-  const calculateDays = (
-    selectedDate: Date | DateRange | undefined
-  ): number => {
+  const calculateDays = (selectedDate: Date | DateRange | undefined): number => {
     if (!selectedDate) return 0;
 
     if ("from" in selectedDate && "to" in selectedDate) {
-      return (
-        moment(selectedDate.to).diff(moment(selectedDate.from), "days") + 1
-      );
+      return moment(selectedDate.to).diff(moment(selectedDate.from), "days") + 1;
     }
 
     return 1; // If it's a single date
   };
 
-  const getDatesArray = (
-    selectedDate: Date | DateRange | undefined
-  ): Date[] => {
+  const getDatesArray = (selectedDate: Date | DateRange | undefined): Date[] => {
     if (!selectedDate) return [];
 
     if ("from" in selectedDate && "to" in selectedDate) {
       const startDate = moment(selectedDate.from);
       const endDate = moment(selectedDate.to);
       const days: Date[] = [];
-      for (
-        let date = startDate;
-        date.isSameOrBefore(endDate);
-        date.add(1, "day")
-      ) {
+      for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, "day")) {
         days.push(date.toDate());
       }
       return days;
@@ -80,13 +68,10 @@ export default function SpotDetails({
 
   const getPriceForDay = (day: string): number => {
     const workingHour = workingHours?.find((wh) => wh.day === day);
-    console.log(day, workingHour, workingHours);
     return workingHour ? workingHour.price : 0;
   };
 
-  const calculateSubtotal = (
-    selectedDate: Date | DateRange | undefined
-  ): number => {
+  const calculateSubtotal = (selectedDate: Date | DateRange | undefined): number => {
     const days = getDatesArray(selectedDate);
     return days.reduce((total, date) => {
       const dayOfWeek = moment(date).format("dddd");
@@ -131,34 +116,37 @@ export default function SpotDetails({
       prevIndex === spot.images.length - 1 ? 0 : prevIndex + 1
     );
   };
+
+  const isDateSelected = selectedDate !== undefined;
+
   return (
     <div className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
-      <Carousel className="w-full max-w-6xl">
-      <CarouselContent>
-      {spot.images.map((image, index) => (
-          <CarouselItem key={image.id} className={index === currentIndex ? 'block' : 'hidden'}>
-            <div className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300">
-              <Image
-                alt={`Image ${image.id}`}
-                className=" aspect-video object-cover"
-                height={450}
-                src={image.url}
-                width={1920}
-              />
-            </div>
-          </CarouselItem>
-        ))}
+      <Carousel opts={{ loop: true }} className="w-full max-w-6xl">
+        <CarouselContent>
+          {spot.images.map((image, index) => (
+            <CarouselItem key={image.id} className={index === currentIndex ? "block" : "hidden"}>
+              <div className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300">
+                <Image
+                  alt={`Image ${image.id}`}
+                  className=" aspect-video object-cover"
+                  height={450}
+                  src={image.url}
+                  width={1920}
+                />
+              </div>
+            </CarouselItem>
+          ))}
         </CarouselContent>
-      <button onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
-        <ChevronLeftIcon className="w-6 h-6" />
-        <span className="sr-only">Previous slide</span>
-      </button>
-      <button onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
-        <ChevronRightIcon className="w-6 h-6" />
-        <span className="sr-only">Next slide</span>
-      </button>
-    </Carousel>
-      
+        <button onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
+          <ChevronLeftIcon className="w-6 h-6" />
+          <span className="sr-only">Previous slide</span>
+        </button>
+        <button onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
+          <ChevronRightIcon className="w-6 h-6" />
+          <span className="sr-only">Next slide</span>
+        </button>
+      </Carousel>
+
       <section className="py-8 grid md:grid-cols-2 lg:grid-cols-[1fr_360px] gap-8 sm:gap-12 md:gap-16 items-start">
         <div className="grid gap-4">
           <div className="hidden md:flex flex-col gap-1">
@@ -174,9 +162,7 @@ export default function SpotDetails({
           <div className="grid gap-8">
             <h3 className="text-xl font-semibold">What this place offers</h3>
             <ul className="grid lg:grid-cols-2 gap-6">
-              {AMENITIES.filter((amenity) =>
-                spot.amenities.includes(amenity.value)
-              ).map((amenity, key) => (
+              {AMENITIES.filter((amenity) => spot.amenities.includes(amenity.value)).map((amenity, key) => (
                 <li key={key} className="flex gap-4">
                   {amenity.label}
                 </li>
@@ -216,8 +202,7 @@ export default function SpotDetails({
                   ·<span>1 week ago</span>
                 </div>
                 <div>
-                  Catherine's place was amazing! The views were incredible and
-                  the house was very clean. We had a great time.
+                  Catherine's place was amazing! The views were incredible and the house was very clean. We had a great time.
                 </div>
               </article>
             </div>
@@ -246,65 +231,65 @@ export default function SpotDetails({
                     selected={selectedDate as any}
                     disabled={{ from: new Date(1970), to: new Date() }}
                   />
-                  {/* <Calendar className="flex xl:hidden p-0" /> */}
                 </div>
-                {spot.durationType === "hours" && (
-                  <div className="max-w-md my-4 p-0 space-y-4">
-                    <h2 className="text-md font-bold">Select a Time Slot</h2>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        9:00 AM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        10:00 AM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        11:00 AM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        12:00 PM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        1:00 PM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        2:00 PM
-                      </button>
-                      <button className="text-sm bg-primary text-white hover:bg-primary-700 rounded-md py-1 px-2 transition-colors">
-                        3:00 PM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        4:00 PM
-                      </button>
-                      <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
-                        5:00 PM
-                      </button>
+                {spot.durationType === "hours" && isDateSelected && (
+                  <>
+                    <div className="max-w-md my-4 p-0 space-y-4">
+                      <h2 className="text-md font-bold">Select a Time Slot</h2>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          9:00 AM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          10:00 AM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          11:00 AM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          12:00 PM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          1:00 PM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          2:00 PM
+                        </button>
+                        <button className="text-sm bg-primary text-white hover:bg-primary-700 rounded-md py-1 px-2 transition-colors">
+                          3:00 PM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          4:00 PM
+                        </button>
+                        <button className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors">
+                          5:00 PM
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                    <div>
+                      <Button type="submit" className="w-full h-12 my-3" size="lg">
+                        Continue
+                      </Button>
+                    </div>
+                    <div className="text-sm text-gray-500 text-center dark:text-gray-400">
+                      You won't be charged yet
+                    </div>
+                    <div className="grid gap-4">
+                      <div className="flex justify-between items-center my-4">
+                        <div className="text-gray-500 dark:text-gray-400">
+                          Subtotal for {calculateDays(selectedDate)} day(s)
+                        </div>
+                        <div>${calculateSubtotal(selectedDate)}</div>
+                      </div>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center">
+                      <div className="font-semibold">Total before taxes</div>
+                      <div>${calculateSubtotal(selectedDate)}</div>
+                    </div>
+                  </>
                 )}
-                <div>
-                  <Button type="submit" className="w-full h-12 mt-3" size="lg">
-                    Continue
-                  </Button>
-                </div>
-                <div className="text-sm text-gray-500 text-center dark:text-gray-400">
-                  You won't be charged yet
-                </div>
               </form>
-
-              <div className="grid gap-4">
-                <div className="flex justify-between items-center">
-                  <div className="text-gray-500 dark:text-gray-400">
-                    Subtotal for {calculateDays(selectedDate)} day(s)
-                  </div>
-                  <div>${calculateSubtotal(selectedDate)}</div>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <div className="font-semibold">Total before taxes</div>
-                <div>${calculateSubtotal(selectedDate)}</div>
-              </div>
             </CardContent>
           </Card>
         </div>
