@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/popover"
 import { Column } from "@tanstack/react-table"
 
-
 interface DataTableDateFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
@@ -28,6 +27,14 @@ export function DataTableDateFilter<TData, TValue>({
   className
 }: DataTableDateFilterProps<TData, TValue>) {
   const selectedValue = column?.getFilterValue() as [Date, Date] | null;
+
+  const handleSelect = (val: DateRange | undefined) => {
+    if (val && val.from && val.to && val.from.getTime() === val.to.getTime()) {
+      column?.setFilterValue(null); // Clear all dates if start and end dates are the same
+    } else {
+      column?.setFilterValue(val ? [val.from, val.to] : val);
+    }
+  };
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -61,8 +68,8 @@ export function DataTableDateFilter<TData, TValue>({
             initialFocus
             mode="range"
             defaultMonth={selectedValue?.[0]}
-            selected={selectedValue ? {from: selectedValue[0], to: selectedValue[1]}: undefined}
-            onSelect={(val) => column?.setFilterValue(val ? [val.from, val.to]: val)}
+            selected={selectedValue ? { from: selectedValue[0], to: selectedValue[1] } : undefined}
+            onSelect={handleSelect}
             numberOfMonths={1}
           />
         </PopoverContent>

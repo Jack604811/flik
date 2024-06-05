@@ -1,6 +1,10 @@
 import { JSX, SVGProps } from "react";
 import { ProductCard } from "@/components/blocks/cards/product-card";
 import { OneTimeCheckoutButton, RecurringCheckoutButton } from "@/components/store/checkout-button";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card"
+import CustomCard from "@/components/blocks/cards/custom-card";
+
 
 export default function Component() {
   return (
@@ -41,6 +45,21 @@ export default function Component() {
           }
         />
       </div>
+      {/*<div className="flex my-6">
+      <CustomCard
+        title="Custom Plan"
+        description="Get your roles filled faster with unlimited access to Dribbble's Job Board and Designer search."
+        price="$1,228/year"
+       
+        features={[
+          'Unlimited Access to All Features',
+          'Unlimited discount on backorders',
+          'Unlimited Domain name Appraisal',
+          'Unlimited Social Profiles',
+        ]}
+        buttonText="Contact Sales"
+      />
+      </div>*/}
       <div className="mt-12 md:mt-20">
         <h2 className="text-2xl md:text-3xl font-bold mb-6">Compare our plans</h2>
         <div className="overflow-x-auto">
