@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { PlusCircleIcon } from "lucide-react"
+import { Cog } from "lucide-react"
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>
@@ -27,10 +27,10 @@ export function DataTableViewOptions<TData>({
         <Button
           variant="default"
           size="sm"
-          className="ml-auto hidden h-10 lg:flex"
+          className="ml-auto hidden h-10 lg:flex text-sm font-normal gap-1"
         >
-          <PlusCircleIcon className="mr-2 h-4 w-4" />
-          New Booking
+          <Cog className="font-normal" size={16} />
+          Edit Columns
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[150px]">

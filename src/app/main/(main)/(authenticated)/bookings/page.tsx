@@ -4,7 +4,6 @@ import { columns } from "./_components/columns"
 import { DataTable } from "./_components/data-table"
 import { getBookings } from "@/server/actions/booking.action"
 import { getCurrentUser } from "@/server/auth"
-import { Booking } from "./data/schema"
 
 export const metadata: Metadata = {
   title: "Bookings",

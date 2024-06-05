@@ -8,6 +8,7 @@ export const bookingSchema = z.object({
   totalPrice: z.number(),
   status: z.nativeEnum(BookingStatus),
   createdAt: z.date(),
+  updatedAt: z.date(),
   startDate: z.date(),
   endDate: z.date(),
   spot: z.object({
@@ -19,6 +20,9 @@ export const bookingSchema = z.object({
     name: z.string(),
     email: z.string(),
     phone: z.string(),
+    address: z.string(),
+    dni: z.string(),
+    note: z.string().optional()
   })
 })
 

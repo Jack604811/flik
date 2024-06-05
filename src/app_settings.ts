@@ -78,6 +78,7 @@ export const AFTER_PURCHASE_REDIRECT_URL = "/";
 // Redirect for subscriptions
 export const AFTER_SUBSCRIPTION_REDIRECT_URL = "/dashboard";
 
+export const TRIAL_DAYS = 5
 // ****** / Store Settings / ******
 
 

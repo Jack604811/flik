@@ -96,7 +96,7 @@ const formSchema = z
         day: z.string(),
         openTime: z.string(),
         closeTime: z.string(),
-        price: z.string().transform((val) => Number(val)),
+        price: z.string(),
       })
     ),
     amenities: z.array(z.string()),
@@ -146,7 +146,11 @@ function SpotForm({
       additionalGuestPrice: spot?.additionalGuestPrice
         ? String(spot?.additionalGuestPrice)
         : undefined,
-      workingHours: (spot?.workingHours as Record<string, any>[]) ?? [],
+      workingHours:
+        (spot?.workingHours as Record<string, any>[]).map((e) => ({
+          ...e,
+          price: String(e.price),
+        })) ?? [],
       duration: spot?.duration ? String(spot.duration) : "1",
       durationType: spot?.durationType ? String(spot.durationType) : "hours",
     },
@@ -415,7 +419,7 @@ function SpotForm({
                             onClick={() =>
                               append({
                                 day: "",
-                                price: 0,
+                                price: "0",
                                 openTime: "",
                                 closeTime: "",
                               })
