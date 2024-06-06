@@ -1,5 +1,6 @@
 "use server";
 
+import { BookingStatus } from "@prisma/client";
 import { db } from "../db";
 
 export const getBookings = async (ownerId: string) => {
@@ -9,6 +10,11 @@ export const getBookings = async (ownerId: string) => {
   });
 
   return bookings;
+};
+
+export const deleteBooking = async (bookingId: string) => {
+  const deletedBooking = await db.booking.delete({ where: { id: bookingId } });
+  return deleteBooking;
 };
 
 export const addBooking = async (data: {
@@ -69,4 +75,28 @@ export const addGuestToBooking = async ({
   });
 
   return guest;
+};
+
+export const updateBooking = async (data: {
+  id: string;
+  status?: BookingStatus;
+  guest?: {
+    id: string,
+    name?: string;
+    email?: string;
+    phone?: string;
+    dni?: string;
+    address?: string;
+  };
+}) => {
+
+  const update = {status: data.status, ...(data.guest ? {guest: {connect: {...data.guest}}}: {})};
+  console.log(update);
+  
+  const booking = await db.booking.update({
+    where: {id: data.id},
+    data: {status: data.status, ...(data.guest ? {guest: {update: {...data.guest}}}: {})}
+  })
+
+  return booking;
 };

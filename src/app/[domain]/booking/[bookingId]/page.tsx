@@ -13,7 +13,13 @@ export default async function Page({
   return (
     <>
       {!booking?.guestId ? (
-        <BookingInfo booking={booking} />
+        <section className="w-full h-screen bg-gray-100 dark:bg-gray-800">
+          <div className="flex items-center justify-center flex-col h-screen space-y-4">
+            <h1 className="text-8xl font-bold text-red-600">404</h1>
+            <h1 className="text-4xl font-bold">Booking not found</h1>
+            <Link href={"/"}><Button size="lg">Go Home</Button></Link>
+          </div>
+        </section>
       ) : (
         <div>
           <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
@@ -42,7 +48,9 @@ export default async function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Date:
                       </span>
-                      <span>{moment(booking.createdAt).format("MMM DD, YYYY")}</span>
+                      <span>
+                        {moment(booking.createdAt).format("MMM DD, YYYY")}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
@@ -114,7 +122,9 @@ export default async function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Address:
                       </span>
-                      <span className="text-right">{booking.guest?.address}</span>
+                      <span className="text-right">
+                        {booking.guest?.address}
+                      </span>
                     </div>
                   </div>
                 </div>

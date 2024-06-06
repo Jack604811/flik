@@ -5,6 +5,7 @@ import { z } from "zod"
 // IRL, you will have a schema for your data models.
 export const bookingSchema = z.object({
   id: z.string(),
+  subtotal: z.number(),
   totalPrice: z.number(),
   status: z.nativeEnum(BookingStatus),
   createdAt: z.date(),

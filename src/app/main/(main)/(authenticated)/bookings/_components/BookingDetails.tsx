@@ -17,7 +17,7 @@ import {
   SelectContent,
   Select,
 } from "@/components/ui/select";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, Edit } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -31,12 +31,86 @@ import moment from "moment";
 import { BookingStatus } from "@prisma/client";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { statuses } from "../data/data";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { updateBooking } from "@/server/actions/booking.action";
+import { toast } from "sonner";
+import { FormField } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 
 type Props = {
   children: React.ReactNode;
   booking?: Booking;
 };
+
+const bookingSchema = z.object({
+  id: z.string(),
+  status: z.nativeEnum(BookingStatus).optional(),
+  guest: z
+    .object({
+      id: z.string(),
+      name: z.string().optional(),
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+      dni: z.string().optional(),
+      address: z.string().optional(),
+    })
+    .optional(),
+});
+
+type EDITING_FIELD =
+  | "name"
+  | "dni"
+  | "email"
+  | "phone"
+  | "address"
+  | "status"
+  | null;
+
 export default function BookingDetails({ children, booking }: Props) {
+  const router = useRouter();
+  const { control, handleSubmit, setValue, getValues } = useForm({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: booking,
+  });
+
+  const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
+
+  const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
+    const updatedData: z.infer<typeof bookingSchema> = { id: data.id };
+
+    if (editingField === "status") {
+      updatedData.status = data.status;
+    } else {
+      updatedData.guest = {
+        id: data.guest!.id,
+        [editingField as string]: data.guest![editingField!],
+      };
+    }
+
+    const updated = updateBooking(updatedData);
+
+    toast.promise(updated, {
+      loading: `Updating ${editingField}...`,
+      success() {
+        router.refresh();
+        setEditingField(null);
+        return `${editingField} updated successfully!`;
+      },
+      error: `Failed to update ${editingField}`,
+    });
+  };
+
+  const startEditing = (field: EDITING_FIELD) => {
+    setEditingField(field);
+  };
+
+  const cancelEditing = () => {
+    setEditingField(null);
+  };
+
   return (
     <Sheet>
       <SheetTrigger>{children}</SheetTrigger>
@@ -63,99 +137,142 @@ export default function BookingDetails({ children, booking }: Props) {
                   <h3 className="text-lg font-semibold">
                     Customer Information
                   </h3>
-                  <div className="grid grid-cols-2 gap-4 py-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="customer">Customer</Label>
-                      <Input
-                        defaultValue={booking?.guest?.name}
-                        id="customer"
-                      />
-                    </div>
-                    <div className="flex justify-end items-center space-x-2">
-                      <Button variant="outline">Cancel</Button>
-                      <Button>Save</Button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="dni">DNI</Label>
-                      <Input defaultValue={booking?.guest.dni} id="dni" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="email">Email</Label>
-                      <Input defaultValue={booking?.guest.email} id="email" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="phone">Phone</Label>
-                      <PhoneInput
-                        defaultValue={booking?.guest.phone}
-                        defaultCountry="CO"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="address">Address</Label>
-                      <Input
-                        defaultValue={booking?.guest.address}
-                        id="address"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="status">Status</Label>
-                      <Select>
-                        <SelectTrigger id="status">
-                          <SelectValue defaultValue={booking?.status} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statuses.map((status, key) => (
-                            <SelectItem key={key} value={status.value}>
-                              {status.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="grid grid-cols-2 gap-4 py-2"
+                  >
+                    {["name", "dni", "email", "phone", "address", "status"].map(
+                      (field) => (
+                        <div key={field} className="space-y-1 col-span-2">
+                          <Label htmlFor={field}>
+                            {field.charAt(0).toUpperCase() + field.slice(1)}
+                          </Label>
+                          {editingField === field ? (
+                            <>
+                              {field === "phone" ? (
+                                <FormField
+                                  control={control}
+                                  name={`guest.${field}`}
+                                  render={({ field: { onChange, value } }) => (
+                                    <PhoneInput
+                                      defaultCountry={"CO"}
+                                      value={value}
+                                      onChange={onChange}
+                                    />
+                                  )}
+                                />
+                              ) : field === "status" ? (
+                                <FormField
+                                  control={control}
+                                  name={field}
+                                  render={({ field: { onChange, value } }) => (
+                                    <Select
+                                      onValueChange={onChange}
+                                      value={value}
+                                    >
+                                      <SelectTrigger id={field}>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {statuses.map((status) => (
+                                          <SelectItem
+                                            key={status.value}
+                                            value={status.value}
+                                          >
+                                            {status.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                />
+                              ) : (
+                                <FormField
+                                  control={control}
+                                  name={`guest.${field}`}
+                                  render={({ field: formField }) => (
+                                    <Input {...formField} id={field} />
+                                  )}
+                                />
+                              )}
+                              <div className="flex justify-end items-center space-x-2">
+                                <Button
+                                  variant="outline"
+                                  onClick={cancelEditing}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button type="submit">Save</Button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex justify-between items-center">
+                                <span>
+                                  {booking!.guest[field] ?? booking![field]}
+                                </span>
+                                <Button
+                                  size="icon"
+                                  onClick={() => startEditing(field as any)}
+                                >
+                                  <Edit size={15} />
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )
+                    )}
+                  </form>
                 </div>
+
                 <div>
                   <h3 className="text-lg font-semibold">Order Details</h3>
                   <div className="space-y-1">
                     <div className="flex justify-between">
                       <div>Spot Name</div>
-                      <div>$250.00</div>
+                      <div>{booking?.spot.name}</div>
                     </div>
                     <div className="flex justify-between">
                       <div>Extra Items x 1</div>
-                      <div>$49.00</div>
+                      <div>$00.00</div>
                     </div>
                   </div>
                   <div className="pt-2">
                     <div className="flex justify-between">
                       <div>Subtotal</div>
-                      <div>$299.00</div>
+                      <div>${booking?.subtotal}</div>
                     </div>
                     <div className="flex justify-between">
                       <div>Extras</div>
-                      <div>$49.00</div>
+                      <div>$0.00</div>
                     </div>
                     <div className="flex justify-between">
                       <div>Tax</div>
-                      <div>$25.00</div>
+                      <div>$00.00</div>
                     </div>
                     <div className="flex justify-between font-semibold">
                       <div>Total</div>
-                      <div>$329.00</div>
+                      <div>${booking?.totalPrice}</div>
                     </div>
                   </div>
                 </div>
+
                 <div>
                   <h3 className="text-lg font-semibold">Note</h3>
                   <p className="text-sm text-muted-foreground">
                     {booking?.guest.note}
                   </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="extras">
+                <div>
+                  <h3 className="text-lg font-semibold">Extras</h3>
+                </div>
+              </TabsContent>
+              <TabsContent value="payments">
+                <div>
+                  <h3 className="text-lg font-semibold">Payments</h3>
                 </div>
               </TabsContent>
             </Tabs>

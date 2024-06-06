@@ -41,7 +41,9 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     cell: ({ row }) => (
       <BookingDetails booking={row.original}>
-        <div className="w-[80px] truncate">{row.getValue("id")}</div>
+        <div className="w-[80px] truncate text-sky-600">
+          {row.getValue("id")}
+        </div>
       </BookingDetails>
     ),
     enableSorting: false,
@@ -63,10 +65,12 @@ export const columns: ColumnDef<Booking>[] = [
       );
     },
     filterFn: (row, id, value) => {
-      const guest = row.getValue("guest") as any;
+      const guest = row.getValue("guest") as Booking["guest"];
+      const bookingId = row.getValue("id") as string;
       return (
         guest?.email?.toLowerCase().includes(value) ||
-        guest?.name?.toLowerCase().includes(value)
+        guest?.name?.toLowerCase().includes(value) ||
+        bookingId.includes(value)
       );
     },
   },
@@ -98,7 +102,7 @@ export const columns: ColumnDef<Booking>[] = [
     },
   },
   {
-    accessorKey: "Start Date",
+    accessorKey: "startDate",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Start Date" />
     ),
@@ -113,7 +117,7 @@ export const columns: ColumnDef<Booking>[] = [
     },
   },
   {
-    accessorKey: "End Date",
+    accessorKey: "endDate",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="End Date" />
     ),

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Ref } from 'react'
 import {
     AlertDialog,
     AlertDialogAction,

@@ -151,7 +151,12 @@ function BookingSection({ spot }: Params) {
     if (selectedDate && "from" in selectedDate && "to" in selectedDate)
       return { startDate: selectedDate.from!, endDate: selectedDate.to! };
 
-    return { startDate: selectedDate as Date, endDate: selectedDate as Date };
+    return {
+      startDate: selectedDate as Date,
+      endDate: moment(selectedDate as Date)
+        .add(spot.duration, "hours")
+        .toDate(),
+    };
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
