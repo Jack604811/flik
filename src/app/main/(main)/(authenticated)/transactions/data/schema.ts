@@ -8,6 +8,7 @@ export const schema = z.object({
   id: z.string(),
   amount: z.number(),
   paymentDate: z.date(),
+  paymentType: z.string(),
   status: z.nativeEnum(TransactionStatus),
   createdAt: z.date(),
   updatedAt: z.date().optional(),

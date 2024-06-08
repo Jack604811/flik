@@ -85,6 +85,19 @@ export const columns: ColumnDef<Schema>[] = [
     },
   },
   {
+    accessorKey: "paymentType",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Payment Type" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex w-[100px] items-center">
+          <span>{row.getValue("paymentType")}</span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />

@@ -79,8 +79,8 @@ model Spot {
   userId               String // Foreign key referencing User's id
   bookings             Booking[]
   images               SpotImages[]
-  createdAt   DateTime  @default(now())
-  updatedAt    DateTime?     @default(now())
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime?    @default(now())
 }
 
 model SpotImages {
@@ -111,14 +111,16 @@ model Booking {
 }
 
 model Transaction {
-  id          String    @id @default(cuid())
+  id          String            @id @default(cuid())
   amount      Float
   paymentDate DateTime
-  status      TransactionStatus    @default(Pending)
-  booking     Booking   @relation(fields: [bookingId], references: [id])
+  paymentType String            @default("Cash")
+  description String
+  status      TransactionStatus @default(Pending)
+  booking     Booking           @relation(fields: [bookingId], references: [id])
   bookingId   String
-  createdAt   DateTime  @default(now())
-  updatedAt    DateTime?     @default(now())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime?         @default(now())
   deletedAt   DateTime?
 }
 

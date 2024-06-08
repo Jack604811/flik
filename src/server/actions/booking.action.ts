@@ -67,6 +67,7 @@ export const addTransaction = async (data: {
   date: Date;
   description: string;
   status?: TransactionStatus;
+  paymentType: string,
   bookingId: string;
 }) => {
   const transaction = await db.transaction.create({
@@ -74,6 +75,8 @@ export const addTransaction = async (data: {
       amount: data.amount,
       paymentDate: data.date,
       status: data.status ?? TransactionStatus.Pending,
+      description: data.description,
+      paymentType: data.paymentType,
       booking: { connect: { id: data.bookingId } },
     },
   });

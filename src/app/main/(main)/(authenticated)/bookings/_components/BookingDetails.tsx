@@ -18,10 +18,12 @@ import {
   Select,
 } from "@/components/ui/select";
 import {
+  CalendarDays,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsUpDownIcon,
   Edit,
+  MoreVerticalIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Booking } from "../data/schema";
@@ -38,17 +40,15 @@ import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+import BookingPayments from "./BookingPayments";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import AddTransactionButton from "@/components/forms/AddTransactionButton";
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+} from "@/components/ui/carousel";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 type Props = {
   children: React.ReactNode;
@@ -126,22 +126,51 @@ export default function BookingDetails({ children, booking }: Props) {
       <SheetTrigger>{children}</SheetTrigger>
       <SheetContent className="p-0 min-w-[500px]">
         <Card className="w-full max-w-lg">
-          <CardHeader>
-            <div>
-              <CardTitle>{booking?.guest.name}</CardTitle>
-              <CardDescription>
-                {moment(booking?.startDate).format("MMM DD YYYY hh:mm A")} -{" "}
-                {moment(booking?.endDate).format("MMM DD YYYY hh:mm A")}
-              </CardDescription>
-            </div>
-          </CardHeader>
           <CardContent className="space-y-6">
+          <div className="flex flex-row items-start bg-muted/50 p-6">
+        <div className="grid gap-2">
+          <CardTitle className="group flex items-center gap-2 text-xl">
+          {booking?.guest.name}
+          </CardTitle>
+          <CardDescription className="flex flex-row w-full items-center gap-2">
+            <CalendarDays className="h-5 w-5"/>
+            <div className="flex flex-col gap-0">
+              <div>
+                {moment(booking?.startDate).format("DD MMM YYYY hh:mm A")} 
+              </div>
+              {booking?.endDate && (
+                <div>
+                  {moment(booking?.endDate).format("DD MMM YYYY 12:00")} PM
+                </div>
+              )}
+            </div>
+          </CardDescription>
+        </div>
+        <div className="ml-auto flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="h-8 w-8" size="icon" variant="outline">
+                <MoreVerticalIcon className="h-4 w-4"/>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="flex flex-col bg-white shadow-lg p-4 rounded-md border dark:bg-black overflow-y-hidden" align="end">
+              <DropdownMenuItem>Copy</DropdownMenuItem>
+              <DropdownMenuItem>Export as PDF</DropdownMenuItem>
+              <DropdownMenuItem>Print</DropdownMenuItem>
+              <DropdownMenuItem>Generate Invoice</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
             <Tabs defaultValue="resume">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="resume">Resume</TabsTrigger>
                 <TabsTrigger value="extras">Extras</TabsTrigger>
                 <TabsTrigger value="payments">Payments</TabsTrigger>
               </TabsList>
+              <ScrollArea>
               <TabsContent value="resume">
                 <div className="grid gap-3">
                   <div className="font-semibold">Customer Information</div>
@@ -325,115 +354,38 @@ export default function BookingDetails({ children, booking }: Props) {
                 </div>
               </TabsContent>
               <TabsContent value="payments">
-                <div className="grid gap-3">
-                  <div className="font-semibold">Payment Resume</div>
-                  <ul className="grid gap-3">
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Payments</span>
-                      <span>$299.00</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Outstanding</span>
-                      <span>$49.00</span>
-                    </li>
-                    <li className="flex items-center justify-between font-semibold">
-                      <span className="text-muted-foreground">Total</span>
-                      <span>$329.00</span>
-                    </li>
-                  </ul>
-                  <Separator className="my-4" />
-                  <div className="font-semibold">Payment History</div>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Description</TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell>May 19, 2023</TableCell>
-                          <TableCell>Monthly Subscription</TableCell>
-                          <TableCell className="text-right">$19.99</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">Paid</Badge>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>May 12, 2023</TableCell>
-                          <TableCell>Online Purchase</TableCell>
-                          <TableCell className="text-right">$49.95</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">Paid</Badge>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>May 5, 2023</TableCell>
-                          <TableCell>Utility Bill</TableCell>
-                          <TableCell className="text-right">$78.23</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">Paid</Badge>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>April 28, 2023</TableCell>
-                          <TableCell>Subscription Renewal</TableCell>
-                          <TableCell className="text-right">$99.99</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">Paid</Badge>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>April 21, 2023</TableCell>
-                          <TableCell>Online Purchase</TableCell>
-                          <TableCell className="text-right">$29.99</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">Paid</Badge>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell colSpan={4}>
-                          <AddTransactionButton>
-                          <Button
-                              className="gap-1 w-full"
-                              size="sm"
-                              variant="ghost"
-                            >
-                              Add Manual Transaction
-                            </Button>
-                          </AddTransactionButton>
-                           
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
+                <BookingPayments bookingId={booking!.id} />
               </TabsContent>
+              </ScrollArea>
             </Tabs>
           </CardContent>
-          <CardFooter className="text-xs flex justify-between">
-            <div>
-              <div>
-                {" "}
-                Created {moment(booking?.createdAt).format("MMM DD YYYY")}{" "}
+          <CardFooter className="h-[56px] border-t bg-muted/50 px-0 py-4">
+            <Carousel className="max-w-[540px] p-2" opts={{ loop: true }}>
+              <CarouselContent>
+                <CarouselItem>
+                  <div className="text-xs text-muted-foreground">
+                    Created{" "}
+                    {moment(booking?.createdAt).format("DD MMMM YYYY hh:mm A")}
+                  </div>
+                </CarouselItem>
+                <CarouselItem>
+                  <div className="text-xs text-muted-foreground">
+                    Updated{" "}
+                    {moment(booking?.updatedAt).format("DD MMMM YYYY hh:mm A")}
+                  </div>
+                </CarouselItem>
+                <CarouselItem>
+                  <div className="flex flex-row text-xs text-muted-foreground gap-1">
+                    Booking ID
+                    <div className="text-xs text-sky-600">{booking?.id}</div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <div className="">
+                <CarouselNext className="h-6 w-6 rounded-md" />
               </div>
-              <div>
-                {" "}
-                Updated {moment(booking?.updatedAt).format("MMM DD YYYY")}{" "}
-              </div>
-            </div>
-            <nav className="flex gap-2 justify-center">
-              <Button variant="ghost">
-                <ChevronLeftIcon className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost">
-                <ChevronRightIcon className="w-4 h-4" />
-              </Button>
-            </nav>
+            </Carousel>
+            <div className="ml-auto mr-0 w-auto"></div>
           </CardFooter>
         </Card>
       </SheetContent>
