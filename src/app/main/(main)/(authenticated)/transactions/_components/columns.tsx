@@ -2,44 +2,20 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { statuses } from "../data/data";
-import { Booking } from "../data/schema";
+import { Schema } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "./BookingDetails";
+import BookingDetails from "../../bookings/_components/BookingDetails";
 
-export const columns: ColumnDef<Booking>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
+export const columns: ColumnDef<Schema>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Booking #" />
+      <DataTableColumnHeader column={column} title="Transaction #" />
     ),
     cell: ({ row }) => (
-      <BookingDetails booking={row.original}>
+      <BookingDetails booking={row.original.booking}>
         <div className="w-[80px] truncate text-sky-600">
           {row.getValue("id")}
         </div>
@@ -47,6 +23,42 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+    filterFn: (row, id, value) => {
+      const rowId = row.original.id;
+      return (
+        rowId.includes(value)
+      );
+    },
+  },
+  {
+    accessorKey: "amount",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Payment Amount" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">
+          <span>
+            ${row.getValue("amount")}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "booking",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Booking" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">
+          <span>
+            {row.original.booking.id}
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "guest",
@@ -54,22 +66,21 @@ export const columns: ColumnDef<Booking>[] = [
       <DataTableColumnHeader column={column} title="Customer" />
     ),
     cell: ({ row }) => {
+      const guest = row.original.booking.guest;
       return (
         <div className="flex flex-col">
-          <span className="font-medium">{row.original.guest?.name}</span>
+          <span className="font-medium">{guest?.name}</span>
           <span className="text-muted-foreground">
-            {row.original.guest?.email}
+            {guest?.email}
           </span>
         </div>
       );
     },
     filterFn: (row, id, value) => {
-      const guest = row.getValue("guest") as Booking["guest"];
-      const bookingId = row.getValue("id") as string;
+      const guest = row.original.booking.guest;
       return (
         guest?.email?.toLowerCase().includes(value) ||
-        guest?.name?.toLowerCase().includes(value) ||
-        bookingId.includes(value)
+        guest?.name?.toLowerCase().includes(value)
       );
     },
   },
@@ -101,30 +112,15 @@ export const columns: ColumnDef<Booking>[] = [
     },
   },
   {
-    accessorKey: "startDate",
+    accessorKey: "paymentDate",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Start Date" />
+      <DataTableColumnHeader column={column} title="Payment Date" />
     ),
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
           <span>
-            {moment(row.getValue("startDate")).format("MM/DD/YYYY hh:mm A")}
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "endDate",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="End Date" />
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          <span>
-            {moment(row.getValue("endDate")).format("MM/DD/YYYY hh:mm A")}
+            {moment(row.getValue("paymentDate")).format("MM/DD/YYYY hh:mm A")}
           </span>
         </div>
       );

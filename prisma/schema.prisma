@@ -79,6 +79,8 @@ model Spot {
   userId               String // Foreign key referencing User's id
   bookings             Booking[]
   images               SpotImages[]
+  createdAt   DateTime  @default(now())
+  updatedAt    DateTime?     @default(now())
 }
 
 model SpotImages {
@@ -90,20 +92,34 @@ model SpotImages {
 }
 
 model Booking {
-  id         String        @id @default(cuid())
-  subtotal   Float
-  extras     Float?
-  tax        Float?
-  totalPrice Float 
-  startDate  DateTime?
-  endDate    DateTime?
-  status     BookingStatus
-  guest      Guest?        @relation(fields: [guestId], references: [id])
-  guestId    String?
-  spot       Spot          @relation(fields: [spotId], references: [id])
-  spotId     String // Foreign key referencing Spot's id
-  createdAt  DateTime      @default(now())
-  deletedAt  DateTime?
+  id           String        @id @default(cuid())
+  subtotal     Float
+  extras       Float?
+  tax          Float?
+  totalPrice   Float
+  startDate    DateTime?
+  endDate      DateTime?
+  status       BookingStatus
+  guest        Guest?        @relation(fields: [guestId], references: [id])
+  guestId      String?
+  spot         Spot          @relation(fields: [spotId], references: [id])
+  spotId       String // Foreign key referencing Spot's id
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @default(now())
+  deletedAt    DateTime?
+}
+
+model Transaction {
+  id          String    @id @default(cuid())
+  amount      Float
+  paymentDate DateTime
+  status      TransactionStatus    @default(Pending)
+  booking     Booking   @relation(fields: [bookingId], references: [id])
+  bookingId   String
+  createdAt   DateTime  @default(now())
+  updatedAt    DateTime?     @default(now())
+  deletedAt   DateTime?
 }
 
 model Guest {
@@ -143,4 +159,10 @@ enum SpotStatus {
   Private
   Public
   Disabled
+}
+
+enum TransactionStatus {
+  Pending
+  Cancelled
+  Paid
 }

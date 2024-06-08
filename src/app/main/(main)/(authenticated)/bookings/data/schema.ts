@@ -24,7 +24,7 @@ export const bookingSchema = z.object({
     address: z.string(),
     dni: z.string(),
     note: z.string().optional()
-  })
+  }),
 })
 
 export type Booking = z.infer<typeof bookingSchema>

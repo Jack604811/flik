@@ -147,7 +147,7 @@ function SpotForm({
         ? String(spot?.additionalGuestPrice)
         : undefined,
       workingHours:
-        (spot?.workingHours as Record<string, any>[]).map((e) => ({
+        (spot?.workingHours as Record<string, any>[])?.map((e) => ({
           ...e,
           price: String(e.price),
         })) ?? [],
