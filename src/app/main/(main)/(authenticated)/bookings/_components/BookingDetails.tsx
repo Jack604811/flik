@@ -40,7 +40,7 @@ import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import BookingPayments from "./BookingPayments";
+import BookingPayments from "./bookingPayments";
 import {
   Carousel,
   CarouselContent,

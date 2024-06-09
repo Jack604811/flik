@@ -7,6 +7,7 @@ import { Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Separator } from "@radix-ui/react-separator"
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -41,7 +42,7 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex h-[32px] items-center border-2 px-3 rounded-2xl" cmdk-input-wrapper="">
+  <div className="flex h-[40px] items-center border-b-[1px] px-3" cmdk-input-wrapper="">
     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
@@ -52,6 +53,7 @@ const CommandInput = React.forwardRef<
       {...props}
     />
   </div>
+  
 ))
 
 CommandInput.displayName = CommandPrimitive.Input.displayName
@@ -60,6 +62,7 @@ const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
 >(({ className, ...props }, ref) => (
+  
   <CommandPrimitive.List
     ref={ref}
     className={cn("h-full w-full overflow-y-auto overflow-x-hidden", className)}

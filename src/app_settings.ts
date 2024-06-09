@@ -33,7 +33,7 @@ export const USER_ROUTES = [
 
 
 // ****** Auth settings ******
-export const AFTER_SIGNIN_REDIRECT_URL = "/profile";
+export const AFTER_SIGNIN_REDIRECT_URL = "/dashboard";
 export const AFTER_SIGNUP_REDIRECT_URL = AFTER_SIGNIN_REDIRECT_URL; // where to redirect after the user signs up for the first time, change this if you want to redirect to a different page
 export const AFTER_SIGNOUT_REDIRECT_URL = "/";
 export const NON_AUTHENTICATED_REDIRECT_URL = "/signin"; // where to redirect if the user is not authenticated and tries to access a page that requires authentication

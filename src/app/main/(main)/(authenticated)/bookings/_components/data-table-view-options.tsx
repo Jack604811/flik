@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { Cog } from "lucide-react"
+import { Cog, MoreVertical } from "lucide-react"
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>
@@ -25,12 +25,12 @@ export function DataTableViewOptions<TData>({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="default"
+          variant="outline"
           size="sm"
           className="ml-auto hidden h-10 lg:flex text-sm font-normal gap-1"
         >
-          <Cog className="font-normal" size={16} />
-          Edit Columns
+          <MoreVertical className="font-normal" size={16} />
+          
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[150px]">

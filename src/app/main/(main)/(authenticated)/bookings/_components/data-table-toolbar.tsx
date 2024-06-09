@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableViewOptions } from "./data-table-view-options"
 
-import { priorities, statuses } from "../data/data"
+import { statuses } from "../data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableDateFilter } from "./data-table-date-filter"
+import Link from "next/link"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -56,7 +57,15 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
+      <div className="flex flex-row gap-4">
+        
+        <Link href="" >
+        <Button>
+          New Booking
+        </Button>
+      </Link>
       <DataTableViewOptions table={table} />
+      </div>
     </div>
   )
 }

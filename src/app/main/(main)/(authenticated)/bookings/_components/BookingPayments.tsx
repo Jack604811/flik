@@ -81,7 +81,7 @@ function BookingPayments({ bookingId }: { bookingId: string }) {
               <TableCell colSpan={8}>
                 <AddTransactionButton bookingId={bookingId}>
                   <Button className="gap-2 w-full" size="sm" variant="ghost">
-                    <CirclePlus className="h-4 w-4"/> Add Transaction
+                    <CirclePlus className="h-4 w-4"/> Add hh Transaction
                   </Button>
                 </AddTransactionButton>
               </TableCell>

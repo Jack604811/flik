@@ -6,7 +6,7 @@ import { Booking } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "./BookingDetails";
+import BookingDetails from "./bookingDetails";
 
 export const columns: ColumnDef<Booking>[] = [
   // {

@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Label } from "@/components/ui/label";
+  Credenza,
+  CredenzaBody,
+  CredenzaClose,
+  CredenzaContent,
+  CredenzaDescription,
+  CredenzaFooter,
+  CredenzaHeader,
+  CredenzaTitle,
+  CredenzaTrigger,
+} from "@/components/ui/credenza";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -21,14 +21,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { addTransaction } from "@/server/actions/booking.action";
 import { toast } from "sonner";
-import { Calendar } from "../ui/calendar";
-import moment from "moment";
 import { TransactionStatus } from "@prisma/client";
 import {
   Select,
@@ -36,16 +34,26 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
 import { statuses } from "@/app/main/(main)/(authenticated)/transactions/data/data";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon, CirclePlus } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils"; // Ensure this utility function is available
 
 const formSchema = z.object({
-  amount: z.string().transform(v => Number(v)),
+  amount: z.string().transform((v) => Number(v)),
   date: z.date(),
   description: z.string(),
   paymentType: z.string(),
   status: z.nativeEnum(TransactionStatus),
 });
+
 function AddTransactionButton({
   children,
   placeholder,
@@ -59,7 +67,7 @@ function AddTransactionButton({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { paymentType: "Cash", status: "Paid" },
-    resetOptions: {keepDefaultValues: true}
+    resetOptions: { keepDefaultValues: true },
   });
 
   const [open, setOpen] = useState(false);
@@ -74,163 +82,180 @@ function AddTransactionButton({
           queryKey: ["bookingPayments", bookingId],
         });
         setOpen(false);
+        form.reset(); 
         return `${placeholder ?? "manual payment"} added successfully!`;
       },
     });
   };
 
+  const handleCancel = () => {
+    form.reset(); 
+    setOpen(false);
+  };
+
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="items-center">
-        <DrawerHeader className="self-auto w-4/5">
-          <DrawerTitle>Add {placeholder ?? "Manual Payment"}</DrawerTitle>
-          <DrawerDescription>
-            Enter the details of the {placeholder ?? "manual payment"} you want
-            to add.
-          </DrawerDescription>
-        </DrawerHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className=" w-4/5">
-            <div className="grid gap-4 py-4 p-4">
-              <div className="grid grid-cols-1 items-center gap-4">
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Amount</FormLabel>
-                      <FormControl>
-                        <Input placeholder="00.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+    <Credenza open={open} onOpenChange={setOpen}>
+      <CredenzaTrigger className="items-center justify-center h-6" asChild>
+        <div className="flex flex-row gap-2"> 
+        <CirclePlus className="h-4 w-4"/>
+        <button>Add {placeholder ?? "Payment"}</button>
+        </div>
+      </CredenzaTrigger>
+      <CredenzaContent>
+        <CredenzaHeader>
+          <CredenzaTitle className="text-xl text-semibold">
+            Add {placeholder ?? "Manual Payment"}
+          </CredenzaTitle>
+          <CredenzaDescription>
+            Enter the details of the {placeholder ?? "manual payment"} you want to add.
+          </CredenzaDescription>
+        </CredenzaHeader>
+        <CredenzaBody className="">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+              <div className="grid gap-4 p-0">
+                <div className="grid grid-cols-1 items-center gap-4">
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount</FormLabel>
+                        <FormControl>
+                          <Input placeholder="00.00" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 items-center gap-4">
+                  <FormField
+                    control={form.control}
+                    name="paymentType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Type</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            name={field.name}
+                          >
+                            <SelectTrigger aria-label="Select payment type">
+                              <SelectValue placeholder="Select payment type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {["Cash", "Bank transfer", "Wompi", "Epayco", "Mercadopago", "Stripe"].map((pt, key) => (
+                                <SelectItem key={key} value={pt}>
+                                  {pt}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 items-center gap-4">
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Payment Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "justify-start text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 items-center gap-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Status</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            name={field.name}
+                          >
+                            <SelectTrigger aria-label="Select payment status">
+                              <SelectValue placeholder="Select payment status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {statuses.map((pt, key) => (
+                                <SelectItem key={key} value={pt.value}>
+                                  {pt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 items-center gap-4">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Payment Purpose" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-1 items-center gap-4">
-                <FormField
-                  control={form.control}
-                  name="paymentType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Payment Type</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          name={field.name}
-                        >
-                          <SelectTrigger aria-label="Select payment type">
-                            <SelectValue placeholder="Select payment type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[
-                              "Cash",
-                              "Bank transfer",
-                              "Wompi",
-                              "Epayco",
-                              "Mercadopago",
-                              "Stripe",
-                            ].map((pt, key) => (
-                              <SelectItem key={key} value={pt}>
-                                {pt}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 items-center gap-4">
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Payment Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Payment Date"
-                          type="date"
-                          value={field.value && moment(field.value).format("YYYY-MM-DD")}
-                          onChange={(e) =>
-                            field.onChange(moment(e.target.value).toDate())
-                          }
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          disabled={field.disabled}
-                          name={field.name}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 items-center gap-4">
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Payment Status</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          name={field.name}
-                        >
-                          <SelectTrigger aria-label="Select payment status">
-                            <SelectValue placeholder="Select payment status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statuses.map((pt, key) => (
-                              <SelectItem key={key} value={pt.value}>
-                                {pt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 items-center gap-4">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Payment Purpose" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-            <DrawerFooter>
-              <div className="flex gap-5 items-end justify-center">
-                <DrawerClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </DrawerClose>
-                <Button type="submit">Create Payment</Button>
-              </div>
-            </DrawerFooter>
-          </form>
-        </Form>
-      </DrawerContent>
-    </Drawer>
+              <CredenzaFooter>
+                <div className="flex w-full mt-8 gap-4 items-center justify-center">
+                  <CredenzaClose asChild>
+                    <Button type="button" variant="outline" onClick={handleCancel}>
+                      Cancel
+                    </Button>
+                  </CredenzaClose>
+                  <Button type="submit">Create Payment</Button>
+                </div>
+              </CredenzaFooter>
+            </form>
+          </Form>
+        </CredenzaBody>
+      </CredenzaContent>
+    </Credenza>
   );
 }
 
