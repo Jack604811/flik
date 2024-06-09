@@ -52,10 +52,9 @@ export const columns: ColumnDef<Schema>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex items-center">
-          <span>
-            {row.original.booking.id}
-          </span>
+        <div className="flex flex-col">
+          <span>{row.original.booking.spot.name}</span>
+          <span className="text-muted-foreground">${row.original.booking.totalPrice}</span>
         </div>
       );
     },

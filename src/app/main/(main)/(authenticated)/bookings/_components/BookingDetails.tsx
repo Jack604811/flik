@@ -124,9 +124,9 @@ export default function BookingDetails({ children, booking }: Props) {
   return (
     <Sheet>
       <SheetTrigger>{children}</SheetTrigger>
-      <SheetContent className="p-0 min-w-[500px]">
-        <Card className="w-full max-w-lg">
-          <CardContent className="space-y-6">
+      <SheetContent className="p-0 sm:min-w-[360px] md:min-w-[500px] xl:min-w-[600px]">
+        <Card className="flex flex-col overflow-hidden justify-between h-screen">
+          <CardContent className="p-0 text-sm">
           <div className="flex flex-row items-start bg-muted/50 p-6">
         <div className="grid gap-2">
           <CardTitle className="group flex items-center gap-2 text-xl">
@@ -146,7 +146,7 @@ export default function BookingDetails({ children, booking }: Props) {
             </div>
           </CardDescription>
         </div>
-        <div className="ml-auto flex items-center">
+        <div className="ml-auto flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="h-8 w-8" size="icon" variant="outline">
@@ -164,14 +164,14 @@ export default function BookingDetails({ children, booking }: Props) {
           </DropdownMenu>
         </div>
       </div>
-            <Tabs defaultValue="resume">
+            <Tabs className="m-6" defaultValue="resume">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="resume">Resume</TabsTrigger>
                 <TabsTrigger value="extras">Extras</TabsTrigger>
                 <TabsTrigger value="payments">Payments</TabsTrigger>
               </TabsList>
               <ScrollArea>
-              <TabsContent value="resume">
+              <TabsContent className="pt-4" value="resume">
                 <div className="grid gap-3">
                   <div className="font-semibold">Customer Information</div>
 
@@ -300,12 +300,15 @@ export default function BookingDetails({ children, booking }: Props) {
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">
                         <div className="flex flex-row items-center gap-2">
-                          Spot Name
-                          <ChevronsUpDownIcon className="ml-auto h-4 w-4" />
+                          Spot
                         </div>
                       </span>
+                      <div className="flex flex-row items-center gap-1">
                       <span className="text-sm">{booking?.spot.name}</span>
+                      <ChevronsUpDownIcon className="ml-auto h-4 w-4" />
+                      </div>
                     </li>
+                    <span className="text-sm text-end">${booking?.totalPrice}</span>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">
                         Extra Items x<span>1</span>
@@ -335,7 +338,7 @@ export default function BookingDetails({ children, booking }: Props) {
                 </div>
 
                 <Separator className="my-4" />
-                <div className="grid grid gap-4">
+                <div className="grid gap-4">
                   <div className="grid gap-3">
                     <div className="font-semibold">Note</div>
                     <ul className="grid gap-3">
@@ -348,12 +351,12 @@ export default function BookingDetails({ children, booking }: Props) {
                   </div>
                 </div>
               </TabsContent>
-              <TabsContent value="extras">
+              <TabsContent className="pt-4" value="extras">
                 <div>
                   <h3 className="text-lg font-semibold">Extras</h3>
                 </div>
               </TabsContent>
-              <TabsContent value="payments">
+              <TabsContent className="pt-4" value="payments">
                 <BookingPayments bookingId={booking!.id} />
               </TabsContent>
               </ScrollArea>

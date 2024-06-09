@@ -17,6 +17,7 @@ import { getTransactionsByBooking } from "@/server/actions/booking.action";
 import { Transaction } from "@prisma/client";
 import moment from "moment";
 import { statuses } from "../../transactions/data/data";
+import { CirclePlus } from "lucide-react";
 
 function BookingPayments({ bookingId }: { bookingId: string }) {
   const { data, isLoading } = useQuery({
@@ -77,10 +78,10 @@ function BookingPayments({ bookingId }: { bookingId: string }) {
               </TableRow>
             ))}
             <TableRow>
-              <TableCell colSpan={4}>
+              <TableCell colSpan={8}>
                 <AddTransactionButton bookingId={bookingId}>
-                  <Button className="gap-1 w-full" size="sm" variant="ghost">
-                    Add Manual Transaction
+                  <Button className="gap-2 w-full" size="sm" variant="ghost">
+                    <CirclePlus className="h-4 w-4"/> Add Transaction
                   </Button>
                 </AddTransactionButton>
               </TableCell>

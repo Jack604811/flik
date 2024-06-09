@@ -47,22 +47,6 @@ export const MainSidebar = ()  => {
               <CommandItem className="h-[32px]">
                   <Button
                   asChild
-                  variant={ pathname.includes("/transactions")? "secondary" : "ghost"}
-                  className="justify-start px-2 w-full h-[32px]">
-                  <Link href={{
-                      pathname: "/transactions",
-                      
-                  }}> 
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 mr-0"/>
-                      <span>Transactions</span>
-                    </div>
-                    </Link>
-                  </Button>
-              </CommandItem>
-              <CommandItem className="h-[32px]">
-                  <Button
-                  asChild
                   variant={ pathname.includes("/bookings")? "secondary" : "ghost"}
                   className="justify-start px-2 w-full h-[32px]">
                   <Link href={{
@@ -72,6 +56,22 @@ export const MainSidebar = ()  => {
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 mr-0"/>
                       <span>Bookings</span>
+                    </div>
+                    </Link>
+                  </Button>
+              </CommandItem>
+              <CommandItem className="h-[32px]">
+                  <Button
+                  asChild
+                  variant={ pathname.includes("/transactions")? "secondary" : "ghost"}
+                  className="justify-start px-2 w-full h-[32px]">
+                  <Link href={{
+                      pathname: "/transactions",
+                      
+                  }}> 
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 mr-0"/>
+                      <span>Transactions</span>
                     </div>
                     </Link>
                   </Button>
