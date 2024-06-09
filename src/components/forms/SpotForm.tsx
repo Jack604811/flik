@@ -507,7 +507,7 @@ function SpotForm({
 
               <Card className="w-full max-w-lg">
                 <CardHeader>
-                  <CardTitle>Path Url</CardTitle>
+                  <CardTitle>Slug</CardTitle>
                   <CardDescription>
                     This is your URL for this spot.
                   </CardDescription>
@@ -529,7 +529,10 @@ function SpotForm({
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
-                                  e.target.value.replace(/[^A-Za-z0-9]+/g, "-")
+                                  e.target.value
+                                  .replace(/ñ/g, "n")
+                                  .replace(/[^A-Za-z0-9]+/g, "-")
+                                  .toLowerCase()
                                 )
                               }
                             />
