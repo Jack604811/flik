@@ -20,6 +20,7 @@ import { Form } from "@/components/ui/form";
 type Params = {
   spot: Spot & { owner: User; images: SpotImages[] };
 };
+
 const formSchema = z.object({
   name: z.string({ required_error: "Name is required" }),
   email: z
@@ -56,6 +57,7 @@ function BookingSection({ spot }: Params) {
       description: "Enter your personal details to create a booking.",
     },
   };
+
   const [progress, setProgress] = useState("check_availability");
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<
@@ -82,6 +84,7 @@ function BookingSection({ spot }: Params) {
 
     return 1; // If it's a single date
   };
+
 
   const getDatesArray = (
     selectedDate: Date | DateRange | undefined
@@ -171,6 +174,12 @@ function BookingSection({ spot }: Params) {
     }
   };
 
+  const isDateDisabled = (date: Date) => {
+    const dayOfWeek = moment(date).format("dddd");
+    const timeslots = getSelectedDayTimeslots(dayOfWeek);
+    return timeslots.length === 0;
+  };
+  
   useEffect(() => {
     setTimeout(() => {
       const { startDate, endDate } = getStartEndDates(selectedDate);
@@ -185,18 +194,18 @@ function BookingSection({ spot }: Params) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between mb-4">
+        {/*<div className="flex items-center justify-between mb-4">
           <Progress className="w-full" value={progresses[progress].value} />
-        </div>
+        </div>*/}
 
         <div className="flex gap-2 justify-between">
           <div>
             <h2 className="text-2xl font-bold">{progresses[progress].title}</h2>
-            <p className="text-gray-500 dark:text-gray-400">
+            {/*<p className="text-gray-500 dark:text-gray-400">
               Enter your personal details to create a booking.
-            </p>
+            </p>*/}
           </div>
-          <div className="flex gap-2">
+          {/*<div className="flex gap-2">
             <Button
               className="border border-gray-300 w-8 h-8"
               variant="outline"
@@ -211,7 +220,7 @@ function BookingSection({ spot }: Params) {
             >
               {`>`}
             </Button>
-          </div>
+          </div>*/}
         </div>
       </CardHeader>
       <CardContent>
@@ -223,15 +232,16 @@ function BookingSection({ spot }: Params) {
             {progress === "check_availability" && (
               <div>
                 <div className="grid gap-2 justify-center">
-                  <Calendar
-                    className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
-                    mode={spot.durationType === "hours" ? "single" : "range"}
-                    numberOfMonths={1}
-                    defaultMonth={(selectedDate as DateRange)?.from}
-                    onSelect={setSelectedDate}
-                    selected={selectedDate as any}
-                    disabled={{ from: new Date(1970), to: new Date() }}
-                  />
+                <Calendar
+  className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
+  mode={spot.durationType === "hours" ? "single" : "range"}
+  numberOfMonths={1}
+  defaultMonth={(selectedDate as DateRange)?.from}
+  onSelect={setSelectedDate}
+  selected={selectedDate as any}
+  disabled={(date) => date < new Date() || isDateDisabled(date)}
+/>
+
                 </div>
                 {spot.durationType === "hours" && selectedDate && (
                   <>
@@ -274,33 +284,37 @@ function BookingSection({ spot }: Params) {
                     </div>
                   </>
                 )}
-                <div>
-                  <Button
-                    type="button"
-                    className="w-full h-12 my-3"
-                    size="lg"
-                    disabled={!selectedDate}
-                    onClick={() => setProgress("personal_info")}
-                  >
-                    Continue
-                  </Button>
-                </div>
-                <div className="text-sm text-gray-500 text-center dark:text-gray-400">
-                  You won't be charged yet
-                </div>
-                <div className="grid gap-4">
-                  <div className="flex justify-between items-center my-4">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      Subtotal for {calculateDays(selectedDate)} day(s)
+                {selectedDate && ( // Conditionally render this part
+                  <div>
+                    <div>
+                      <Button
+                        type="button"
+                        className="w-full h-12 my-3"
+                        size="lg"
+                        disabled={!selectedDate}
+                        onClick={() => setProgress("personal_info")}
+                      >
+                        Continue
+                      </Button>
                     </div>
-                    <div>${form.getValues().subtotal}</div>
+                    <div className="text-sm text-gray-500 text-center dark:text-gray-400">
+                      You won't be charged yet
+                    </div>
+                    <div className="grid gap-4">
+                      <div className="flex justify-between items-center my-4">
+                        <div className="text-gray-500 dark:text-gray-400">
+                          Subtotal for {calculateDays(selectedDate)} day(s)
+                        </div>
+                        <div>${form.getValues().subtotal}</div>
+                      </div>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center">
+                      <div className="font-semibold">Total before taxes</div>
+                      <div>${form.getValues().totalPrice}</div>
+                    </div>
                   </div>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <div className="font-semibold">Total before taxes</div>
-                  <div>${form.getValues().totalPrice}</div>
-                </div>
+                )}
               </div>
             )}
 
