@@ -7,6 +7,7 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
 import BookingDetails from "../../bookings/_components/bookingDetails";
+import AddTransactionButton from "@/components/forms/AddTransactionButton";
 
 export const columns: ColumnDef<Schema>[] = [
   {
@@ -14,20 +15,33 @@ export const columns: ColumnDef<Schema>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Transaction #" />
     ),
-    cell: ({ row }) => (
-      <BookingDetails booking={row.original.booking}>
-        <div className="w-[80px] truncate text-sky-600">
-          {row.getValue("id")}
-        </div>
-      </BookingDetails>
-    ),
+    cell: ({ row, table }) => {
+      const transaction = {
+        id: row.original.id,
+        status: row.original.status,
+        amount: row.original.amount.toString(),
+        paymentType: row.original.paymentType,
+        date: row.original.paymentDate,
+        description: row.original.description,
+      };
+      
+      return (
+        <AddTransactionButton
+          bookingId={row.original.booking.id}
+          defaultTransaction={transaction}
+          callback={() => table.reset()}
+        >
+          <div className="w-[80px] truncate text-sky-600">
+            {row.getValue("id")}
+          </div>
+        </AddTransactionButton>
+      );
+    },
     enableSorting: false,
     enableHiding: false,
     filterFn: (row, id, value) => {
       const rowId = row.original.id;
-      return (
-        rowId.includes(value)
-      );
+      return rowId.includes(value);
     },
   },
   {
@@ -38,9 +52,7 @@ export const columns: ColumnDef<Schema>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
-          <span>
-            ${row.getValue("amount")}
-          </span>
+          <span>${row.getValue("amount")}</span>
         </div>
       );
     },
@@ -52,10 +64,14 @@ export const columns: ColumnDef<Schema>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col">
-          <span>{row.original.booking.spot.name}</span>
-          <span className="text-muted-foreground">${row.original.booking.totalPrice}</span>
-        </div>
+        <BookingDetails booking={row.original.booking}>
+          <div className="flex flex-col p-0 text-left">
+            <span>{row.original.booking.spot.name}</span>
+            <span className="text-muted-foreground">
+              ${row.original.booking.totalPrice}
+            </span>
+          </div>
+        </BookingDetails>
       );
     },
   },
@@ -69,9 +85,7 @@ export const columns: ColumnDef<Schema>[] = [
       return (
         <div className="flex flex-col">
           <span className="font-medium">{guest?.name}</span>
-          <span className="text-muted-foreground">
-            {guest?.email}
-          </span>
+          <span className="text-muted-foreground">{guest?.email}</span>
         </div>
       );
     },
@@ -86,7 +100,7 @@ export const columns: ColumnDef<Schema>[] = [
   {
     accessorKey: "paymentType",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Payment Type" />
+      <DataTableColumnHeader column={column} title="Payment Method" />
     ),
     cell: ({ row }) => {
       return (

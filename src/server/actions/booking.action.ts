@@ -23,7 +23,7 @@ export const getTransactions = async (ownerId: string) => {
 
 export const getTransactionsByBooking = async (bookingId: string) => {
   const transactions = await db.transaction.findMany({
-    where: { booking: {id: bookingId} }
+    where: { booking: { id: bookingId } },
   });
 
   return transactions;
@@ -32,6 +32,13 @@ export const getTransactionsByBooking = async (bookingId: string) => {
 export const deleteBooking = async (bookingId: string) => {
   const deletedBooking = await db.booking.delete({ where: { id: bookingId } });
   return deletedBooking;
+};
+
+export const deleteTransaction = async (transactionId: string) => {
+  const deletedTransaction = await db.transaction.delete({
+    where: { id: transactionId },
+  });
+  return deletedTransaction;
 };
 
 export const addBooking = async (data: {
@@ -62,26 +69,30 @@ export const addBooking = async (data: {
   return { ...booking, guest };
 };
 
-export const addTransaction = async (data: {
+export const addOrUpdateTransaction = async (data: {
   amount: number;
   date: Date;
   description: string;
   status?: TransactionStatus;
-  paymentType: string,
+  paymentType: string;
   bookingId: string;
+  id?: string;
 }) => {
-  const transaction = await db.transaction.create({
-    data: {
-      amount: data.amount,
-      paymentDate: data.date,
-      status: data.status ?? TransactionStatus.Pending,
-      description: data.description,
-      paymentType: data.paymentType,
-      booking: { connect: { id: data.bookingId } },
-    },
+  const transactionData = {
+    amount: data.amount,
+    paymentDate: data.date,
+    status: data.status ?? TransactionStatus.Pending,
+    description: data.description,
+    paymentType: data.paymentType,
+    booking: { connect: { id: data.bookingId } },
+  };
+  const transaction = await db.transaction.upsert({
+    where: { id: data.id },
+    update: transactionData,
+    create: transactionData,
   });
 
-  return transaction
+  return transaction;
 };
 
 export const addGuestToBooking = async ({

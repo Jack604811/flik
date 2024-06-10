@@ -18,11 +18,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Booking, bookingSchema } from "../data/schema";
+import { schema, Schema } from "../data/schema";
 import ConfirmModal from "@/components/confirm-modal";
 import { useRef } from "react";
 import { toast } from "sonner";
-import { deleteBooking } from "@/server/actions/booking.action";
+import { deleteTransaction } from "@/server/actions/booking.action";
 import { useRouter } from "next/navigation";
 
 interface DataTableRowActionsProps<TData> {
@@ -34,19 +34,20 @@ export function DataTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const router = useRouter()
   const deleteRef = useRef<any>();
-  const bookingId = row.getValue("id") as string;
-  const guestName = row.getValue("guest") as Booking["guest"];
+  const transactionId = row.getValue("id") as string;
+  const booking = row.getValue("booking") as Schema["booking"];
+  const guest = booking.guest;
 
   const onDelete = () => {
-    const deleted = deleteBooking(bookingId);
+    const deleted = deleteTransaction(transactionId);
     toast.promise(deleted, {
-      loading: "Deleting booking, please wait...",
+      loading: "Deleting transaction, please wait...",
       success: () => {
         router.refresh()
-        return "Booking deleted successfully!"
+        return "Transaction deleted successfully!"
       },
-      error: "There was an error deleting booking!",
-      description: `Booking ${bookingId} by ${guestName?.name}`,
+      error: "There was an error deleting Transaction!",
+      description: `Transaction ${transactionId} by ${guest?.name}`,
       duration: 3000,
 
     })
@@ -54,7 +55,7 @@ export function DataTableRowActions<TData>({
 
   return (
     <>
-      <ConfirmModal onConfirm={onDelete} warningText={`Delete booking ${bookingId} by ${guestName?.name}?`}>
+      <ConfirmModal onConfirm={onDelete} warningText={`Delete booking ${transactionId} by ${guest?.name}?`}>
         <div ref={deleteRef} className="hidden">
           Delete
         </div>

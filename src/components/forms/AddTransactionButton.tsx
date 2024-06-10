@@ -25,7 +25,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { addTransaction } from "@/server/actions/booking.action";
+import { addOrUpdateTransaction } from "@/server/actions/booking.action";
 import { toast } from "sonner";
 import { TransactionStatus } from "@prisma/client";
 import {
@@ -45,9 +45,11 @@ import { CalendarIcon, CirclePlus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils"; // Ensure this utility function is available
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  amount: z.string().transform((v) => Number(v)),
+  id: z.string().optional(),
+  amount: z.string(),
   date: z.date(),
   description: z.string(),
   paymentType: z.string(),
@@ -58,48 +60,70 @@ function AddTransactionButton({
   children,
   placeholder,
   bookingId,
+  defaultTransaction,
+  callback
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   placeholder?: string;
   bookingId: string;
+  defaultTransaction?: z.infer<typeof formSchema> & { id: string };
+  callback?: () => void
 }) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { paymentType: "Cash", status: "Paid" },
+    defaultValues: {
+      paymentType: "Cash",
+      status: "Paid",
+      ...defaultTransaction
+    },
     resetOptions: { keepDefaultValues: true },
   });
 
   const [open, setOpen] = useState(false);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const promise = addTransaction({ ...values, bookingId });
+    const promise = addOrUpdateTransaction({ ...values, bookingId, amount: Number(values.amount) });
+    const operation = defaultTransaction?.id
+      ? ["Updating", "updated"]
+      : ["Adding", "added"];
     toast.promise(promise, {
-      loading: `Adding ${placeholder ?? "manual payment"}!`,
+      loading: `${operation[0]} ${placeholder ?? "manual payment"}!`,
       error: "There was an error with the request, kindly try again!",
       success(data) {
+        if (defaultTransaction) {
+
+          router.refresh();
+          callback && callback()
+        };
         queryClient.invalidateQueries({
           queryKey: ["bookingPayments", bookingId],
         });
+        
         setOpen(false);
-        form.reset(); 
-        return `${placeholder ?? "manual payment"} added successfully!`;
+        form.reset();
+        return `${placeholder ?? "manual payment"} ${
+          operation[1]
+        } successfully!`;
       },
     });
   };
 
   const handleCancel = () => {
-    form.reset(); 
+    form.reset();
     setOpen(false);
   };
 
   return (
     <Credenza open={open} onOpenChange={setOpen}>
       <CredenzaTrigger className="items-center justify-center h-6" asChild>
-        <div className="flex flex-row gap-2"> 
-        <CirclePlus className="h-4 w-4"/>
-        <button>Add {placeholder ?? "Payment"}</button>
-        </div>
+        {children ?? (
+          <div className="flex flex-row gap-2">
+            <CirclePlus className="h-4 w-4" />
+            <button>Add {placeholder ?? "Payment"}</button>
+          </div>
+        )}
       </CredenzaTrigger>
       <CredenzaContent>
         <CredenzaHeader>
@@ -107,7 +131,8 @@ function AddTransactionButton({
             Add {placeholder ?? "Manual Payment"}
           </CredenzaTitle>
           <CredenzaDescription>
-            Enter the details of the {placeholder ?? "manual payment"} you want to add.
+            Enter the details of the {placeholder ?? "manual payment"} you want
+            to add.
           </CredenzaDescription>
         </CredenzaHeader>
         <CredenzaBody className="">
@@ -122,7 +147,7 @@ function AddTransactionButton({
                       <FormItem>
                         <FormLabel>Amount</FormLabel>
                         <FormControl>
-                          <Input placeholder="00.00" {...field} />
+                          <Input type="number" placeholder="00.00"  {...field}  />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -146,7 +171,14 @@ function AddTransactionButton({
                               <SelectValue placeholder="Select payment type" />
                             </SelectTrigger>
                             <SelectContent>
-                              {["Cash", "Bank transfer", "Wompi", "Epayco", "Mercadopago", "Stripe"].map((pt, key) => (
+                              {[
+                                "Cash",
+                                "Bank transfer",
+                                "Wompi",
+                                "Epayco",
+                                "Mercadopago",
+                                "Stripe",
+                              ].map((pt, key) => (
                                 <SelectItem key={key} value={pt}>
                                   {pt}
                                 </SelectItem>
@@ -177,7 +209,11 @@ function AddTransactionButton({
                                 )}
                               >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -244,11 +280,15 @@ function AddTransactionButton({
               <CredenzaFooter>
                 <div className="flex w-full mt-8 gap-4 items-center justify-center">
                   <CredenzaClose asChild>
-                    <Button type="button" variant="outline" onClick={handleCancel}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                    >
                       Cancel
                     </Button>
                   </CredenzaClose>
-                  <Button type="submit">Create Payment</Button>
+                  <Button type="submit">{defaultTransaction?.id ? "Update" : "Create"} Payment</Button>
                 </div>
               </CredenzaFooter>
             </form>

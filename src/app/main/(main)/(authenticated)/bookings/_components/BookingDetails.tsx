@@ -40,7 +40,7 @@ import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import BookingPayments from "./bookingPayments";
+import BookingPayments from "./BookingPayments";
 import {
   Carousel,
   CarouselContent,
@@ -357,7 +357,7 @@ export default function BookingDetails({ children, booking }: Props) {
                 </div>
               </TabsContent>
               <TabsContent className="pt-4" value="payments">
-                <BookingPayments bookingId={booking!.id} />
+                <BookingPayments bookingId={booking!.id} bookingPrice={booking!.totalPrice} />
               </TabsContent>
               </ScrollArea>
             </Tabs>

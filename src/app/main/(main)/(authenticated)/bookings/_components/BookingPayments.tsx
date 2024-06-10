@@ -18,36 +18,34 @@ import { Transaction } from "@prisma/client";
 import moment from "moment";
 import { statuses } from "../../transactions/data/data";
 import { CirclePlus } from "lucide-react";
+import _ from "lodash"
 
-function BookingPayments({ bookingId }: { bookingId: string }) {
+function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, bookingPrice: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ["bookingPayments", bookingId],
     queryFn: () => getTransactionsByBooking(bookingId),
     initialData: [] as Transaction[],
   });
 
-  const totalOutstandingPayments = data
-  .filter((item) => item.status === "Pending")
-  .reduce((total, item) => total + item.amount, 0).toFixed(2);
-  const totalPaidPayments = data
-  .filter((item) => item.status === "Paid")
-  .reduce((total, item) => total + item.amount, 0).toFixed(2);
-  const totalPayment = data.reduce((total, item) => total + item.amount, 0).toFixed(2);
+
+  const totalPayment = data.reduce((total, item) => total + item.amount, 0);
+  const totalOutstandingPayments = _.subtract(bookingPrice, totalPayment);
+
   return (
     <div className="grid gap-3">
       <div className="font-semibold">Payment Resume</div>
       <ul className="grid gap-3">
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground">Payments</span>
-          <span>${totalPaidPayments}</span>
+          <span>${totalPayment.toFixed(2)}</span>
         </li>
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground">Outstanding</span>
-          <span>${totalOutstandingPayments}</span>
+          <span>${totalOutstandingPayments.toFixed(2)}</span>
         </li>
         <li className="flex items-center justify-between font-semibold">
           <span className="text-muted-foreground">Total</span>
-          <span>${totalPayment}</span>
+          <span>${_.subtract(totalPayment, totalOutstandingPayments).toFixed(2)}</span>
         </li>
       </ul>
       <Separator className="my-4" />
@@ -81,7 +79,7 @@ function BookingPayments({ bookingId }: { bookingId: string }) {
               <TableCell colSpan={8}>
                 <AddTransactionButton bookingId={bookingId}>
                   <Button className="gap-2 w-full" size="sm" variant="ghost">
-                    <CirclePlus className="h-4 w-4"/> Add hh Transaction
+                    <CirclePlus className="h-4 w-4"/> Add a Transaction
                   </Button>
                 </AddTransactionButton>
               </TableCell>

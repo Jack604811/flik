@@ -206,12 +206,10 @@ function SpotForm({
     accept: { images: ["image/*"] },
   });
 
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
-      name: "workingHours", // unique name for your Field Array
-    }
-  );
+  const { fields, append, remove, insert } = useFieldArray({
+    control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
+    name: "workingHours", // unique name for your Field Array
+  });
 
   const onDeleteImage = async (file: any, index: number) => {
     if (!file.id) {
@@ -398,7 +396,9 @@ function SpotForm({
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Clone</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => append(field)}>
+                                  Clone
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => remove(index)}>
                                   Delete
                                 </DropdownMenuItem>
@@ -530,9 +530,9 @@ function SpotForm({
                               onChange={(e) =>
                                 field.onChange(
                                   e.target.value
-                                  .replace(/ñ/g, "n")
-                                  .replace(/[^A-Za-z0-9]+/g, "-")
-                                  .toLowerCase()
+                                    .replace(/ñ/g, "n")
+                                    .replace(/[^A-Za-z0-9]+/g, "-")
+                                    .toLowerCase()
                                 )
                               }
                             />
