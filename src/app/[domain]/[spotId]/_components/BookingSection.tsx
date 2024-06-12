@@ -198,7 +198,7 @@ function BookingSection({ spot }: Params) {
           <Progress className="w-full" value={progresses[progress].value} />
         </div>*/}
 
-        <div className="flex gap-2 justify-between">
+        <div className="flex gap-2 justify-center">
           <div>
             <h2 className="text-2xl font-bold">{progresses[progress].title}</h2>
             {/*<p className="text-gray-500 dark:text-gray-400">
@@ -233,15 +233,14 @@ function BookingSection({ spot }: Params) {
               <div>
                 <div className="grid gap-2 justify-center">
                 <Calendar
-  className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
-  mode={spot.durationType === "hours" ? "single" : "range"}
-  numberOfMonths={1}
-  defaultMonth={(selectedDate as DateRange)?.from}
-  onSelect={setSelectedDate}
-  selected={selectedDate as any}
-  disabled={(date) => date < new Date() || isDateDisabled(date)}
-/>
-
+                  className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
+                  mode={spot.durationType === "hours" ? "single" : "range"}
+                  numberOfMonths={1}
+                  defaultMonth={(selectedDate as DateRange)?.from}
+                  onSelect={setSelectedDate}
+                  selected={selectedDate as any}
+                  disabled={(date) => date < new Date() || isDateDisabled(date)}
+                />
                 </div>
                 {spot.durationType === "hours" && selectedDate && (
                   <>
@@ -284,7 +283,7 @@ function BookingSection({ spot }: Params) {
                     </div>
                   </>
                 )}
-                {selectedDate && ( // Conditionally render this part
+                {selectedDate && ( 
                   <div>
                     <div>
                       <Button

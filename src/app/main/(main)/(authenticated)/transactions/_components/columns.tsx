@@ -46,6 +46,7 @@ export const columns: ColumnDef<Schema>[] = [
       return rowId.includes(value);
     },
   },
+  
   {
     accessorKey: "amount",
     header: ({ column }) => (
@@ -58,6 +59,7 @@ export const columns: ColumnDef<Schema>[] = [
         </div>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "booking",
@@ -76,6 +78,7 @@ export const columns: ColumnDef<Schema>[] = [
         </BookingDetails>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "guest",
@@ -101,6 +104,7 @@ export const columns: ColumnDef<Schema>[] = [
         row.original.booking.spot.name.includes(value)
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "paymentType",
@@ -114,6 +118,7 @@ export const columns: ColumnDef<Schema>[] = [
         </div>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "status",
@@ -138,6 +143,7 @@ export const columns: ColumnDef<Schema>[] = [
         </div>
       );
     },
+    enableSorting: false,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
@@ -156,6 +162,7 @@ export const columns: ColumnDef<Schema>[] = [
         </div>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "createdAt",
@@ -171,6 +178,7 @@ export const columns: ColumnDef<Schema>[] = [
         </div>
       );
     },
+    enableSorting: false,
     filterFn: (row, id, value) => {
       return value
         ? moment(row.getValue(id)).isBetween(value?.[0], value?.[1])
