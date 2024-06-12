@@ -45,7 +45,7 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
         </li>
         <li className="flex items-center justify-between font-semibold">
           <span className="text-muted-foreground">Total</span>
-          <span>${_.subtract(totalPayment, totalOutstandingPayments).toFixed(2)}</span>
+          <span>${totalPayment.toFixed(2)}</span>
         </li>
       </ul>
       <Separator className="my-4" />
