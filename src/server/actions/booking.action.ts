@@ -87,7 +87,7 @@ export const addOrUpdateTransaction = async (data: {
     booking: { connect: { id: data.bookingId } },
   };
   const transaction = await db.transaction.upsert({
-    where: { id: data.id },
+    where: { id: data.id ?? "0" },
     update: transactionData,
     create: transactionData,
   });

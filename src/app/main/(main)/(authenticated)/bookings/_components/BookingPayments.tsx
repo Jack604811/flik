@@ -17,7 +17,7 @@ import { getTransactionsByBooking } from "@/server/actions/booking.action";
 import { Transaction } from "@prisma/client";
 import moment from "moment";
 import { statuses } from "../../transactions/data/data";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Edit } from "lucide-react";
 import _ from "lodash"
 
 function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, bookingPrice: number }) {
@@ -28,8 +28,8 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
   });
 
 
-  const totalPayment = data.reduce((total, item) => total + item.amount, 0);
-  const totalOutstandingPayments = _.subtract(bookingPrice, totalPayment);
+  const totalPayment = data.filter(item => item.status === 'Paid').reduce((total, item) => total + item.amount, 0);
+  const totalOutstandingPayments = data.length === 0 ? bookingPrice : bookingPrice - totalPayment;
 
   return (
     <div className="grid gap-3">
@@ -54,6 +54,7 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead></TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Amount</TableHead>
@@ -64,6 +65,11 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
           <TableBody>
             {isLoading ? "Loading..." :data.map((item) => (
               <TableRow key={item.id}>
+                <TableCell>
+                  <AddTransactionButton bookingId={bookingId} defaultTransaction={{...item, amount: String(item.amount), date: item.paymentDate}}>
+                    <Edit size={14} className="p-0 m-0 cursor-pointer" />
+                  </AddTransactionButton>
+                </TableCell>
                 <TableCell>{moment(item.paymentDate).format("MMM DD, YYYY")}</TableCell>
                 <TableCell>{item.description}</TableCell>
                 <TableCell className="text-right">${item.amount.toFixed(2)}</TableCell>

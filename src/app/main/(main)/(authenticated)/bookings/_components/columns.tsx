@@ -6,7 +6,8 @@ import { Booking } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "./bookingDetails";
+import BookingDetails from "./BookingDetails";
+import { ExternalLink } from "lucide-react";
 
 export const columns: ColumnDef<Booking>[] = [
   // {
@@ -36,14 +37,14 @@ export const columns: ColumnDef<Booking>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Booking #" />
+      <DataTableColumnHeader column={column} title="" />
     ),
     cell: ({ row }) => (
-      <BookingDetails booking={row.original}>
-        <div className="w-[80px] truncate text-sky-600">
-          {row.getValue("id")}
-        </div>
-      </BookingDetails>
+      <div className="flex items-center justify-center">
+        <BookingDetails booking={row.original}>
+          <ExternalLink className="text-blue-500" size={15} />
+        </BookingDetails>
+      </div>
     ),
     enableSorting: false,
     enableHiding: false,

@@ -24,6 +24,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import { deleteBooking } from "@/server/actions/booking.action";
 import { useRouter } from "next/navigation";
+import BookingDetails from "./BookingDetails";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -32,7 +33,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const router = useRouter()
+  const router = useRouter();
   const deleteRef = useRef<any>();
   const bookingId = row.getValue("id") as string;
   const guestName = row.getValue("guest") as Booking["guest"];
@@ -42,19 +43,21 @@ export function DataTableRowActions<TData>({
     toast.promise(deleted, {
       loading: "Deleting booking, please wait...",
       success: () => {
-        router.refresh()
-        return "Booking deleted successfully!"
+        router.refresh();
+        return "Booking deleted successfully!";
       },
       error: "There was an error deleting booking!",
       description: `Booking ${bookingId} by ${guestName?.name}`,
       duration: 3000,
-
-    })
-  } 
+    });
+  };
 
   return (
     <>
-      <ConfirmModal onConfirm={onDelete} warningText={`Delete booking ${bookingId} by ${guestName?.name}?`}>
+      <ConfirmModal
+        onConfirm={onDelete}
+        warningText={`Delete booking ${bookingId} by ${guestName?.name}?`}
+      >
         <div ref={deleteRef} className="hidden">
           Delete
         </div>
@@ -71,7 +74,11 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          {/* <DropdownMenuItem>Edit</DropdownMenuItem> */}
+          <DropdownMenuItem>
+            <BookingDetails booking={row.original as Booking}>
+              <span>Edit</span>
+            </BookingDetails>
+          </DropdownMenuItem>
           <DropdownMenuItem>Make a copy</DropdownMenuItem>
           <DropdownMenuItem>Favorite</DropdownMenuItem>
           <DropdownMenuSeparator />

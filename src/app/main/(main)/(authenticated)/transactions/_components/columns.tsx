@@ -6,7 +6,7 @@ import { Schema } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "../../bookings/_components/bookingDetails";
+import BookingDetails from "../../bookings/_components/BookingDetails";
 import AddTransactionButton from "@/components/forms/AddTransactionButton";
 
 export const columns: ColumnDef<Schema>[] = [
@@ -16,26 +16,28 @@ export const columns: ColumnDef<Schema>[] = [
       <DataTableColumnHeader column={column} title="Transaction #" />
     ),
     cell: ({ row, table }) => {
-      const transaction = {
-        id: row.original.id,
-        status: row.original.status,
-        amount: row.original.amount.toString(),
-        paymentType: row.original.paymentType,
-        date: row.original.paymentDate,
-        description: row.original.description,
-      };
-      
-      return (
-        <AddTransactionButton
-          bookingId={row.original.booking.id}
-          defaultTransaction={transaction}
-          callback={() => table.reset()}
-        >
-          <div className="w-[80px] truncate text-sky-600">
-            {row.getValue("id")}
-          </div>
-        </AddTransactionButton>
-      );
+      // const transaction = {
+      //   id: row.original.id,
+      //   status: row.original.status,
+      //   amount: row.original.amount.toString(),
+      //   paymentType: row.original.paymentType,
+      //   date: row.original.paymentDate,
+      //   description: row.original.description,
+      // };
+
+      // return (
+      //   <AddTransactionButton
+      //     bookingId={row.original.booking.id}
+      //     defaultTransaction={transaction}
+      //     callback={() => table.reset()}
+      //   >
+      //     <div className="w-[80px] truncate text-sky-600">
+      //       {row.getValue("id")}
+      //     </div>
+      //   </AddTransactionButton>
+      // );
+
+      return <div className="w-[80px] truncate">{row.getValue("id")}</div>;
     },
     enableSorting: false,
     enableHiding: false,
@@ -65,7 +67,7 @@ export const columns: ColumnDef<Schema>[] = [
     cell: ({ row }) => {
       return (
         <BookingDetails booking={row.original.booking}>
-          <div className="flex flex-col p-0 text-left">
+          <div className="flex flex-col p-0 text-left text-sky-600">
             <span>{row.original.booking.spot.name}</span>
             <span className="text-muted-foreground">
               ${row.original.booking.totalPrice}
@@ -91,9 +93,12 @@ export const columns: ColumnDef<Schema>[] = [
     },
     filterFn: (row, id, value) => {
       const guest = row.original.booking.guest;
+      value = value.toLowerCase();
       return (
         guest?.email?.toLowerCase().includes(value) ||
-        guest?.name?.toLowerCase().includes(value)
+        guest?.name?.toLowerCase().includes(value) ||
+        row.original.id.includes(value) ||
+        row.original.booking.spot.name.includes(value)
       );
     },
   },
