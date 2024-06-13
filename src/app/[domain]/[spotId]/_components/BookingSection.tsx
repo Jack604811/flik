@@ -113,8 +113,8 @@ function BookingSection({ spot }: Params) {
 
   const getSelectedDayTimeslots = useCallback((day: string) => {
     const workingHour = workingHours?.find((wh) => wh.day === day);
-    const time1 = moment(workingHour?.openTime, "HH:mm");
-    const time2 = moment(workingHour?.closeTime, "HH:mm");
+    const time1 = moment(workingHour?.openTime, "hh:mm A");
+    const time2 = moment(workingHour?.closeTime, "hh:mm A");
 
     // Check if the second time is on the next day
     if (time2.isBefore(time1)) {
@@ -129,7 +129,7 @@ function BookingSection({ spot }: Params) {
       if (endTime.isAfter(time2)) {
         break;
       }
-      timeslots.push(currentTime.format("HH:mm"));
+      timeslots.push(currentTime.format("hh:mm A"));
       currentTime.add(spot.duration, "hours");
     }
     return timeslots;
@@ -186,8 +186,8 @@ function BookingSection({ spot }: Params) {
       const availableTimeslots = timeslots.filter((timeslot) => {
         const bookingsOnTimeslot = bookings.filter(
           (booking) =>
-            moment(booking.startDate).format("YYYY-MM-DD HH:mm") <= dateStr + " " + timeslot &&
-            moment(booking.endDate).format("YYYY-MM-DD HH:mm") >= dateStr + " " + timeslot
+            moment(booking.startDate).format("YYYY-MM-DD hh:mm A") <= dateStr + " " + timeslot &&
+            moment(booking.endDate).format("YYYY-MM-DD hh:mm A") >= dateStr + " " + timeslot
         );
         return bookingsOnTimeslot.length < (spot.units ?? 0);
       });
@@ -207,9 +207,9 @@ function BookingSection({ spot }: Params) {
     const dateStr = moment(date).format("YYYY-MM-DD");
     const bookingsOnTimeslot = bookings.filter(
       (booking) =>
-        moment(booking.startDate).format("YYYY-MM-DD HH:mm") <=
+        moment(booking.startDate).format("YYYY-MM-DD hh:mm A") <=
           dateStr + " " + timeslot &&
-        moment(booking.endDate).format("YYYY-MM-DD HH:mm") >=
+        moment(booking.endDate).format("YYYY-MM-DD hh:mm A") >=
           dateStr + " " + timeslot
     );
 
@@ -281,60 +281,66 @@ function BookingSection({ spot }: Params) {
                 {spot.durationType === "hours" && selectedDate && (
                   <>
                     <div className="max-w-md my-4 p-0 space-y-4">
-                      <h2 className="text-md font-bold">Select a Time Slot</h2>
+                    <h2 className="text-md font-bold">
+                      {getSelectedDayTimeslots(moment(selectedDate as Date).format("dddd")).length > 0
+                        ? "Select a Time Slot"
+                        : "No time slots available, please select another date"}
+                    </h2>
                       <div className="grid grid-cols-3 gap-2">
                         {getSelectedDayTimeslots(
                           moment(selectedDate as Date).format("dddd")
                         ).map((timeslot, key) => (
-                          <button
-                            key={key}
-                            type="button"
-                            className={`text-sm bg-gray-100 rounded-md py-1 px-2 transition-colors relative ${
-                              isTimeslotDisabled(
+                          !isTimeslotDisabled(selectedDate as Date, timeslot) && (
+                            <button
+                              key={key}
+                              type="button"
+                              className={`text-sm bg-gray-100 rounded-md py-1 px-2 transition-colors relative ${
+                                isTimeslotDisabled(
+                                  selectedDate as Date,
+                                  timeslot
+                                )
+                                  ? "bg-red-500 cursor-not-allowed relative"
+                                  : moment(selectedDate as Date).format(
+                                      "hh:mm A"
+                                    ) === timeslot
+                                  ? "bg-slate-600 hover:bg-slate-800 text-white"
+                                  : "hover:bg-slate-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+                              }`}
+                              onClick={() =>
+                                !isTimeslotDisabled(selectedDate as Date, timeslot) &&
+                                setSelectedDate(
+                                  moment(
+                                    `${moment(selectedDate as Date).format(
+                                      "YYYY-MM-DD"
+                                    )} ${
+                                      moment(selectedDate as Date).format(
+                                        "hh:mm A"
+                                      ) === timeslot
+                                        ? "00:00"
+                                        : timeslot
+                                    }`,
+                                    "YYYY-MM-DD hh:mm A"
+                                  ).toDate()
+                                )
+                              }
+                            >
+                              {timeslot}
+                              {isTimeslotDisabled(
                                 selectedDate as Date,
                                 timeslot
-                              )
-                                ? "bg-red-500 cursor-not-allowed relative"
-                                : moment(selectedDate as Date).format(
-                                    "HH:mm"
-                                  ) === timeslot
-                                ? "bg-slate-600 hover:bg-slate-800 text-white"
-                                : "hover:bg-slate-600 dark:bg-gray-800 dark:hover:bg-gray-700"
-                            }`}
-                            onClick={() =>
-                              !isTimeslotDisabled(selectedDate as Date, timeslot) &&
-                              setSelectedDate(
-                                moment(
-                                  `${moment(selectedDate as Date).format(
-                                    "YYYY-MM-DD"
-                                  )} ${
-                                    moment(selectedDate as Date).format(
-                                      "HH:mm"
-                                    ) === timeslot
-                                      ? "00:00"
-                                      : timeslot
-                                  }`,
-                                  "YYYY-MM-DD HH:mm"
-                                ).toDate()
-                              )
-                            }
-                          >
-                            {timeslot}
-                            {isTimeslotDisabled(
-                              selectedDate as Date,
-                              timeslot
-                            ) && (
-                              <span className="absolute inset-0 flex items-center justify-center text-white font-bold">
-                                <X scale={5} size={40} />
-                              </span>
-                            )}
-                          </button>
+                              ) && (
+                                <span className="absolute inset-0 flex items-center justify-center text-white font-bold">
+                                  <X scale={5} size={40} />
+                                </span>
+                              )}
+                            </button>
+                          )
                         ))}
                       </div>
                     </div>
                   </>
                 )}
-                {selectedDate && ( 
+                {selectedDate && (
                   <div>
                     <div>
                       <Button
