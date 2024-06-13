@@ -42,7 +42,14 @@ export const getSiteSpotData = async (domain: string, spotId: string) => {
           owner: subdomain ? { subdomain } : { customDomain: domain },
           status: SpotStatus.Public,
         },
-        include: { images: true, owner: true },
+        include: {
+          images: true,
+          owner: true,
+          bookings: {
+            where: { startDate: { gte: new Date() } },
+            select: { id: true, startDate: true, endDate: true },
+          },
+        },
       }),
     [`${domain}-${spotId}-metadata`],
     {
@@ -65,7 +72,10 @@ export const getSpotBooking = async (domain: string, bookingId: string) => {
       id: bookingId,
       spot: { owner: subdomain ? { subdomain } : { customDomain: domain } },
     },
-    include: {guest: true, spot: {select: {name: true, description: true}}}
+    include: {
+      guest: true,
+      spot: { select: { name: true, description: true } },
+    },
   });
 
   return booking;

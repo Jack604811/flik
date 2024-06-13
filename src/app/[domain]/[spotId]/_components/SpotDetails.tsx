@@ -9,22 +9,21 @@ import {
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
-import { Spot, SpotImages, User } from "@prisma/client";
+import { Booking, Spot, SpotImages, User } from "@prisma/client";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import Image from "next/image";
-import {  useState } from "react";
+import { useState } from "react";
 
 import BookingSection from "./BookingSection";
+import { BookingDates } from "@/lib/types";
 
 export default function SpotDetails({
   spot,
 }: {
-  spot: Spot & { owner: User; images: SpotImages[] };
+  spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[] };
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-
-
 
   const handlePrevious = () => {
     setCurrentIndex((prevIndex) =>

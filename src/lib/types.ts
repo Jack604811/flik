@@ -56,3 +56,5 @@ export interface DomainVerificationResponse {
     reason: string;
   }[];
 }
+
+export type BookingDates = {id: string, startDate: Date|null, endDate: Date|null}

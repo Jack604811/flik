@@ -7,7 +7,7 @@ import { DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { addBooking } from "@/server/actions/booking.action";
-import { Spot, SpotImages, User } from "@prisma/client";
+import { Booking, Spot, SpotImages, User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -16,9 +16,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
+import { BookingDates } from "@/lib/types";
+import { X } from "lucide-react";
 
 type Params = {
-  spot: Spot & { owner: User; images: SpotImages[] };
+  spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[] };
 };
 
 const formSchema = z.object({
@@ -64,6 +66,8 @@ function BookingSection({ spot }: Params) {
     Date | DateRange | undefined
   >();
 
+  const bookings = spot.bookings;
+
   const workingHours: {
     day: string;
     price: number;
@@ -84,7 +88,6 @@ function BookingSection({ spot }: Params) {
 
     return 1; // If it's a single date
   };
-
 
   const getDatesArray = (
     selectedDate: Date | DateRange | undefined
@@ -174,12 +177,46 @@ function BookingSection({ spot }: Params) {
     }
   };
 
-  const isDateDisabled = (date: Date) => {
+  const isDateDisabled = useCallback((date: Date) => {
     const dayOfWeek = moment(date).format("dddd");
-    const timeslots = getSelectedDayTimeslots(dayOfWeek);
-    return timeslots.length === 0;
-  };
+    const dateStr = moment(date).format("YYYY-MM-DD");
+    if(date < moment().toDate()) return true
   
+    if (spot.durationType === "hours") {
+      const timeslots = getSelectedDayTimeslots(dayOfWeek);
+      const availableTimeslots = timeslots.filter((timeslot) => {
+        const bookingsOnTimeslot = bookings.filter(
+          (booking) =>
+            moment(booking.startDate).format("YYYY-MM-DD HH:mm") <= dateStr + " " + timeslot &&
+            moment(booking.endDate).format("YYYY-MM-DD HH:mm") >= dateStr + " " + timeslot
+        );
+        return bookingsOnTimeslot.length < (spot.units ?? 0);
+      });
+      return availableTimeslots.length === 0;
+    }
+    const bookingsOnDate = bookings.filter(
+      (booking) =>
+        moment(booking.startDate).format("YYYY-MM-DD") <= dateStr &&
+        moment(booking.endDate).format("YYYY-MM-DD") >= dateStr
+    );
+    return bookingsOnDate.length >= (spot.units ?? 0);
+    
+  }, [bookings, getSelectedDayTimeslots, spot]);
+  
+
+  const isTimeslotDisabled = (date: Date, timeslot: string) => {
+    const dateStr = moment(date).format("YYYY-MM-DD");
+    const bookingsOnTimeslot = bookings.filter(
+      (booking) =>
+        moment(booking.startDate).format("YYYY-MM-DD HH:mm") <=
+          dateStr + " " + timeslot &&
+        moment(booking.endDate).format("YYYY-MM-DD HH:mm") >=
+          dateStr + " " + timeslot
+    );
+
+    return bookingsOnTimeslot.length >= (spot.units ?? 0);
+  };
+
   useEffect(() => {
     setTimeout(() => {
       const { startDate, endDate } = getStartEndDates(selectedDate);
@@ -232,16 +269,15 @@ function BookingSection({ spot }: Params) {
             {progress === "check_availability" && (
               <div>
                 <div className="grid gap-2 justify-center">
-                <Calendar
-  className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
-  mode={spot.durationType === "hours" ? "single" : "range"}
-  numberOfMonths={1}
-  defaultMonth={(selectedDate as DateRange)?.from}
-  onSelect={setSelectedDate}
-  selected={selectedDate as any}
-  disabled={(date) => date < new Date() || isDateDisabled(date)}
-/>
-
+                  <Calendar
+                    className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
+                    mode={spot.durationType === "hours" ? "single" : "range"}
+                    numberOfMonths={1}
+                    defaultMonth={(selectedDate as DateRange)?.from}
+                    onSelect={setSelectedDate}
+                    selected={selectedDate as any}
+                    disabled={(date) => isDateDisabled(date)}
+                  />
                 </div>
                 {spot.durationType === "hours" && selectedDate && (
                   <>
@@ -254,13 +290,20 @@ function BookingSection({ spot }: Params) {
                           <button
                             key={key}
                             type="button"
-                            className={`text-sm bg-gray-100 hover:bg-slate-600 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md py-1 px-2 transition-colors ${
-                              moment(selectedDate as Date).format("HH:mm") ===
-                              timeslot
+                            className={`text-sm bg-gray-100 rounded-md py-1 px-2 transition-colors relative ${
+                              isTimeslotDisabled(
+                                selectedDate as Date,
+                                timeslot
+                              )
+                                ? "bg-red-500 cursor-not-allowed relative"
+                                : moment(selectedDate as Date).format(
+                                    "HH:mm"
+                                  ) === timeslot
                                 ? "bg-slate-600 hover:bg-slate-800 text-white"
-                                : ""
+                                : "hover:bg-slate-600 dark:bg-gray-800 dark:hover:bg-gray-700"
                             }`}
                             onClick={() =>
+                              !isTimeslotDisabled(selectedDate as Date, timeslot) &&
                               setSelectedDate(
                                 moment(
                                   `${moment(selectedDate as Date).format(
@@ -278,6 +321,14 @@ function BookingSection({ spot }: Params) {
                             }
                           >
                             {timeslot}
+                            {isTimeslotDisabled(
+                              selectedDate as Date,
+                              timeslot
+                            ) && (
+                              <span className="absolute inset-0 flex items-center justify-center text-white font-bold">
+                                <X scale={5} size={40} />
+                              </span>
+                            )}
                           </button>
                         ))}
                       </div>

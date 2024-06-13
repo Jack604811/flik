@@ -35,6 +35,7 @@ export function DataTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const router = useRouter();
   const deleteRef = useRef<any>();
+  const editRef = useRef<any>();
   const bookingId = row.getValue("id") as string;
   const guestName = row.getValue("guest") as Booking["guest"];
 
@@ -63,6 +64,10 @@ export function DataTableRowActions<TData>({
         </div>
       </ConfirmModal>
 
+      <BookingDetails booking={row.original as Booking}>
+        <div  ref={editRef} className="hidden">Edit</div>
+      </BookingDetails>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -74,11 +79,7 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem>
-            <BookingDetails booking={row.original as Booking}>
-              <span>Edit</span>
-            </BookingDetails>
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => editRef.current?.click()}> Edit </DropdownMenuItem>
           <DropdownMenuItem>Make a copy</DropdownMenuItem>
           <DropdownMenuItem>Favorite</DropdownMenuItem>
           <DropdownMenuSeparator />

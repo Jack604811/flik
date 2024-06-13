@@ -2,6 +2,7 @@
 
 import { BookingStatus, TransactionStatus } from "@prisma/client";
 import { db } from "../db";
+import { revalidateTag } from "next/cache";
 
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
@@ -63,8 +64,12 @@ export const addBooking = async (data: {
       endDate: data.endDate,
       spotId: data.spotId,
     },
+    include: {spot: {select: {owner: { select: { subdomain: true, customDomain: true} }}}}
   });
   const guest = await addGuestToBooking({ ...data, bookingId: booking.id });
+
+  revalidateTag(`${booking.spot.owner.subdomain}-${data.spotId}-metadata`)
+  revalidateTag(`${booking.spot.owner.customDomain}-${data.spotId}-metadata`)
 
   return { ...booking, guest };
 };
@@ -121,7 +126,7 @@ export const addGuestToBooking = async ({
       note,
       dni,
       bookings: { connect: { id: bookingId } },
-    },
+    }
   });
 
   return guest;
