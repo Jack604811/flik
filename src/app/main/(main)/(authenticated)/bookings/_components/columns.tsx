@@ -73,6 +73,7 @@ export const columns: ColumnDef<Booking>[] = [
         bookingId.includes(value)
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "status",
@@ -100,6 +101,7 @@ export const columns: ColumnDef<Booking>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
+    enableSorting: false,
   },
   {
     accessorKey: "startDate",
@@ -115,6 +117,7 @@ export const columns: ColumnDef<Booking>[] = [
         </div>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "endDate",
@@ -130,6 +133,7 @@ export const columns: ColumnDef<Booking>[] = [
         </div>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: "createdAt",
@@ -150,6 +154,7 @@ export const columns: ColumnDef<Booking>[] = [
         ? moment(row.getValue(id)).isBetween(value?.[0], value?.[1])
         : true;
     },
+    enableSorting: false,
   },
   {
     id: "actions",

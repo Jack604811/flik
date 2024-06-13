@@ -111,7 +111,7 @@ function BookingSection({ spot }: Params) {
     return [selectedDate as Date]; // If it's a single date
   };
 
-  const getSelectedDayTimeslots = (day: string) => {
+  const getSelectedDayTimeslots = useCallback((day: string) => {
     const workingHour = workingHours?.find((wh) => wh.day === day);
     const time1 = moment(workingHour?.openTime, "HH:mm");
     const time2 = moment(workingHour?.closeTime, "HH:mm");
@@ -120,7 +120,6 @@ function BookingSection({ spot }: Params) {
     if (time2.isBefore(time1)) {
       time2.add(1, "days");
     }
-    const hoursDifference = time2.diff(time1, "hours");
     // Generate timeslots
     const timeslots = [];
     let currentTime = time1.clone();
@@ -134,7 +133,7 @@ function BookingSection({ spot }: Params) {
       currentTime.add(spot.duration, "hours");
     }
     return timeslots;
-  };
+  }, [workingHours, spot]);
 
   const getPriceForDay = (day: string): number => {
     const workingHour = workingHours?.find((wh) => wh.day === day);
@@ -152,7 +151,7 @@ function BookingSection({ spot }: Params) {
     []
   );
 
-  const getStartEndDates = (selectedDate: Date | DateRange | undefined) => {
+  const getStartEndDates = useCallback((selectedDate: Date | DateRange | undefined) => {
     if (!selectedDate) return { startDate: null, endDate: null };
     if (selectedDate && "from" in selectedDate && "to" in selectedDate)
       return { startDate: selectedDate.from!, endDate: selectedDate.to! };
@@ -163,7 +162,7 @@ function BookingSection({ spot }: Params) {
         .add(spot.duration, "hours")
         .toDate(),
     };
-  };
+  }, [spot]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
@@ -226,7 +225,7 @@ function BookingSection({ spot }: Params) {
       form.setValue("subtotal", total);
       form.setValue("totalPrice", total);
     }, 1000);
-  }, [selectedDate, form, calculateSubtotal]);
+  }, [selectedDate, form, calculateSubtotal, getStartEndDates]);
 
   return (
     <Card>
@@ -235,7 +234,7 @@ function BookingSection({ spot }: Params) {
           <Progress className="w-full" value={progresses[progress].value} />
         </div>*/}
 
-        <div className="flex gap-2 justify-between">
+        <div className="flex gap-2 justify-center">
           <div>
             <h2 className="text-2xl font-bold">{progresses[progress].title}</h2>
             {/*<p className="text-gray-500 dark:text-gray-400">
@@ -335,7 +334,7 @@ function BookingSection({ spot }: Params) {
                     </div>
                   </>
                 )}
-                {selectedDate && ( // Conditionally render this part
+                {selectedDate && ( 
                   <div>
                     <div>
                       <Button

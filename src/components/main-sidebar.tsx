@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Archive, CreditCard, MapPin, Square, Star, StickyNote, Settings, Zap, Calendar } from "lucide-react";
+import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark } from "lucide-react";
 import Image from 'next/image';
 
 export const MainSidebar = ()  => {
@@ -70,7 +70,7 @@ export const MainSidebar = ()  => {
                       
                   }}> 
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 mr-0"/>
+                      <Landmark className="h-4 w-4 mr-0"/>
                       <span>Transactions</span>
                     </div>
                     </Link>

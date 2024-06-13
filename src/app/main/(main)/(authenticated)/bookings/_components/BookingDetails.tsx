@@ -152,6 +152,7 @@ export default function BookingDetails({ children, booking }: Props) {
                     )}
                   </div>
                 </CardDescription>
+                <p className="text-red-500">The current date are not available for {booking?.spot.name}</p>
               </div>
               <div className="ml-auto flex items-center gap-1">
                 <DropdownMenu>
