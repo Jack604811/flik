@@ -10,7 +10,6 @@ import {
   CredenzaTitle,
   CredenzaTrigger,
 } from "@/components/ui/credenza";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
@@ -46,6 +45,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils"; // Ensure this utility function is available
 import { useRouter } from "next/navigation";
+import MoneyInput from "src/components/ui/money-input";
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -147,7 +147,13 @@ function AddTransactionButton({
                       <FormItem>
                         <FormLabel>Amount</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="00.00"  {...field}  />
+                          <MoneyInput
+                            form={form}
+                            name={field.name}
+                            
+                            placeholder="Set a value"
+                            defaultValue={field.value}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

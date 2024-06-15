@@ -1,5 +1,6 @@
 "use client";
 import React, { useCallback, useState } from "react";
+import MoneyInput from "src/components/ui/money-input";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   Form,
@@ -96,7 +97,7 @@ const formSchema = z
         day: z.string(),
         openTime: z.string(),
         closeTime: z.string(),
-        price: z.string(),
+         price: z.string(),
       })
     ),
     amenities: z.array(z.string()),
@@ -220,6 +221,7 @@ function SpotForm({
     setSpotImages((prev) => prev.filter((im) => im.id !== file.id));
   };
 
+  
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -313,8 +315,8 @@ function SpotForm({
                     <TableHeader>
                       <TableRow>
                         <TableHead>Day</TableHead>
-                        <TableHead>Open</TableHead>
-                        <TableHead>Close</TableHead>
+                        <TableHead>{form.watch("durationType") === "days" ? "Check-in" : "Open"}</TableHead>
+                        <TableHead>{form.watch("durationType") === "days" ? "Check-out" : "Close"}</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
@@ -380,12 +382,14 @@ function SpotForm({
                             <Label className="sr-only" htmlFor="price-monday">
                               Price
                             </Label>
-                            <Input
-                              {...form.register(`workingHours.${index}.price`)}
-                              prefix="$"
-                              step="1"
-                              type="number"
-                            />
+                            <MoneyInput
+                            form={...form.register(`workingHours.${index}.price`)}
+                            name={`workingHours.${index}.price`}
+                            placeholder="Set a price"
+                            defaultValue={form.getValues(`workingHours.${index}.price`)}
+                            
+                             />
+                            
                           </TableCell>
                           <TableCell>
                             <DropdownMenu>
@@ -418,10 +422,10 @@ function SpotForm({
                             type="button"
                             onClick={() =>
                               append({
-                                day: "",
+                                day: "Sunday",
                                 price: "0",
-                                openTime: "",
-                                closeTime: "",
+                                openTime: "03:00 ",
+                                closeTime: "12:00 ",
                               })
                             }
                           >

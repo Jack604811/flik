@@ -37,15 +37,15 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
       <ul className="grid gap-3">
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground">Payments</span>
-          <span>${totalPayment.toFixed(2)}</span>
+          <span>${new Intl.NumberFormat('de-DE').format(totalPayment).replace(',', '.')}</span>
         </li>
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground">Outstanding</span>
-          <span>${totalOutstandingPayments.toFixed(2)}</span>
+          <span>${new Intl.NumberFormat('de-DE').format(totalOutstandingPayments).replace(',', '.')}</span>
         </li>
         <li className="flex items-center justify-between font-semibold">
           <span className="text-muted-foreground">Total</span>
-          <span>${totalPayment.toFixed(2)}</span>
+          <span>${new Intl.NumberFormat('de-DE').format(totalPayment).replace(',', '.')}</span>
         </li>
       </ul>
       <Separator className="my-4" />
@@ -54,44 +54,41 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead></TableHead>
+              
               <TableHead>Date</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Payment Type</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Payment Method</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? "Loading..." :data.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <AddTransactionButton bookingId={bookingId} defaultTransaction={{...item, amount: String(item.amount), date: item.paymentDate}}>
-                    <Edit size={14} className="p-0 m-0 cursor-pointer" />
-                  </AddTransactionButton>
-                </TableCell>
-                <TableCell>{moment(item.paymentDate).format("MMM DD, YYYY")}</TableCell>
+              <TableRow key={item.id}  className="h-16">
+                <TableCell>{moment(item.paymentDate).format("DD MMM YYYY")}</TableCell>
                 <TableCell>{item.description}</TableCell>
-                <TableCell className="text-right">${item.amount.toFixed(2)}</TableCell>
+                <TableCell>${new Intl.NumberFormat('de-DE').format(item.amount).replace(',', '.')}</TableCell>
                 <TableCell>
                   <Badge variant="outline">{item.paymentType}</Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{statuses.find(i => i.value === item.status)?.label}</Badge>
                 </TableCell>
+                <TableCell>
+                  <AddTransactionButton bookingId={bookingId} defaultTransaction={{...item, amount: String(item.amount), date: item.paymentDate}}>
+                    <Edit size={14} className="p-0 m-0 cursor-pointer" />
+                  </AddTransactionButton>
+                </TableCell>
               </TableRow>
             ))}
-            <TableRow>
-              <TableCell colSpan={8}>
-                <AddTransactionButton bookingId={bookingId}>
-                  <Button className="gap-2 w-full" size="sm" variant="ghost">
-                    <CirclePlus className="h-4 w-4"/> Add a Transaction
-                  </Button>
-                </AddTransactionButton>
-              </TableCell>
-            </TableRow>
           </TableBody>
         </Table>
+        <AddTransactionButton bookingId={bookingId}>
+        <Button className="gap-2 w-full h-12" size="sm" variant="ghost">
+          <CirclePlus className="h-4 w-4"/> Add a Transaction
+        </Button>
+      </AddTransactionButton>
       </div>
     </div>
   );

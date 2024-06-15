@@ -76,6 +76,24 @@ export const columns: ColumnDef<Booking>[] = [
     enableSorting: false,
   },
   {
+    accessorKey: "spot",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Spot" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium">{row.original.spot?.name}</span>
+          <span className="text-muted-foreground">
+          ${new Intl.NumberFormat('de-DE').format(row.original.totalPrice).replace(',', '.')}
+          </span>
+        </div>
+      );
+    },
+    enableSorting: false,
+  },
+  
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
@@ -90,7 +108,7 @@ export const columns: ColumnDef<Booking>[] = [
       }
 
       return (
-        <div className="flex w-[100px] items-center">
+        <div className="flex items-center">
           {status.icon && (
             <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
           )}
