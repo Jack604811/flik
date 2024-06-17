@@ -512,9 +512,6 @@ function SpotForm({
               <Card className="w-full max-w-lg">
                 <CardHeader>
                   <CardTitle>Slug</CardTitle>
-                  <CardDescription>
-                    This is your URL for this spot.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex rounded-md shadow-sm">

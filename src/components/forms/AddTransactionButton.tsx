@@ -89,7 +89,7 @@ function AddTransactionButton({
       ? ["Updating", "updated"]
       : ["Adding", "added"];
     toast.promise(promise, {
-      loading: `${operation[0]} ${placeholder ?? "manual payment"}!`,
+      loading: `${operation[0]} ${placeholder ?? "Payment"}!`,
       error: "There was an error with the request, kindly try again!",
       success(data) {
         if (defaultTransaction) {
@@ -103,7 +103,7 @@ function AddTransactionButton({
         
         setOpen(false);
         form.reset();
-        return `${placeholder ?? "manual payment"} ${
+        return `${placeholder ?? "Payment"} ${
           operation[1]
         } successfully!`;
       },
@@ -128,10 +128,10 @@ function AddTransactionButton({
       <CredenzaContent>
         <CredenzaHeader>
           <CredenzaTitle className="text-xl text-semibold">
-            Add {placeholder ?? "Manual Payment"}
+            Add {placeholder ?? "Payment"}
           </CredenzaTitle>
           <CredenzaDescription>
-            Enter the details of the {placeholder ?? "manual payment"} you want
+            Enter the details of the {placeholder ?? "payment"} you want
             to add.
           </CredenzaDescription>
         </CredenzaHeader>
@@ -267,7 +267,7 @@ function AddTransactionButton({
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-1 items-center gap-4">
+                <div className="grid grid-cols-1 items-center gap-4 mb-4">
                   <FormField
                     control={form.control}
                     name="description"
@@ -284,8 +284,7 @@ function AddTransactionButton({
                 </div>
               </div>
               <CredenzaFooter>
-                <div className="flex w-full mt-8 gap-4 items-center justify-center">
-                  <CredenzaClose asChild>
+                <CredenzaClose asChild>
                     <Button
                       type="button"
                       variant="outline"
@@ -295,7 +294,6 @@ function AddTransactionButton({
                     </Button>
                   </CredenzaClose>
                   <Button type="submit">{defaultTransaction?.id ? "Update" : "Create"} Payment</Button>
-                </div>
               </CredenzaFooter>
             </form>
           </Form>
