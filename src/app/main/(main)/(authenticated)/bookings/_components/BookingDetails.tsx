@@ -34,7 +34,7 @@ import { statuses } from "../data/data";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { updateBooking } from "@/server/actions/booking.action";
 import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
@@ -55,6 +55,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   children: React.ReactNode;
@@ -72,6 +73,7 @@ const bookingSchema = z.object({
       phone: z.string().optional(),
       dni: z.string().optional(),
       address: z.string().optional(),
+      note: z.string().optional(),
     })
     .optional(),
 });
@@ -83,20 +85,31 @@ type EDITING_FIELD =
   | "phone"
   | "address"
   | "status"
+  | "note"
   | null;
 
 export default function BookingDetails({ children, booking }: Props) {
   const router = useRouter();
-  const { control, handleSubmit, setValue, getValues } = useForm({
+  const { control, handleSubmit, setValue, getValues, reset } = useForm({
     resolver: zodResolver(bookingSchema),
     defaultValues: booking,
   });
 
   const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editingField]);
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
-    const updatedData: z.infer<typeof bookingSchema> = { id: data.id };
-
+    const updatedData: z.infer<typeof bookingSchema> = {
+      id: data.id,
+      updatedAt: new Date(),
+    };
+  
     if (editingField === "status") {
       updatedData.status = data.status;
     } else {
@@ -105,19 +118,26 @@ export default function BookingDetails({ children, booking }: Props) {
         [editingField as string]: data.guest![editingField!],
       };
     }
-
-    const updated = updateBooking(updatedData);
-
-    toast.promise(updated, {
-      loading: `Updating ${editingField}...`,
-      success() {
-        router.refresh();
-        setEditingField(null);
-        return `${editingField} updated successfully!`;
-      },
-      error: `Failed to update ${editingField}`,
-    });
+  
+    // Await the updateBooking promise and then handle toast messages
+    try {
+      const updated = await updateBooking(updatedData);
+      toast.success(`${editingField} updated successfully!`);
+      // Update form values and reset editing field
+      reset({
+        ...getValues(),
+        updatedAt: new Date(),
+        guest: {
+          ...getValues().guest,
+          [editingField as string]: updatedData.guest![editingField as string],
+        },
+      });
+      setEditingField(null);
+    } catch (error) {
+      toast.error(`Failed to update ${editingField}`);
+    }
   };
+  
 
   const startEditing = (field: EDITING_FIELD) => {
     setEditingField(field);
@@ -152,7 +172,9 @@ export default function BookingDetails({ children, booking }: Props) {
                     )}
                   </div>
                 </CardDescription>
-                <p className="text-red-500">The current date are not available for {booking?.spot.name}</p>
+                <p className="text-red-500">
+                  The current date is not available for {booking?.spot.name}
+                </p>
               </div>
               <div className="ml-auto flex items-center gap-1">
                 <DropdownMenu>
@@ -162,7 +184,7 @@ export default function BookingDetails({ children, booking }: Props) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
-                    className="flex flex-col bg-white shadow-lg p-4 rounded-md border dark:bg-black overflow-y-hidden"
+                    className="flex flex-col bg-white shadow-lg p-2 rounded-md border dark:bg-black overflow-y-hidden"
                     align="end"
                   >
                     <DropdownMenuItem>Copy</DropdownMenuItem>
@@ -175,17 +197,21 @@ export default function BookingDetails({ children, booking }: Props) {
                 </DropdownMenu>
               </div>
             </div>
-            <Tabs className="m-6 flex flex-col overflow-y-auto h-dvh" defaultValue="resume">
+            <Tabs
+              className="mt-6 flex flex-col overflow-y-auto h-dvh"
+              defaultValue="resume"
+            >
+              <div className="mx-6">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="resume">Resume</TabsTrigger>
                 <TabsTrigger value="extras">Extras</TabsTrigger>
                 <TabsTrigger value="payments">Payments</TabsTrigger>
               </TabsList>
+              </div>
               <ScrollArea className="h-5/6 pb-[100px] no-scrollbar">
-                <TabsContent className="pt-4" value="resume">
+                <TabsContent className="p-6" value="resume">
                   <div className="grid gap-3">
                     <div className="font-semibold">Customer Information</div>
-
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <dl className="grid gap-3">
                         {[
@@ -252,11 +278,19 @@ export default function BookingDetails({ children, booking }: Props) {
                                       control={control}
                                       name={`guest.${field}`}
                                       render={({ field: formField }) => (
-                                        <Input {...formField} id={field} />
+                                        <Input
+                                          {...formField}
+                                          id={field}
+                                          ref={
+                                            inputRef as React.RefObject<
+                                              HTMLInputElement
+                                            >
+                                          }
+                                        />
                                       )}
                                     />
                                   )}
-                                  <div className="flex justify-end items-center space-x-2 mt-1">
+                                  <div className="flex justify-end items-center space-x-2 my-4">
                                     <Button
                                       variant="outline"
                                       size="sm"
@@ -277,7 +311,7 @@ export default function BookingDetails({ children, booking }: Props) {
                               ) : (
                                 <>
                                   <div className="flex justify-between items-center relative gap-2">
-                                    <span className="text-right text-sm">
+                                    <span className="text-right text-sm" onClick={() => startEditing(field as any)}>
                                       {field === "status"
                                         ? statuses.find(
                                             (s) => s.value === booking?.status
@@ -289,9 +323,7 @@ export default function BookingDetails({ children, booking }: Props) {
                                             booking![field as keyof Booking]
                                           )}
                                     </span>
-                                    <span
-                                      onClick={() => startEditing(field as any)}
-                                    >
+                                    <span className="cursor-pointer" onClick={() => startEditing(field as any)}>
                                       <Edit size={13} />
                                     </span>
                                   </div>
@@ -303,7 +335,6 @@ export default function BookingDetails({ children, booking }: Props) {
                       </dl>
                     </form>
                   </div>
-
                   <Separator className="my-4" />
                   <div className="grid gap-3">
                     <div className="font-semibold">Order Details</div>
@@ -351,25 +382,74 @@ export default function BookingDetails({ children, booking }: Props) {
                   </div>
 
                   <Separator className="my-4" />
-                  <div className="grid gap-4">
-                    <div className="grid gap-3">
-                      <div className="font-semibold">Note</div>
-                      <ul className="grid gap-3">
-                        <li className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-sm">
-                            {booking?.guest.note}
-                          </span>
-                        </li>
-                      </ul>
+                  <div className="flex flex-col justify-between gap-8">
+                    <div className="flex flex-col justify-between gap-8">
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                         <dl>
+                          {["note"].map((field) => (
+                            <div key={field} className="flex flex-col items-start justify-between gap-4">
+                              <dt className="text-muted-foreground">
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                              </dt>
+                              <dd className="w-full">
+                                {editingField === field ? (
+                                  <>
+                                    <FormField
+                                      control={control}
+                                      name={`guest.${field}`}
+                                      render={({ field: formField }) => (
+                                        <Textarea
+                                          {...formField}
+                                          id={field}
+                                          className="w-full"
+                                          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+                                        />
+                                      )}
+                                    />
+                                    <div className="flex justify-end items-end gap-4 space-y-2 mt-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs"
+                                        onClick={cancelEditing}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        type="submit"
+                                        className="text-xs"
+                                      >
+                                        Save
+                                      </Button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex w-full justify-between items-start relative gap-2">
+                                      <span className="text-left text-sm flex-grow" onClick={() => startEditing(field as any)}>
+                                        {booking!.guest?.[field as keyof Booking["guest"]]}
+                                      </span>
+                                      <span className="cursor-pointer" onClick={() => startEditing(field as any)}>
+                                        <Edit size={13} />
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </form>
                     </div>
                   </div>
                 </TabsContent>
-                <TabsContent className="pt-4" value="extras">
+                <TabsContent className="p-6" value="extras">
                   <div>
                     <h3 className="text-lg font-semibold">Extras</h3>
                   </div>
                 </TabsContent>
-                <TabsContent className="pt-4" value="payments">
+                <TabsContent className="p-6" value="payments">
                   <BookingPayments
                     bookingId={booking!.id}
                     bookingPrice={booking!.totalPrice}
