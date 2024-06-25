@@ -142,13 +142,13 @@ export const updateBooking = async (data: {
     phone?: string;
     dni?: string;
     address?: string;
+    note?: string;
   };
 }) => {
-  const update = {
-    status: data.status,
-    ...(data.guest ? { guest: { connect: { ...data.guest } } } : {}),
-  };
-  console.log(update);
+  // const update = {
+  //   status: data.status,
+  //   ...(data.guest ? { guest: { connect: { ...data.guest } } } : {}),
+  // };
 
   const booking = await db.booking.update({
     where: { id: data.id },

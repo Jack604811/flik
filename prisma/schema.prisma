@@ -51,6 +51,7 @@ model User {
   sessions        Session[]
   createdAt       DateTime         @default(now())
   customerId      String?          @unique
+  stripeAccountId String?
   subscriptionId  String?
   oneTimeProducts OneTimeProduct[]
   spots           Spot[]

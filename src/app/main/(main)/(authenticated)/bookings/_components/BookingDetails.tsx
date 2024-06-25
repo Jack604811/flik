@@ -34,7 +34,7 @@ import { statuses } from "../data/data";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { updateBooking } from "@/server/actions/booking.action";
 import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
@@ -55,6 +55,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import EditBookingDate from "./EditBookingDate";
 
 type Props = {
   children: React.ReactNode;
@@ -72,6 +74,7 @@ const bookingSchema = z.object({
       phone: z.string().optional(),
       dni: z.string().optional(),
       address: z.string().optional(),
+      note: z.string().optional(),
     })
     .optional(),
 });
@@ -83,9 +86,10 @@ type EDITING_FIELD =
   | "phone"
   | "address"
   | "status"
+  | "note"
   | null;
 
-export default function BookingDetails({ children, booking }: Props) {
+function BookingDetails({ children, booking }: Props) {
   const router = useRouter();
   const { control, handleSubmit, setValue, getValues } = useForm({
     resolver: zodResolver(bookingSchema),
@@ -138,7 +142,12 @@ export default function BookingDetails({ children, booking }: Props) {
                 <CardTitle className="group flex items-center gap-2 text-xl">
                   {booking?.guest.name}
                 </CardTitle>
-                <CardDescription className="flex flex-row w-full items-center gap-2">
+                <div className="flex flex-row w-full items-center gap-2">
+                  <EditBookingDate
+                    endDate={booking!.endDate}
+                    startDate={booking!.startDate}
+                    spot={booking!.spot}
+                  />
                   <CalendarDays className="h-5 w-5" />
                   <div className="flex flex-col gap-0">
                     <div>
@@ -151,8 +160,10 @@ export default function BookingDetails({ children, booking }: Props) {
                       </div>
                     )}
                   </div>
-                </CardDescription>
-                <p className="text-red-500">The current date are not available for {booking?.spot.name}</p>
+                </div>
+                <p className="text-red-500">
+                  The current date are not available for {booking?.spot.name}
+                </p>
               </div>
               <div className="ml-auto flex items-center gap-1">
                 <DropdownMenu>
@@ -175,7 +186,10 @@ export default function BookingDetails({ children, booking }: Props) {
                 </DropdownMenu>
               </div>
             </div>
-            <Tabs className="m-6 flex flex-col overflow-y-auto h-dvh" defaultValue="resume">
+            <Tabs
+              className="m-6 flex flex-col overflow-y-auto h-dvh"
+              defaultValue="resume"
+            >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="resume">Resume</TabsTrigger>
                 <TabsTrigger value="extras">Extras</TabsTrigger>
@@ -353,14 +367,50 @@ export default function BookingDetails({ children, booking }: Props) {
                   <Separator className="my-4" />
                   <div className="grid gap-4">
                     <div className="grid gap-3">
-                      <div className="font-semibold">Note</div>
-                      <ul className="grid gap-3">
-                        <li className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-sm">
-                            {booking?.guest.note}
-                          </span>
-                        </li>
-                      </ul>
+                      <div className="font-semibold flex gap-1 items-center">
+                        Note{" "}
+                        <span onClick={() => startEditing("note")}>
+                          <Edit size={13} />
+                        </span>
+                      </div>
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <ul className="grid gap-3">
+                          <li className="">
+                            {editingField === "note" ? (
+                              <>
+                                <FormField
+                                  control={control}
+                                  name={`guest.note`}
+                                  render={({ field }) => (
+                                    <AutosizeTextarea {...field} />
+                                  )}
+                                />
+                                <div className="flex justify-end items-center space-x-2 mt-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs"
+                                    onClick={cancelEditing}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    type="submit"
+                                    className="text-xs"
+                                  >
+                                    Save
+                                  </Button>
+                                </div>
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">
+                                {booking?.guest.note}
+                              </span>
+                            )}
+                          </li>
+                        </ul>
+                      </form>
                     </div>
                   </div>
                 </TabsContent>
@@ -411,3 +461,5 @@ export default function BookingDetails({ children, booking }: Props) {
     </Sheet>
   );
 }
+
+export default memo(BookingDetails)
