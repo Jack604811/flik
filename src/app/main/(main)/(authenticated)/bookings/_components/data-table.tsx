@@ -42,20 +42,20 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  {/*const [sorting, setSorting] = React.useState<SortingState>([]);*/}
 
   const table = useReactTable({
     data,
     columns,
     state: {
-      sorting,
+      //sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
+    //onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
@@ -67,7 +67,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-200">
       <DataTableToolbar table={table} />
       <div>
         <div className="max-w-50">

@@ -40,16 +40,16 @@ const EditBookingDate = ({ className, spot, startDate, endDate }: Props) => {
     defaultValues: {},
   });
 
-  useEffect(() => {
-    if (spot.durationType === "hours") {
-      setDate(startDate);
-    } else {
-      setDate({
-        from: startDate,
-        to: endDate,
-      });
-    }
-  }, [spot.durationType, startDate, endDate]);
+  // useEffect(() => {
+  //   if (spot.durationType === "hours") {
+  //     setDate(startDate);
+  //   } else {
+  //     setDate({
+  //       from: startDate,
+  //       to: endDate,
+  //     });
+  //   }
+  // }, [spot.durationType, startDate, endDate]);
 
   const updateDates = (dates: DateRange|Date|undefined) => setDate(dates);
 
@@ -90,13 +90,13 @@ const EditBookingDate = ({ className, spot, startDate, endDate }: Props) => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto" align="start">
-              {/* <BookingAvailability
+              <BookingAvailability
                 selectedDate={selectedDate}
                 setSelectedDate={updateDates as any}
                 spot={spot}
                 bookings={[]}
                 callback={() => {}}
-              /> */}
+              />
             </PopoverContent>
           </Popover>
         </div>

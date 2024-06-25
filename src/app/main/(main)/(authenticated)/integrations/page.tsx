@@ -1,7 +1,5 @@
 import Image from "next/image";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlugIcon } from "lucide-react";
 import { getConnectedStripe } from "@/server/actions/user.action";
 import { getCurrentUser } from "@/server/auth";
 import StripeConnectButton from "./_components/StripeConnectButton";

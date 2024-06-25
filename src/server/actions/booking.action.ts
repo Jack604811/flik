@@ -145,15 +145,11 @@ export const updateBooking = async (data: {
     note?: string;
   };
 }) => {
-  // const update = {
-  //   status: data.status,
-  //   ...(data.guest ? { guest: { connect: { ...data.guest } } } : {}),
-  // };
-
   const booking = await db.booking.update({
     where: { id: data.id },
     data: {
       status: data.status,
+      updatedAt: new Date(),
       ...(data.guest ? { guest: { update: { ...data.guest } } } : {}),
     },
   });
