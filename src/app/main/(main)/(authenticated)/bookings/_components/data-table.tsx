@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import BookingDetails from "./bookingDetails";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -42,20 +44,20 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  {/*const [sorting, setSorting] = React.useState<SortingState>([]);*/}
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
     state: {
-      //sorting,
+      sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    //onSortingChange: setSorting,
+    onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
@@ -65,6 +67,18 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [isOpenSheet, setIsOpenSheet] = useState(false);
+
+  const handleTriggerContentSheet = () => {
+    setIsOpenSheet(!isOpenSheet);
+  };
+
+  const handleRowClick = (rowData: any) => {
+    setSelectedRow(rowData);
+    handleTriggerContentSheet();
+  };
 
   return (
     <div className="space-y-4 w-200">
@@ -97,6 +111,7 @@ export function DataTable<TData, TValue>({
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
+                      onClick={() => handleRowClick(row.original)}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>

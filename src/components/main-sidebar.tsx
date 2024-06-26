@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark } from "lucide-react";
+import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart } from "lucide-react";
 import Image from 'next/image';
 
 export const MainSidebar = ()  => {
@@ -72,6 +72,22 @@ export const MainSidebar = ()  => {
                     <div className="flex items-center gap-2">
                       <Landmark className="h-4 w-4 mr-0"/>
                       <span>Transactions</span>
+                    </div>
+                    </Link>
+                  </Button>
+              </CommandItem>
+              <CommandItem className="h-[32px]">
+                  <Button
+                  asChild
+                  variant={ pathname.includes("/extras")? "secondary" : "ghost"}
+                  className="justify-start px-2 w-full h-[32px]">
+                  <Link href={{
+                      pathname: "/extras",
+                      
+                  }}> 
+                    <div className="flex items-center gap-2">
+                      <ShoppingCart className="h-4 w-4 mr-0"/>
+                      <span>Extras</span>
                     </div>
                     </Link>
                   </Button>

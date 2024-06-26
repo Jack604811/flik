@@ -379,18 +379,18 @@ function SpotForm({
                             />
                           </TableCell>
                           <TableCell>
-                            <Label className="sr-only" htmlFor="price-monday">
-                              Price
-                            </Label>
-                            <MoneyInput
-                            form={...form.register(`workingHours.${index}.price`)}
-                            name={`workingHours.${index}.price`}
-                            placeholder="Set a price"
-                            defaultValue={form.getValues(`workingHours.${index}.price`)}
-                            
-                             />
-                            
-                          </TableCell>
+  <Label className="sr-only" htmlFor={`price-${index}`}>
+    Price
+  </Label>
+  <MoneyInput
+    form={form}
+    name={`workingHours.${index}.price`}
+    label={""}
+    placeholder="Set a price"
+    defaultValue={form.getValues(`workingHours.${index}.price`)}
+   
+  />
+</TableCell>
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

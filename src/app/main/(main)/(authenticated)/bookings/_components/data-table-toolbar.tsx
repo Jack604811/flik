@@ -33,10 +33,10 @@ export function DataTableToolbar<TData>({
           className="h-10 w-[150px] lg:w-[250px]"
         />
         
-        {table.getColumn("createdAt") && (
+        {table.getColumn("startDate") && (
           <DataTableDateFilter
-            column={table.getColumn("createdAt")}
-            title="Booking Date"
+            column={table.getColumn("startDate")}
+            title="Start Date"
           />
         )}
         {table.getColumn("status") && (

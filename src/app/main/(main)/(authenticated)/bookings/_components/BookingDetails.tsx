@@ -40,7 +40,7 @@ import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import BookingPayments from "./BookingPayments";
+import BookingPayments from "./bookingPayments";
 import {
   Carousel,
   CarouselContent,
@@ -55,6 +55,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import EditBookingDate from "./EditBookingDate";
 import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
@@ -65,6 +66,7 @@ type Props = {
 const bookingSchema = z.object({
   id: z.string(),
   status: z.nativeEnum(BookingStatus).optional(),
+  updatedAt: z.date().optional(),
   guest: z
     .object({
       id: z.string(),
@@ -88,12 +90,13 @@ type EDITING_FIELD =
   | "note"
   | null;
 
-export default function BookingDetails({ children, booking }: Props) {
-  const router = useRouter();
-  const { control, handleSubmit, setValue, getValues, reset } = useForm({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: booking,
-  });
+  export default function BookingDetails({ children, booking }: Props) {
+    const router = useRouter();
+    const { control, handleSubmit, setValue, getValues } = useForm({
+      resolver: zodResolver(bookingSchema),
+      defaultValues: booking,
+    });
+
 
   const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -105,11 +108,11 @@ export default function BookingDetails({ children, booking }: Props) {
   }, [editingField]);
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
-    const updatedData: z.infer<typeof bookingSchema> = {
-      id: data.id,
+    const updatedData: z.infer<typeof bookingSchema> = { id: data.id, 
       updatedAt: new Date(),
     };
   
+
     if (editingField === "status") {
       updatedData.status = data.status;
     } else {
@@ -118,34 +121,27 @@ export default function BookingDetails({ children, booking }: Props) {
         [editingField as string]: data.guest![editingField!],
       };
     }
-  
-    // Await the updateBooking promise and then handle toast messages
-    try {
-      const updated = await updateBooking(updatedData);
-      toast.success(`${editingField} updated successfully!`);
-      // Update form values and reset editing field
-      reset({
-        ...getValues(),
-        updatedAt: new Date(),
-        guest: {
-          ...getValues().guest,
-          [editingField as string]: updatedData.guest![editingField as string],
-        },
-      });
-      setEditingField(null);
-    } catch (error) {
-      toast.error(`Failed to update ${editingField}`);
-    }
+
+    const updated = updateBooking(updatedData);
+      
+    toast.promise(updated, {
+      loading: `Updating ${editingField}...`,
+      success() {
+        router.refresh();
+        setEditingField(null);
+        return `${editingField} updated successfully!`;
+      },
+      error: `Failed to update ${editingField}`,
+    });
   };
-  
 
   const startEditing = (field: EDITING_FIELD) => {
     setEditingField(field);
   };
-
   const cancelEditing = () => {
     setEditingField(null);
   };
+
 
   return (
     <Sheet>
@@ -158,7 +154,12 @@ export default function BookingDetails({ children, booking }: Props) {
                 <CardTitle className="group flex items-center gap-2 text-xl">
                   {booking?.guest.name}
                 </CardTitle>
-                <CardDescription className="flex flex-row w-full items-center gap-2">
+                <div className="flex flex-row w-full items-center gap-2">
+                  <EditBookingDate
+                    endDate={booking!.endDate}
+                    startDate={booking!.startDate}
+                    spot={booking!.spot}
+                  />
                   <CalendarDays className="h-5 w-5" />
                   <div className="flex flex-col gap-0">
                     <div>
@@ -171,9 +172,9 @@ export default function BookingDetails({ children, booking }: Props) {
                       </div>
                     )}
                   </div>
-                </CardDescription>
+                </div>
                 <p className="text-red-500">
-                  The current date is not available for {booking?.spot.name}
+                  The current date are not available for {booking?.spot.name}
                 </p>
               </div>
               <div className="ml-auto flex items-center gap-1">
@@ -198,15 +199,15 @@ export default function BookingDetails({ children, booking }: Props) {
               </div>
             </div>
             <Tabs
-              className="mt-6 flex flex-col overflow-y-auto h-dvh"
+              className="mt-8 flex flex-col overflow-y-auto h-dvh"
               defaultValue="resume"
             >
               <div className="mx-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="resume">Resume</TabsTrigger>
-                <TabsTrigger value="extras">Extras</TabsTrigger>
-                <TabsTrigger value="payments">Payments</TabsTrigger>
-              </TabsList>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="resume">Resume</TabsTrigger>
+                  <TabsTrigger value="extras">Extras</TabsTrigger>
+                  <TabsTrigger value="payments">Payments</TabsTrigger>
+                </TabsList>
               </div>
               <ScrollArea className="h-5/6 pb-[100px] no-scrollbar">
                 <TabsContent className="p-6" value="resume">
@@ -224,7 +225,7 @@ export default function BookingDetails({ children, booking }: Props) {
                         ].map((field) => (
                           <div
                             key={field}
-                            className="flex items-center justify-between"
+                            className="flex items-start justify-between"
                           >
                             <dt className="text-muted-foreground">
                               {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -240,7 +241,7 @@ export default function BookingDetails({ children, booking }: Props) {
                                         field: { onChange, value },
                                       }) => (
                                         <PhoneInput
-                                          defaultCountry={"CO"}
+                                          defaultCountry={'CO'}
                                           value={value}
                                           onChange={onChange}
                                         />
@@ -274,7 +275,7 @@ export default function BookingDetails({ children, booking }: Props) {
                                       )}
                                     />
                                   ) : (
-                                    <FormField
+                                      <FormField
                                       control={control}
                                       name={`guest.${field}`}
                                       render={({ field: formField }) => (
@@ -290,7 +291,7 @@ export default function BookingDetails({ children, booking }: Props) {
                                       )}
                                     />
                                   )}
-                                  <div className="flex justify-end items-center space-x-2 my-4">
+                                  <div className="flex justify-end items-center space-x-2 mt-2">
                                     <Button
                                       variant="outline"
                                       size="sm"
@@ -311,7 +312,10 @@ export default function BookingDetails({ children, booking }: Props) {
                               ) : (
                                 <>
                                   <div className="flex justify-between items-center relative gap-2">
-                                    <span className="text-right text-sm" onClick={() => startEditing(field as any)}>
+                                    <span
+                                      className="text-right text-sm"
+                                      onClick={() => startEditing(field as any)}
+                                    >
                                       {field === "status"
                                         ? statuses.find(
                                             (s) => s.value === booking?.status
@@ -323,7 +327,9 @@ export default function BookingDetails({ children, booking }: Props) {
                                             booking![field as keyof Booking]
                                           )}
                                     </span>
-                                    <span className="cursor-pointer" onClick={() => startEditing(field as any)}>
+                                    <span
+                                      className="cursor-pointer"
+                                      onClick={() => startEditing(field as any)}>
                                       <Edit size={13} />
                                     </span>
                                   </div>
@@ -351,32 +357,32 @@ export default function BookingDetails({ children, booking }: Props) {
                         </div>
                       </li>
                       <span className="text-sm text-end">
-                        ${booking?.totalPrice}
+                        ${new Intl.NumberFormat('de-DE').format(booking?.totalPrice ?? 0)}
                       </span>
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">
                           Extra Items x<span>1</span>
                         </span>
-                        <span className="text-sm">$00.00</span>
+                        <span className="text-sm">$0</span>
                       </li>
                     </ul>
                     <Separator className="my-2" />
                     <ul className="grid gap-3">
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span className="text-sm">${booking?.subtotal}</span>
+                        <span className="text-sm">${new Intl.NumberFormat('de-DE').format(booking?.subtotal ?? 0)}</span>
                       </li>
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Extras</span>
-                        <span className="text-sm">$00.00</span>
+                        <span className="text-sm">$0</span>
                       </li>
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Tax</span>
-                        <span className="text-sm">$00.00</span>
+                        <span className="text-sm">$0</span>
                       </li>
                       <li className="flex items-center justify-between font-semibold">
                         <span className="text-muted-foreground">Total</span>
-                        <span className="text-sm">${booking?.totalPrice}</span>
+                        <span className="text-sm">${new Intl.NumberFormat('de-DE').format(booking?.totalPrice ?? 0)}</span>
                       </li>
                     </ul>
                   </div>
@@ -385,9 +391,12 @@ export default function BookingDetails({ children, booking }: Props) {
                   <div className="flex flex-col justify-between gap-8">
                     <div className="flex flex-col justify-between gap-8">
                       <form onSubmit={handleSubmit(onSubmit)}>
-                         <dl>
+                        <dl>
                           {["note"].map((field) => (
-                            <div key={field} className="flex flex-col items-start justify-between gap-4">
+                            <div
+                              key={field}
+                              className="flex flex-col items-start justify-between gap-4"
+                            >
                               <dt className="text-muted-foreground">
                                 {field.charAt(0).toUpperCase() + field.slice(1)}
                               </dt>
@@ -402,11 +411,15 @@ export default function BookingDetails({ children, booking }: Props) {
                                           {...formField}
                                           id={field}
                                           className="w-full"
-                                          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+                                          ref={
+                                            inputRef as React.RefObject<
+                                              HTMLTextAreaElement
+                                            >
+                                          }
                                         />
                                       )}
                                     />
-                                    <div className="flex justify-end items-end gap-4 space-y-2 mt-2">
+                                    <div className="flex justify-end items-end gap-2 space-y-2 mt-2">
                                       <Button
                                         variant="outline"
                                         size="sm"
@@ -427,10 +440,20 @@ export default function BookingDetails({ children, booking }: Props) {
                                 ) : (
                                   <>
                                     <div className="flex w-full justify-between items-start relative gap-2">
-                                      <span className="text-left text-sm flex-grow" onClick={() => startEditing(field as any)}>
-                                        {booking!.guest?.[field as keyof Booking["guest"]]}
+                                      <span
+                                        className="text-left text-sm flex-grow"
+                                        onClick={() => startEditing(field as any)}
+                                      >
+                                        {
+                                          booking!.guest?.[
+                                            field as keyof Booking["guest"]
+                                          ]
+                                        }
                                       </span>
-                                      <span className="cursor-pointer" onClick={() => startEditing(field as any)}>
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={() => startEditing(field as any)}
+                                      >
                                         <Edit size={13} />
                                       </span>
                                     </div>

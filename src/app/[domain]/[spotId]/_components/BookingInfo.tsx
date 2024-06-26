@@ -1,10 +1,18 @@
-import React from "react";
+"use client";
+import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { z } from "zod";
+import { FormState, UseFormReturn } from "react-hook-form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
-import { UseFormReturn } from "react-hook-form";
 
 export default function BookingInfo({
   onPrev,
@@ -59,6 +67,7 @@ export default function BookingInfo({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="dni"
@@ -72,6 +81,7 @@ export default function BookingInfo({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="address"
@@ -85,6 +95,7 @@ export default function BookingInfo({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="note"

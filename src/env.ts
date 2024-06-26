@@ -9,6 +9,8 @@ export const env = createEnv({
         GITHUB_CLIENT_ID: z.string().min(1),
         GITHUB_CLIENT_SECRET: z.string().min(1),
         RESEND_API_KEY: z.string().min(1),
+        STRIPE_CLIENT_ID: z.string().min(1),
+        STRIPE_REDIRECT_URI: z.string().min(1),
         STRIPE_SECRET_KEY: z.string().min(1),
         STRIPE_WEBHOOK_SECRET: z.string().min(1),
         EMAIL_FROM: z.string().email(),

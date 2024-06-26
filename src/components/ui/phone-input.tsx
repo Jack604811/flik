@@ -1,9 +1,6 @@
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
-
 import * as React from "react";
-
 import * as RPNInput from "react-phone-number-input";
-
 import flags from "react-phone-number-input/flags";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +27,7 @@ type PhoneInputProps = Omit<
   "onChange" | "value"
 > &
   Omit<RPNInput.Props<typeof RPNInput.default>, "onChange"> & {
-    onChange?: (value: RPNInput.Value) => void;
+    onChange?: (value: RPNInput.Value | null) => void;
   };
 
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
@@ -43,20 +40,11 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
           flagComponent={FlagComponent}
           countrySelectComponent={CountrySelect}
           inputComponent={InputComponent}
-          /**
-           * Handles the onChange event.
-           *
-           * react-phone-number-input might trigger the onChange event as undefined
-           * when a valid phone number is not entered. To prevent this,
-           * the value is coerced to an empty string.
-           *
-           * @param {E164Number | undefined} value - The entered value
-           */
-          onChange={(value) => onChange?.(value || "")}
+          onChange={(value) => onChange?.(value ?? null)}
           {...props}
         />
       );
-    },
+    }
   );
 PhoneInput.displayName = "PhoneInput";
 
@@ -67,7 +55,7 @@ const InputComponent = React.forwardRef<HTMLInputElement, InputProps>(
       {...props}
       ref={ref}
     />
-  ),
+  )
 );
 InputComponent.displayName = "InputComponent";
 
@@ -90,7 +78,7 @@ const CountrySelect = ({
     (country: RPNInput.Country) => {
       onChange(country);
     },
-    [onChange],
+    [onChange]
   );
 
   return (
@@ -106,7 +94,7 @@ const CountrySelect = ({
           <ChevronsUpDown
             className={cn(
               "-mr-2 h-4 w-4 opacity-50",
-              disabled ? "hidden" : "opacity-100",
+              disabled ? "hidden" : "opacity-100"
             )}
           />
         </Button>
@@ -139,7 +127,7 @@ const CountrySelect = ({
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          option.value === value ? "opacity-100" : "opacity-0",
+                          option.value === value ? "opacity-100" : "opacity-0"
                         )}
                       />
                     </CommandItem>

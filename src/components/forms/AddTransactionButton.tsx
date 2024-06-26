@@ -150,10 +150,10 @@ function AddTransactionButton({
                           <MoneyInput
                             form={form}
                             name={field.name}
-                            
+                            label={""}  
                             placeholder="Set a value"
                             defaultValue={field.value}
-                          />
+                            />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -1,4 +1,4 @@
-import { BookingStatus } from "@prisma/client"
+import { BookingStatus, Spot } from "@prisma/client"
 import { z } from "zod"
 
 // We're keeping a simple non-relational schema here.
@@ -14,7 +14,11 @@ export const bookingSchema = z.object({
   endDate: z.date(),
   spot: z.object({
     id: z.string(),
-    name: z.string()
+    name: z.string(),
+    durationType: z.string(),
+    duration: z.number(),
+    units: z.number(),
+    workingHours: z.array(z.any())
   }),
   guest: z.object({
     id: z.string(),

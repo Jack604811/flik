@@ -51,6 +51,7 @@ model User {
   sessions        Session[]
   createdAt       DateTime         @default(now())
   customerId      String?          @unique
+  stripeAccountId String?
   subscriptionId  String?
   oneTimeProducts OneTimeProduct[]
   spots           Spot[]
@@ -91,6 +92,14 @@ model SpotImages {
   createdAt DateTime @default(now())
 }
 
+model ExtrasImages {
+  id        String   @id @default(cuid())
+  url       String
+  Extras    Extras     @relation(fields: [extraId], references: [id], onDelete: Cascade)
+  extraId   String // Foreign key referencing Extras's id
+  createdAt DateTime @default(now())
+}
+
 model Booking {
   id           String        @id @default(cuid())
   subtotal     Float
@@ -105,6 +114,7 @@ model Booking {
   spot         Spot          @relation(fields: [spotId], references: [id])
   spotId       String // Foreign key referencing Spot's id
   transactions Transaction[]
+  bookingExtras BookingExtras[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime?     @default(now())
   deletedAt    DateTime?
@@ -124,6 +134,20 @@ model Transaction {
   deletedAt   DateTime?
 }
 
+model Extras {
+  id                   String       @id @default(cuid())
+  name                 String
+  description          String
+  price                Float        // Add price field for extras
+  status               ExtrasStatus
+  owner                User         @relation(fields: [userId], references: [id])
+  userId               String // Foreign key referencing User's id
+  images               ExtrasImages[]
+  bookingExtras        BookingExtras[]
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime?    @default(now())
+}
+
 model Guest {
   id       String    @id @default(cuid())
   name     String
@@ -133,6 +157,16 @@ model Guest {
   address  String?
   note     String    @default("")
   bookings Booking[]
+}
+
+model BookingExtras {
+  id          String   @id @default(cuid())
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId   String
+  extra       Extras   @relation(fields: [extraId], references: [id])
+  extraId     String
+  quantity    Int      @default(1)
+  createdAt   DateTime @default(now())
 }
 
 model OneTimeProduct {
@@ -167,4 +201,10 @@ enum TransactionStatus {
   Pending
   Cancelled
   Paid
+}
+
+enum ExtrasStatus {
+  Private
+  Public
+  Disabled
 }

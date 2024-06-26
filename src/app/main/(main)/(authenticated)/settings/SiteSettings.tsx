@@ -15,6 +15,7 @@ import { updateSiteSetting } from "@/server/actions/user.action";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CreditCard, Icons } from "lucide-react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function SiteSettings({
   userId,
@@ -63,6 +64,23 @@ function SiteSettings({
             <div className="space-y-2">
               <Label htmlFor="favicon">Favicon</Label>
               <Input id="favicon" name="favicon" type="file" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="siteName">Payment Method as default</Label>
+              <Select>
+              <SelectTrigger className="">
+                <SelectValue placeholder="Select a payment method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Payment Method</SelectLabel>
+                  <SelectItem value="stripe">Stripe</SelectItem>
+                  <SelectItem value="wompi">Wompi</SelectItem>
+                  <SelectItem value="epayco">Epayco</SelectItem>
+                  <SelectItem value="mercadopago">Mercadopago</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">

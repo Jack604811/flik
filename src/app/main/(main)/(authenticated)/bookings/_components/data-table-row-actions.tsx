@@ -24,7 +24,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import { deleteBooking } from "@/server/actions/booking.action";
 import { useRouter } from "next/navigation";
-import BookingDetails from "./BookingDetails";
+import BookingDetails from "./bookingDetails";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

@@ -1,13 +1,13 @@
 "use client";
-
 import { ColumnDef } from "@tanstack/react-table";
 import { statuses } from "../data/data";
 import { Booking } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "./BookingDetails";
-import { ExternalLink } from "lucide-react";
+import BookingDetails from "./bookingDetails";
+import { Calendar, ExternalLink } from "lucide-react";
+
 
 export const columns: ColumnDef<Booking>[] = [
   // {
@@ -48,6 +48,40 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: "startDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Date" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className=" flex-col text-start items-center">
+          <div className="flex flex-row items-center gap-2">
+          <Calendar className="w-4 h-4 text-muted-foreground"/>
+          <span className="flex justify-start">
+            {moment(row.getValue("startDate")).format(" dddd DD MMMM")} -
+            {moment(row.getValue("endDate")).format(" DD MMMM")}
+          </span>
+          </div>
+          
+          <span>
+            {moment(row.getValue("startDate")).format("hh:mm A")} -
+            {moment(row.getValue("endDate")).format(" hh:mm A")}
+          </span>
+        </div>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue || filterValue.length !== 2) {
+        return true; // Don't filter if the filter value is not set or invalid
+      }
+      const start = filterValue[0].getTime();
+      const end = filterValue[1].getTime();
+      const rowDate = new Date(row.original.startDate).getTime();
+      return rowDate >= start && rowDate <= end;
+    },
+    enableSorting: false,
   },
   {
     accessorKey: "guest",
@@ -121,22 +155,7 @@ export const columns: ColumnDef<Booking>[] = [
     },
     enableSorting: false,
   },
-  {
-    accessorKey: "startDate",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Start Date" />
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          <span>
-            {moment(row.getValue("startDate")).format("MM/DD/YYYY hh:mm A")}
-          </span>
-        </div>
-      );
-    },
-    enableSorting: false,
-  },
+  
   {
     accessorKey: "endDate",
     header: ({ column }) => (
@@ -146,7 +165,7 @@ export const columns: ColumnDef<Booking>[] = [
       return (
         <div className="flex items-center">
           <span>
-            {moment(row.getValue("endDate")).format("MM/DD/YYYY hh:mm A")}
+            {moment(row.getValue("endDate")).format("DD-MMMM-YYYY hh:mm A")}
           </span>
         </div>
       );
@@ -162,7 +181,7 @@ export const columns: ColumnDef<Booking>[] = [
       return (
         <div className="flex items-center">
           <span>
-            {moment(row.getValue("createdAt")).format("MM/DD/YYYY hh:mm A")}
+            {moment(row.getValue("createdAt")).format("DD-MMMM-YYYY hh:mm A")}
           </span>
         </div>
       );

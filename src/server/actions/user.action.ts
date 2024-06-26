@@ -38,6 +38,25 @@ export const getSubdomain = async (id: string) => {
   return user?.subdomain;
 };
 
+export const updateStripeConnection = async (id: string, stripeAccountId: string) => {
+  await db.user.update({
+    where: { id },
+    data: { stripeAccountId },
+  });
+
+  return true;
+};
+
+export const getConnectedStripe = async (id: string) => {
+  const user = await db.user.findFirst({
+    where: { id },
+    select: { stripeAccountId: true },
+  });
+
+  return user?.stripeAccountId;
+};
+
+
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
   const logo = formData.get("logo") as File | null | undefined;
