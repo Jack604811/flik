@@ -29,4 +29,8 @@ export const disconnectStripeAccount = async (id: string) => {
   });
 
   return { success: true };
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> refs/remotes/origin/main

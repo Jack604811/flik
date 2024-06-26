@@ -34,7 +34,7 @@ import { statuses } from "../data/data";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { updateBooking } from "@/server/actions/booking.action";
 import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
@@ -55,6 +55,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+<<<<<<< HEAD
+=======
+import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+>>>>>>> refs/remotes/origin/main
 import EditBookingDate from "./EditBookingDate";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -90,6 +94,7 @@ type EDITING_FIELD =
   | "note"
   | null;
 
+<<<<<<< HEAD
   export default function BookingDetails({ children, booking }: Props) {
     const router = useRouter();
     const { control, handleSubmit, setValue, getValues } = useForm({
@@ -97,6 +102,14 @@ type EDITING_FIELD =
       defaultValues: booking,
     });
 
+=======
+function BookingDetails({ children, booking }: Props) {
+  const router = useRouter();
+  const { control, handleSubmit, setValue, getValues, reset } = useForm({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: booking,
+  });
+>>>>>>> refs/remotes/origin/main
 
   const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -108,7 +121,12 @@ type EDITING_FIELD =
   }, [editingField]);
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
+<<<<<<< HEAD
     const updatedData: z.infer<typeof bookingSchema> = { id: data.id, 
+=======
+    const updatedData: z.infer<typeof bookingSchema> & {updatedAt: Date} = {
+      id: data.id,
+>>>>>>> refs/remotes/origin/main
       updatedAt: new Date(),
     };
   
@@ -514,3 +532,5 @@ type EDITING_FIELD =
     </Sheet>
   );
 }
+
+export default memo(BookingDetails)

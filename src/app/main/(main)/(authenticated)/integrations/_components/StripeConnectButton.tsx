@@ -143,4 +143,8 @@ const StripeConnectButton = (props: Props) => {
   );
 };
 
+<<<<<<< HEAD
 export default StripeConnectButton;
+=======
+export default StripeConnectButton;
+>>>>>>> refs/remotes/origin/main

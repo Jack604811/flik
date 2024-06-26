@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { updateSiteSetting } from "@/server/actions/user.action";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreditCard, Icons } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function SiteSettings({

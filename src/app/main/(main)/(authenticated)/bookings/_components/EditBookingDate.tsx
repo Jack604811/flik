@@ -105,4 +105,8 @@ const EditBookingDate = ({ className, spot, startDate, endDate }: Props) => {
   );
 };
 
+<<<<<<< HEAD
 export default memo(EditBookingDate);
+=======
+export default memo(EditBookingDate);
+>>>>>>> refs/remotes/origin/main

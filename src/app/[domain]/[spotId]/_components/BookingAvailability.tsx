@@ -352,4 +352,8 @@ function BookingAvailability({
   );
 }
 
+<<<<<<< HEAD
 export default memo(BookingAvailability);
+=======
+export default memo(BookingAvailability);
+>>>>>>> refs/remotes/origin/main
