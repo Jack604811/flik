@@ -140,7 +140,6 @@ model Extras {
   description          String
   price                Float        // Add price field for extras
   status               ExtrasStatus
-  owner                User         @relation(fields: [userId], references: [id])
   userId               String // Foreign key referencing User's id
   images               ExtrasImages[]
   bookingExtras        BookingExtras[]

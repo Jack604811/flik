@@ -24,7 +24,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import { deleteBooking } from "@/server/actions/booking.action";
 import { useRouter } from "next/navigation";
-import BookingDetails from "./bookingDetails";
+import BookingDetails from "./BookingDetails";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -65,7 +65,7 @@ export function DataTableRowActions<TData>({
       </ConfirmModal>
 
       <BookingDetails booking={row.original as Booking}>
-        <div  ref={editRef} className="hidden">Edit</div>
+        <div  ref={editRef} className="hidden h-0">Edit</div>
       </BookingDetails>
 
       <DropdownMenu>

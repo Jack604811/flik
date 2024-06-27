@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import BookingDetails from "./bookingDetails";
+import BookingDetails from "./BookingDetails";
 import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
@@ -81,7 +81,7 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="space-y-4 w-200">
+    <div className="space-y-4">
       <DataTableToolbar table={table} />
       <div>
         <div className="max-w-50">

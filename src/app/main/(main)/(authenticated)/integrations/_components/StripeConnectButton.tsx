@@ -69,7 +69,7 @@ const StripeConnectButton = (props: Props) => {
             className={cn(
               "flex items-center space-x-2",
               props.accountId &&
-                "bg-green-400 hover:bg-green-400 text-white hover:text-white"
+                "bg-green-100 hover:bg-green-400 text-green-500 border-none hover:text-white"
             )}
           >
             <span>{props.accountId ? "Connected" : "Connect"}</span>
@@ -122,7 +122,7 @@ const StripeConnectButton = (props: Props) => {
                 className="flex items-center space-x-2"
                 onClick={handleDisconnect}
               >
-                <UnplugIcon className="w-5 h-5" />
+                {/*<UnplugIcon className="w-5 h-5" />*/}
                 <span>{loading ? "Disconnecting..." : "Disconnect"}</span>
               </Button>
             ) : (
@@ -132,7 +132,7 @@ const StripeConnectButton = (props: Props) => {
                 onClick={handleConnect}
                 disabled={loading}
               >
-                <PlugIcon className="w-5 h-5" />
+                {/*<PlugIcon className="w-5 h-5" />*/}
                 <span>{loading ? "Connecting..." : "Connect"}</span>
               </Button>
             )}
@@ -143,8 +143,4 @@ const StripeConnectButton = (props: Props) => {
   );
 };
 
-<<<<<<< HEAD
 export default StripeConnectButton;
-=======
-export default StripeConnectButton;
->>>>>>> refs/remotes/origin/main

@@ -30,7 +30,7 @@ export default async function Page() {
                       fill
                     />
                   </div>
-                  <h2 className="font-bold capitalize text-xl">Stripe</h2>
+                  <h2 className="font-bold capitalize text-xl mt-2">Stripe</h2>
                 </div>
                 <StripeConnectButton accountId={stripeConnection} />
               </div>
@@ -44,8 +44,4 @@ export default async function Page() {
       </div>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> refs/remotes/origin/main

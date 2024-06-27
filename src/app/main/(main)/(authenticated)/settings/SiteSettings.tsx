@@ -1,20 +1,13 @@
 "use client";
 import React, { FormEvent } from "react";
+import Image from "next/image"
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { updateSiteSetting } from "@/server/actions/user.action";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Trash } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function SiteSettings({
@@ -36,20 +29,31 @@ function SiteSettings({
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="w-full max-w-md">
-        <form
+    <div className="flex flex-col lg:flex-row gap-4">
+      <div className="min-w-[300px]">
+       <h2 className="text-2xl">Main Settings</h2>
+       <p>Update your site information.</p>
+       </div>
+       <div className="w-full min-w-[300px] gap-8">
+       <form
           action={async (formData: FormData) => {
             await onSave(formData);
-          }}
-        >
-          <CardHeader>
-            <h2 className="text-2xl">Site Settings</h2>
-            <CardDescription>Update your site information.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          }}>   
+          <div className="flex flex-col gap-2">
+          <Label htmlFor="siteLogo">Custom Logo</Label>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 relative rounded-md overflow-hidden">
+              <Image
+                sizes="100vw"
+                src="/stripe-logo.png"
+                alt="Logo"
+                fill
+              />
+            </div>
+            <Button variant="outline">Upload</Button>
+            </div>
             <div className="space-y-2">
-              <Label htmlFor="siteName">App Name</Label>
+              <Label htmlFor="siteName">Business Name</Label>
               <Input
                 defaultValue={siteName ?? ""}
                 id="siteName"
@@ -57,16 +61,33 @@ function SiteSettings({
                 placeholder="Enter site name"
               />
             </div>
-            <div className="space-y-2">
+            {/*<div className="space-y-2">
               <Label htmlFor="logo">Logo</Label>
-              <Input id="logo" name="logo" type="file" />
-            </div>
-            <div className="space-y-2">
+              <Input id="logo" name="logo" type="file" placeholder="Picture" />
+            </div>*/}
+            {/*<div className="space-y-2">
               <Label htmlFor="favicon">Favicon</Label>
               <Input id="favicon" name="favicon" type="file" />
+            </div>*/}
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Select>
+              <SelectTrigger className="">
+                <SelectValue placeholder="Select a country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Where are you located?</SelectLabel>
+                  <SelectItem value="colombia">🇨🇴 Colombia</SelectItem>
+                  <SelectItem value="mexico">🇲🇽 Mexico</SelectItem>
+                  <SelectItem value="brazil">🇧🇷 Brazil</SelectItem>
+                  <SelectItem value="peru">🇵🇪 Perú</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="siteName">Payment Method as default</Label>
+              <Label htmlFor="paymentmethod">Payment Method as default</Label>
               <Select>
               <SelectTrigger className="">
                 <SelectValue placeholder="Select a payment method" />
@@ -74,6 +95,7 @@ function SiteSettings({
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Payment Method</SelectLabel>
+                  <SelectItem value="cash">Cash</SelectItem>
                   <SelectItem value="stripe">Stripe</SelectItem>
                   <SelectItem value="wompi">Wompi</SelectItem>
                   <SelectItem value="epayco">Epayco</SelectItem>
@@ -82,13 +104,12 @@ function SiteSettings({
               </SelectContent>
             </Select>
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
+            <div className="flex justify-end">
             <Button type="submit">Save Changes</Button>
-          </CardFooter>
+            </div>
+          </div>
         </form>
-      </Card>
-      
+       </div>
     </div>
   );
 }

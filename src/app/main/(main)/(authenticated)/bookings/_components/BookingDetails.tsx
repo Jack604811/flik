@@ -55,10 +55,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-<<<<<<< HEAD
-=======
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
->>>>>>> refs/remotes/origin/main
 import EditBookingDate from "./EditBookingDate";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -94,22 +91,12 @@ type EDITING_FIELD =
   | "note"
   | null;
 
-<<<<<<< HEAD
-  export default function BookingDetails({ children, booking }: Props) {
-    const router = useRouter();
-    const { control, handleSubmit, setValue, getValues } = useForm({
-      resolver: zodResolver(bookingSchema),
-      defaultValues: booking,
-    });
-
-=======
 function BookingDetails({ children, booking }: Props) {
   const router = useRouter();
   const { control, handleSubmit, setValue, getValues, reset } = useForm({
     resolver: zodResolver(bookingSchema),
     defaultValues: booking,
   });
->>>>>>> refs/remotes/origin/main
 
   const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -121,12 +108,8 @@ function BookingDetails({ children, booking }: Props) {
   }, [editingField]);
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
-<<<<<<< HEAD
-    const updatedData: z.infer<typeof bookingSchema> = { id: data.id, 
-=======
     const updatedData: z.infer<typeof bookingSchema> & {updatedAt: Date} = {
       id: data.id,
->>>>>>> refs/remotes/origin/main
       updatedAt: new Date(),
     };
   
@@ -423,7 +406,7 @@ function BookingDetails({ children, booking }: Props) {
                                   <>
                                     <FormField
                                       control={control}
-                                      name={`guest.${field}`}
+                                      name={`guest.note`}
                                       render={({ field: formField }) => (
                                         <Textarea
                                           {...formField}
@@ -533,4 +516,4 @@ function BookingDetails({ children, booking }: Props) {
   );
 }
 
-export default memo(BookingDetails)
+export default BookingDetails

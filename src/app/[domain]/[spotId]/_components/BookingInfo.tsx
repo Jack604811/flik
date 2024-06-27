@@ -126,8 +126,4 @@ export default function BookingInfo({
       </div>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> refs/remotes/origin/main

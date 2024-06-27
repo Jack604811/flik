@@ -19,14 +19,14 @@ export default async function Page() {
   const user = await getUser(currentUser!.id);
 
   return (
-    <div className="flex h-screen w-full my-3">
+    <div className="h-screen max-w-[800px] my-4">
       <section>
-        <div className="container mx-auto px-4 md:px-6 space-y-3">
+        <div className="mt-4 mx-auto px-6 md:px-8 space-y-6">
           <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
           <div className="flex flex-col space-y-6">
-            <Subdomain subdomain={user!.subdomain ?? ""} userId={currentUser!.id} />
             <SiteSettings userId={currentUser!.id} siteName={user?.siteName} />
-            <Card className="w-full px-5">
+            <Subdomain subdomain={user!.subdomain ?? ""} userId={currentUser!.id} />
+            {/*<Card className="w-full px-5">
               <CardHeader>
                 <h2 className="text-2xl">Custom Domain</h2>
                 <CardDescription>
@@ -44,7 +44,7 @@ export default async function Page() {
                 </p>
                 <Button>Save Changes</Button>
               </CardFooter>
-            </Card>
+            </Card>*/}
 
           </div>
         </div>
