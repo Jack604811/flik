@@ -64,12 +64,16 @@ export const addBooking = async (data: {
       endDate: data.endDate,
       spotId: data.spotId,
     },
-    include: {spot: {select: {owner: { select: { subdomain: true, customDomain: true} }}}}
+    include: {
+      spot: {
+        select: { owner: { select: { subdomain: true, customDomain: true } } },
+      },
+    },
   });
   const guest = await addGuestToBooking({ ...data, bookingId: booking.id });
 
-  revalidateTag(`${booking.spot.owner.subdomain}-${data.spotId}-metadata`)
-  revalidateTag(`${booking.spot.owner.customDomain}-${data.spotId}-metadata`)
+  revalidateTag(`${booking.spot.owner.subdomain}-${data.spotId}-metadata`);
+  revalidateTag(`${booking.spot.owner.customDomain}-${data.spotId}-metadata`);
 
   return { ...booking, guest };
 };
@@ -126,7 +130,7 @@ export const addGuestToBooking = async ({
       note,
       dni,
       bookings: { connect: { id: bookingId } },
-    }
+    },
   });
 
   return guest;
@@ -155,4 +159,25 @@ export const updateBooking = async (data: {
   });
 
   return booking;
+};
+
+export const handleWompiBookingPaymentEvent = async (
+  bookingId: string,
+  { amount, paymentDate }: { amount: number; paymentDate: Date }
+) => {
+  await db.booking.update({
+    where: { id: bookingId },
+    data: {
+      status: BookingStatus.Confirmed,
+      transactions: {
+        create: {
+          amount,
+          paymentDate,
+          paymentType: "Wompi",
+          status: TransactionStatus.Paid,
+          description: "Payment from Wompi integration!",
+        },
+      },
+    },
+  });
 };

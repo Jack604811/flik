@@ -81,6 +81,7 @@ export const AFTER_SUBSCRIPTION_REDIRECT_URL = "/dashboard";
 export const TRIAL_DAYS = 5
 // ****** / Store Settings / ******
 
+export const WOMPI_CENT_MULTIPLIER = 100000;
 
 // Type definitions
 

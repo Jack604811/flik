@@ -52,6 +52,7 @@ export default function BookingInfo({
                 <PhoneInput
                   placeholder="Enter your phone number"
                   defaultCountry="CO"
+                  onCountryChange={(c) => form.setValue("countryCode", c)}
                   {...field}
                 />
               </FormControl>

@@ -24,7 +24,7 @@ export default async function Page() {
         <div className="mt-4 mx-auto px-6 md:px-8 space-y-6">
           <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
           <div className="flex flex-col space-y-6">
-            <SiteSettings userId={currentUser!.id} siteName={user?.siteName} />
+            <SiteSettings user={user as any} />
             <Subdomain subdomain={user!.subdomain ?? ""} userId={currentUser!.id} />
             {/*<Card className="w-full px-5">
               <CardHeader>

@@ -37,6 +37,7 @@ export default async function RootLayout({
           <link rel="mask-icon" href={siteData?.favicon ?? "/placeholder.svg"} color="#5bbad5" />
           <meta name="msapplication-TileColor" content="#da532c" />
           <meta name="theme-color" content="#ffffff" />
+          <script type="text/javascript" src="https://checkout.wompi.co/widget.js" async></script>
         </head>
         <body>
           <ThemeProvider attribute="class" defaultTheme="light">

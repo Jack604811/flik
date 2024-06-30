@@ -47,6 +47,15 @@ export const updateStripeConnection = async (id: string, stripeAccountId: string
   return true;
 };
 
+export const updateWompiConnection = async (id: string, wompiAccountId: Record<string, any>) => {
+  await db.user.update({
+    where: { id },
+    data: { wompiAccountId },
+  });
+
+  return true;
+};
+
 export const getConnectedStripe = async (id: string) => {
   const user = await db.user.findFirst({
     where: { id },
@@ -56,9 +65,19 @@ export const getConnectedStripe = async (id: string) => {
   return user?.stripeAccountId;
 };
 
+export const getConnectWompi = async (id: string) => {
+  const user = await db.user.findFirst({
+    where: { id },
+    select: { wompiAccountId: true },
+  });
+
+  return user?.wompiAccountId;
+};
 
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
+  const defaultPaymentMethod = formData.get("defaultPaymentMethod") as string;
+  const country = formData.get("country") as string;
   const logo = formData.get("logo") as File | null | undefined;
   const favicon = formData.get("favicon") as File | null | undefined;
 
@@ -66,8 +85,12 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     siteName: string;
     logo?: string | null;
     favicon?: string | null;
+    defaultPaymentMethod?: string
+    country?: string
   } = {
     siteName,
+    defaultPaymentMethod,
+    country
   };
 
   if (logo) {

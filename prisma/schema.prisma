@@ -42,24 +42,27 @@ model Session {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  name            String?
-  email           String?          @unique
-  emailVerified   DateTime?
-  image           String?
-  accounts        Account[]
-  sessions        Session[]
-  createdAt       DateTime         @default(now())
-  customerId      String?          @unique
-  stripeAccountId String?
-  subscriptionId  String?
-  oneTimeProducts OneTimeProduct[]
-  spots           Spot[]
-  siteName        String?
-  logo            String?
-  favicon         String?
-  subdomain       String?          @unique
-  customDomain    String?          @unique
+  id                   String           @id @default(cuid())
+  name                 String?
+  email                String?          @unique
+  emailVerified        DateTime?
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
+  createdAt            DateTime         @default(now())
+  customerId           String?          @unique
+  stripeAccountId      String?
+  wompiAccountId       Json?
+  subscriptionId       String?
+  oneTimeProducts      OneTimeProduct[]
+  spots                Spot[]
+  siteName             String?
+  logo                 String?
+  favicon              String?
+  country              String?
+  defaultPaymentMethod String?          @default("cash")
+  subdomain            String?          @unique
+  customDomain         String?          @unique
 }
 
 model Spot {
@@ -95,29 +98,29 @@ model SpotImages {
 model ExtrasImages {
   id        String   @id @default(cuid())
   url       String
-  Extras    Extras     @relation(fields: [extraId], references: [id], onDelete: Cascade)
+  Extras    Extras   @relation(fields: [extraId], references: [id], onDelete: Cascade)
   extraId   String // Foreign key referencing Extras's id
   createdAt DateTime @default(now())
 }
 
 model Booking {
-  id           String        @id @default(cuid())
-  subtotal     Float
-  extras       Float?
-  tax          Float?
-  totalPrice   Float
-  startDate    DateTime?
-  endDate      DateTime?
-  status       BookingStatus
-  guest        Guest?        @relation(fields: [guestId], references: [id])
-  guestId      String?
-  spot         Spot          @relation(fields: [spotId], references: [id])
-  spotId       String // Foreign key referencing Spot's id
-  transactions Transaction[]
+  id            String          @id @default(cuid())
+  subtotal      Float
+  extras        Float?
+  tax           Float?
+  totalPrice    Float
+  startDate     DateTime?
+  endDate       DateTime?
+  status        BookingStatus
+  guest         Guest?          @relation(fields: [guestId], references: [id])
+  guestId       String?
+  spot          Spot            @relation(fields: [spotId], references: [id])
+  spotId        String // Foreign key referencing Spot's id
+  transactions  Transaction[]
   bookingExtras BookingExtras[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime?     @default(now())
-  deletedAt    DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?       @default(now())
+  deletedAt     DateTime?
 }
 
 model Transaction {
@@ -135,16 +138,16 @@ model Transaction {
 }
 
 model Extras {
-  id                   String       @id @default(cuid())
-  name                 String
-  description          String
-  price                Float        // Add price field for extras
-  status               ExtrasStatus
-  userId               String // Foreign key referencing User's id
-  images               ExtrasImages[]
-  bookingExtras        BookingExtras[]
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime?    @default(now())
+  id            String          @id @default(cuid())
+  name          String
+  description   String
+  price         Float // Add price field for extras
+  status        ExtrasStatus
+  userId        String // Foreign key referencing User's id
+  images        ExtrasImages[]
+  bookingExtras BookingExtras[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?       @default(now())
 }
 
 model Guest {
@@ -159,13 +162,13 @@ model Guest {
 }
 
 model BookingExtras {
-  id          String   @id @default(cuid())
-  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  bookingId   String
-  extra       Extras   @relation(fields: [extraId], references: [id])
-  extraId     String
-  quantity    Int      @default(1)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId String
+  extra     Extras   @relation(fields: [extraId], references: [id])
+  extraId   String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
 }
 
 model OneTimeProduct {

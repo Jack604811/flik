@@ -6,21 +6,19 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { updateSiteSetting } from "@/server/actions/user.action";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreditCard, Trash } from "lucide-react";
+
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { User } from "@prisma/client";
 
 function SiteSettings({
-  userId,
-  siteName,
+  user
 }: {
-  userId: string;
-  siteName: string | null | undefined;
+  user: User
 }) {
   const onSave = async (formData: FormData) => {
     const siteName = formData.get("siteName") as string;
     if (!siteName.length) return toast.error("Site name should not be empty!");
-    const promise = updateSiteSetting(userId, formData);
+    const promise = updateSiteSetting(user.id, formData);
     toast.promise(promise, {
       loading: "Saving...",
       success: "Site Settings Saved Successfully!",
@@ -50,12 +48,12 @@ function SiteSettings({
                 fill
               />
             </div>
-            <Button variant="outline">Upload</Button>
+            <Button variant="outline" type="button">Upload</Button>
             </div>
             <div className="space-y-2">
               <Label htmlFor="siteName">Business Name</Label>
               <Input
-                defaultValue={siteName ?? ""}
+                defaultValue={user.siteName ?? ""}
                 id="siteName"
                 name="siteName"
                 placeholder="Enter site name"
@@ -71,8 +69,8 @@ function SiteSettings({
             </div>*/}
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
-              <Select>
-              <SelectTrigger className="">
+              <Select defaultValue={user.country??""} name="country">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a country" />
               </SelectTrigger>
               <SelectContent>
@@ -88,7 +86,7 @@ function SiteSettings({
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentmethod">Payment Method as default</Label>
-              <Select>
+              <Select defaultValue={user.defaultPaymentMethod??"cash"} name="defaultPaymentMethod">
               <SelectTrigger className="">
                 <SelectValue placeholder="Select a payment method" />
               </SelectTrigger>
