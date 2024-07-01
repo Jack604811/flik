@@ -3,6 +3,10 @@
 import { BookingStatus, TransactionStatus } from "@prisma/client";
 import { db } from "../db";
 import { revalidateTag } from "next/cache";
+import StripeServer from "stripe";
+import { env } from "@/env";
+import { headers } from "next/headers";
+import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
 
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
@@ -180,4 +184,47 @@ export const handleWompiBookingPaymentEvent = async (
       },
     },
   });
+};
+
+type CREATE_STRIPE_LINK_PARAMS = {
+  account: string;
+  amount: number;
+  productName: string;
+  reference: string;
+  customerEmail: string;
+  redirectURI: string;
+};
+
+export const createStripePaymentLink = async (
+  data: CREATE_STRIPE_LINK_PARAMS
+) => {
+  const to = new URL(
+    `/booking/${data.reference}`,
+    `${headers().get("x-forwarded-proto")}://${headers().get("host")}`
+  );
+  const stripe = new StripeServer(env.STRIPE_SECRET_KEY);
+  const session = await stripe.checkout.sessions.create(
+    {
+      line_items: [
+        {
+          price_data: {
+            unit_amount: data.amount * WOMPI_CENT_MULTIPLIER,
+            product_data: {
+              name: data.productName,
+            },
+            currency: "COP",
+          },
+          quantity: 1,
+        },
+      ],
+      customer_email: data.customerEmail,
+      client_reference_id: data.reference,
+      mode: "payment",
+      success_url: data.redirectURI ?? to.href,
+      cancel_url: data.redirectURI ?? to.href,
+    },
+    { stripeAccount: data.account }
+  );
+
+  return { url: session.url };
 };

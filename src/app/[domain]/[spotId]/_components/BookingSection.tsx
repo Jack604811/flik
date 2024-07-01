@@ -6,7 +6,10 @@ import moment from "moment";
 import { DateRange } from "react-day-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { addBooking } from "@/server/actions/booking.action";
+import {
+  addBooking,
+  createStripePaymentLink,
+} from "@/server/actions/booking.action";
 import { Booking, Spot, SpotImages, User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -69,11 +72,11 @@ const progresses: Record<
 function BookingSection({ spot }: Params) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {countryCode: "+57"},
+    defaultValues: { countryCode: "+57" },
   });
 
   const [progress, setProgress] = useState<ProgressKey>("check_availability");
-  const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<
     Date | DateRange | undefined
@@ -84,7 +87,7 @@ function BookingSection({ spot }: Params) {
     try {
       const booking = await addBooking({ ...values, spotId: spot.id });
       form.setValue("id", booking.id);
-      setProgress("payment")
+      setProgress("payment");
       handlePayment();
     } catch (error: any) {
       toast.error(
@@ -96,35 +99,82 @@ function BookingSection({ spot }: Params) {
   const handlePayment = async () => {
     const values = form.getValues();
     const defaultPaymentMethod = spot.owner.defaultPaymentMethod;
+    const to = new URL(`/booking/${values.id}`, window.location.href);
+
     switch (defaultPaymentMethod) {
       case "wompi":
         if (typeof window !== "undefined" && window.WidgetCheckout) {
-          const wompiAccount = spot.owner.wompiAccountId as Record<string, string>;
-          const publicKey = wompiAccount.useSandbox === "on" ? wompiAccount.testPublicKey: wompiAccount.livePublicKey;
-          const widgetCheckout = new window.WidgetCheckout({
+          const wompiAccount = spot.owner.wompiAccountId as Record<
+            string,
+            string
+          >;
+          const publicKey =
+            wompiAccount.useSandbox === "on"
+              ? wompiAccount.testPublicKey
+              : wompiAccount.livePublicKey;
+
+          
+          const data = {
             currency: "COP",
             amountInCents: values.totalPrice * WOMPI_CENT_MULTIPLIER,
             reference: values.id,
             publicKey: publicKey,
+            redirectURI: to.href,
             customerData: {
               email: values.email,
               fullName: values.name,
-              phoneNumber: values.phone.replace(values.countryCode??"+57", ""),
-              phoneNumberPrefix: values.countryCode??"+57",
+              phoneNumber: values.phone.replace(
+                values.countryCode ?? "+57",
+                ""
+              ),
+              phoneNumberPrefix: values.countryCode ?? "+57",
             },
-          });
-          // Use methods from widgetCheckout instance if needed
-          widgetCheckout.open(function (result: any) {
-            setPaymentSuccess(true);
-          });
+          };
+
+          const url = `https://checkout.wompi.co/p/?public-key=${
+            data.publicKey
+          }&currency=${data.currency}&amount-in-cents=${
+            data.amountInCents
+          }&reference=${
+            data.reference
+          }&customer-data:email=${encodeURIComponent(
+            data.customerData.email
+          )}&customer-data:full-name=${encodeURIComponent(
+            data.customerData.fullName
+          )}&customer-data:phone-number=${encodeURIComponent(
+            data.customerData.phoneNumber
+          )}&customer-data:phone-number-prefix=${encodeURIComponent(
+            data.customerData.phoneNumberPrefix
+          )}&redirect-url=${encodeURIComponent(data.redirectURI)}`;
+
+          window.location.href = url;
+
+          // const widgetCheckout = new window.WidgetCheckout(data);
+          // // Use methods from widgetCheckout instance if needed
+          // widgetCheckout.open(function (result: any) {
+          //   setPaymentSuccess(true);
+          // });
         }
         break;
       case "stripe":
-        // TODO: Implement stripe payment popup
-        setPaymentSuccess(true)
+        if (!spot.owner.stripeAccountId)
+          toast.error(
+            "There was an error while generating payment link, kindly try again or contact to make payment manually!"
+          );
+        const res = await createStripePaymentLink({
+          reference: values.id!,
+          customerEmail: values.email,
+          account: spot.owner.stripeAccountId!,
+          amount: values.totalPrice,
+          productName: spot.name,
+          redirectURI: to.href
+        });
+        window.location.href = res.url!;
+        // // TODO: Implement stripe payment popup
+        // setPaymentSuccess(true);
         break;
       case "cash":
-        setPaymentSuccess(true)
+        setPaymentSuccess(true);
         break;
       default:
         break;
@@ -162,21 +212,27 @@ function BookingSection({ spot }: Params) {
               />
             )}
             {progress === "payment" && (
-               <div className="space-y-4 text-center">
-               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                 Thank you for booking!
-               </h1>
-               <p className="max-w-[600px] mx-auto text-gray-500 md:text-xl dark:text-gray-400 pb-4">
-                 We appreciate your trust in us and look forward to providing
-                 you with an exceptional experience.
-               </p>
-               {!paymentSuccess && (
-                <Button variant={"outline"} onClick={() => handlePayment()} className="mr-3">Make Payment</Button>
-               )}
-               <Link href="/">
-                 <Button>Go to home</Button>
-               </Link>
-             </div>
+              <div className="space-y-4 text-center">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Thank you for booking!
+                </h1>
+                <p className="max-w-[600px] mx-auto text-gray-500 md:text-xl dark:text-gray-400 pb-4">
+                  We appreciate your trust in us and look forward to providing
+                  you with an exceptional experience.
+                </p>
+                {!paymentSuccess && (
+                  <Button
+                    variant={"outline"}
+                    onClick={() => handlePayment()}
+                    className="mr-3"
+                  >
+                    Make Payment
+                  </Button>
+                )}
+                <Link href="/">
+                  <Button>Go to home</Button>
+                </Link>
+              </div>
             )}
           </form>
         </Form>

@@ -27,8 +27,4 @@ export const GET = async (req: NextRequest) => {
   
   
   return NextResponse.redirect(new URL("/integrations", req.url));
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> refs/remotes/origin/main
