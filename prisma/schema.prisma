@@ -57,6 +57,7 @@ model User {
   oneTimeProducts      OneTimeProduct[]
   spots                Spot[]
   siteName             String?
+  aboutUs              String?
   logo                 String?
   favicon              String?
   country              String?

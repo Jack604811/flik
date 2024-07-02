@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { updateSiteSetting } from "@/server/actions/user.action";
 import { Label } from "@/components/ui/label";
-
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User } from "@prisma/client";
+
 
 function SiteSettings({
   user
@@ -18,6 +19,8 @@ function SiteSettings({
   const onSave = async (formData: FormData) => {
     const siteName = formData.get("siteName") as string;
     if (!siteName.length) return toast.error("Site name should not be empty!");
+    const aboutUs = formData.get("aboutUs") as string;
+    if (!aboutUs.length) return toast.error("About us should not be empty!");
     const promise = updateSiteSetting(user.id, formData);
     toast.promise(promise, {
       loading: "Saving...",
@@ -51,12 +54,21 @@ function SiteSettings({
             <Button variant="outline" type="button">Upload</Button>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="siteName">Business Name</Label>
+              <Label htmlFor="siteName">Name</Label>
               <Input
-                defaultValue={user.siteName ?? ""}
+                defaultValue={user.siteName?? ""}
                 id="siteName"
                 name="siteName"
                 placeholder="Enter site name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="aboutUs">About us</Label>
+              <Textarea
+                defaultValue={user.aboutUs?? ""}
+                id="aboutUs"
+                name="aboutUs"
+                placeholder="Write something about your company"
               />
             </div>
             {/*<div className="space-y-2">

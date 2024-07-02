@@ -76,6 +76,7 @@ export const getConnectWompi = async (id: string) => {
 
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
+  const aboutUs = formData.get("aboutUs") as string;
   const defaultPaymentMethod = formData.get("defaultPaymentMethod") as string;
   const country = formData.get("country") as string;
   const currency = formData.get("currency") as string;
@@ -84,6 +85,7 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
 
   const data: {
     siteName: string;
+    aboutUs: string;
     logo?: string | null;
     favicon?: string | null;
     defaultPaymentMethod?: string
@@ -91,6 +93,7 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     currency?: string
   } = {
     siteName,
+    aboutUs,
     defaultPaymentMethod,
     country,
     currency

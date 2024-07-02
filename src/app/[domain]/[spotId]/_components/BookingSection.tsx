@@ -212,27 +212,156 @@ function BookingSection({ spot }: Params) {
               />
             )}
             {progress === "payment" && (
-              <div className="space-y-4 text-center">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                  Thank you for booking!
-                </h1>
-                <p className="max-w-[600px] mx-auto text-gray-500 md:text-xl dark:text-gray-400 pb-4">
-                  We appreciate your trust in us and look forward to providing
-                  you with an exceptional experience.
-                </p>
-                {!paymentSuccess && (
-                  <Button
-                    variant={"outline"}
-                    onClick={() => handlePayment()}
-                    className="mr-3"
-                  >
-                    Make Payment
-                  </Button>
-                )}
-                <Link href="/">
-                  <Button>Go to home</Button>
-                </Link>
+              <div key="1" className="container mx-auto px-4 md:px-6 py-8">
+              <div className="flex-2 grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 p-6">
+                <div>
+                  <div className="flex gap-2 justify-between">
+                    <span>
+                      <h2 className="text-2xl font-bold">Booking Details</h2>
+                      <p className="text-gray-500 dark:text-gray-400">Complete your booking adding more items.</p>
+                    </span>
+                  </div>
+                  <div className="grid grid-2 justify-between items-center mt-8 mb-4">
+                    <h2 className="text-lg font-semibold ">Items</h2>
+                  </div>
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="grid grid-cols-[120px_1fr] w-full items-center gap-4">
+                        <img
+                          alt="Booking Image"
+                          className="rounded-md object-cover"
+                          height={80}
+                          src="/placeholder.svg"
+                          style={{ aspectRatio: "120/80", objectFit: "cover" }}
+                          width={120}
+                        />
+                        <div className="flex flex-col">
+                          <div className="flex w-full justify-between">
+                            <div className="font-bold">Cozy Mountain Retreat</div>
+                            <div className="font-bold text-lg">$400</div>
+                          </div>
+                          <div className="text-gray-500 dark:text-gray-400 text-sm">x2 nights</div>
+                          <div className="flex items-center font-semibold text-sm mt-4">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            June 1 - June 3
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-2" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-b py-4 my-4">
+                    <div className="flex justify-between">
+                      <h2 className="text-lg font-semibold mb-6">Extras</h2>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <div className="mr-4">
+                              <img
+                                alt="Burnt Ends"
+                                className="w-16 h-16 object-cover rounded-lg"
+                                height="60"
+                                src="/placeholder.svg"
+                                style={{ aspectRatio: "60/60", objectFit: "cover" }}
+                                width="60"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-semibold">Burnt Ends</p>
+                              <p className="font-regular text-gray-500">Description</p>
+                              <p className="font-bold text-sm">$10.00</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <Button className="text-white" variant="default">
+                              Add
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <div className="mr-4">
+                              <img
+                                alt="Burnt Ends"
+                                className="w-16 h-16 object-cover rounded-lg"
+                                height="60"
+                                src="/placeholder.svg"
+                                style={{ aspectRatio: "60/60", objectFit: "cover" }}
+                                width="60"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-semibold">Burnt Ends</p>
+                              <p className="font-regular text-gray-500">Description</p>
+                              <p className="font-bold text-sm">$10.00</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <Button className="text-white" variant="default">
+                              Add
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <div className="mr-4">
+                              <img
+                                alt="Burnt Ends"
+                                className="w-16 h-16 object-cover rounded-lg"
+                                height="60"
+                                src="/placeholder.svg"
+                                style={{ aspectRatio: "60/60", objectFit: "cover" }}
+                                width="60"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-semibold">Burnt Ends</p>
+                              <p className="font-regular text-gray-500">Description</p>
+                              <p className="font-bold text-sm">$10.00</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <Button className="text-white" variant="default">
+                              Add
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex-col bg-gray-100 dark:bg-gray-800 rounded-lg p-6 grid sticky top-6 gap-8">
+                    <div className="grid gap-4">
+                      <h3 className="font-medium">Order Summary</h3>
+                      <div className="flex items-center justify-between">
+                        <span>Subtotal</span>
+                        <span className="font-medium">$104.97</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Extras</span>
+                        <span className="font-medium">$0.00</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Taxes</span>
+                        <span className="font-medium">$8.40</span>
+                      </div>
+                      <Separator className="my-2" />
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Total</span>
+                        <span className="font-medium">$113.37</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-between">
+                  <Button variant="outline">Back</Button>
+                  <Button>Proceded to checkout</Button>
+                </div>
               </div>
+            </div>
             )}
           </form>
         </Form>
