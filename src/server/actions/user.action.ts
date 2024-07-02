@@ -78,6 +78,7 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
   const defaultPaymentMethod = formData.get("defaultPaymentMethod") as string;
   const country = formData.get("country") as string;
+  const currency = formData.get("currency") as string;
   const logo = formData.get("logo") as File | null | undefined;
   const favicon = formData.get("favicon") as File | null | undefined;
 
@@ -87,10 +88,12 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     favicon?: string | null;
     defaultPaymentMethod?: string
     country?: string
+    currency?: string
   } = {
     siteName,
     defaultPaymentMethod,
-    country
+    country,
+    currency
   };
 
   if (logo) {

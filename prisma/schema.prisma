@@ -60,6 +60,7 @@ model User {
   logo                 String?
   favicon              String?
   country              String?
+  currency             String?          @default("🇺🇸 USD")
   defaultPaymentMethod String?          @default("cash")
   subdomain            String?          @unique
   customDomain         String?          @unique

@@ -85,6 +85,24 @@ function SiteSettings({
             </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="currency">Currency</Label>
+              <Select defaultValue={user.currency??""} name="currency">
+              <SelectTrigger>
+                <SelectValue placeholder="Select a currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>What currency do you use?</SelectLabel>
+                  <SelectItem value="usd">🇺🇸 USD</SelectItem>
+                  <SelectItem value="cop">🇨🇴 COP</SelectItem>
+                  <SelectItem value="mxn">🇲🇽 MXN</SelectItem>
+                  <SelectItem value="brl">🇧🇷 BRL</SelectItem>
+                  <SelectItem value="pen">🇵🇪 PEN</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="paymentmethod">Payment Method as default</Label>
               <Select defaultValue={user.defaultPaymentMethod??"cash"} name="defaultPaymentMethod">
               <SelectTrigger className="">

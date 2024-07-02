@@ -78,10 +78,10 @@ export const AFTER_PURCHASE_REDIRECT_URL = "/";
 // Redirect for subscriptions
 export const AFTER_SUBSCRIPTION_REDIRECT_URL = "/dashboard";
 
-export const TRIAL_DAYS = 5
+export const TRIAL_DAYS = 14
 // ****** / Store Settings / ******
 
-export const WOMPI_CENT_MULTIPLIER = 100000;
+export const WOMPI_CENT_MULTIPLIER = 10;
 
 // Type definitions
 
