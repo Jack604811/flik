@@ -185,6 +185,26 @@ export const handleWompiBookingPaymentEvent = async (
     },
   });
 };
+export const handleStripeBookingPaymentEvent = async (
+  bookingId: string,
+  { amount, paymentDate }: { amount: number; paymentDate: Date }
+) => {
+  await db.booking.update({
+    where: { id: bookingId },
+    data: {
+      status: BookingStatus.Confirmed,
+      transactions: {
+        create: {
+          amount,
+          paymentDate,
+          paymentType: "Stripe",
+          status: TransactionStatus.Paid,
+          description: "Payment from Stripe integration!",
+        },
+      },
+    },
+  });
+};
 
 type CREATE_STRIPE_LINK_PARAMS = {
   account: string;
