@@ -6,6 +6,7 @@ import { env } from "@/env";
 import { Mountain } from "lucide-react";
 import Head from "next/head";
 
+
 export default async function Page({ params }: { params: { domain: string } }) {
   const domain = decodeURIComponent(params.domain);
   const siteData = await getSiteData(domain);
@@ -103,8 +104,15 @@ export default async function Page({ params }: { params: { domain: string } }) {
             </div>
           </div>
         </section>
+        
       )}
-
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+        <div className="container px-4 md:px-6 text-center">
+          <h3 className="text-xl font-bold text-gray-900">
+           
+          </h3>
+        </div>
+      </section>
       <footer className="bg-gray-900 py-8 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between md:flex-row">

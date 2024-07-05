@@ -12,6 +12,7 @@ export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
     where: { spot: { userId: ownerId } },
     include: { spot: true, guest: true },
+    orderBy: { createdAt: "desc"}
   });
 
   return bookings;
@@ -21,6 +22,7 @@ export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { spot: { userId: ownerId } } },
     include: { booking: { include: { guest: true, spot: true } } },
+    orderBy: { createdAt: "desc"}
   });
 
   return transactions;
@@ -29,6 +31,7 @@ export const getTransactions = async (ownerId: string) => {
 export const getTransactionsByBooking = async (bookingId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { id: bookingId } },
+    orderBy: { createdAt: "desc"}
   });
 
   return transactions;
@@ -61,7 +64,7 @@ export const addBooking = async (data: {
 }) => {
   const booking = await db.booking.create({
     data: {
-      status: "Pending",
+      status: "In_progress",
       totalPrice: data.totalPrice,
       subtotal: data.subtotal,
       startDate: data.startDate,
@@ -178,7 +181,7 @@ export const handleWompiBookingPaymentEvent = async (
           amount,
           paymentDate,
           paymentType: "Wompi",
-          status: TransactionStatus.Paid,
+          status: TransactionStatus.Approved,
           description: "Payment from Wompi integration!",
         },
       },
@@ -198,7 +201,7 @@ export const handleStripeBookingPaymentEvent = async (
           amount,
           paymentDate,
           paymentType: "Stripe",
-          status: TransactionStatus.Paid,
+          status: TransactionStatus.Approved,
           description: "Payment from Stripe integration!",
         },
       },

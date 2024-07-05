@@ -43,7 +43,7 @@ import {
 import { CalendarIcon, CirclePlus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils"; // Ensure this utility function is available
+import { cn } from "@/lib/utils"; 
 import { useRouter } from "next/navigation";
 import MoneyInput from "src/components/ui/money-input";
 
@@ -75,7 +75,7 @@ function AddTransactionButton({
     resolver: zodResolver(formSchema),
     defaultValues: {
       paymentType: "Cash",
-      status: "Paid",
+      status: "Approved",
       ...defaultTransaction
     },
     resetOptions: { keepDefaultValues: true },
@@ -127,12 +127,12 @@ function AddTransactionButton({
       </CredenzaTrigger>
       <CredenzaContent>
         <CredenzaHeader>
-          <CredenzaTitle className="text-xl text-semibold">
-            Add {placeholder ?? "Payment"}
+          <CredenzaTitle className="text-2xl text-semibold">
+          {defaultTransaction?.id ? "Update" : "Create"}
           </CredenzaTitle>
           <CredenzaDescription>
             Enter the details of the {placeholder ?? "payment"} you want
-            to add.
+            to {defaultTransaction?.id ? "update" : "create"}
           </CredenzaDescription>
         </CredenzaHeader>
         <CredenzaBody className="">
@@ -166,7 +166,7 @@ function AddTransactionButton({
                     name="paymentType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Payment Type</FormLabel>
+                        <FormLabel>Payment Method</FormLabel>
                         <FormControl>
                           <Select
                             value={field.value}

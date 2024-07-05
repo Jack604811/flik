@@ -161,8 +161,8 @@ function BookingDetails({ children, booking }: Props) {
                     startDate={booking!.startDate}
                     spot={booking!.spot}
                   />
-                  <CalendarDays className="h-5 w-5" />
-                  <div className="flex flex-col gap-0">
+                  {/*<CalendarDays className="h-5 w-5" />
+                  {/*<div className="flex flex-col gap-0">
                     <div>
                       {moment(booking?.startDate).format("DD MMM YYYY hh:mm A")}
                     </div>
@@ -172,11 +172,11 @@ function BookingDetails({ children, booking }: Props) {
                         PM
                       </div>
                     )}
-                  </div>
+                  </div>*/}
                 </div>
-                <p className="text-red-500">
+                {/*<p className="text-red-500">
                   The current date are not available for {booking?.spot.name}
-                </p>
+                </p>*/}
               </div>
               <div className="ml-auto flex items-center gap-1">
                 <DropdownMenu>

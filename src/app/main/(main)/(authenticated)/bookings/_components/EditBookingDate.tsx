@@ -68,7 +68,7 @@ const EditBookingDate = ({ className, spot, startDate, endDate }: Props) => {
               <Button
                 variant={"outline"}
                 className={cn(
-                  "w-[300px] justify-start text-left font-normal",
+                  "w-[300px] justify-start text-left font-normal border-none bg-transparent p-0 hover:bg-transparent",
                   !date && "text-muted-foreground"
                 )}
               >

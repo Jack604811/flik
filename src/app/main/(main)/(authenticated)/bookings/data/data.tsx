@@ -12,14 +12,19 @@ import {
 
 export const statuses = [
   {
-    value: BookingStatus.Pending,
-    label: "Waiting for Payment",
+    value: BookingStatus.In_progress,
+    label: "In progress",
     icon: StopwatchIcon,
   },
   {
     value: BookingStatus.Confirmed,
-    label: "Approved",
+    label: "Confirmed",
     icon: CheckCircledIcon,
+  },
+  {
+    value: BookingStatus.Waiting_for_payment,
+    label: "Waiting for Payment",
+    icon: StopwatchIcon,
   },
   {
     value: BookingStatus.Cancelled,
