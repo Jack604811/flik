@@ -29,6 +29,3 @@ export const POST = async (req: NextRequest) => {
 
   return NextResponse.json({});
 };
-export const GET = async () => {
-  return NextResponse.json({ message: "Welcome" });
-};

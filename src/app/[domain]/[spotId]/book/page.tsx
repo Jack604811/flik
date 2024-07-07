@@ -2,7 +2,7 @@
 import { getSiteSpotData } from "@/server/actions/domain.action";
 import React from "react";
 import Link from "next/link";
-import SpotDetails from "./_components/SpotDetails";
+import BookingSection from "../_components/BookingSection";
 
 async function Page({
   params,
@@ -29,7 +29,7 @@ async function Page({
 
   return (
     <div>
-      <SpotDetails spot={spotData} />
+      <BookingSection spot={spotData} />
     </div>
   );
 }

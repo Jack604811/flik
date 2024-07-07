@@ -57,9 +57,9 @@
     "next-mdx-remote": "^0.0.0-canary-20240321205249",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^1.6.11",
-    "react": "^18",
+    "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
-    "react-dom": "^18",
+    "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.51.3",
     "react-number-format": "^5.4.0",
@@ -76,7 +76,8 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1",
     "vaul": "^0.9.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.12",

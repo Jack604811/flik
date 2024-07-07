@@ -1,13 +1,11 @@
+"use client";
 import {
   CardTitle,
-  CardDescription,
-  CardHeader,
   CardContent,
   CardFooter,
   Card,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,29 +16,28 @@ import {
   Select,
 } from "@/components/ui/select";
 import {
-  CalendarDays,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ChevronsUpDownIcon,
   Edit,
   MoreVerticalIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Booking } from "../data/schema";
+import { Booking } from "@/schemas/booking.schema";
 import moment from "moment";
-import { BookingStatus } from "@prisma/client";
+import { BookingStatus, Spot } from "@prisma/client";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { statuses } from "../data/data";
+import { statuses } from "@/schemas/booking.schema";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useRef, useEffect, memo } from "react";
 import { updateBooking } from "@/server/actions/booking.action";
 import { toast } from "sonner";
-import { FormField } from "@/components/ui/form";
+import {
+  FormField,
+} from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import BookingPayments from "./bookingPayments";
+import BookingPayments from "@/app/main/(main)/(authenticated)/bookings/_components/BookingPayments";
 import {
   Carousel,
   CarouselContent,
@@ -55,19 +52,17 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
-import EditBookingDate from "./EditBookingDate";
+import EditBookingDate from "@/app/main/(main)/(authenticated)/bookings/_components/EditBookingDate";
 import { Textarea } from "@/components/ui/textarea";
-
-type Props = {
-  children: React.ReactNode;
-  booking?: Booking;
-};
+import { useBookingDetail } from "@/hooks/use-booking-detail";
+import { useQuery } from "@tanstack/react-query";
+import { getSpotsByUser } from "@/server/actions/spot.action";
+import { useSession } from "next-auth/react";
 
 const bookingSchema = z.object({
   id: z.string(),
   status: z.nativeEnum(BookingStatus).optional(),
-  updatedAt: z.date().optional(),
+  spotId: z.string().optional(),
   guest: z
     .object({
       id: z.string(),
@@ -89,9 +84,19 @@ type EDITING_FIELD =
   | "address"
   | "status"
   | "note"
+  | "spotId"
   | null;
 
-function BookingDetails({ children, booking }: Props) {
+function BookingDetailSheet() {
+  const { data: session } = useSession()
+  const { data: spots, isLoading } = useQuery({
+    queryKey: ["spots"],
+    queryFn: () => getSpotsByUser({userId: session?.user.id!}),
+    initialData: [] as Spot[],
+  });
+  const { isOpen, onOpenChange, booking } = useBookingDetail(
+    (state: any) => state
+  );
   const router = useRouter();
   const { control, handleSubmit, setValue, getValues, reset } = useForm({
     resolver: zodResolver(bookingSchema),
@@ -108,14 +113,14 @@ function BookingDetails({ children, booking }: Props) {
   }, [editingField]);
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
-    const updatedData: z.infer<typeof bookingSchema> & {updatedAt: Date} = {
+    const updatedData: z.infer<typeof bookingSchema> = {
       id: data.id,
-      updatedAt: new Date(),
     };
-  
 
     if (editingField === "status") {
       updatedData.status = data.status;
+    } else if (editingField === "spotId") {
+      updatedData.spotId = data.spotId;
     } else {
       updatedData.guest = {
         id: data.guest!.id,
@@ -124,7 +129,7 @@ function BookingDetails({ children, booking }: Props) {
     }
 
     const updated = updateBooking(updatedData);
-      
+
     toast.promise(updated, {
       loading: `Updating ${editingField}...`,
       success() {
@@ -143,10 +148,10 @@ function BookingDetails({ children, booking }: Props) {
     setEditingField(null);
   };
 
+  if (!isOpen && !booking) return null;
 
   return (
-    <Sheet>
-      <SheetTrigger>{children}</SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="p-0 sm:min-w-[360px] md:min-w-[500px] xl:min-w-[600px]">
         <Card className="flex flex-col overflow-hidden justify-between h-screen">
           <CardContent className="p-0 text-sm h-[95%] relative">
@@ -157,22 +162,11 @@ function BookingDetails({ children, booking }: Props) {
                 </CardTitle>
                 <div className="flex flex-row w-full items-center gap-2">
                   <EditBookingDate
-                    endDate={booking!.endDate}
-                    startDate={booking!.startDate}
-                    spot={booking!.spot}
+                    endDate={booking?.endDate!}
+                    startDate={booking?.startDate!}
+                    spot={booking?.spot!}
+                    bookingId={booking?.id!}
                   />
-                  <CalendarDays className="h-5 w-5" />
-                  <div className="flex flex-col gap-0">
-                    <div>
-                      {moment(booking?.startDate).format("DD MMM YYYY hh:mm A")}
-                    </div>
-                    {booking?.endDate && (
-                      <div>
-                        {moment(booking?.endDate).format("DD MMM YYYY 12:00")}{" "}
-                        PM
-                      </div>
-                    )}
-                  </div>
                 </div>
                 <p className="text-red-500">
                   The current date are not available for {booking?.spot.name}
@@ -242,7 +236,7 @@ function BookingDetails({ children, booking }: Props) {
                                         field: { onChange, value },
                                       }) => (
                                         <PhoneInput
-                                          defaultCountry={'CO'}
+                                          defaultCountry={"CO"}
                                           value={value}
                                           onChange={onChange}
                                         />
@@ -276,7 +270,7 @@ function BookingDetails({ children, booking }: Props) {
                                       )}
                                     />
                                   ) : (
-                                      <FormField
+                                    <FormField
                                       control={control}
                                       name={`guest.${field}`}
                                       render={({ field: formField }) => (
@@ -284,9 +278,7 @@ function BookingDetails({ children, booking }: Props) {
                                           {...formField}
                                           id={field}
                                           ref={
-                                            inputRef as React.RefObject<
-                                              HTMLInputElement
-                                            >
+                                            inputRef as React.RefObject<HTMLInputElement>
                                           }
                                         />
                                       )}
@@ -330,7 +322,8 @@ function BookingDetails({ children, booking }: Props) {
                                     </span>
                                     <span
                                       className="cursor-pointer"
-                                      onClick={() => startEditing(field as any)}>
+                                      onClick={() => startEditing(field as any)}
+                                    >
                                       <Edit size={13} />
                                     </span>
                                   </div>
@@ -346,19 +339,93 @@ function BookingDetails({ children, booking }: Props) {
                   <div className="grid gap-3">
                     <div className="font-semibold">Order Details</div>
                     <ul className="grid gap-3">
-                      <li className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          <div className="flex flex-row items-center gap-2">
-                            Spot
-                          </div>
-                        </span>
-                        <div className="flex flex-row items-center gap-1">
-                          <span className="text-sm">{booking?.spot.name}</span>
-                          <ChevronsUpDownIcon className="ml-auto h-4 w-4" />
-                        </div>
-                      </li>
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <dl>
+                          {["spot"].map((field) => (
+                            <div
+                              key={field}
+                              className="flex items-start justify-between"
+                            >
+                              <dt className="text-muted-foreground">
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                              </dt>
+                              <dd>
+                                {editingField === field ? (
+                                  <>
+                                    <FormField
+                                      control={control}
+                                      name={`spotId`}
+                                      render={({
+                                        field: { onChange, value, name },
+                                      }) => (
+                                        <Select
+                                          value={value}
+                                          onValueChange={onChange}
+                                          name={name}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {spots.map((spt, key) => (
+                                              <SelectItem key={key} value={spt.id}>
+                                                {spt.name}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      )}
+                                    />
+                                    <div className="flex justify-end items-end gap-2 space-y-2 mt-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs"
+                                        onClick={cancelEditing}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        type="submit"
+                                        className="text-xs"
+                                      >
+                                        Save
+                                      </Button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex justify-between items-center relative gap-2">
+                                      <span
+                                        className="text-right text-sm"
+                                        onClick={() =>
+                                          startEditing(field as any)
+                                        }
+                                      >
+                                        {booking?.spot.name}
+                                      </span>
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={() =>
+                                          startEditing(field as any)
+                                        }
+                                      >
+                                        <Edit size={13} />
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </form>
                       <span className="text-sm text-end">
-                        ${new Intl.NumberFormat('de-DE').format(booking?.totalPrice ?? 0)}
+                        $
+                        {new Intl.NumberFormat("de-DE").format(
+                          booking?.totalPrice ?? 0
+                        )}
                       </span>
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">
@@ -371,7 +438,12 @@ function BookingDetails({ children, booking }: Props) {
                     <ul className="grid gap-3">
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span className="text-sm">${new Intl.NumberFormat('de-DE').format(booking?.subtotal ?? 0)}</span>
+                        <span className="text-sm">
+                          $
+                          {new Intl.NumberFormat("de-DE").format(
+                            booking?.subtotal ?? 0
+                          )}
+                        </span>
                       </li>
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Extras</span>
@@ -383,7 +455,12 @@ function BookingDetails({ children, booking }: Props) {
                       </li>
                       <li className="flex items-center justify-between font-semibold">
                         <span className="text-muted-foreground">Total</span>
-                        <span className="text-sm">${new Intl.NumberFormat('de-DE').format(booking?.totalPrice ?? 0)}</span>
+                        <span className="text-sm">
+                          $
+                          {new Intl.NumberFormat("de-DE").format(
+                            booking?.totalPrice ?? 0
+                          )}
+                        </span>
                       </li>
                     </ul>
                   </div>
@@ -413,9 +490,7 @@ function BookingDetails({ children, booking }: Props) {
                                           id={field}
                                           className="w-full"
                                           ref={
-                                            inputRef as React.RefObject<
-                                              HTMLTextAreaElement
-                                            >
+                                            inputRef as React.RefObject<HTMLTextAreaElement>
                                           }
                                         />
                                       )}
@@ -443,7 +518,9 @@ function BookingDetails({ children, booking }: Props) {
                                     <div className="flex w-full justify-between items-start relative gap-2">
                                       <span
                                         className="text-left text-sm flex-grow"
-                                        onClick={() => startEditing(field as any)}
+                                        onClick={() =>
+                                          startEditing(field as any)
+                                        }
                                       >
                                         {
                                           booking!.guest?.[
@@ -453,7 +530,9 @@ function BookingDetails({ children, booking }: Props) {
                                       </span>
                                       <span
                                         className="cursor-pointer"
-                                        onClick={() => startEditing(field as any)}
+                                        onClick={() =>
+                                          startEditing(field as any)
+                                        }
                                       >
                                         <Edit size={13} />
                                       </span>
@@ -516,4 +595,4 @@ function BookingDetails({ children, booking }: Props) {
   );
 }
 
-export default BookingDetails
+export default BookingDetailSheet;

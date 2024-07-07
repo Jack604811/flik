@@ -18,13 +18,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Booking, bookingSchema } from "../data/schema";
+import { Booking } from "@/schemas/booking.schema";
 import ConfirmModal from "@/components/confirm-modal";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { deleteBooking } from "@/server/actions/booking.action";
 import { useRouter } from "next/navigation";
-import BookingDetails from "./BookingDetails";
+import { useBookingDetail } from "@/hooks/use-booking-detail";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -33,9 +33,9 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  const onBookingDetail = useBookingDetail(state => state.onBookingDetail);
   const router = useRouter();
   const deleteRef = useRef<any>();
-  const editRef = useRef<any>();
   const bookingId = row.getValue("id") as string;
   const guestName = row.getValue("guest") as Booking["guest"];
 
@@ -64,10 +64,6 @@ export function DataTableRowActions<TData>({
         </div>
       </ConfirmModal>
 
-      <BookingDetails booking={row.original as Booking}>
-        <div  ref={editRef} className="hidden h-0">Edit</div>
-      </BookingDetails>
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -79,7 +75,7 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => editRef.current?.click()}> Edit </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onBookingDetail(true, row.original as Booking)}> Edit </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => deleteRef.current?.click()}>
             Delete

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableViewOptions } from "./data-table-view-options"
 
-import { statuses } from "../data/data"
+import { statuses } from "@/schemas/booking.schema" 
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableDateFilter } from "./data-table-date-filter"
 import Link from "next/link"

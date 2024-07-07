@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import BookingDetails from "./BookingDetails";
 import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {

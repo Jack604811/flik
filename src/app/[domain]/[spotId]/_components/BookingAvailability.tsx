@@ -1,76 +1,39 @@
 /* eslint-disable react/no-unescaped-entities */
-import { bookingSchema } from "@/app/main/(main)/(authenticated)/bookings/data/schema";
+import { bookingSchema } from "@/schemas/booking.schema";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { BookingDates } from "@/lib/types";
 import moment from "moment";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
-import { useFormContext } from "react-hook-form";
+import { DateRange, isDateRange } from "react-day-picker";
 import { z } from "zod";
+import { WORKING_HOUR_TYPE, calculateSubtotal } from "./util";
 
 type Params = {
   spot: z.infer<typeof bookingSchema>["spot"];
   bookings: BookingDates[];
   selectedDate: Date | DateRange | undefined;
-  setSelectedDate: React.Dispatch<
-    React.SetStateAction<Date | DateRange | undefined>
-  >;
   callback: (data: any) => void;
+  onDateSelected: (data: {
+    startDate: Date | null | undefined;
+    endDate: Date | null | undefined;
+    subTotal: number;
+  }) => void;
+  isDisabled?: boolean,
+  btnText?: string
 };
 
 function BookingAvailability({
   spot,
   bookings,
   selectedDate,
-  setSelectedDate,
   callback,
+  onDateSelected,
+  isDisabled,
+  btnText
 }: Params) {
-  const form = useFormContext();
-  const workingHours: {
-    day: string;
-    price: number;
-    openTime: string;
-    closeTime: string;
-  }[] = spot.workingHours as any;
-
-  const calculateDays = (
-    selectedDate: Date | DateRange | undefined
-  ): number => {
-    if (!selectedDate) return 0;
-
-    if ("from" in selectedDate && "to" in selectedDate) {
-      return (
-        moment(selectedDate.to).diff(moment(selectedDate.from), "days") + 1
-      );
-    }
-
-    return 1; // If it's a single date
-  };
-
-  const getDatesArray = useCallback(
-    (selectedDate: Date | DateRange | undefined): Date[] => {
-      if (!selectedDate) return [];
-
-      if ("from" in selectedDate && "to" in selectedDate) {
-        const startDate = moment(selectedDate.from);
-        const endDate = moment(selectedDate.to);
-        const days: Date[] = [];
-        for (
-          let date = startDate;
-          date.isSameOrBefore(endDate);
-          date.add(1, "day")
-        ) {
-          days.push(date.toDate());
-        }
-        return days;
-      }
-
-      return [selectedDate as Date]; // If it's a single date
-    },
-    []
-  );
+  const workingHours: WORKING_HOUR_TYPE[] = spot.workingHours as any;
 
   const isTimeslotDisabled = useCallback(
     (date: Date, timeslot: string) => {
@@ -120,30 +83,16 @@ function BookingAvailability({
     [workingHours, spot, isTimeslotDisabled, selectedDate]
   );
 
-  const getPriceForDay = useCallback(
-    (day: string): number => {
-      const workingHour = workingHours?.find((wh) => wh.day === day);
-      return workingHour ? workingHour.price : 0;
-    },
-    [workingHours]
-  );
-
-  const calculateSubtotal = useCallback(
-    (selectedDate: Date | DateRange | undefined): number => {
-      const days = getDatesArray(selectedDate);
-      return days.reduce((total, date) => {
-        const dayOfWeek = moment(date).format("dddd");
-        return total + getPriceForDay(dayOfWeek);
-      }, 0);
-    },
-    [getDatesArray, getPriceForDay]
-  );
 
   const getStartEndDates = useCallback(
     (selectedDate: Date | DateRange | undefined) => {
       if (!selectedDate) return { startDate: null, endDate: null };
-      if (selectedDate && "from" in selectedDate && "to" in selectedDate)
-        return { startDate: selectedDate.from!, endDate: selectedDate.to! };
+      if (
+        isDateRange(selectedDate) &&
+        "from" in selectedDate &&
+        "to" in selectedDate
+      )
+        return { startDate: selectedDate.from, endDate: selectedDate.to };
 
       return {
         startDate: selectedDate as Date,
@@ -187,16 +136,15 @@ function BookingAvailability({
 
   const updateFormData = useCallback(
     (selectedDate: DateRange | Date | undefined) => {
-      if (selectedDate) {
-        const { startDate, endDate } = getStartEndDates(selectedDate);
-        form.setValue("startDate", startDate);
-        form.setValue("endDate", endDate);
-        const total = calculateSubtotal(selectedDate);
-        form.setValue("subtotal", total);
-        form.setValue("totalPrice", total);
-      }
+      const { startDate, endDate } = getStartEndDates(selectedDate);
+      const subTotal = calculateSubtotal(selectedDate, workingHours);
+      onDateSelected({
+        startDate,
+        endDate,
+        subTotal,
+      });
     },
-    [form, calculateSubtotal, getStartEndDates]
+    [getStartEndDates, onDateSelected, workingHours]
   );
 
   return (
@@ -208,7 +156,6 @@ function BookingAvailability({
           numberOfMonths={1}
           defaultMonth={(selectedDate as DateRange)?.from}
           onSelect={(date: DateRange | Date | undefined) => {
-            setSelectedDate(date);
             updateFormData(date);
           }}
           selected={selectedDate as any}
@@ -218,13 +165,13 @@ function BookingAvailability({
       {spot.durationType === "hours" && selectedDate && (
         <>
           <div className="max-w-md my-4 p-0 space-y-4">
-            <h2 className="text-md font-bold">
+            <div className="text-sm text-destructive font-bold">
               {getSelectedDayTimeslots(
                 moment(selectedDate as Date).format("dddd")
               ).length > 0
                 ? "Select a Time Slot"
                 : "No time slots available, please select another date"}
-            </h2>
+            </div>
             <div className="grid grid-cols-3 gap-2">
               {getSelectedDayTimeslots(
                 moment(selectedDate as Date).format("dddd")
@@ -257,7 +204,6 @@ function BookingAvailability({
                             }`,
                             "YYYY-MM-DD hh:mm A"
                           ).toDate();
-                          setSelectedDate(date);
                           updateFormData(date);
                         }
                       }}
@@ -306,7 +252,7 @@ function BookingAvailability({
               type="button"
               className="w-full h-12 my-3"
               size="lg"
-              disabled={
+              disabled={isDisabled ||
                 !selectedDate ||
                 (spot.durationType === "hours" &&
                   !getSelectedDayTimeslots(
@@ -315,7 +261,8 @@ function BookingAvailability({
               }
               onClick={callback}
             >
-              Continue
+              {btnText ?? "Continue"}
+              
             </Button>
           </div>
           <div className="text-sm text-gray-500 text-center dark:text-gray-400 my-2">
@@ -334,7 +281,7 @@ function BookingAvailability({
             <div>
               $
               {new Intl.NumberFormat("de-DE")
-                .format(form.getValues().totalPrice)
+                .format(calculateSubtotal(selectedDate, workingHours))
                 .replace(",", ".")}
             </div>
           </div>

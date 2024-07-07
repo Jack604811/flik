@@ -9,21 +9,27 @@ import {
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
-import { Booking, Spot, SpotImages, User } from "@prisma/client";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-
+import { Spot, SpotImages, User } from "@prisma/client";
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import { useState } from "react";
 
-import BookingSection from "./BookingSection";
 import { BookingDates } from "@/lib/types";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import BookingAvailability from "./BookingAvailability";
+import moment from "moment";
+import { DateRange } from "react-day-picker";
 
 export default function SpotDetails({
   spot,
 }: {
   spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[] };
 }) {
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const handlePrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -36,6 +42,46 @@ export default function SpotDetails({
       prevIndex === spot.images.length - 1 ? 0 : prevIndex + 1
     );
   };
+
+  const onBookingDateChanged = (data: {
+    startDate: Date | null | undefined;
+    endDate: Date | null | undefined;
+    subTotal: number;
+  }) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.set(
+      "check-in",
+      data.startDate ? moment(data.startDate).format("YYYY-MM-DD hh:mm A") : ""
+    );
+    current.set(
+      "check-out",
+      data.endDate ? moment(data.endDate).format("YYYY-MM-DD hh:mm A") : ""
+    );
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.replace(`${pathname}${query}`, { scroll: false });
+  };
+
+  const onAvailabilityChecked = () => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.replace(`${pathname}/book${query}`, { scroll: true });
+  };
+
+  const selectedDate: Date | DateRange | undefined = !searchParams.get(
+    "check-in"
+  )
+    ? undefined
+    : spot.durationType === "hours"
+    ? moment(searchParams.get("check-in")).toDate()
+    : {
+        from: moment(searchParams.get("check-in")).toDate(),
+        to: searchParams.get("check-out")
+          ? moment(searchParams.get("check-out")).toDate()
+          : undefined,
+      };
 
   return (
     <div className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
@@ -143,28 +189,26 @@ export default function SpotDetails({
           <div className="flex sm:hidden flex-col gap-1">
             <h2 className="sm:text-3xl font-semibold">{spot.name}</h2>
           </div>
-          <BookingSection spot={spot} />
+          <Card>
+            <CardHeader>
+              <div className="flex gap-2 justify-center">
+                <div>
+                  <h2 className="text-2xl font-bold">Check Availability</h2>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <BookingAvailability
+                bookings={spot.bookings}
+                callback={onAvailabilityChecked}
+                selectedDate={selectedDate}
+                onDateSelected={(data) => onBookingDateChanged(data)}
+                spot={spot as any}
+              />
+            </CardContent>
+          </Card>
         </div>
       </section>
     </div>
-  );
-}
-
-function StarIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
   );
 }

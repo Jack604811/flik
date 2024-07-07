@@ -1,12 +1,12 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { statuses } from "../data/data";
-import { Booking } from "../data/schema";
+import { statuses } from "@/schemas/booking.schema";
+import { Booking } from "@/schemas/booking.schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "./BookingDetails";
 import { Calendar, ExternalLink } from "lucide-react";
+import { BookingDetailButton } from "@/hooks/use-booking-detail";
 
 
 export const columns: ColumnDef<Booking>[] = [
@@ -39,11 +39,11 @@ export const columns: ColumnDef<Booking>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="" />
     ),
-    cell: ({ row }) => (
+    cell: ({ row }) =>  (
       <div className="flex items-center justify-center">
-        <BookingDetails booking={row.original}>
+        <BookingDetailButton booking={row.original}>
           <ExternalLink className="text-blue-500" size={15} />
-        </BookingDetails>
+        </BookingDetailButton>
       </div>
     ),
     enableSorting: false,

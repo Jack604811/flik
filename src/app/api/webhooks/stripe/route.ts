@@ -7,10 +7,7 @@ import {
   handleInvoicePaymentFailed,
   handleCustomerSubscriptionDeleted,
 } from "@/server/helpers/stripe/events";
-import { handleStripeBookingPaymentEvent } from "@/server/actions/booking.action";
 import _ from "lodash";
-import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
-import moment from "moment";
 
 export async function POST(request: Request) {
   const signature = request.headers.get("Stripe-Signature")!;

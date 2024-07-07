@@ -12,6 +12,7 @@ export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
     where: { spot: { userId: ownerId } },
     include: { spot: true, guest: true },
+    orderBy: { createdAt: "desc" },
   });
 
   return bookings;
@@ -21,6 +22,7 @@ export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { spot: { userId: ownerId } } },
     include: { booking: { include: { guest: true, spot: true } } },
+    orderBy: { createdAt: "desc" },
   });
 
   return transactions;
@@ -32,6 +34,13 @@ export const getTransactionsByBooking = async (bookingId: string) => {
   });
 
   return transactions;
+};
+export const getBookingsBSpot = async (spotId: string) => {
+  const bookings = await db.booking.findMany({
+    where: { spotId },
+  });
+
+  return bookings;
 };
 
 export const deleteBooking = async (bookingId: string) => {
@@ -143,6 +152,9 @@ export const addGuestToBooking = async ({
 export const updateBooking = async (data: {
   id: string;
   status?: BookingStatus;
+  subtotal?: number;
+  startDate?: Date;
+  endDate?: Date;
   guest?: {
     id: string;
     name?: string;
@@ -152,12 +164,17 @@ export const updateBooking = async (data: {
     address?: string;
     note?: string;
   };
+  spot?: string;
 }) => {
   const booking = await db.booking.update({
     where: { id: data.id },
     data: {
       status: data.status,
+      subtotal: data.subtotal,
+      startDate: data.startDate,
+      endDate: data.endDate,
       updatedAt: new Date(),
+      ...(data.spot ? {spot: {connect: {id: data.spot}}}: {}),
       ...(data.guest ? { guest: { update: { ...data.guest } } } : {}),
     },
   });
@@ -232,7 +249,7 @@ export const createStripePaymentLink = async (
             product_data: {
               name: data.productName,
             },
-            currency: "COP",
+            currency: "USD",
           },
           quantity: 1,
         },

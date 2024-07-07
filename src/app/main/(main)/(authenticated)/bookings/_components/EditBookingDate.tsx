@@ -1,8 +1,14 @@
 "use client";
 
-import React, { memo, useEffect, useMemo, useState } from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { CalendarDaysIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -13,77 +19,140 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { z } from "zod";
-import { bookingSchema } from "../data/schema";
+import { bookingSchema } from "@/schemas/booking.schema";
 import BookingAvailability from "@/app/[domain]/[spotId]/_components/BookingAvailability";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
+import moment from "moment";
+import { useQuery } from "@tanstack/react-query";
+import { Booking } from "@prisma/client";
+import {
+  getBookingsBSpot,
+  updateBooking,
+} from "@/server/actions/booking.action";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type Props = React.HTMLAttributes<HTMLDivElement> & {
   startDate: Date | undefined;
   endDate: Date | undefined;
   spot: z.infer<typeof bookingSchema>["spot"];
+  bookingId: string;
 };
 
 const formSchema = z.object({
-  startDate: z.date().nullable().refine(Boolean, "Start Date is required"),
-  endDate: z.date().nullable().refine(Boolean, "End Date is required"),
+  startDate: z.date().refine(Boolean, "Start Date is required"),
+  endDate: z.date().refine(Boolean, "End Date is required"),
   subtotal: z.number().min(0, "Subtotal is required"),
-  totalPrice: z.number().min(0, "Total Price is required"),
 });
 
-const EditBookingDate = ({ className, spot, startDate, endDate }: Props) => {
-  const [date, setDate] = useState<Date | DateRange | undefined>();
+const EditBookingDate = ({
+  className,
+  spot,
+  startDate,
+  endDate,
+  bookingId,
+}: Props) => {
+  const router = useRouter();
+  const formRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLButtonElement>(null);
 
+  const { data: bookings, isLoading } = useQuery({
+    queryKey: ["spotBookings", spot.id],
+    queryFn: () => getBookingsBSpot(spot.id),
+    initialData: [] as Booking[],
+  });
+  const [date, setDate] = useState<DateRange | Date | undefined>(undefined);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      startDate,
+      endDate,
+      subtotal: 0,
+    },
   });
 
-  // useEffect(() => {
-  //   if (spot.durationType === "hours") {
-  //     setDate(startDate);
-  //   } else {
-  //     setDate({
-  //       from: startDate,
-  //       to: endDate,
-  //     });
-  //   }
-  // }, [spot.durationType, startDate, endDate]);
+  const onBookingDateChanged = useCallback(
+    (data: {
+      startDate: Date | null | undefined;
+      endDate: Date | null | undefined;
+      subTotal?: number;
+    }) => {
+      data.startDate && form.setValue("startDate", data.startDate);
+      data.endDate && form.setValue("endDate", data.endDate);
+      data.subTotal && form.setValue("subtotal", data.subTotal);
 
-  const updateDates = (dates: DateRange|Date|undefined) => setDate(dates);
+      if (spot.durationType === "hours") {
+        setDate(data.startDate as Date);
+      } else {
+        setDate({
+          from: data.startDate as Date | undefined,
+          to: data.endDate as Date | undefined,
+        });
+      }
+    },
+    [form, spot.durationType]
+  );
 
-  const selectedDate = useMemo(() => date, [date])
+  useEffect(() => {
+    if (startDate || endDate) {
+      onBookingDateChanged({ startDate, endDate });
+    }
+  }, [startDate, endDate, onBookingDateChanged]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {};
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const updated = updateBooking({ id: bookingId, ...values });
+
+    toast.promise(updated, {
+      loading: `Updating booking dates...`,
+      success() {
+        form.reset();
+        popoverRef.current?.click();
+        router.refresh();
+        return `Booking dates updated successfully!`;
+      },
+      error: `Failed to update booking dates`,
+    });
+  };
+
   return (
     <Form {...form}>
       <form
         className="flex flex-col gap-2 space-y-4"
         onSubmit={form.handleSubmit(onSubmit)}
       >
+        <button type="submit" ref={formRef}></button>
         <div className={cn("grid gap-2", className)}>
           <Popover>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild ref={popoverRef}>
               <Button
                 variant={"outline"}
+                type="button"
                 className={cn(
-                  "w-[300px] justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
+                  "w-[370px] justify-start text-left font-normal",
+                  !form.getValues().startDate && "text-muted-foreground"
                 )}
+                disabled={form.formState.isSubmitting}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date && "from" in date && "to" in date && date.from ? (
-                  date.to ? (
+                <CalendarDaysIcon className="mr-1 h-4 w-4" />
+
+                {form.getValues().startDate && form.getValues().endDate ? (
+                  form.getValues().endDate ? (
                     <>
-                      {format(date.from, "LLL dd, y hh:mm A")} -{" "}
-                      {format(date.to, "LLL dd, y hh:mm A")}
+                      {moment(form.getValues().startDate!).format(
+                        "DD MMM YYYY hh:mm A"
+                      )}{" "}
+                      -{" "}
+                      {moment(form.getValues().endDate!).format(
+                        "DD MMM YYYY hh:mm A"
+                      )}
                     </>
                   ) : (
-                    format(date.from, "LLL dd, y hh:mm A")
+                    moment(form.getValues().startDate!).format(
+                      "DD MMM YYYY hh:mm A"
+                    )
                   )
-                ) : date ? (
-                  format(date as Date, "LLL dd, y hh:mm A")
                 ) : (
                   <span>Pick a date</span>
                 )}
@@ -91,11 +160,13 @@ const EditBookingDate = ({ className, spot, startDate, endDate }: Props) => {
             </PopoverTrigger>
             <PopoverContent className="w-auto" align="start">
               <BookingAvailability
-                selectedDate={selectedDate}
-                setSelectedDate={updateDates as any}
+                selectedDate={date}
+                onDateSelected={onBookingDateChanged}
                 spot={spot}
-                bookings={[]}
-                callback={() => {}}
+                bookings={bookings.filter((b) => b.id !== bookingId)}
+                callback={() => formRef.current?.click()}
+                isDisabled={form.formState.isSubmitting}
+                btnText="Submit"
               />
             </PopoverContent>
           </Popover>

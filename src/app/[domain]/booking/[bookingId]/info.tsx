@@ -2,20 +2,23 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
-import { UseFormReturn } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-export default function BookingInfo({
-  onPrev,
-  form,
-}: {
-  onPrev: () => void;
-  form: UseFormReturn<any>;
-}) {
+export default function BookingInfo() {
+  const form = useFormContext();
+
   return (
     <div>
       <div>
+        <div className="grid md:grid-cols-2 gap-2">
         <FormField
           control={form.control}
           name="name"
@@ -42,6 +45,8 @@ export default function BookingInfo({
             </FormItem>
           )}
         />
+        </div>
+        <div className="grid md:grid-cols-2 gap-2">
         <FormField
           control={form.control}
           name="phone"
@@ -73,6 +78,7 @@ export default function BookingInfo({
             </FormItem>
           )}
         />
+        </div>
         <FormField
           control={form.control}
           name="address"
@@ -104,15 +110,6 @@ export default function BookingInfo({
             </FormItem>
           )}
         />
-      </div>
-
-      <div className="flex gap-2 py-4 border-t dark:border-gray-800 justify-between">
-        <Button variant="outline" type="button" onClick={onPrev}>
-          Back
-        </Button>
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Booking..." : "Book Now"}
-        </Button>
       </div>
     </div>
   );
