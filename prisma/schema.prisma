@@ -126,17 +126,18 @@ model Booking {
 }
 
 model Transaction {
-  id          String            @id @default(cuid())
-  amount      Float
-  paymentDate DateTime
-  paymentType String            @default("Cash")
-  description String
-  status      TransactionStatus @default(Pending)
-  booking     Booking           @relation(fields: [bookingId], references: [id])
-  bookingId   String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime?         @default(now())
-  deletedAt   DateTime?
+  id            String            @id @default(cuid())
+  amount        Float
+  paymentDate   DateTime
+  paymentType   String            @default("Cash")
+  description   String
+  status        TransactionStatus @default(Pending)
+  allowEdit     Boolean           @default(true)
+  booking       Booking           @relation(fields: [bookingId], references: [id])
+  bookingId     String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime?         @updatedAt
+  deletedAt     DateTime?
 }
 
 model Extras {
@@ -189,7 +190,7 @@ model VerificationToken {
 }
 
 enum BookingStatus {
-  Pending
+  In_progress
   Confirmed
   Cancelled
   Waiting_for_payment
@@ -202,9 +203,9 @@ enum SpotStatus {
 }
 
 enum TransactionStatus {
+  Approved
   Pending
-  Cancelled
-  Paid
+  Declined
 }
 
 enum ExtrasStatus {

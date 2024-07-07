@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getTransactionsByBooking } from "@/server/actions/booking.action";
-import { Transaction } from "@prisma/client";
+import { Transaction, TransactionStatus } from "@prisma/client";
 import moment from "moment";
 import { statuses } from "../../transactions/data/data";
 import { CirclePlus, Edit } from "lucide-react";
@@ -28,7 +28,7 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
   });
 
 
-  const totalPayment = data.filter(item => item.status === 'Paid').reduce((total, item) => total + item.amount, 0);
+  const totalPayment = data.filter(item => item.status === TransactionStatus.Approved).reduce((total, item) => total + item.amount, 0);
   const totalOutstandingPayments = data.length === 0 ? bookingPrice : bookingPrice - totalPayment;
 
   return (

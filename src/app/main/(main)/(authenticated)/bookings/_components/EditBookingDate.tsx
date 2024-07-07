@@ -130,7 +130,7 @@ const EditBookingDate = ({
                 variant={"outline"}
                 type="button"
                 className={cn(
-                  "w-[370px] justify-start text-left font-normal",
+                  "w-[370px] justify-start text-left font-normal border-none bg-transparent p-0 hover:bg-transparent",
                   !form.getValues().startDate && "text-muted-foreground"
                 )}
                 disabled={form.formState.isSubmitting}

@@ -14,7 +14,7 @@ import {
 
 export const statuses = [
   {
-    value: BookingStatus.Pending,
+    value: BookingStatus.In_progress,
     label: "Waiting for Payment",
     icon: StopwatchIcon,
   },

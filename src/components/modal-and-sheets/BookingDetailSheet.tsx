@@ -167,10 +167,25 @@ function BookingDetailSheet() {
                     spot={booking?.spot!}
                     bookingId={booking?.id!}
                   />
+<<<<<<< HEAD:src/components/modal-and-sheets/BookingDetailSheet.tsx
+=======
+                  {/*<CalendarDays className="h-5 w-5" />
+                  {/*<div className="flex flex-col gap-0">
+                    <div>
+                      {moment(booking?.startDate).format("DD MMM YYYY hh:mm A")}
+                    </div>
+                    {booking?.endDate && (
+                      <div>
+                        {moment(booking?.endDate).format("DD MMM YYYY 12:00")}{" "}
+                        PM
+                      </div>
+                    )}
+                  </div>*/}
+>>>>>>> 1af69b06c55da0f6c0a4f0e5b21ea304fb5f53e9:src/app/main/(main)/(authenticated)/bookings/_components/BookingDetails.tsx
                 </div>
-                <p className="text-red-500">
+                {/*<p className="text-red-500">
                   The current date are not available for {booking?.spot.name}
-                </p>
+                </p>*/}
               </div>
               <div className="ml-auto flex items-center gap-1">
                 <DropdownMenu>

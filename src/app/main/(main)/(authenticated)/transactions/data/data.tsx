@@ -12,18 +12,18 @@ import {
 
 export const statuses = [
   {
-    value: TransactionStatus.Pending,
-    label: "Pending",
+    value: TransactionStatus.Approved,
+    label: "Approved",
     icon: StopwatchIcon,
   },
   {
-    value: TransactionStatus.Paid,
-    label: "Paid",
+    value: TransactionStatus.Pending,
+    label: "Pending",
     icon: CheckCircledIcon,
   },
   {
-    value: TransactionStatus.Cancelled,
-    label: "Canceled",
+    value: TransactionStatus.Declined,
+    label: "Declined",
     icon: CrossCircledIcon,
   },
 ]

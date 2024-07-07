@@ -137,6 +137,7 @@ export const getSpotById = async (id: string) => {
   const spot = await db.spot.findFirst({
     where: { id },
     include: { owner: true, images: true },
+    orderBy: { createdAt: "desc"}
   });
 
   return spot;

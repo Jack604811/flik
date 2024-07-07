@@ -12,7 +12,11 @@ export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
     where: { spot: { userId: ownerId } },
     include: { spot: true, guest: true },
+<<<<<<< HEAD
     orderBy: { createdAt: "desc" },
+=======
+    orderBy: { createdAt: "desc"}
+>>>>>>> 1af69b06c55da0f6c0a4f0e5b21ea304fb5f53e9
   });
 
   return bookings;
@@ -22,7 +26,11 @@ export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { spot: { userId: ownerId } } },
     include: { booking: { include: { guest: true, spot: true } } },
+<<<<<<< HEAD
     orderBy: { createdAt: "desc" },
+=======
+    orderBy: { createdAt: "desc"}
+>>>>>>> 1af69b06c55da0f6c0a4f0e5b21ea304fb5f53e9
   });
 
   return transactions;
@@ -31,6 +39,7 @@ export const getTransactions = async (ownerId: string) => {
 export const getTransactionsByBooking = async (bookingId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { id: bookingId } },
+    orderBy: { createdAt: "desc"}
   });
 
   return transactions;
@@ -70,7 +79,7 @@ export const addBooking = async (data: {
 }) => {
   const booking = await db.booking.create({
     data: {
-      status: "Pending",
+      status: "In_progress",
       totalPrice: data.totalPrice,
       subtotal: data.subtotal,
       startDate: data.startDate,
@@ -195,7 +204,7 @@ export const handleWompiBookingPaymentEvent = async (
           amount,
           paymentDate,
           paymentType: "Wompi",
-          status: TransactionStatus.Paid,
+          status: TransactionStatus.Approved,
           description: "Payment from Wompi integration!",
         },
       },
@@ -215,7 +224,7 @@ export const handleStripeBookingPaymentEvent = async (
           amount,
           paymentDate,
           paymentType: "Stripe",
-          status: TransactionStatus.Paid,
+          status: TransactionStatus.Approved,
           description: "Payment from Stripe integration!",
         },
       },
