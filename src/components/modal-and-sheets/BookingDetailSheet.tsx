@@ -1,10 +1,5 @@
 "use client";
-import {
-  CardTitle,
-  CardContent,
-  CardFooter,
-  Card,
-} from "@/components/ui/card";
+import { CardTitle, CardContent, CardFooter, Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,11 +10,7 @@ import {
   SelectContent,
   Select,
 } from "@/components/ui/select";
-import {
-  ChevronsUpDownIcon,
-  Edit,
-  MoreVerticalIcon,
-} from "lucide-react";
+import { ChevronsUpDownIcon, Edit, MoreVerticalIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Booking } from "@/schemas/booking.schema";
 import moment from "moment";
@@ -32,9 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useRef, useEffect, memo } from "react";
 import { updateBooking } from "@/server/actions/booking.action";
 import { toast } from "sonner";
-import {
-  FormField,
-} from "@/components/ui/form";
+import { FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import BookingPayments from "@/app/main/(main)/(authenticated)/bookings/_components/BookingPayments";
@@ -88,19 +77,19 @@ type EDITING_FIELD =
   | null;
 
 function BookingDetailSheet() {
-  const { data: session } = useSession()
-  const { data: spots, isLoading } = useQuery({
+  const router = useRouter();
+  const { isOpen, onOpenChange, booking, setNeedUpdate } = useBookingDetail((state) => state);
+
+  const { data: session } = useSession();
+  const { data: spots, refetch: refectSpots } = useQuery({
     queryKey: ["spots"],
-    queryFn: () => getSpotsByUser({userId: session?.user.id!}),
+    queryFn: () => getSpotsByUser({ userId: session?.user.id! }),
     initialData: [] as Spot[],
   });
-  const { isOpen, onOpenChange, booking } = useBookingDetail(
-    (state: any) => state
-  );
-  const router = useRouter();
-  const { control, handleSubmit, setValue, getValues, reset } = useForm({
+  const { control, handleSubmit, reset, getValues } = useForm({
     resolver: zodResolver(bookingSchema),
     defaultValues: booking,
+    progressive: true,
   });
 
   const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
@@ -111,6 +100,7 @@ function BookingDetailSheet() {
       inputRef.current.focus();
     }
   }, [editingField]);
+
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
     const updatedData: z.infer<typeof bookingSchema> = {
@@ -133,8 +123,10 @@ function BookingDetailSheet() {
     toast.promise(updated, {
       loading: `Updating ${editingField}...`,
       success() {
-        router.refresh();
         setEditingField(null);
+        router.refresh();
+        // setNeedUpdate(data.id)
+        // console.log(booking)
         return `${editingField} updated successfully!`;
       },
       error: `Failed to update ${editingField}`,
@@ -146,7 +138,18 @@ function BookingDetailSheet() {
   };
   const cancelEditing = () => {
     setEditingField(null);
+    reset();
   };
+
+  useEffect(() => {
+    if (booking) {
+      reset(booking);
+    }
+  }, [booking]);
+
+  useEffect(() => {
+    if (session?.user.id) refectSpots();
+  }, [session?.user, refectSpots]);
 
   if (!isOpen && !booking) return null;
 
@@ -167,21 +170,6 @@ function BookingDetailSheet() {
                     spot={booking?.spot!}
                     bookingId={booking?.id!}
                   />
-<<<<<<< HEAD:src/components/modal-and-sheets/BookingDetailSheet.tsx
-=======
-                  {/*<CalendarDays className="h-5 w-5" />
-                  {/*<div className="flex flex-col gap-0">
-                    <div>
-                      {moment(booking?.startDate).format("DD MMM YYYY hh:mm A")}
-                    </div>
-                    {booking?.endDate && (
-                      <div>
-                        {moment(booking?.endDate).format("DD MMM YYYY 12:00")}{" "}
-                        PM
-                      </div>
-                    )}
-                  </div>*/}
->>>>>>> 1af69b06c55da0f6c0a4f0e5b21ea304fb5f53e9:src/app/main/(main)/(authenticated)/bookings/_components/BookingDetails.tsx
                 </div>
                 {/*<p className="text-red-500">
                   The current date are not available for {booking?.spot.name}
@@ -326,13 +314,14 @@ function BookingDetailSheet() {
                                     >
                                       {field === "status"
                                         ? statuses.find(
-                                            (s) => s.value === booking?.status
+                                            (s) =>
+                                              s.value === getValues()?.status
                                           )?.label
-                                        : booking!.guest?.[
+                                        : getValues()!.guest?.[
                                             field as keyof Booking["guest"]
                                           ] ??
                                           String(
-                                            booking![field as keyof Booking]
+                                            getValues()![field as keyof Booking]
                                           )}
                                     </span>
                                     <span
@@ -356,90 +345,79 @@ function BookingDetailSheet() {
                     <ul className="grid gap-3">
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <dl>
-                          {["spot"].map((field) => (
-                            <div
-                              key={field}
-                              className="flex items-start justify-between"
-                            >
-                              <dt className="text-muted-foreground">
-                                {field.charAt(0).toUpperCase() + field.slice(1)}
-                              </dt>
-                              <dd>
-                                {editingField === field ? (
-                                  <>
-                                    <FormField
-                                      control={control}
-                                      name={`spotId`}
-                                      render={({
-                                        field: { onChange, value, name },
-                                      }) => (
-                                        <Select
-                                          value={value}
-                                          onValueChange={onChange}
-                                          name={name}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {spots.map((spt, key) => (
-                                              <SelectItem key={key} value={spt.id}>
-                                                {spt.name}
-                                              </SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      )}
-                                    />
-                                    <div className="flex justify-end items-end gap-2 space-y-2 mt-2">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-xs"
-                                        onClick={cancelEditing}
+                          <div className="flex items-start justify-between">
+                            <dt className="text-muted-foreground">Spot</dt>
+                            <dd>
+                              {editingField === "spotId" ? (
+                                <>
+                                  <FormField
+                                    control={control}
+                                    name={`spotId`}
+                                    render={({
+                                      field: { onChange, value, name },
+                                    }) => (
+                                      <Select
+                                        value={value}
+                                        onValueChange={onChange}
+                                        name={name}
                                       >
-                                        Cancel
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        type="submit"
-                                        className="text-xs"
-                                      >
-                                        Save
-                                      </Button>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <div className="flex justify-between items-center relative gap-2">
-                                      <span
-                                        className="text-right text-sm"
-                                        onClick={() =>
-                                          startEditing(field as any)
-                                        }
-                                      >
-                                        {booking?.spot.name}
-                                      </span>
-                                      <span
-                                        className="cursor-pointer"
-                                        onClick={() =>
-                                          startEditing(field as any)
-                                        }
-                                      >
-                                        <Edit size={13} />
-                                      </span>
-                                    </div>
-                                  </>
-                                )}
-                              </dd>
-                            </div>
-                          ))}
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {spots.map((spt, key) => (
+                                            <SelectItem
+                                              key={key}
+                                              value={spt.id}
+                                            >
+                                              {spt.name}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    )}
+                                  />
+                                  <div className="flex justify-end items-end gap-2 space-y-2 mt-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-xs"
+                                      onClick={cancelEditing}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      type="submit"
+                                      className="text-xs"
+                                    >
+                                      Save
+                                    </Button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="flex justify-between items-center relative gap-2">
+                                    <span className="text-right text-sm">
+                                      {booking?.spot.name}
+                                    </span>
+                                    <span
+                                      className="cursor-pointer"
+                                      onClick={() => startEditing("spotId")}
+                                    >
+                                      <Edit size={13} />
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                            </dd>
+                          </div>
                         </dl>
                       </form>
                       <span className="text-sm text-end">
                         $
                         {new Intl.NumberFormat("de-DE").format(
-                          booking?.totalPrice ?? 0
+                          booking?.subtotal ?? 0
                         )}
                       </span>
                       <li className="flex items-center justify-between">

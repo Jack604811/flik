@@ -190,6 +190,7 @@ model VerificationToken {
 }
 
 enum BookingStatus {
+  Pending // for testing
   In_progress
   Confirmed
   Cancelled
@@ -206,6 +207,8 @@ enum TransactionStatus {
   Approved
   Pending
   Declined
+  Paid //for testing
+  Cancelled  //for testing
 }
 
 enum ExtrasStatus {

@@ -12,25 +12,22 @@ export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
     where: { spot: { userId: ownerId } },
     include: { spot: true, guest: true },
-<<<<<<< HEAD
     orderBy: { createdAt: "desc" },
-=======
-    orderBy: { createdAt: "desc"}
->>>>>>> 1af69b06c55da0f6c0a4f0e5b21ea304fb5f53e9
   });
 
   return bookings;
 };
 
+export const getBookingById = async (bookingId: string) => {
+  const booking = await db.booking.findFirst({where: {id: bookingId}, include: {guest: true, spot: true}});
+  return booking;
+}
+
 export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { spot: { userId: ownerId } } },
     include: { booking: { include: { guest: true, spot: true } } },
-<<<<<<< HEAD
     orderBy: { createdAt: "desc" },
-=======
-    orderBy: { createdAt: "desc"}
->>>>>>> 1af69b06c55da0f6c0a4f0e5b21ea304fb5f53e9
   });
 
   return transactions;
@@ -44,7 +41,7 @@ export const getTransactionsByBooking = async (bookingId: string) => {
 
   return transactions;
 };
-export const getBookingsBSpot = async (spotId: string) => {
+export const getBookingsBySpot = async (spotId: string) => {
   const bookings = await db.booking.findMany({
     where: { spotId },
   });
@@ -173,7 +170,7 @@ export const updateBooking = async (data: {
     address?: string;
     note?: string;
   };
-  spot?: string;
+  spotId?: string;
 }) => {
   const booking = await db.booking.update({
     where: { id: data.id },
@@ -183,7 +180,7 @@ export const updateBooking = async (data: {
       startDate: data.startDate,
       endDate: data.endDate,
       updatedAt: new Date(),
-      ...(data.spot ? {spot: {connect: {id: data.spot}}}: {}),
+      ...(data.spotId ? {spot: {connect: {id: data.spotId}}}: {}),
       ...(data.guest ? { guest: { update: { ...data.guest } } } : {}),
     },
   });

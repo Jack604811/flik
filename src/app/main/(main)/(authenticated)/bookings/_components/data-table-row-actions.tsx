@@ -24,7 +24,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import { deleteBooking } from "@/server/actions/booking.action";
 import { useRouter } from "next/navigation";
-import { useBookingDetail } from "@/hooks/use-booking-detail";
+import { BookingDetailButton } from "@/hooks/use-booking-detail";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -33,7 +33,6 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const onBookingDetail = useBookingDetail(state => state.onBookingDetail);
   const router = useRouter();
   const deleteRef = useRef<any>();
   const bookingId = row.getValue("id") as string;
@@ -75,7 +74,7 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => onBookingDetail(true, row.original as Booking)}> Edit </DropdownMenuItem>
+          <DropdownMenuItem> <BookingDetailButton booking={row.original as Booking}>Edit</BookingDetailButton></DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => deleteRef.current?.click()}>
             Delete

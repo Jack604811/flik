@@ -59,6 +59,7 @@ export const bookingSchema = z.object({
   updatedAt: z.date(),
   startDate: z.date(),
   endDate: z.date(),
+  spotId: z.string(),
   spot: z.object({
     id: z.string(),
     name: z.string(),

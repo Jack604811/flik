@@ -6,8 +6,9 @@ import { Schema } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
-import BookingDetails from "../../bookings/_components/BookingDetails";
+import { BookingDetailButton } from "@/hooks/use-booking-detail";
 import AddTransactionButton from "@/components/forms/AddTransactionButton";
+import { Booking } from "@/schemas/booking.schema";
 
 export const columns: ColumnDef<Schema>[] = [
   {
@@ -42,7 +43,7 @@ export const columns: ColumnDef<Schema>[] = [
     enableSorting: false,
     enableHiding: false,
     filterFn: (row, id, value) => {
-      const rowId = row.original.id;
+      const rowId = row.original.id as string;
       return rowId.includes(value);
     },
   },
@@ -67,15 +68,16 @@ export const columns: ColumnDef<Schema>[] = [
       <DataTableColumnHeader column={column} title="Booking" />
     ),
     cell: ({ row }) => {
+      const booking = row.original.booking as Booking
       return (
-        <BookingDetails booking={row.original.booking}>
+        <BookingDetailButton booking={booking}>
           <div className="flex flex-col p-0 text-left text-sky-600">
-            <span>{row.original.booking.spot.name}</span>
+            <span>{booking?.spot.name}</span>
             <span className="text-muted-foreground">
-              ${row.original.booking.totalPrice}
+              ${booking.totalPrice}
             </span>
           </div>
-        </BookingDetails>
+        </BookingDetailButton>
       );
     },
     enableSorting: false,
@@ -86,7 +88,7 @@ export const columns: ColumnDef<Schema>[] = [
       <DataTableColumnHeader column={column} title="Customer" />
     ),
     cell: ({ row }) => {
-      const guest = row.original.booking.guest;
+      const guest = (row.original.booking as Booking).guest;
       return (
         <div className="flex flex-col">
           <span className="font-medium">{guest?.name}</span>
@@ -95,13 +97,13 @@ export const columns: ColumnDef<Schema>[] = [
       );
     },
     filterFn: (row, id, value) => {
-      const guest = row.original.booking.guest;
+      const guest = (row.original.booking as Booking).guest;
       value = value.toLowerCase();
       return (
         guest?.email?.toLowerCase().includes(value) ||
         guest?.name?.toLowerCase().includes(value) ||
-        row.original.id.includes(value) ||
-        row.original.booking.spot.name.includes(value)
+        (row.original.id as string).includes(value) ||
+        (row.original.booking as Booking).spot.name.includes(value)
       );
     },
     enableSorting: false,

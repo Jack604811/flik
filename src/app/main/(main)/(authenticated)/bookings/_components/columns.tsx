@@ -136,7 +136,7 @@ export const columns: ColumnDef<Booking>[] = [
         <div className="flex flex-col">
           <span className="font-medium">{row.original.spot?.name}</span>
           <span className="text-muted-foreground">
-          Outstandig: ${new Intl.NumberFormat('de-DE').format(row.original.totalPrice).replace(',', '.')}
+          Outstandig: ${new Intl.NumberFormat('de-DE').format(row.original.subtotal).replace(',', '.')}
           </span>
         </div>
       );

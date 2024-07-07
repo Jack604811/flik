@@ -28,7 +28,7 @@ import moment from "moment";
 import { useQuery } from "@tanstack/react-query";
 import { Booking } from "@prisma/client";
 import {
-  getBookingsBSpot,
+  getBookingsBySpot,
   updateBooking,
 } from "@/server/actions/booking.action";
 import { toast } from "sonner";
@@ -60,7 +60,7 @@ const EditBookingDate = ({
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["spotBookings", spot.id],
-    queryFn: () => getBookingsBSpot(spot.id),
+    queryFn: () => getBookingsBySpot(spot.id),
     initialData: [] as Booking[],
   });
   const [date, setDate] = useState<DateRange | Date | undefined>(undefined);
