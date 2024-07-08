@@ -236,6 +236,7 @@ type CREATE_STRIPE_LINK_PARAMS = {
   reference: string;
   customerEmail: string;
   redirectURI: string;
+  currency: string;
 };
 
 export const createStripePaymentLink = async (
@@ -255,7 +256,7 @@ export const createStripePaymentLink = async (
             product_data: {
               name: data.productName,
             },
-            currency: "USD",
+            currency: data.currency,
           },
           quantity: 1,
         },
@@ -271,3 +272,7 @@ export const createStripePaymentLink = async (
 
   return { url: session.url };
 };
+
+export const createWompiPaymentLink = async (data: CREATE_STRIPE_LINK_PARAMS) => {
+
+}

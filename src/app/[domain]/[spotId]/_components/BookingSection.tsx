@@ -122,7 +122,7 @@ function BookingSection({ spot }: Params) {
               : wompiAccount.livePublicKey;
 
           const data = {
-            currency: "USD",
+            currency: spot.owner.currency ?? "USD",
             amountInCents: values.totalPrice * WOMPI_CENT_MULTIPLIER,
             reference: values.id,
             publicKey: publicKey,
@@ -175,6 +175,7 @@ function BookingSection({ spot }: Params) {
           amount: values.totalPrice,
           productName: spot.name,
           redirectURI: to.href,
+          currency: spot.owner.currency ?? "USD"
         });
         window.location.href = res.url!;
         break;
