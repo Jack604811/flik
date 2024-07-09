@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Separator } from "@/components/ui/separator";
 import { BookingDates } from "@/lib/types";
-import moment from "moment";
+import moment, { now } from "moment";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { DateRange, isDateRange } from "react-day-picker";
-import { z } from "zod";
+import { date, z } from "zod";
 import { WORKING_HOUR_TYPE, calculateSubtotal } from "./util";
 
 type Params = {
@@ -38,19 +38,62 @@ function BookingAvailability({
   const isTimeslotDisabled = useCallback(
     (date: Date, timeslot: string) => {
       const dateStr = moment(date).format("YYYY-MM-DD");
-      const bookingsOnTimeslot = bookings.filter(
-        (booking) =>
-          moment(booking.startDate).format("YYYY-MM-DD hh:mm A") <=
-            `${dateStr} ${timeslot}` &&
-          moment(booking.endDate).format("YYYY-MM-DD hh:mm A") >=
-            `${dateStr} ${timeslot}`
-      );
-
-      return bookingsOnTimeslot.length >= (spot.units ?? 0);
+      const startTime = moment(`${dateStr} ${timeslot}`, "YYYY-MM-DD hh:mm A");
+      const endTime = startTime.clone().add(spot.duration, "hours");
+  
+      // Filter bookings that overlap with the selected timeslot
+      const overlappingBookings = bookings.filter((booking) => {
+        const bookingStartTime = moment(booking.startDate);
+        const bookingEndTime = moment(booking.endDate);
+  
+        // Check for overlap condition excluding the end time as the start of the next available slot
+        return (
+          (startTime.isBefore(bookingEndTime) && endTime.isAfter(bookingStartTime))
+        );
+      });
+  
+      return overlappingBookings.length >= (spot.units ?? 0);
     },
-    [spot, bookings]
+    [bookings, spot]
   );
 
+  const getAvailableTimeslots = useCallback(
+    (date: Date) => {
+      const dayOfWeek = moment(date).format("dddd");
+      const workingHour = workingHours.find(
+        (wh: { day: string }) => wh.day === dayOfWeek
+      );
+      const openTime = moment(workingHour?.openTime, "hh:mm A");
+      const closeTime = moment(workingHour?.closeTime, "hh:mm A");
+
+      if (closeTime.isBefore(openTime)) {
+        closeTime.add(1, "days");
+      }
+
+      const timeslots = [];
+      let currentTime = openTime.clone();
+      const now = moment();
+
+      while (currentTime.isBefore(closeTime)) {
+        const endTime = currentTime.clone().add(spot.duration, "hours");
+        if (endTime.isAfter(closeTime)) break;
+
+        if (moment(date).isSame(now, 'day') && currentTime.isBefore(now)) {
+          currentTime.add(spot.duration, "hours");
+          continue;
+        }
+
+        if (!isTimeslotDisabled(date, currentTime.format("hh:mm A"))) {
+          timeslots.push(currentTime.format("hh:mm A"));
+        }
+        currentTime.add(spot.duration, "hours");
+      }
+      return timeslots;
+    },
+    [workingHours, spot, isTimeslotDisabled]
+  );
+
+  
   const getSelectedDayTimeslots = useCallback(
     (day: string) => {
       const workingHour = workingHours.find(
@@ -58,16 +101,19 @@ function BookingAvailability({
       );
       const time1 = moment(workingHour?.openTime, "hh:mm A");
       const time2 = moment(workingHour?.closeTime, "hh:mm A");
-
+  
       if (time2.isBefore(time1)) {
         time2.add(1, "days");
       }
-
+  
       const timeslots = [];
       let currentTime = time1.clone();
       while (currentTime.isBefore(time2)) {
         const endTime = currentTime.clone().add(spot.duration, "hours");
         if (endTime.isAfter(time2)) break;
+        
+       // Pending disable past timeslots if the date is today
+  
         if (
           !isTimeslotDisabled(
             selectedDate! as Date,
@@ -91,52 +137,78 @@ function BookingAvailability({
         isDateRange(selectedDate) &&
         "from" in selectedDate &&
         "to" in selectedDate
-      )
+      ) {
+        if (spot.durationType === "day" && moment(selectedDate.from).isSame(selectedDate.to, 'day')) {
+          return { startDate: selectedDate.from, endDate: moment(selectedDate.to).add(1, 'day').toDate() };
+        }
         return { startDate: selectedDate.from, endDate: selectedDate.to };
-
+      }
+  
+      const startDate = selectedDate as Date;
+      const endDate = spot.durationType === "day"
+        ? moment(startDate).add(1, 'day').toDate()
+        : moment(startDate).add(spot.duration, "hours").toDate();
+  
       return {
-        startDate: selectedDate as Date,
-        endDate: moment(selectedDate as Date)
-          .add(spot.duration, "hours")
-          .toDate(),
+        startDate,
+        endDate,
       };
     },
-    [spot.duration]
+    [spot.duration, spot.durationType]
   );
 
+  
   const isDateDisabled = useCallback(
     (date: Date) => {
-      const dayOfWeek = moment(date).format("dddd");
-      const dateStr = moment(date).format("YYYY-MM-DD");
-      if (date < moment().toDate()) return true;
-
-      if (spot.durationType === "hours") {
-        const timeslots = getSelectedDayTimeslots(dayOfWeek);
-        const availableTimeslots = timeslots.filter((timeslot) => {
-          const bookingsOnTimeslot = bookings.filter(
-            (booking) =>
-              moment(booking.startDate).format("YYYY-MM-DD hh:mm A") <=
-                dateStr + " " + timeslot &&
-              moment(booking.endDate).format("YYYY-MM-DD hh:mm A") >=
-                dateStr + " " + timeslot
-          );
-          return bookingsOnTimeslot.length < (spot.units ?? 0);
-        });
-        return availableTimeslots.length === 0;
+      const currentDate = moment().startOf("day");
+      const selectedDate = moment(date).startOf("day");
+  
+      // Disable dates in the past
+      if (selectedDate.isBefore(currentDate, "day")) {
+        return true;
       }
-      const bookingsOnDate = bookings.filter(
-        (booking) =>
-          moment(booking.startDate).format("YYYY-MM-DD") <= dateStr &&
-          moment(booking.endDate).format("YYYY-MM-DD") >= dateStr
+  
+      // Check if the date has working hours defined
+      const dayOfWeek = selectedDate.format("dddd");
+      const workingHour = workingHours.find(
+        (wh: { day: string }) => wh.day === dayOfWeek
       );
-      return bookingsOnDate.length >= (spot.units ?? 0);
+  
+      if (!workingHour) {
+        return true; // Block the day if no working hours are defined
+      }
+  
+      if (spot.durationType === "hours") {
+        const timeslots = getAvailableTimeslots(date);
+        if (timeslots.length === 0) {
+          return true; // Block the day if no timeslots are available
+        }
+      } else if (spot.durationType === "day") {
+        // Check if the date range overlaps with any bookings
+        const dateStr = selectedDate.format("YYYY-MM-DD");
+        const overlappingBookings = bookings.filter((booking) => {
+          const bookingStartDate = moment(booking.startDate).startOf("day");
+          const bookingEndDate = moment(booking.endDate).startOf("day");
+  
+          return (
+            selectedDate.isBetween(bookingStartDate, bookingEndDate, null, "[]")
+          );
+        });
+  
+        if (overlappingBookings.length >= (spot.units ?? 0)) {
+          return true; // Block the day if fully booked
+        }
+      }
+  
+      return false;
     },
-    [bookings, getSelectedDayTimeslots, spot]
+    [bookings, spot.durationType, getAvailableTimeslots, workingHours]
   );
 
   const updateFormData = useCallback(
     (selectedDate: DateRange | Date | undefined) => {
       const { startDate, endDate } = getStartEndDates(selectedDate);
+  
       const subTotal = calculateSubtotal(selectedDate, workingHours);
       onDateSelected({
         startDate,

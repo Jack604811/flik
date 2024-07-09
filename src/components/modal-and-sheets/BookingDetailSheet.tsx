@@ -275,7 +275,7 @@ function BookingDetailSheet() {
                                   ) : (
                                     <FormField
                                       control={control}
-                                      name={`guest.${field}`}
+                                      name={`guest.note`}
                                       render={({ field: formField }) => (
                                         <Input
                                           {...formField}
