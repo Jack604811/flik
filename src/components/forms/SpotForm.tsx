@@ -73,7 +73,7 @@ import {
 } from "@/server/actions/spot.action";
 import { Spot, SpotStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
-import { uploadSpotImage } from "@/server/actions/superbase.action";
+import { uploadSpotImage } from "@/server/actions/supabase.action";
 import ConfirmModal from "../confirm-modal";
 import MultiSelect from "../ui/multiselect";
 import { AMENITIES } from "@/lib/constant";
@@ -204,7 +204,11 @@ function SpotForm({
   }, []);
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { images: ["image/*"] },
+    accept: {
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/jpg': ['.jpg'],
+    },
   });
 
   const { fields, append, remove, insert } = useFieldArray({

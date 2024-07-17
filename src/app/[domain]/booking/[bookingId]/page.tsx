@@ -85,7 +85,7 @@ export default async function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Method:
                       </span>
-                      <span>Visa ending in 1234</span>
+                      <span>{booking.status}</span>
                     </div>
                     <div className="flex justify-between gap-2">
                       <span className="text-gray-500 dark:text-gray-400">

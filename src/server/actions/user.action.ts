@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "../db";
-import { uploadSiteImage } from "./superbase.action";
+import { uploadSiteImage } from "./supabase.action";
 
 export const getUser = (id: string) => {
   const user = db.user.findFirst({ where: { id } });

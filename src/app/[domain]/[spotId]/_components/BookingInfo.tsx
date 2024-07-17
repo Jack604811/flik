@@ -116,7 +116,7 @@ export default function BookingInfo({
         />
       </div>
 
-      <div className="flex gap-2 py-4 border-t dark:border-gray-800 justify-between">
+      <div className="flex gap-2 py-4 border-none dark:border-gray-800 justify-between">
         <Button variant="outline" type="button" onClick={onPrev}>
           Back
         </Button>

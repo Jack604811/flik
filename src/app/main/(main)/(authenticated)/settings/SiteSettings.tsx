@@ -46,7 +46,7 @@ function SiteSettings({
             <div className="w-14 h-14 relative rounded-md overflow-hidden">
               <Image
                 sizes="100vw"
-                src="/stripe-logo.png"
+                src="/assets/placeholder.svg"
                 alt="Logo"
                 fill
               />

@@ -190,7 +190,6 @@ model VerificationToken {
 }
 
 enum BookingStatus {
-  Pending // for testing
   In_progress
   Confirmed
   Cancelled

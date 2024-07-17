@@ -40,7 +40,7 @@ function Subdomain({ subdomain, userId }: { subdomain: string, userId: string })
             <div className="w-10 h-10 relative rounded-md overflow-hidden">
               <Image
                 sizes="100vw"
-                src="/stripe-logo.png"
+                src="/assets/placeholder.svg"
                 alt="Logo"
                 fill
               />

@@ -9,8 +9,7 @@ export const POST = async (req: NextRequest) => {
     const wompiEvent = await req.json();
     if (
       wompiEvent?.event === "transaction.updated" &&
-      wompiEvent?.data?.transaction?.reference &&
-      wompiEvent?.data?.transaction?.status === "APPROVED"
+      wompiEvent?.data?.transaction?.reference 
     ) {
       // Update booking status and add transaction to the booking
       await handleWompiBookingPaymentEvent(
@@ -20,6 +19,9 @@ export const POST = async (req: NextRequest) => {
           paymentDate: moment(
             wompiEvent?.data?.transaction?.created_at
           ).toDate(),
+          status: wompiEvent?.data?.transaction?.status as string,
+          paymentType: wompiEvent?.data?.transaction?.payment_method_type,
+          reference: wompiEvent?.data?.transaction?.reference
         }
       );
     }

@@ -74,7 +74,7 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem> <BookingDetailButton booking={row.original as Booking}>Edit</BookingDetailButton></DropdownMenuItem>
+          <DropdownMenuItem className="h-8"> <BookingDetailButton booking={row.original as Booking}>Edit</BookingDetailButton></DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => deleteRef.current?.click()}>
             Delete

@@ -6,7 +6,7 @@ import {
   deleteSpotImages,
   getSpotImages,
   uploadSpotImage,
-} from "./superbase.action";
+} from "./supabase.action";
 
 export const getSpotsByUser = async ({ userId }: { userId: string }) => {
   const spots = await db.spot.findMany({

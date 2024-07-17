@@ -188,26 +188,51 @@ export const updateBooking = async (data: {
   return booking;
 };
 
+const mapWompiStatusToTransactionStatus = (status: string): TransactionStatus => {
+  console.log("Received Wompi status:", status); // Add logging
+  switch (status.toUpperCase()) {
+    case "APPROVED":
+      return TransactionStatus.Approved;
+    case "DECLINED":
+    case "CANCELLED":
+    case "VOIDED":
+    case "ERROR":
+      return TransactionStatus.Declined;
+    case "PENDING":
+      return TransactionStatus.Pending;
+    default:
+      throw new Error(`Unknown status: ${status}`);
+  }
+};
+
 export const handleWompiBookingPaymentEvent = async (
   bookingId: string,
-  { amount, paymentDate }: { amount: number; paymentDate: Date }
+  { amount, paymentDate, status, paymentType, reference }: { amount: number; paymentDate: Date; status: string; paymentType: string; reference: string }
 ) => {
+  const transactionStatus = mapWompiStatusToTransactionStatus(status);
+  const bookingStatus = transactionStatus === TransactionStatus.Approved
+    ? BookingStatus.Confirmed
+    : BookingStatus.Waiting_for_payment;
+
   await db.booking.update({
     where: { id: bookingId },
     data: {
-      status: BookingStatus.Confirmed,
+      status: bookingStatus,
       transactions: {
         create: {
+          id: reference,
           amount,
           paymentDate,
-          paymentType: "Wompi",
-          status: TransactionStatus.Approved,
-          description: "Payment from Wompi integration!",
+          paymentType,
+          status: transactionStatus,
+          description: "Payment from Wompi!",
         },
       },
     },
   });
 };
+
+
 export const handleStripeBookingPaymentEvent = async (
   bookingId: string,
   { amount, paymentDate }: { amount: number; paymentDate: Date }
@@ -222,7 +247,7 @@ export const handleStripeBookingPaymentEvent = async (
           paymentDate,
           paymentType: "Stripe",
           status: TransactionStatus.Approved,
-          description: "Payment from Stripe integration!",
+          description: "Payment from Stripe!",
         },
       },
     },

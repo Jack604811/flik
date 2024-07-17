@@ -28,7 +28,7 @@ export const statuses = [
   },
   {
     value: BookingStatus.Cancelled,
-    label: "Canceled",
+    label: "Cancelled",
     icon: CrossCircledIcon,
   },
 ]

@@ -38,7 +38,7 @@ export const columns: ColumnDef<Schema>[] = [
       //   </AddTransactionButton>
       // );
 
-      return <div className="w-[80px] truncate">{row.getValue("id")}</div>;
+      return <div className="">{row.getValue("id")}</div>;
     },
     enableSorting: false,
     enableHiding: false,

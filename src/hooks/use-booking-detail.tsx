@@ -38,7 +38,7 @@ export const BookingDetailButton = ({ children, booking }: Props) => {
   return (
     <Button
       variant="ghost"
-      className="p-0"
+      className="pr-24 pl-0 text-left hover:bg-transparent"
       onClick={() => onBookingDetail(true, booking)}
     >
       {children}

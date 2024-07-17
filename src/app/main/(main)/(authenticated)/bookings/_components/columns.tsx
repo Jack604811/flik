@@ -40,7 +40,7 @@ export const columns: ColumnDef<Booking>[] = [
       <DataTableColumnHeader column={column} title="" />
     ),
     cell: ({ row }) =>  (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center w-0">
         <BookingDetailButton booking={row.original}>
           <ExternalLink className="text-blue-500" size={15} />
         </BookingDetailButton>
