@@ -14,12 +14,12 @@ export const statuses = [
   {
     value: TransactionStatus.Approved,
     label: "Approved",
-    icon: StopwatchIcon,
+    icon: CheckCircledIcon,
   },
   {
     value: TransactionStatus.Pending,
     label: "Pending",
-    icon: CheckCircledIcon,
+    icon: StopwatchIcon,
   },
   {
     value: TransactionStatus.Declined,

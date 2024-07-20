@@ -55,7 +55,7 @@ export function DataTableRowActions<TData>({
 
   return (
     <>
-      <ConfirmModal onConfirm={onDelete} warningText={`Delete booking ${transactionId} by ${guest?.name}?`}>
+      <ConfirmModal onConfirm={onDelete} warningText={`Do you want to DELETE this transaction by ${guest?.name}? This action cannot be undone.`}>
         <div ref={deleteRef} className="hidden">
           Delete
         </div>
@@ -73,12 +73,9 @@ export function DataTableRowActions<TData>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => deleteRef.current?.click()}>
             Delete
-            <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

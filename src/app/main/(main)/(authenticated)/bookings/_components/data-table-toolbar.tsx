@@ -20,6 +20,7 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
+  
 
   return (
     <div className="flex items-center justify-between">
@@ -59,11 +60,10 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex flex-row gap-4">
         
-        <Link href="" >
         <Button>
           New Booking
         </Button>
-      </Link>
+
       <DataTableViewOptions table={table} />
       </div>
     </div>

@@ -56,7 +56,7 @@ export function DataTableRowActions<TData>({
     <>
       <ConfirmModal
         onConfirm={onDelete}
-        warningText={`Delete booking ${bookingId} by ${guestName?.name}?`}
+        warningText={`Do you want to DELETE the booking by ${guestName?.name}? This action cannot be undone.`}
       >
         <div ref={deleteRef} className="hidden">
           Delete

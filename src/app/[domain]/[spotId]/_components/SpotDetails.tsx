@@ -14,7 +14,6 @@ import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import { useState } from "react";
-
 import { BookingDates } from "@/lib/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import BookingAvailability from "./BookingAvailability";

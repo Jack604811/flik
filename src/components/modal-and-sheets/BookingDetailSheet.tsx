@@ -1,4 +1,5 @@
 "use client";
+import { env } from "@/env";
 import { CardTitle, CardContent, CardFooter, Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import {
   SelectContent,
   Select,
 } from "@/components/ui/select";
-import { ChevronsUpDownIcon, Edit, MoreVerticalIcon } from "lucide-react";
+import { ChevronsUpDownIcon, Copy, Edit, MoreVerticalIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Booking } from "@/schemas/booking.schema";
 import moment from "moment";
@@ -557,6 +558,13 @@ function BookingDetailSheet() {
           <CardFooter className="h-[56px] border-t bg-muted/95 px-0 py-4 relative">
             <Carousel className="max-w-[540px] p-2" opts={{ loop: true }}>
               <CarouselContent>
+              <CarouselItem>
+                  <div className="flex flex-row items-center text-xs text-muted-foreground gap-1">
+                    Booking
+                    <div className="text-xs text-sky-600">{booking?.id}</div>
+                    <Copy size={14}></Copy>
+                  </div>
+                </CarouselItem>
                 <CarouselItem>
                   <div className="text-xs text-muted-foreground">
                     Created{" "}
@@ -567,12 +575,6 @@ function BookingDetailSheet() {
                   <div className="text-xs text-muted-foreground">
                     Updated{" "}
                     {moment(booking?.updatedAt).format("DD MMMM YYYY hh:mm A")}
-                  </div>
-                </CarouselItem>
-                <CarouselItem>
-                  <div className="flex flex-row text-xs text-muted-foreground gap-1">
-                    Booking ID
-                    <div className="text-xs text-sky-600">{booking?.id}</div>
                   </div>
                 </CarouselItem>
               </CarouselContent>

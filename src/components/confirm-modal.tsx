@@ -31,7 +31,7 @@ function ConfirmModal({ children, onConfirm, warningText }: ConfirmModalProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. {warningText}
+            {warningText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
