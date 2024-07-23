@@ -136,6 +136,8 @@ function SpotForm({
     spot?.images ?? []
   );
 
+  const [isDragActive, setIsDragActive] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -176,8 +178,8 @@ function SpotForm({
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
       const nSpot = spot?.id
-        ? updateSpot({ ...obj, id: spot.id, files: formData })
-        : createNewSpot({ ...obj, files: formData });
+    ? updateSpot({ ...obj, id: spot.id, files: formData })
+    : createNewSpot({ ...obj, files: formData });
       return nSpot;
     };
 
@@ -209,6 +211,10 @@ function SpotForm({
       'image/jpeg': ['.jpeg', '.jpg'],
       'image/jpg': ['.jpg'],
     },
+    onDragEnter: () => setIsDragActive(true), // Set drag active state
+    onDragLeave: () => setIsDragActive(false), // Unset drag active state
+    onDropAccepted: () => setIsDragActive(false), // Unset drag active state after drop
+    onDropRejected: () => setIsDragActive(false), // Unset drag active state if drop rejected
   });
 
   const { fields, append, remove, insert } = useFieldArray({
@@ -383,18 +389,18 @@ function SpotForm({
                             />
                           </TableCell>
                           <TableCell>
-  <Label className="sr-only" htmlFor={`price-${index}`}>
-    Price
-  </Label>
-  <MoneyInput
-    form={form}
-    name={`workingHours.${index}.price`}
-    label={""}
-    placeholder="Set a price"
-    defaultValue={form.getValues(`workingHours.${index}.price`)}
-   
-  />
-</TableCell>
+                            <Label className="sr-only" htmlFor={`price-${index}`}>
+                              Price
+                            </Label>
+                            <MoneyInput
+                              form={form}
+                              name={`workingHours.${index}.price`}
+                              label={""}
+                              placeholder="Set a price"
+                              defaultValue={form.getValues(`workingHours.${index}.price`)}
+                            
+                            />
+                          </TableCell>
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -556,7 +562,7 @@ function SpotForm({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid gap-2 ">
+                  <div className="grid gap-2">
                     {spotImages.length || files.length ? (
                       <div className="relative">
                         <div className="absolute right-2 top-2">
@@ -573,7 +579,7 @@ function SpotForm({
                         </div>
                         <Image
                           alt={"Spot Image"}
-                          className="aspect-square w-full rounded-md object-cover"
+                          className="aspect-square rounded-md object-cover"
                           height="300"
                           src={[...spotImages, ...files][0].url}
                           width="300"
@@ -609,7 +615,7 @@ function SpotForm({
                       <button
                         {...getRootProps()}
                         type="button"
-                        className="flex aspect-square w-full items-center justify-center rounded-md border border-dashed"
+                        className={`flex ${spotImages.length === 0 && files.length === 0 ? 'w-60 h-60' : 'w-full'} aspect-square items-center justify-center rounded-md border border-dashed ${isDragActive ? 'border-blue-500 bg-blue-100 transition-all duration-300 scale-105' : 'border-gray-300'}`}
                       >
                         <Input
                           {...getInputProps()}
@@ -618,7 +624,14 @@ function SpotForm({
                           type="file"
                           className="hidden"
                         />
-                        <UploadIcon className="h-4 w-4 text-muted-foreground" />
+                        {spotImages.length === 0 && files.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center text-center text-muted-foreground px-2">
+                            <UploadIcon className="h-6 w-6 text-muted-foreground mb-2" />
+                            <p>Drag and drop your files here or <span className="font-bold underline">choose files</span></p>
+                          </div>
+                        ) : (
+                          <UploadIcon className="h-4 w-4 text-muted-foreground" />
+                        )}
                         <span className="sr-only">Upload</span>
                       </button>
                     </div>

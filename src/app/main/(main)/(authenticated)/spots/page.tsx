@@ -24,7 +24,7 @@ export default async function Page() {
   const currentUser = await getCurrentUser();
   const spots = await getSpotsByUser({ userId: currentUser!.id });
   return (
-    <div>
+    <div className="">
       {spots.length ? (
         <Card x-chunk="dashboard-07-chunk-1" className="m-4 border-none shadow-none">
           <CardHeader>
@@ -41,14 +41,14 @@ export default async function Page() {
             </div>
           </CardHeader>
           <CardContent>
-          <div className="container mx-auto p-0">
-  <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-start dark: border-white">
-    {spots.map((spot) => (
+          <div className="w-full mx-auto p-0">
+    <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 justify-items-start items-start">
+      {spots.map((spot) => (
       <div
-        className="group relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
+        className="group relative overflow-hidden rounded-xl border-solid border-1 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-2"
         key={spot.id}>
         <Link href={`/spots/${spot.id}`}>
-          <div>
+          <div className="">
             <Image
               alt={spot.name}
               className="transition-all duration-300 group-hover:scale-110"
