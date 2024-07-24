@@ -56,6 +56,8 @@ model User {
   subscriptionId       String?
   oneTimeProducts      OneTimeProduct[]
   spots                Spot[]
+  extras               Extras[]
+  categories           Category[]
   siteName             String?
   aboutUs              String?
   logo                 String?
@@ -87,6 +89,7 @@ model Spot {
   images               SpotImages[]
   createdAt            DateTime     @default(now())
   updatedAt            DateTime?    @default(now())
+  extras               Extras[]
 }
 
 model SpotImages {
@@ -126,18 +129,18 @@ model Booking {
 }
 
 model Transaction {
-  id            String            @id @default(cuid())
-  amount        Float
-  paymentDate   DateTime
-  paymentType   String            @default("Cash")
-  description   String
-  status        TransactionStatus @default(Pending)
-  allowEdit     Boolean           @default(true)
-  booking       Booking           @relation(fields: [bookingId], references: [id])
-  bookingId     String
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime?         @updatedAt
-  deletedAt     DateTime?
+  id          String            @id @default(cuid())
+  amount      Float
+  paymentDate DateTime
+  paymentType String            @default("Cash")
+  description String
+  status      TransactionStatus @default(Pending)
+  allowEdit   Boolean           @default(true)
+  booking     Booking           @relation(fields: [bookingId], references: [id])
+  bookingId   String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime?         @updatedAt
+  deletedAt   DateTime?
 }
 
 model Extras {
@@ -147,8 +150,14 @@ model Extras {
   price         Float // Add price field for extras
   status        ExtrasStatus
   userId        String // Foreign key referencing User's id
+  owner         User            @relation(fields: [userId], references: [id])
   images        ExtrasImages[]
   bookingExtras BookingExtras[]
+  spots         Spot[]
+  categoryId    String?
+  subCategoryId String?
+  category      Category?       @relation(fields: [categoryId], references: [id])
+  subCategory   SubCategory?    @relation(fields: [subCategoryId], references: [id])
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @default(now())
 }
@@ -172,6 +181,25 @@ model BookingExtras {
   extraId   String
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
+}
+
+model Category {
+  id            String        @id @default(cuid())
+  name          String
+  userId        String // Foreign key referencing User's id
+  owner         User          @relation(fields: [userId], references: [id])
+  subCategories SubCategory[]
+  extras        Extras[]
+  createdAt     DateTime      @default(now())
+}
+
+model SubCategory {
+  id         String   @id @default(cuid())
+  name       String
+  createdAt  DateTime @default(now())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  extras     Extras[]
 }
 
 model OneTimeProduct {
@@ -207,7 +235,7 @@ enum TransactionStatus {
   Pending
   Declined
   Paid //for testing
-  Cancelled  //for testing
+  Cancelled //for testing
 }
 
 enum ExtrasStatus {

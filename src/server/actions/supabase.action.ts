@@ -19,6 +19,73 @@ export const uploadSpotImage = async ({
   };
 };
 
+export const uploadImageToStorage = async ({
+  file,
+  objectId,
+  userId,
+  path
+}: {
+  file: File;
+  objectId: string;
+  userId: string;
+  path: string
+}) => {
+  const { data, error } = await supabase.storage
+    .from(path)
+    .upload(`${userId}/${objectId}/${uuidv4()}_${file.name}`, file);
+  if (error) return null;
+  return {
+    url: supabase.storage.from(path).getPublicUrl(data!.path).data.publicUrl,
+  };
+};
+
+export const getImagesFromStorage = async ({
+  userId,
+  path,
+  objectId,
+}: {
+  userId: string;
+  objectId: string;
+  path: string
+}) => {
+  const { data, error } = await supabase.storage
+    .from(path)
+    .list(`${userId}/${objectId}`);
+
+  const images = data
+    ?.filter((f) => f.metadata.mimetype !== "application/octet-stream")
+    .map((f) => {
+      const pUrl = supabase.storage
+        .from(path)
+        .getPublicUrl(`${userId}/${objectId}/${f.name}`);
+      return { url: pUrl.data.publicUrl, name: f.name };
+    });
+  return images;
+};
+
+export const deleteImagesFromStorage = async ({
+  userId,
+  objectId,
+  path
+}: {
+  userId: string;
+  objectId: string;
+  path: string
+}) => supabase.storage.from(path).remove([`${userId}/${objectId}`]);
+
+export const deleteImageFromStorageObject = async ({
+  userId,
+  objectId,
+  id,
+  path
+}: {
+  userId: string;
+  objectId: string;
+  id: string;
+  path: string
+}) => supabase.storage.from(path).remove([`${userId}/${objectId}/${id}`]);
+
+
 export const getSpotImages = async ({
   userId,
   spotId,

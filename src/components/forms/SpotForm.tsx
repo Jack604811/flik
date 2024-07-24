@@ -73,11 +73,12 @@ import {
 } from "@/server/actions/spot.action";
 import { Spot, SpotStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
-import { uploadSpotImage } from "@/server/actions/supabase.action";
 import ConfirmModal from "../confirm-modal";
 import MultiSelect from "../ui/multiselect";
 import { AMENITIES } from "@/lib/constant";
 import { env } from "@/env";
+import { useQuery } from "@tanstack/react-query";
+import { getExtrasByUser } from "@/server/actions/extra.action";
 
 const formSchema = z
   .object({
@@ -104,6 +105,7 @@ const formSchema = z
     duration: z.string(),
     durationType: z.string(),
     path: z.string().optional(),
+    extras: z.array(z.string())
   })
   .superRefine((data, refineContext) => {
     if (!!data.allowAdditionalGuest && !data.additionalGuestPrice) {
@@ -128,9 +130,14 @@ function SpotForm({
   spot,
 }: {
   userId: string;
-  spot?: Spot & { images: Record<string, string>[] };
+  spot?: Spot & { images: Record<string, string>[], extras: Record<"id"|"name", string>[] };
 }) {
   const router = useRouter();
+  const { data: extrasOption, isLoading } = useQuery({
+    queryKey: ["extras"],
+    queryFn: async () => getExtrasByUser({userId}),
+    initialData: []
+  })
   const [files, setFiles] = useState<(File & { url: string })[]>([]);
   const [spotImages, setSpotImages] = useState<Record<string, string>[]>(
     spot?.images ?? []
@@ -156,6 +163,7 @@ function SpotForm({
         })) ?? [],
       duration: spot?.duration ? String(spot.duration) : "1",
       durationType: spot?.durationType ? String(spot.durationType) : "hours",
+      extras: spot?.extras?.map(ex => ex.id) ?? []
     },
   });
 
@@ -204,6 +212,7 @@ function SpotForm({
     );
     setFiles((prev) => [...prev, ...newFiles]);
   }, []);
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
@@ -463,6 +472,30 @@ function SpotForm({
                             selected={field.value}
                             options={AMENITIES}
                             onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Extras</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="extras"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelect
+                            selected={field.value}
+                            options={isLoading ? [] : extrasOption?.map(ex => ({label: ex.name, value: ex.id}))}
+                            onChange={field.onChange}
+                            placeholder="Select Extra..."
                           />
                         </FormControl>
                         <FormMessage />

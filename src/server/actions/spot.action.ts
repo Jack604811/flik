@@ -30,7 +30,8 @@ type NEW_SPOT_PARAMS = {
   allowAdditionalGuest: boolean;
   files: FormData;
   amenities: string[],
-  path?:string
+  path?:string,
+  extras: string[]
 };
 
 export const createNewSpot = async ({
@@ -47,7 +48,8 @@ export const createNewSpot = async ({
   durationType,
   files,
   amenities,
-  path
+  path,
+  extras
 }: NEW_SPOT_PARAMS) => {
   const spot = await db.spot.create({
     data: {
@@ -63,7 +65,7 @@ export const createNewSpot = async ({
       duration,
       durationType,
       amenities,
-      path
+      path,
     },
   });
   await updateSpot({
@@ -81,7 +83,8 @@ export const createNewSpot = async ({
     durationType,
     files,
     amenities,
-    path
+    path,
+    extras
   });
 
   return spot;
@@ -102,7 +105,8 @@ export const updateSpot = async ({
   duration,
   durationType,
   amenities,
-  path
+  path,
+  extras
 }: NEW_SPOT_PARAMS & { id: string }) => {
   const imageFiles = files.getAll("files") as File[];
   let images = await Promise.all(
@@ -128,6 +132,7 @@ export const updateSpot = async ({
       images: {
         createMany: { data: images.map((img) => ({ url: img!.url })) },
       },
+      extras: {connect: extras.map(ex => ({id: ex}))}
     },
   });
 
@@ -136,7 +141,7 @@ export const updateSpot = async ({
 export const getSpotById = async (id: string) => {
   const spot = await db.spot.findFirst({
     where: { id },
-    include: { owner: true, images: true },
+    include: { owner: true, images: true, extras: { select: {id: true, name: true}} },
     orderBy: { createdAt: "desc"}
   });
 

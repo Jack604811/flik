@@ -15,16 +15,17 @@ type Props = {
   options: Option[];
   selected: string[];
   onChange: (selected: string[]) => void;
+  placeholder?: string
 };
 
-export default function MultiSelect({ options, onChange, selected=[] }: Props) {
+export default function MultiSelect({ options, onChange, selected=[], placeholder }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
 
-  const handleUnselect = React.useCallback((amenity: Option) => {
-    onChange(selected.filter((value) => amenity.value !== value));
-  }, [selected]);
+  const handleUnselect = React.useCallback((option: Option) => {
+    onChange(selected.filter((value) => option.value !== value));
+  }, [selected, onChange]);
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -39,7 +40,7 @@ export default function MultiSelect({ options, onChange, selected=[] }: Props) {
         input.blur();
       }
     },
-    [selected]
+    [selected, onChange]
   );
 
   const selectables = options.filter(
@@ -54,11 +55,11 @@ export default function MultiSelect({ options, onChange, selected=[] }: Props) {
       >
         <div className="group border border-input px-3 py-2 text-sm ring-offset-background rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
           <div className="flex gap-2 flex-wrap">
-            {selected.map((value) => {
+            {selected.map((value, key) => {
               const option = options.find((option) => option.value === value)!;
               return (
-                <Badge key={option.value} variant="secondary">
-                  {option.label}
+                <Badge key={key} variant="secondary">
+                  {option?.label}
                   <button
                     type="button"
                     className="flex justify-between items-center gap-8 ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -84,7 +85,7 @@ export default function MultiSelect({ options, onChange, selected=[] }: Props) {
             onValueChange={setInputValue}
             onBlur={() => setOpen(false)}
             onFocus={() => setOpen(true)}
-            placeholder="Select amenities..."
+            placeholder={placeholder ?? "Select option..."}
             className="ml-2 bg-transparent outline-none placeholder:text-muted-foreground flex-1"
           />
           </div>
