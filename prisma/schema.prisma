@@ -156,8 +156,8 @@ model Extras {
   spots         Spot[]
   categoryId    String?
   subCategoryId String?
-  category      Category?       @relation(fields: [categoryId], references: [id])
-  subCategory   SubCategory?    @relation(fields: [subCategoryId], references: [id])
+  category      Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subCategory   SubCategory?    @relation(fields: [subCategoryId], references: [id], onDelete: SetNull)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @default(now())
 }
@@ -198,7 +198,7 @@ model SubCategory {
   name       String
   createdAt  DateTime @default(now())
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   extras     Extras[]
 }
 

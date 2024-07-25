@@ -11,7 +11,7 @@ import {
   addBooking,
   createStripePaymentLink,
 } from "@/server/actions/booking.action";
-import { Booking, Spot, SpotImages, User } from "@prisma/client";
+import { Booking, Category, Extras, Spot, SpotImages, SubCategory, User } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -47,7 +47,7 @@ const formSchema = z.object({
 });
 
 type Params = {
-  spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[] };
+  spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[], extras: Extras&{category: Category; subCategory: SubCategory}[] };
 };
 
 type ProgressKey = "personal_info" | "extras" | "payment";
@@ -84,7 +84,7 @@ function BookingSection({ spot }: Params) {
     defaultValues: { countryCode: "+57" },
   });
 
-  const [progress, setProgress] = useState<ProgressKey>("personal_info");
+  const [progress, setProgress] = useState<ProgressKey>("extras");
   const bookings = spot.bookings;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -246,7 +246,6 @@ function BookingSection({ spot }: Params) {
   }, []);
 
   const bookingData = getBookingData();
-
   return (
     <div key="1" className="container mx-auto px-4 md:px-6 py-8">
       <Form {...form}>
@@ -424,8 +423,10 @@ function BookingSection({ spot }: Params) {
                     </div>
                     <Tabs defaultValue="1" className="w-full">
                       <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="1">Menu</TabsTrigger>
-                        <TabsTrigger value="2">Liquors</TabsTrigger>
+                        {/* {spot?.extras?.map(e => e.category)?.map(category => (
+                          <TabsTrigger value={category?.id} key={category?.id}>{category?.name}</TabsTrigger>
+                        ))} */}
+                        <TabsTrigger value="2">Liquor</TabsTrigger>
                         <TabsTrigger value="3">Improve your stay</TabsTrigger>
                         <TabsTrigger value="4">Extra Category</TabsTrigger>
                       </TabsList>

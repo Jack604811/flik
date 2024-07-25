@@ -55,17 +55,14 @@ type Option = {
   value: string;
   label: string;
 };
-const badgeStyle = (color: string) => ({
-  borderColor: `${color}20`,
-  backgroundColor: `${color}30`,
-  color,
-});
 
 export function FancyBox({
   options,
   values,
   onCreate,
   onSelect,
+  onDelete,
+  onEdit,
   isEditable,
   label = "item",
   isDisabled
@@ -73,6 +70,8 @@ export function FancyBox({
   options: Option[];
   values: string[];
   onCreate?: (value: string) => void;
+  onDelete?: (value: string) => void;
+  onEdit?: (option: Option) => void;
   onSelect: (value: string) => void;
   isEditable?: boolean;
   isDisabled?: boolean;
@@ -84,24 +83,6 @@ export function FancyBox({
   const [openDialog, setOpenDialog] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
 
-  const updateFramework = (
-    framework: Option["value"],
-    newFramework: Option
-  ) => {
-    // setoptions((prev) =>
-    //   prev.map((f) => (f.value === framework.value ? newFramework : f))
-    // );
-    // setSelectedValues((prev) =>
-    //   prev.map((f) => (f.value === framework.value ? newFramework : f))
-    // );
-  };
-
-  const deleteFramework = (framework: Option["value"]) => {
-    // setoptions((prev) => prev.filter((f) => f.value !== framework.value));
-    // setSelectedValues((prev) =>
-    //   prev.filter((f) => f.value !== framework.value)
-    // );
-  };
 
   const onComboboxOpenChange = (value: boolean) => {
     inputRef.current?.blur(); // HACK: otherwise, would scroll automatically to the bottom of page
@@ -178,7 +159,7 @@ export function FancyBox({
                 >
                   <div className={cn("mr-2 h-4 w-4")} />
                   <Edit2 className="mr-2 h-2.5 w-2.5" />
-                  Edit Labels
+                  Edit {label}
                 </CommandItem>
               </CommandGroup>
               )}
@@ -208,16 +189,9 @@ export function FancyBox({
               return (
                 <DialogListItem
                   key={option.value}
-                  onDelete={() => deleteFramework(option.value)}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const target = e.target as typeof e.target &
-                      Record<"name" | "color", { value: string }>;
-                    const newFramework = {
-                      value: target.name.value.toLowerCase(),
-                      label: target.name.value,
-                    };
-                    updateFramework(option.value, newFramework);
+                  onDelete={() => onDelete && onDelete(option.value)}
+                  onSubmit={(updatedOption) => {
+                    onEdit && onEdit(updatedOption)
                   }}
                   {...option}
                 />
@@ -281,7 +255,7 @@ const DialogListItem = ({
   onSubmit,
   onDelete,
 }: Option & {
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (updatedOption: Option) => void;
   onDelete: () => void;
 }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -336,12 +310,8 @@ const DialogListItem = ({
           </div>
         </div>
         <AccordionContent>
-          <form
+          <div
             className="flex items-end gap-4"
-            onSubmit={(e) => {
-              onSubmit(e);
-              setAccordionValue("");
-            }}
           >
             <div className="grid w-full gap-3">
               <Label htmlFor="name">Label name</Label>
@@ -354,10 +324,13 @@ const DialogListItem = ({
               />
             </div>
             {/* REMINDER: size="xs" */}
-            <Button type="submit" disabled={disabled} size="xs">
+            <Button type="button" onClick={() => {
+                onSubmit({label: inputValue, value});
+                setAccordionValue("");
+            }} disabled={disabled} size="xs">
               Save
             </Button>
-          </form>
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

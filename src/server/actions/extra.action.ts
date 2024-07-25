@@ -173,3 +173,24 @@ export const getCategories = async ({ userId }: { userId: string }) => {
   });
   return categories;
 };
+
+export const updateCategory = async ({id, name}: {id: string, name: string}) => {
+  const category = await db.category.update({where: { id }, data: {name}});
+
+  return category
+}
+export const updateSubCategory = async ({id, name}: {id: string, name: string}) => {
+  const subCategory = await db.subCategory.update({where: { id }, data: {name}});
+
+  return subCategory
+}
+
+export const deleteCategory = async (id: string) => {
+  const category = await db.category.delete({where: {id}});
+  return category
+}
+
+export const deleteSubCategory = async (id: string) => {
+  const subCategory = await db.subCategory.delete({where: {id}});
+  return subCategory
+}

@@ -45,10 +45,14 @@ import {
   createCategory,
   createNewExtra,
   createSubCategory,
+  deleteCategory,
   deleteExtra,
   deleteExtraImage,
+  deleteSubCategory,
   getCategories,
+  updateCategory,
   updateExtra,
+  updateSubCategory,
 } from "@/server/actions/extra.action";
 import { FancyBox } from "../ui/fancy-box";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -286,6 +290,22 @@ function ExtrasForm({
                                 onCreate={(category) =>
                                   addNewCategory(category)
                                 }
+                                isEditable
+                                onDelete={async (id) =>
+                                  deleteCategory(id).then(() => {
+                                    form.setValue("categoryId", null)
+                                    form.setValue("subCategoryId", null)
+                                    fetchCategories();
+                                  })
+                                }
+                                onEdit={async (option) =>
+                                  updateCategory({
+                                    id: option.value,
+                                    name: option.label,
+                                  }).then(() => {
+                                    fetchCategories();
+                                  })
+                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -324,6 +344,21 @@ function ExtrasForm({
                                   addNewSubCategory({
                                     categoryId: form.watch().categoryId!,
                                     subCategoryName,
+                                  })
+                                }
+                                isEditable
+                                onDelete={async (id) =>
+                                  deleteSubCategory(id).then(() => {
+                                    form.setValue("subCategoryId", null)
+                                    fetchCategories();
+                                  })
+                                }
+                                onEdit={async (option) =>
+                                  updateSubCategory({
+                                    id: option.value,
+                                    name: option.label,
+                                  }).then(() => {
+                                    fetchCategories();
                                   })
                                 }
                               />
