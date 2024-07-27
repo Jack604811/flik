@@ -88,7 +88,7 @@ function BookingAvailability({
         }
         currentTime.add(spot.duration, "hours");
       }
-      return timeslots;
+      return timeslots.sort((a, b) => moment(a, "hh:mm A").diff(moment(b, "hh:mm A")));
     },
     [workingHours, spot, isTimeslotDisabled]
   );
@@ -124,7 +124,7 @@ function BookingAvailability({
         }
         currentTime.add(spot.duration, "hours");
       }
-      return timeslots;
+      return timeslots.sort((a, b) => moment(a, "hh:mm A").diff(moment(b, "hh:mm A")));
     },
     [workingHours, spot, isTimeslotDisabled, selectedDate]
   );
@@ -219,6 +219,12 @@ function BookingAvailability({
     [getStartEndDates, onDateSelected, workingHours]
   );
 
+  const defaultMonth = selectedDate
+  ? isDateRange(selectedDate)
+    ? selectedDate.from
+    : selectedDate
+  : undefined;
+
   return (
     <div>
       <div className="grid gap-2 justify-center">
@@ -226,7 +232,7 @@ function BookingAvailability({
           className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
           mode={spot.durationType === "hours" ? "single" : "range"}
           numberOfMonths={1}
-          defaultMonth={(selectedDate as DateRange)?.from}
+          defaultMonth={defaultMonth}
           onSelect={(date: DateRange | Date | undefined) => {
             updateFormData(date);
           }}
