@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Edit2 } from "lucide-react";
-
+import { Check, ChevronsUpDown, Edit2, CirclePlus, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Accordion,
@@ -47,9 +46,13 @@ import {
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-// FIXME: https://twitter.com/lemcii/status/1659649371162419202?s=46&t=gqNnMIjMWXiG2Rbrr5gT6g
-// Removing states would help maybe?
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 type Option = {
   value: string;
@@ -78,15 +81,66 @@ export function FancyBox({
   label?: string
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
-
   const [openCombobox, setOpenCombobox] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
-
+  const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
+  const [editingItem, setEditingItem] = React.useState<string | null>(null); // Track the item being edited
+  const [editingValue, setEditingValue] = React.useState<string>(""); // Track the input value for editing
 
   const onComboboxOpenChange = (value: boolean) => {
-    inputRef.current?.blur(); // HACK: otherwise, would scroll automatically to the bottom of page
     setOpenCombobox(value);
+  };
+
+  const handleSelect = (value: string) => {
+    handleCommandItemSelect(); // Unfocus inputs
+    onSelect(value);
+    setOpenCombobox(false); // Close dropdown when item is selected
+    setEditingItem(null); // Reset any editing state
+  };
+
+  const handleCreate = (newValue: string) => {
+    if (newValue.trim() === "") return;
+    onCreate?.(newValue);
+    setInputValue("");
+    setOpenCombobox(false);
+    onSelect(newValue);
+    setEditingItem(null); 
+  };
+
+  const handleDelete = (value: string) => {
+    setSelectedItem(value);
+  };
+
+  const confirmDelete = () => {
+    if (selectedItem) {
+      onDelete?.(selectedItem);
+      setSelectedItem(null);
+    }
+    setOpenDialog(false);
+  };
+
+  const selectedItemLabel = options.find(option => option.value === selectedItem)?.label || '';
+
+  const handleRename = (value: string) => {
+    setEditingItem(value);
+    setEditingValue(options.find(option => option.value === value)?.label || ''); // Set initial value for editing
+    setOpenCombobox(true); // Keep the combobox open
+    // Focus the input directly after setting the state
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
+  const handleEditSubmit = () => {
+    if (editingItem) {
+      onEdit?.({ value: editingItem, label: editingValue });
+      setEditingItem(null); // Exit editing mode
+    }
+  };
+
+  const handleCommandItemSelect = () => {
+    setEditingItem(null); // Unfocus inputs when a CommandItem is selected
   };
 
   return (
@@ -102,15 +156,11 @@ export function FancyBox({
             <span className="truncate">
               {values.length === 0 && `Select ${label}`}
               {values.length === 1 && options.find(opt => opt.value === values[0])?.label }
-              {/* {selectedValues.length === 2 &&
-                selectedValues.map(({ label }) => label).join(", ")}
-              {selectedValues.length > 2 &&
-                `${selectedValues.length} labels selected`} */}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="min-w-[300px] p-0">
+        <PopoverContent className="min-w-[570px] mt-1 p-0">
           <Command loop>
             <CommandInput
               ref={inputRef}
@@ -119,50 +169,112 @@ export function FancyBox({
               onValueChange={setInputValue}
             />
             <CommandList>
-              <CommandGroup className="max-h-[145px] overflow-auto">
-                {options.map((option) => {
-                  const isActive = values.includes(option.value);
-                  return (
-                    <CommandItem
-                      key={option.value}
-                      value={option.label}
-                      onSelect={() =>{
-                         onSelect(option.value);
-                         inputRef?.current?.focus();
-                    }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          isActive ? "opacity-100" : "opacity-0"
-                        )}
+              {options.length === 0 && inputValue === "" ? (
+                <div className="flex justify-center p-4 text-muted-foreground">
+                  Write something to create your first {label}.
+                </div>
+              ) : (
+                <>
+                  <CommandGroup className="max-h-[145px] overflow-auto">
+                    {options.map((option) => {
+                      const isActive = values.includes(option.value);
+                      return (
+                        <CommandItem
+                          key={option.value}
+                          className="h-10"
+                          onSelect={() => {
+                            // Prevent selection if editing mode is active
+                            if (editingItem !== option.value) {
+                              handleCommandItemSelect(); // Unfocus inputs
+                              handleSelect(option.value);
+                            }
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              isActive ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex-1">
+                            {editingItem === option.value ? (
+                              <Input
+                                ref={inputRef} // Ensure input is focused
+                                value={editingValue}
+                                onChange={(e) => setEditingValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleEditSubmit();
+                                  }
+                                }}
+                                className={`border ${editingItem === option.value ? 'border-2' : 'border-transparent'} h-8`}
+                              />
+                            ) : (
+                              <span>{option.label}</span>
+                            )}
+                          </div>
+                          
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onSelect={(e) => {
+                                  e.preventDefault(); // Prevent default selection
+                                  handleRename(option.value);
+                                }}
+                              >
+                                Rename
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onSelect={(e) => {
+                                  e.preventDefault(); // Prevent default selection
+                                  handleDelete(option.value);
+                                }}
+                              >
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </CommandItem>
+                      );
+                    })}
+                    {onCreate && (
+                      <CommandItemCreate
+                        label={label}
+                        onSelect={() => handleCreate(inputValue)}
+                        {...{ inputValue, options }}
                       />
-                      <div className="flex-1">{option.label}</div>
-                    </CommandItem>
-                  );
-                })}
-                {onCreate && (
-                  <CommandItemCreate
-                    label={label}
-                    onSelect={() => onCreate(inputValue)}
-                    {...{ inputValue, options }}
-                  />
-                )}
-              </CommandGroup>
-              <CommandSeparator alwaysRender />
-              {isEditable && (
-                <CommandGroup>
-                <CommandItem
-                  value={`:${inputValue}:`} // HACK: that way, the edit button will always be shown
-                  className="text-xs text-muted-foreground"
-                  onSelect={() => setOpenDialog(true)}
-                >
-                  <div className={cn("mr-2 h-4 w-4")} />
-                  <Edit2 className="mr-2 h-2.5 w-2.5" />
-                  Edit {label}
-                </CommandItem>
-              </CommandGroup>
+                    )}
+                  </CommandGroup>
+                  {editingItem && inputValue === "" && (
+                    <>
+                      <CommandSeparator/>
+                      <div className="p-2 text-xs text-muted-foreground">
+                        Press Enter to save
+                      </div>
+                      {/*<CommandGroup>
+                        <CommandItem
+                          value={`:${inputValue}:`} // HACK: that way, the edit button will always be shown
+                          className="text-xs text-muted-foreground"
+                          onSelect={() => setOpenDialog(true)}
+                        >
+                          <Edit2 className="mr-2 h-3 w-3" />
+                          Edit {label}s
+                        </CommandItem>
+                      </CommandGroup>*/}
+                    </>
+                  )}
+                </>
               )}
+              
+               
+              
             </CommandList>
           </Command>
         </PopoverContent>
@@ -205,13 +317,27 @@ export function FancyBox({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* <div className="relative -mb-24 mt-3 h-24 overflow-y-auto">
-        {values.map((value) => (
-          <Badge key={value} variant="outline" className="mb-2 mr-2">
-            {options.find((v) => v.value === value)?.label}
-          </Badge>
-        ))}
-      </div> */}
+      <AlertDialog
+        open={!!selectedItem}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedItem(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to delete the label <Badge variant="outline">{selectedItemLabel}</Badge>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedItem(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -224,7 +350,7 @@ const CommandItemCreate = ({
 }: {
   inputValue: string;
   options: Option[];
-  label:string
+  label: string;
   onSelect: () => void;
 }) => {
   const hasNoOption = !options
@@ -235,15 +361,14 @@ const CommandItemCreate = ({
 
   if (!render) return null;
 
-  // BUG: whenever a space is appended, the Create-Button will not be shown.
   return (
     <CommandItem
       key={`${inputValue}`}
       value={`${inputValue}`}
-      className="text-xs text-muted-foreground"
+      className="text-sm text-muted-foreground cursor-pointer flex items-center hover:bg-green-200"
       onSelect={onSelect}
     >
-      <div className={cn("mr-2 h-4 w-4")} />
+      <CirclePlus className="mr-2 h-4 w-4 text-muted-foreground" />
       Create new {label} &quot;{inputValue}&quot;
     </CommandItem>
   );
@@ -264,8 +389,8 @@ const DialogListItem = ({
   const disabled = label === inputValue;
 
   React.useEffect(() => {
-    if (accordionValue !== "") {
-      inputRef.current?.focus();
+    if (accordionValue !== "" && inputRef.current) {
+      inputRef.current.focus();
     }
   }, [accordionValue]);
 
@@ -286,7 +411,6 @@ const DialogListItem = ({
             <AccordionTrigger>Edit</AccordionTrigger>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                {/* REMINDER: size="xs" */}
                 <Button variant="destructive" size="xs">
                   Delete
                 </Button>
@@ -310,9 +434,7 @@ const DialogListItem = ({
           </div>
         </div>
         <AccordionContent>
-          <div
-            className="flex items-end gap-4"
-          >
+          <div className="flex items-end gap-4">
             <div className="grid w-full gap-3">
               <Label htmlFor="name">Label name</Label>
               <Input
@@ -323,11 +445,15 @@ const DialogListItem = ({
                 className="h-8"
               />
             </div>
-            {/* REMINDER: size="xs" */}
-            <Button type="button" onClick={() => {
-                onSubmit({label: inputValue, value});
+            <Button
+              type="button"
+              onClick={() => {
+                onSubmit({ label: inputValue, value });
                 setAccordionValue("");
-            }} disabled={disabled} size="xs">
+              }}
+              disabled={disabled}
+              size="xs"
+            >
               Save
             </Button>
           </div>
