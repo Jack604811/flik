@@ -13,6 +13,12 @@ import { getCurrentUser } from "@/server/auth";
 import Subdomain from "./Subdomain";
 import { Label } from "@/components/ui/label";
 import SiteSettings from "./SiteSettings";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Settings",
+  description: "Setup your place from here",
+}
 
 export default async function Page() {
   const currentUser = await getCurrentUser();

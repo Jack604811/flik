@@ -12,77 +12,6 @@ import { Booking } from "@/schemas/booking.schema";
 
 export const columns: ColumnDef<Schema>[] = [
   {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Transaction #" />
-    ),
-    cell: ({ row, table }) => {
-      // const transaction = {
-      //   id: row.original.id,
-      //   status: row.original.status,
-      //   amount: row.original.amount.toString(),
-      //   paymentType: row.original.paymentType,
-      //   date: row.original.paymentDate,
-      //   description: row.original.description,
-      // };
-
-      // return (
-      //   <AddTransactionButton
-      //     bookingId={row.original.booking.id}
-      //     defaultTransaction={transaction}
-      //     callback={() => table.reset()}
-      //   >
-      //     <div className="w-[80px] truncate text-sky-600">
-      //       {row.getValue("id")}
-      //     </div>
-      //   </AddTransactionButton>
-      // );
-
-      return <div className="">{row.getValue("id")}</div>;
-    },
-    enableSorting: false,
-    enableHiding: false,
-    filterFn: (row, id, value) => {
-      const rowId = row.original.id as string;
-      return rowId.includes(value);
-    },
-  },
-  
-  {
-    accessorKey: "amount",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Payment Amount" />
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          <span>${row.getValue("amount")}</span>
-        </div>
-      );
-    },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "booking",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Booking" />
-    ),
-    cell: ({ row }) => {
-      const booking = row.original.booking as Booking
-      return (
-        <BookingDetailButton booking={booking}>
-          <div className="flex flex-col p-0 text-left text-sky-600">
-            <span>{booking?.spot.name}</span>
-            <span className="text-muted-foreground">
-              ${booking.totalPrice}
-            </span>
-          </div>
-        </BookingDetailButton>
-      );
-    },
-    enableSorting: false,
-  },
-  {
     accessorKey: "guest",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Customer" />
@@ -104,6 +33,40 @@ export const columns: ColumnDef<Schema>[] = [
         guest?.name?.toLowerCase().includes(value) ||
         (row.original.id as string).includes(value) ||
         (row.original.booking as Booking).spot.name.includes(value)
+      );
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "amount",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Payment Amount" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">
+          <span>${new Intl.NumberFormat('de-DE').format(row.getValue("amount")).replace(',', '.')}</span>
+        </div>
+      );
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "booking",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Booking" />
+    ),
+    cell: ({ row }) => {
+      const booking = row.original.booking as Booking
+      return (
+        <BookingDetailButton booking={booking}>
+          <div className="flex flex-col p-0 text-left text-sky-600">
+            <span>{booking?.spot.name}</span>
+            <span className="text-muted-foreground">
+            Outstandig: ${new Intl.NumberFormat('de-DE').format(booking.totalPrice).replace(',', '.')}
+            </span>
+          </div>
+        </BookingDetailButton>
       );
     },
     enableSorting: false,
@@ -167,24 +130,39 @@ export const columns: ColumnDef<Schema>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Added Date" />
+      <DataTableColumnHeader column={column} title="Transaction ID" />
     ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          <span>
-            {moment(row.getValue("createdAt")).format("MM/DD/YYYY hh:mm A")}
-          </span>
-        </div>
-      );
+    cell: ({ row, table }) => {
+      // const transaction = {
+      //   id: row.original.id,
+      //   status: row.original.status,
+      //   amount: row.original.amount.toString(),
+      //   paymentType: row.original.paymentType,
+      //   date: row.original.paymentDate,
+      //   description: row.original.description,
+      // };
+
+      // return (
+      //   <AddTransactionButton
+      //     bookingId={row.original.booking.id}
+      //     defaultTransaction={transaction}
+      //     callback={() => table.reset()}
+      //   >
+      //     <div className="w-[80px] truncate text-sky-600">
+      //       {row.getValue("id")}
+      //     </div>
+      //   </AddTransactionButton>
+      // );
+
+      return <div className="">{row.getValue("id")}</div>;
     },
     enableSorting: false,
+    enableHiding: false,
     filterFn: (row, id, value) => {
-      return value
-        ? moment(row.getValue(id)).isBetween(value?.[0], value?.[1])
-        : true;
+      const rowId = row.original.id as string;
+      return rowId.includes(value);
     },
   },
   {

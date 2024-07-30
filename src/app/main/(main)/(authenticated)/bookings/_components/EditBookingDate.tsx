@@ -128,11 +128,11 @@ const EditBookingDate = ({
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-2 space-y-4"
+        className="flex flex-col gap-0 space-y-0"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <button type="submit" ref={formRef}></button>
-        <div className={cn("grid gap-2", className)}>
+        <div className={cn("grid gap-0", className)}>
           <Popover onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild ref={popoverRef}>
             <Button

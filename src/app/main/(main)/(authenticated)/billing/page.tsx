@@ -12,6 +12,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { Check, CreditCard } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Billing",
+  description: "Select your plan and start to get your bookings",
+}
 
 export default function Page() {
   return (
