@@ -64,6 +64,7 @@ const bookingSchema = z.object({
       note: z.string().optional(),
     })
     .optional(),
+    updatedAt: z.date().optional(),
 });
 
 type EDITING_FIELD =
@@ -76,10 +77,10 @@ type EDITING_FIELD =
   | "note"
   | "spotId"
   | null;
-
+  
 function BookingDetailSheet() {
   const router = useRouter();
-  const { isOpen, onOpenChange, booking, setNeedUpdate } = useBookingDetail((state) => state);
+  const { isOpen, onOpenChange, booking, } = useBookingDetail((state) => state);
 
   const { data: session } = useSession();
   const { data: spots, refetch: refectSpots } = useQuery({
@@ -102,37 +103,36 @@ function BookingDetailSheet() {
     }
   }, [editingField]);
 
-
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
-    const updatedData: z.infer<typeof bookingSchema> = {
-      id: data.id,
-    };
-
-    if (editingField === "status") {
-      updatedData.status = data.status;
-    } else if (editingField === "spotId") {
-      updatedData.spotId = data.spotId;
-    } else {
-      updatedData.guest = {
-        id: data.guest!.id,
-        [editingField as string]: data.guest![editingField!],
-      };
-    }
-
-    const updated = updateBooking(updatedData);
-
-    toast.promise(updated, {
-      loading: `Updating ${editingField}...`,
-      success() {
-        setEditingField(null);
-        router.refresh();
-        // setNeedUpdate(data.id)
-        // console.log(booking)
-        return `${editingField} updated successfully!`;
-      },
-      error: `Failed to update ${editingField}`,
-    });
+  const updatedData: z.infer<typeof bookingSchema> = {
+    id: data.id,
+    updatedAt: new Date(),
   };
+
+  if (editingField === "status") {
+    updatedData.status = data.status;
+  } else if (editingField === "spotId") {
+    updatedData.spotId = data.spotId;
+  } else if (editingField && data.guest) {
+    updatedData.guest = {
+      id: data.guest.id,
+      [editingField as keyof typeof data.guest]: data.guest[editingField as keyof typeof data.guest],
+    };
+  }
+
+  const updated = updateBooking(updatedData);
+
+  toast.promise(updated, {
+    loading: `Updating ${editingField}...`,
+    success() {
+      router.refresh();
+      setEditingField(null);
+      return `${editingField} updated successfully!`;
+    },
+    error: `Failed to update ${editingField}`,
+  });
+};
+
 
   const startEditing = (field: EDITING_FIELD) => {
     setEditingField(field);
@@ -276,7 +276,7 @@ function BookingDetailSheet() {
                                   ) : (
                                     <FormField
                                       control={control}
-                                      name={`guest.note`}
+                                      name={`guest.${field}`}
                                       render={({ field: formField }) => (
                                         <Input
                                           {...formField}

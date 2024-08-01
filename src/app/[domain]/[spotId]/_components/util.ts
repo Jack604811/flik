@@ -43,7 +43,14 @@ export const calculateSubtotal = (
   workingHours: WORKING_HOUR_TYPE[]
 ): number => {
   const days = getDatesArray(selectedDate);
-  return days.reduce((total, date) => {
+
+  // Exclude the last day only if it's not a single day booking
+  const isSingleDayBooking = days.length === 1;
+
+  // If not a single day booking, exclude the last day
+  const daysToCharge = isSingleDayBooking ? days : days.slice(0, -1);
+
+  return daysToCharge.reduce((total, date) => {
     const dayOfWeek = moment(date).format("dddd");
     return total + getPriceForDay(dayOfWeek, workingHours);
   }, 0);

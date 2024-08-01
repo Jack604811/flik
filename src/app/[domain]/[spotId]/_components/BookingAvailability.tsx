@@ -88,7 +88,7 @@ function BookingAvailability({
         }
         currentTime.add(spot.duration, "hours");
       }
-      return timeslots;
+      return timeslots.sort((a, b) => moment(a, "hh:mm A").diff(moment(b, "hh:mm A")));
     },
     [workingHours, spot, isTimeslotDisabled]
   );
@@ -124,7 +124,7 @@ function BookingAvailability({
         }
         currentTime.add(spot.duration, "hours");
       }
-      return timeslots;
+      return timeslots.sort((a, b) => moment(a, "hh:mm A").diff(moment(b, "hh:mm A")));
     },
     [workingHours, spot, isTimeslotDisabled, selectedDate]
   );
@@ -138,8 +138,9 @@ function BookingAvailability({
         "from" in selectedDate &&
         "to" in selectedDate
       ) {
-        if (spot.durationType === "day" && moment(selectedDate.from).isSame(selectedDate.to, 'day')) {
-          return { startDate: selectedDate.from, endDate: moment(selectedDate.to).add(1, 'day').toDate() };
+        // For day duration type, do not add a full day to endDate
+        if (spot.durationType === "day") {
+          return { startDate: selectedDate.from, endDate: selectedDate.to };
         }
         return { startDate: selectedDate.from, endDate: selectedDate.to };
       }
@@ -161,38 +162,50 @@ function BookingAvailability({
   const isDateDisabled = useCallback(
     (date: Date) => {
       const currentDate = moment().startOf("day");
-      const selectedDate = moment(date).startOf("day");
+      const selectedDateMoment = moment(date).startOf("day");
   
       // Disable dates in the past
-      if (selectedDate.isBefore(currentDate, "day")) {
+      if (selectedDateMoment.isBefore(currentDate, "day")) {
         return true;
       }
   
+      // Check if selectedDate is a DateRange and has `from` and `to` properties
+      if (selectedDate && isDateRange(selectedDate) && selectedDate.from && selectedDate.to) {
+        const fromDate = moment(selectedDate.from).startOf("day");
+        const toDate = moment(selectedDate.to).endOf("day");
+  
+        // Block dates outside of the selected date range
+        if (selectedDateMoment.isBefore(fromDate, "day") || selectedDateMoment.isAfter(toDate, "day")) {
+          return true;
+        }
+      }
+  
       // Check if the date has working hours defined
-      const dayOfWeek = selectedDate.format("dddd");
+      const dayOfWeek = selectedDateMoment.format("dddd");
       const workingHour = workingHours.find(
         (wh: { day: string }) => wh.day === dayOfWeek
       );
   
-      if (!workingHour) {
-        return true; // Block the day if no working hours are defined
+      // If no working hours, openTime is empty
+      if (!workingHour?.openTime) {
+        // Check if selectedDate is a DateRange and has no `to` property and closeTime is not empty
+        if (selectedDate && isDateRange(selectedDate)) {
+          if (!workingHour?.closeTime) {
+            return true;
+          }
+          return false;
+        }
+        return true;
       }
   
-      if (spot.durationType === "hours") {
-        const timeslots = getAvailableTimeslots(date);
-        if (timeslots.length === 0) {
-          return true; // Block the day if no timeslots are available
-        }
-      } else if (spot.durationType === "day") {
-        // Check if the date range overlaps with any bookings
-        const dateStr = selectedDate.format("YYYY-MM-DD");
+      // Handle day duration type
+      if (spot.durationType === "day") {
+        // Check for overlapping bookings
         const overlappingBookings = bookings.filter((booking) => {
           const bookingStartDate = moment(booking.startDate).startOf("day");
-          const bookingEndDate = moment(booking.endDate).startOf("day");
+          const bookingEndDate = moment(booking.endDate).endOf("day");
   
-          return (
-            selectedDate.isBetween(bookingStartDate, bookingEndDate, null, "[]")
-          );
+          return selectedDateMoment.isBetween(bookingStartDate, bookingEndDate, null, "[]");
         });
   
         if (overlappingBookings.length >= (spot.units ?? 0)) {
@@ -200,10 +213,20 @@ function BookingAvailability({
         }
       }
   
+      // Handle hours duration type
+      if (spot.durationType === "hours") {
+        const timeslots = getAvailableTimeslots(date);
+        if (timeslots.length === 0) {
+          return true; // Block the day if no timeslots are available
+        }
+      }
+  
       return false;
     },
-    [bookings, spot.durationType, getAvailableTimeslots, workingHours]
+    [bookings, spot.durationType, getAvailableTimeslots, workingHours, selectedDate]
   );
+  
+  
 
   const updateFormData = useCallback(
     (selectedDate: DateRange | Date | undefined) => {
@@ -219,6 +242,12 @@ function BookingAvailability({
     [getStartEndDates, onDateSelected, workingHours]
   );
 
+  const defaultMonth = selectedDate
+  ? isDateRange(selectedDate)
+    ? selectedDate.from
+    : selectedDate
+  : undefined;
+
   return (
     <div>
       <div className="grid gap-2 justify-center">
@@ -226,7 +255,7 @@ function BookingAvailability({
           className="p-0 xl:flex [&_td]:w-10 [&_td]:h-10 [&_th]:w-10 [&_[name=day]]:w-10 [&_[name=day]]:h-10 [&>div]:space-x-0 [&>div]:gap-6"
           mode={spot.durationType === "hours" ? "single" : "range"}
           numberOfMonths={1}
-          defaultMonth={(selectedDate as DateRange)?.from}
+          defaultMonth={defaultMonth}
           onSelect={(date: DateRange | Date | undefined) => {
             updateFormData(date);
           }}

@@ -159,7 +159,11 @@ function ExtrasForm({
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { images: ["image/*"] },
+    accept: {
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/jpg': ['.jpg'],
+    },
   });
 
   const onDeleteImage = async (file: any, index: number) => {

@@ -63,7 +63,10 @@ const EditBookingDate = ({
     queryFn: () => getBookingsBySpot(spot.id),
     initialData: [] as Booking[],
   });
+
   const [date, setDate] = useState<DateRange | Date | undefined>(undefined);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,9 +82,9 @@ const EditBookingDate = ({
       endDate: Date | null | undefined;
       subTotal?: number;
     }) => {
-      data.startDate && form.setValue("startDate", data.startDate);
-      data.endDate && form.setValue("endDate", data.endDate);
-      data.subTotal && form.setValue("subtotal", data.subTotal);
+      if (data.startDate) form.setValue("startDate", data.startDate);
+      if (data.endDate) form.setValue("endDate", data.endDate);
+      if (data.subTotal) form.setValue("subtotal", data.subTotal);
 
       if (spot.durationType === "hours") {
         setDate(data.startDate as Date);
@@ -101,6 +104,12 @@ const EditBookingDate = ({
     }
   }, [startDate, endDate, onBookingDateChanged]);
 
+  useEffect(() => {
+    if (popoverOpen) {
+      onBookingDateChanged({ startDate, endDate });
+    }
+  }, [popoverOpen, startDate, endDate, onBookingDateChanged]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const updated = updateBooking({ id: bookingId, ...values });
 
@@ -119,45 +128,47 @@ const EditBookingDate = ({
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-2 space-y-4"
+        className="flex flex-col gap-0 space-y-0"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <button type="submit" ref={formRef}></button>
-        <div className={cn("grid gap-2", className)}>
-          <Popover>
-            <PopoverTrigger asChild ref={popoverRef}>
-              <Button
-                variant={"outline"}
-                type="button"
-                className={cn(
-                  "w-[370px] justify-start text-left font-normal border-none bg-transparent p-0 hover:bg-transparent",
-                  !form.getValues().startDate && "text-muted-foreground"
-                )}
-                disabled={form.formState.isSubmitting}
-              >
-                <CalendarDaysIcon className="mr-1 h-4 w-4" />
+        <div className={cn("grid gap-0", className)}>
+          <Popover onOpenChange={setPopoverOpen}>
+          <PopoverTrigger asChild ref={popoverRef}>
+            <Button
+              variant={"outline"}
+              type="button"
+              className={cn(
+                "w-[370px] justify-start text-left font-normal border-none bg-transparent p-0 hover:bg-transparent",
+                !form.getValues().startDate && "text-muted-foreground"
+              )}
+              disabled={form.formState.isSubmitting}
+            >
+              <CalendarDaysIcon className="mr-1 h-4 w-4" />
 
-                {form.getValues().startDate && form.getValues().endDate ? (
-                  form.getValues().endDate ? (
+              {form.getValues().startDate ? (
+                <>
+                  {moment(form.getValues().startDate!).format("DD MMM YYYY hh:mm A")}
+                  {spot.durationType === "hours" && form.getValues().endDate ? (
                     <>
-                      {moment(form.getValues().startDate!).format(
-                        "DD MMM YYYY hh:mm A"
-                      )}{" "}
-                      -{" "}
-                      {moment(form.getValues().endDate!).format(
-                        "DD MMM YYYY hh:mm A"
-                      )}
+                      {" - "}
+                      {moment(form.getValues().endDate!).format("hh:mm A")}
                     </>
                   ) : (
-                    moment(form.getValues().startDate!).format(
-                      "DD MMM YYYY hh:mm A"
+                    form.getValues().endDate && (
+                      <>
+                        {" - "}
+                        {moment(form.getValues().endDate!).format("DD MMM YYYY hh:mm A")}
+                      </>
                     )
-                  )
-                ) : (
-                  <span>Pick a date</span>
-                )}
-              </Button>
-            </PopoverTrigger>
+                  )}
+                </>
+              ) : (
+                <span>Pick a date</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+
             <PopoverContent className="w-auto" align="start">
               <BookingAvailability
                 selectedDate={date}
@@ -166,7 +177,7 @@ const EditBookingDate = ({
                 bookings={bookings.filter((b) => b.id !== bookingId)}
                 callback={() => formRef.current?.click()}
                 isDisabled={form.formState.isSubmitting}
-                btnText="Submit"
+                btnText="Save"
               />
             </PopoverContent>
           </Popover>

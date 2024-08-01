@@ -2,13 +2,8 @@ import { BookingStatus, Spot } from "@prisma/client"
 import { z } from "zod"
 
 import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
   CheckCircledIcon,
-  CircleIcon,
   CrossCircledIcon,
-  QuestionMarkCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons"
 
@@ -32,24 +27,6 @@ export const statuses = [
     value: BookingStatus.Cancelled,
     label: "Cancelled",
     icon: CrossCircledIcon,
-  },
-]
-
-export const priorities = [
-  {
-    label: "Low",
-    value: "low",
-    icon: ArrowDownIcon,
-  },
-  {
-    label: "Medium",
-    value: "medium",
-    icon: ArrowRightIcon,
-  },
-  {
-    label: "High",
-    value: "high",
-    icon: ArrowUpIcon,
   },
 ]
 

@@ -34,21 +34,21 @@ export const columns: ColumnDef<Booking>[] = [
   //   enableSorting: false,
   //   enableHiding: false,
   // },
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="" />
-    ),
-    cell: ({ row }) =>  (
-      <div className="flex items-center justify-center p-0 m-0">
-        <BookingDetailButton booking={row.original}>
-          <ExternalLink className="text-blue-500" size={15} />
-        </BookingDetailButton>
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  //{
+  // accessorKey: "id",
+  //  header: ({ column }) => (
+  //    <DataTableColumnHeader column={column} title="" />
+  //  ),
+  //  cell: ({ row }) =>  (
+  //    <div className="flex items-center justify-center w-0">
+  //      <BookingDetailButton booking={row.original}>
+  //        <ExternalLink className="text-blue-500" size={15} />
+  //      </BookingDetailButton>
+  //    </div>
+  //  ),
+  //  enableSorting: false,
+  //  enableHiding: false,
+  //},
   {
     accessorKey: "guest",
     header: ({ column }) => (
@@ -56,12 +56,14 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     cell: ({ row }) => {
       return (
+        <BookingDetailButton booking={row.original}>
         <div className="flex flex-col">
           <span className="font-medium">{row.original.guest?.name}</span>
           <span className="text-muted-foreground">
             {row.original.guest?.email}
           </span>
         </div>
+        </BookingDetailButton>
       );
     },
     filterFn: (row, id, value) => {
@@ -82,6 +84,7 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     cell: ({ row }) => {
       return (
+        <BookingDetailButton booking={row.original}>
         <div className=" flex-col text-start items-center">
           <div className="flex flex-row items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -92,6 +95,7 @@ export const columns: ColumnDef<Booking>[] = [
           </div>
           </div>
         </div>
+        </BookingDetailButton>
       );
     },
     filterFn: (row, columnId, filterValue) => {
@@ -112,6 +116,7 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     cell: ({ row }) => {
       return (
+        <BookingDetailButton booking={row.original}>
         <div className=" flex-col text-start items-center">
           <div className="flex flex-row items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -122,6 +127,7 @@ export const columns: ColumnDef<Booking>[] = [
           </div>
           </div>
         </div>
+        </BookingDetailButton>
       );
     },
     enableSorting: false,
@@ -133,12 +139,14 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     cell: ({ row }) => {
       return (
+        <BookingDetailButton booking={row.original}>
         <div className="flex flex-col">
           <span className="font-medium">{row.original.spot?.name}</span>
           <span className="text-muted-foreground">
           Outstandig: ${new Intl.NumberFormat('de-DE').format(row.original.subtotal).replace(',', '.')}
           </span>
         </div>
+        </BookingDetailButton>
       );
     },
     enableSorting: false,
@@ -159,12 +167,14 @@ export const columns: ColumnDef<Booking>[] = [
       }
 
       return (
+        <BookingDetailButton booking={row.original}>
         <div className="flex items-center">
           {status.icon && (
             <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
           )}
           <span>{status.label}</span>
         </div>
+        </BookingDetailButton>
       );
     },
     filterFn: (row, id, value) => {

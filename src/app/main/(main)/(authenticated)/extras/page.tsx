@@ -25,6 +25,12 @@ import { getCurrentUser } from "@/server/auth"
 import { getExtrasByUser } from "@/server/actions/extra.action"
 import moment from "moment"
 import ExtraAction from "./extra-action"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Extras",
+  description: "Upsells",
+}
 
 export default async function Page() {
   const currentUser = await getCurrentUser();

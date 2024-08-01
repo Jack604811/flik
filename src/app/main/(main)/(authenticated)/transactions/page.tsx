@@ -6,8 +6,8 @@ import { getTransactions } from "@/server/actions/booking.action"
 import { getCurrentUser } from "@/server/auth"
 
 export const metadata: Metadata = {
-  title: "Bookings",
-  description: "A booking tracker for your spots",
+  title: "Transactions",
+  description: "A list of your transactions",
 }
 
 

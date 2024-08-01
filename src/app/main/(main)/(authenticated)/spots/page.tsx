@@ -17,8 +17,14 @@ import {
 } from "@/components/ui/table";
 import { getSpotsByUser } from "@/server/actions/spot.action";
 import { getCurrentUser } from "@/server/auth";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Spots",
+  description: "A list of spots of your place",
+}
 
 export default async function Page() {
   const currentUser = await getCurrentUser();
