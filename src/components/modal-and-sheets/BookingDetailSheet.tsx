@@ -146,7 +146,7 @@ function BookingDetailSheet() {
     if (booking) {
       reset(booking);
     }
-  }, [booking]);
+  }, [booking, reset]);
 
   useEffect(() => {
     if (session?.user.id) refectSpots();

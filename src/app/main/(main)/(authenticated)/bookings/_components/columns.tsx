@@ -7,48 +7,34 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
 import { Calendar, ExternalLink } from "lucide-react";
 import { BookingDetailButton } from "@/hooks/use-booking-detail";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 export const columns: ColumnDef<Booking>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-  //{
-  // accessorKey: "id",
-  //  header: ({ column }) => (
-  //    <DataTableColumnHeader column={column} title="" />
-  //  ),
-  //  cell: ({ row }) =>  (
-  //    <div className="flex items-center justify-center w-0">
-  //      <BookingDetailButton booking={row.original}>
-  //        <ExternalLink className="text-blue-500" size={15} />
-  //      </BookingDetailButton>
-  //    </div>
-  //  ),
-  //  enableSorting: false,
-  //  enableHiding: false,
-  //},
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+        className="translate-y-[2px] ml-4"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+        className="translate-y-[2px] ml-4"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "guest",
     header: ({ column }) => (

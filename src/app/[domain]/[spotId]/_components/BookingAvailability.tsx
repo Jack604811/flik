@@ -9,6 +9,7 @@ import React, { memo, useCallback, useEffect, useState } from "react";
 import { DateRange, isDateRange } from "react-day-picker";
 import { date, z } from "zod";
 import { WORKING_HOUR_TYPE, calculateSubtotal } from "./util";
+import { endOfDay, startOfDay } from "date-fns";
 
 type Params = {
   spot: z.infer<typeof bookingSchema>["spot"];
@@ -223,9 +224,24 @@ function BookingAvailability({
   
       return false;
     },
-    [bookings, spot.durationType, getAvailableTimeslots, workingHours, selectedDate]
+    [selectedDate, workingHours, spot.durationType, spot.units, bookings, getAvailableTimeslots]
   );
   
+  const handleSelect = (day: Date) => {
+    isDateRange((prev: DateRange | undefined) => {
+      if (prev?.from && !prev.to) {
+        if (day.getTime() === prev.from.getTime()) {
+          return { from: undefined, to: undefined };
+        } else if (day < prev.from) {
+          return { from: day, to: undefined };
+        } else {
+          return { from: prev.from, to: day };
+        }
+      } else {
+        return { from: day, to: undefined };
+      }
+    });
+  };
   
 
   const updateFormData = useCallback(
@@ -242,11 +258,43 @@ function BookingAvailability({
     [getStartEndDates, onDateSelected, workingHours]
   );
 
+  const getNextAvailableMonth = (
+    isDateDisabled: (date: Date) => boolean
+  ): Date | undefined => {
+    const today = new Date();
+    const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  
+    const isMonthAvailable = (date: Date): boolean => {
+      const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  
+      for (let day = new Date(startOfMonth); day <= endOfMonth; day.setDate(day.getDate() + 1)) {
+        if (!isDateDisabled(day)) {
+          return true; // Month has at least one available day
+        }
+      }
+      return false; // Month is fully booked
+    };
+  
+    let nextAvailableDate = startOfNextMonth;
+  
+    // Keep moving to the next month until a month with availability is found
+    while (!isMonthAvailable(nextAvailableDate)) {
+      nextAvailableDate.setMonth(nextAvailableDate.getMonth() + 1);
+      nextAvailableDate.setDate(1); // Start at the first day of the new month
+    }
+  
+    return nextAvailableDate;
+  };
+  
+  
+  
+  
   const defaultMonth = selectedDate
   ? isDateRange(selectedDate)
     ? selectedDate.from
     : selectedDate
-  : undefined;
+    : getNextAvailableMonth(isDateDisabled); 
 
   return (
     <div>
@@ -261,6 +309,7 @@ function BookingAvailability({
           }}
           selected={selectedDate as any}
           disabled={(date) => isDateDisabled(date)}
+          min={2}
         />
       </div>
       {spot.durationType === "hours" && selectedDate && (

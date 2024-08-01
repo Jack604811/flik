@@ -33,7 +33,7 @@ export const BookingDetailButton = ({ children, booking }: Props) => {
   
   useEffect(() => {
     if(needUpdate === booking?.id) setNeedUpdate(undefined, booking);
-  }, [needUpdate])
+  }, [booking, needUpdate, setNeedUpdate])
 
   return (
     <Button

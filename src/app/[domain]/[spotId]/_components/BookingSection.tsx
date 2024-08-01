@@ -414,9 +414,7 @@ function BookingSection({ spot }: Params) {
                           </div>
                           <div>
                             <p className="font-semibold">{field.name}</p>
-                            <p className="font-regular text-gray-500 invisible">
-                              Description
-                            </p>
+                            <p className="font-regular text-gray-500">description</p>
                             <p className="font-bold text-sm">${field.price}</p>
                           </div>
                         </div>
@@ -491,7 +489,7 @@ function BookingSection({ spot }: Params) {
                                   <div className="flex items-center gap-4">
                                     <div className="flex-2">
                                       <Image
-                                        alt="Burnt Ends"
+                                        alt="Image"
                                         className="w-25 h-16 object-cover rounded-lg"
                                         height="60"
                                         src={
@@ -509,7 +507,7 @@ function BookingSection({ spot }: Params) {
                                       <p className="font-semibold">
                                         {extra.name}
                                       </p>
-                                      <p className="font-regular text-gray-500">
+                                      <p className="font-regular text-gray-500 line-clamp-1">
                                         {extra.description}
                                       </p>
                                       <p className="font-bold text-sm">
@@ -527,7 +525,6 @@ function BookingSection({ spot }: Params) {
                                         if(idx != -1) update(idx, {...fields[idx], quantity: fields[idx].quantity + 1})
                                         else append({extraId: extra.id, price: extra.price, quantity: 1, image: extra.images[0].url, name: extra.name})}
                                       }
-                                        
                                     >
                                       Add
                                     </Button>
