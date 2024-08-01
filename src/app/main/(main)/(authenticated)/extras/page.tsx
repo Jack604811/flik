@@ -10,13 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 import {
   Table,
   TableBody,
@@ -30,6 +24,7 @@ import Link from "next/link"
 import { getCurrentUser } from "@/server/auth"
 import { getExtrasByUser } from "@/server/actions/extra.action"
 import moment from "moment"
+import ExtraAction from "./extra-action"
 
 export default async function Page() {
   const currentUser = await getCurrentUser();
@@ -102,21 +97,7 @@ export default async function Page() {
                 {moment(extra.createdAt).format("MM/DD/YYYY hh:mm A")}
               </TableCell>
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <Link href={`/extras/${extra.id}`}>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                    </Link>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <ExtraAction id={extra.id} />
               </TableCell>
             </TableRow>
             ))}

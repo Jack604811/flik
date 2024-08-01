@@ -38,7 +38,8 @@ export const BookingDetailButton = ({ children, booking }: Props) => {
   return (
     <Button
       variant="ghost"
-      className="pr-24 pl-0 text-left hover:bg-transparent"
+      // className="pr-24 pl-0 text-left hover:bg-transparent"
+      className="p-0 pl-0 text-left hover:bg-transparent"
       onClick={() => onBookingDetail(true, booking)}
     >
       {children}

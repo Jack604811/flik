@@ -1,32 +1,44 @@
 "use client";
 /* eslint-disable react/no-unescaped-entities */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import BookingInfo from "../../booking/[bookingId]/info";
 import moment from "moment";
 import { DateRange } from "react-day-picker";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   addBooking,
+  addExtrasToBooking,
   createStripePaymentLink,
 } from "@/server/actions/booking.action";
-import { Booking, Category, Extras, Spot, SpotImages, SubCategory, User } from "@prisma/client";
+import {
+  Category,
+  Extras,
+  ExtrasImages,
+  Spot,
+  SpotImages,
+  SubCategory,
+  User,
+} from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import { BookingDates } from "@/lib/types";
-import { CalendarIcon, ChevronLeft, MinusIcon, PlusIcon, TrashIcon, X } from "lucide-react";
-import BookingAvailability from "./BookingAvailability";
-import Link from "next/link";
+import {
+  CalendarIcon,
+  ChevronLeft,
+  MinusIcon,
+  PlusIcon,
+  X,
+} from "lucide-react";
 import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
 import Image from "next/image";
 import { WORKING_HOUR_TYPE, calculateSubtotal } from "./util";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import _ from "lodash";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -44,10 +56,27 @@ const formSchema = z.object({
   note: z.string().optional(),
   countryCode: z.string().optional().nullable(),
   id: z.string().optional().nullable(),
+  extras: z.array(z.object({
+    extraId: z.string(),
+    name: z.string(),
+    price: z.number(),
+    quantity: z.number(),
+    image: z.string().optional().nullable()
+  }))
 });
 
 type Params = {
-  spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[], extras: Extras&{category: Category; subCategory: SubCategory}[] };
+  spot: Spot & {
+    bookings: BookingDates[];
+    owner: User;
+    images: SpotImages[];
+    extras: (Extras &
+      {
+        category: Category;
+        subCategory: SubCategory;
+        images: ExtrasImages[];
+      })[];
+  };
 };
 
 type ProgressKey = "personal_info" | "extras" | "payment";
@@ -81,28 +110,13 @@ function BookingSection({ spot }: Params) {
   const pathname = usePathname();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { countryCode: "+57" },
+    defaultValues: { countryCode: "+57", totalPrice: 0 },
   });
 
-  const [progress, setProgress] = useState<ProgressKey>("extras");
+  const [progress, setProgress] = useState<ProgressKey>("personal_info");
   const bookings = spot.bookings;
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      if(progress === "personal_info") {
-        const booking = await addBooking({ ...values, spotId: spot.id });
-        form.setValue("id", booking.id);
-        setProgress("extras");
-        return
-      }else if(progress === "extras") {
-        handlePayment();
-      }
-    } catch (error: any) {
-      toast.error(
-        `There was an error proceeding with the request, ${error.message}`
-      );
-    }
-  };
+
 
   const handlePayment = async () => {
     const values = form.getValues();
@@ -155,7 +169,6 @@ function BookingSection({ spot }: Params) {
           )}&redirect-url=${encodeURIComponent(data.redirectURI)}`;
 
           window.location.href = url;
-
         }
         break;
       case "stripe":
@@ -170,12 +183,12 @@ function BookingSection({ spot }: Params) {
           amount: values.totalPrice,
           productName: spot.name,
           redirectURI: to.href,
-          currency: spot.owner.currency ?? "USD"
+          currency: spot.owner.currency ?? "USD",
         });
         window.location.href = res.url!;
         break;
       case "cash":
-        router.replace(`/booking/${values.id}`)
+        router.replace(`/booking/${values.id}`);
         break;
       default:
         break;
@@ -220,9 +233,7 @@ function BookingSection({ spot }: Params) {
       ? startDate
       : {
           from: startDate,
-          to: searchParams.get("check-out")
-            ? endDate
-            : undefined,
+          to: searchParams.get("check-out") ? endDate : undefined,
         };
     const subtotal = calculateSubtotal(
       selectedDate,
@@ -230,7 +241,6 @@ function BookingSection({ spot }: Params) {
     );
 
     form.setValue("subtotal", subtotal);
-    form.setValue("totalPrice", subtotal);
     form.setValue("startDate", startDate);
     form.setValue("endDate", endDate);
 
@@ -240,12 +250,64 @@ function BookingSection({ spot }: Params) {
     };
   };
 
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (progress === "personal_info") {
+        const booking = await addBooking({ ...values, spotId: spot.id });
+        form.setValue("id", booking.id);
+        setProgress("extras");
+        return;
+      } else if (progress === "extras") {
+        // TODO: Add Extras to the database
+        const bookingData = getBookingData();
+        form.setValue("totalPrice", values.extras.reduce((t, f) => (f.price * f.quantity) + t , bookingData.subtotal))
+        await addExtrasToBooking({bookingId: values.id!, extras: values.extras })
+        handlePayment();
+      }
+    } catch (error: any) {
+      toast.error(
+        `There was an error proceeding with the request, ${error.message}`
+      );
+    }
+  };
+
+  function categorizeExtras(extras: Params["spot"]["extras"]) {
+    const categorized: Record<
+      string,
+      Record<string, Params["spot"]["extras"]>
+    > = {};
+
+    extras.forEach((extra) => {
+      const category = extra?.category?.name ?? "Others";
+      const subCategory = extra.subCategory?.name ?? "Others";
+
+      if (!categorized[category]) {
+        categorized[category] = {};
+      }
+
+      if (!categorized[category][subCategory]) {
+        categorized[category][subCategory] = [];
+      }
+
+      categorized[category][subCategory].push(extra);
+    });
+
+    return categorized;
+  }
+
   useEffect(() => {
     if (!searchParams.get("check-in") || !searchParams.get("check-out"))
       onGoBack();
   }, []);
 
   const bookingData = getBookingData();
+  const availableExtras = categorizeExtras(spot?.extras);
+  const { fields, append, remove, update } = useFieldArray({
+    control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
+    name: "extras", // unique name for your Field Array
+  });
+
+
   return (
     <div key="1" className="container mx-auto px-4 md:px-6 py-8">
       <Form {...form}>
@@ -256,13 +318,13 @@ function BookingSection({ spot }: Params) {
           <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 p-6">
             <div>
               <div className="flex gap-2 items-start">
-              <Button
-                type="button"
-                className="h-6 w-6 mt-2"
-                size="icon"
-                variant="outline"
-                onClick={onGoBack}
-              >
+                <Button
+                  type="button"
+                  className="h-6 w-6 mt-2"
+                  size="icon"
+                  variant="outline"
+                  onClick={onGoBack}
+                >
                   <ChevronLeft />
                 </Button>
                 <div>
@@ -297,13 +359,13 @@ function BookingSection({ spot }: Params) {
                         </div>*/}
                       </div>
                       <div className="flex flex-row items-center gap-1 text-gray-500 dark:text-gray-400 text-sm">
-                      <div className="font-bold text-md">
+                        <div className="font-bold text-md">
                           $
                           {new Intl.NumberFormat("de-DE")
                             .format(bookingData.subtotal)
                             .replace(",", ".")}
                         </div>
-                         x{" "}
+                        x{" "}
                         {getCheckinDifference(
                           searchParams.get("check-in")!,
                           searchParams.get("check-out")!
@@ -334,22 +396,28 @@ function BookingSection({ spot }: Params) {
                 {progress === "extras" && (
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col mb-4 gap-4">
-                      <div className="flex justify-between items-center">
+                      {fields.map((field, index) => (
+                      <div key={field.id} className="flex justify-between items-center">
                         <div className="flex items-center">
                           <div className="mr-4">
                             <Image
-                              alt="Burnt Ends"
+                              alt={field.name}
                               className="w-16 h-16 object-cover rounded-lg"
                               height="60"
-                              src="/placeholder.svg"
-                              style={{ aspectRatio: "60/60", objectFit: "cover" }}
+                              src={field.image ?? "/placeholder.svg"}
+                              style={{
+                                aspectRatio: "60/60",
+                                objectFit: "cover",
+                              }}
                               width="60"
                             />
                           </div>
                           <div>
-                            <p className="font-semibold">Burnt Ends</p>
-                            <p className="font-regular text-gray-500">Description</p>
-                            <p className="font-bold text-sm">$10.00</p>
+                            <p className="font-semibold">{field.name}</p>
+                            <p className="font-regular text-gray-500 invisible">
+                              Description
+                            </p>
+                            <p className="font-bold text-sm">${field.price}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -357,576 +425,155 @@ function BookingSection({ spot }: Params) {
                             <Button
                               className="border-none p-2 hover:bg-transparent"
                               variant="ghost"
+                              type="button"
+                              onClick={() => update(index, {...field, quantity: (field.quantity > 1 ?  field.quantity- 1 : 1) })}
                             >
-                              <MinusIcon size={16}/>
+                              <MinusIcon size={16} />
                             </Button>
-                            <div className="text-sm">1</div>
+                            <div className="text-sm">{field.quantity}</div>
                             <Button
                               className="border-none p-2 hover:bg-transparent"
                               variant="ghost"
+                              type="button"
+                              onClick={() => update(index, {...field, quantity: field.quantity + 1 })}
                             >
-                              <PlusIcon size={16}/>
+                              <PlusIcon size={16} />
                             </Button>
                           </div>
                           <Button
                             type="button"
                             className="!p-0.5 rounded-full h-auto"
                             variant="ghost"
+                            onClick={() => remove(index)}
                           >
                             <X size={16} />
                           </Button>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          <div className="mr-4">
-                            <Image
-                              alt="Burnt Ends"
-                              className="w-16 h-16 object-cover rounded-lg"
-                              height="60"
-                              src="/placeholder.svg"
-                              style={{ aspectRatio: "60/60", objectFit: "cover" }}
-                              width="60"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-semibold">Burnt Ends</p>
-                            <p className="font-regular text-gray-500">Description</p>
-                            <p className="font-bold text-sm">$10.00</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-2 border-2 h-[32px] rounded-md">
-                            <Button
-                              className="border-none p-2 hover:bg-transparent"
-                              variant="ghost"
-                            >
-                              <MinusIcon size={16}/>
-                            </Button>
-                            <div className="text-sm">1</div>
-                            <Button
-                              className="border-none p-2 hover:bg-transparent"
-                              variant="ghost"
-                            >
-                              <PlusIcon size={16}/>
-                            </Button>
-                          </div>
-                          <Button
-                            type="button"
-                            className="!p-0.5 rounded-full h-auto"
-                            variant="ghost"
-                          >
-                            <X size={16} />
-                          </Button>
-                        </div>
-                      </div>
+
+                      ))}
                     </div>
-                    <Tabs defaultValue="1" className="w-full">
-                      <TabsList className="grid w-full grid-cols-4">
-                        {/* {spot?.extras?.map(e => e.category)?.map(category => (
-                          <TabsTrigger value={category?.id} key={category?.id}>{category?.name}</TabsTrigger>
-                        ))} */}
-                        <TabsTrigger value="2">Liquor</TabsTrigger>
-                        <TabsTrigger value="3">Improve your stay</TabsTrigger>
-                        <TabsTrigger value="4">Extra Category</TabsTrigger>
+
+                    <Tabs
+                      defaultValue={Object.keys(
+                        availableExtras
+                      )[0]?.toLowerCase()}
+                      className="w-full"
+                    >
+                      <TabsList className={`grid w-full grid-cols-${Object.keys(availableExtras).length}`}>
+                        {Object.keys(availableExtras).map((c) => (
+                          <TabsTrigger
+                            key={c.toLowerCase()}
+                            value={c.toLowerCase()}
+                          >
+                            {c}
+                          </TabsTrigger>
+                        ))}
                       </TabsList>
-                      <TabsContent value="1">
-                        <div className="flex flex-col my-4 gap-4">
-                          <p className="text-black/50 font-semibold">Brunch</p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">American breakfast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
+                      {Object.entries(availableExtras).map(([c, subs]) => (
+                        <TabsContent
+                          value={c.toLowerCase()}
+                          key={c.toLowerCase()}
+                        >
+                          {Object.entries(subs).map(([sub, extras]) => (
+                            <div
+                              className="flex flex-col my-4 gap-4"
+                              key={sub.toLowerCase()}
+                            >
+                              <p className="text-black/50 font-semibold">
+                                {sub}
+                              </p>
+                              {extras.map((extra) => (
+                                <div
+                                  className="flex justify-between items-center"
+                                  key={extra.id}
+                                >
+                                  <div className="flex items-center gap-4">
+                                    <div className="flex-2">
+                                      <Image
+                                        alt="Burnt Ends"
+                                        className="w-25 h-16 object-cover rounded-lg"
+                                        height="60"
+                                        src={
+                                          extra.images[0].url ??
+                                          "/placeholder.svg"
+                                        }
+                                        style={{
+                                          aspectRatio: "60/60",
+                                          objectFit: "cover",
+                                        }}
+                                        width="60"
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="font-semibold">
+                                        {extra.name}
+                                      </p>
+                                      <p className="font-regular text-gray-500">
+                                        {extra.description}
+                                      </p>
+                                      <p className="font-bold text-sm">
+                                        ${extra.price}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Button
+                                      className="text-white"
+                                      variant="default"
+                                      type="button"
+                                      onClick={() => {
+                                        const idx = fields.findIndex(f => f.extraId == extra.id);
+                                        if(idx != -1) update(idx, {...fields[idx], quantity: fields[idx].quantity + 1})
+                                        else append({extraId: extra.id, price: extra.price, quantity: 1, image: extra.images[0].url, name: extra.name})}
+                                      }
+                                        
+                                    >
+                                      Add
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">French toast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Oatmeal</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col my-4 gap-4">
-                          <p className="text-black/50 font-semibold">Dinner</p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">American breakfast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">French toast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Oatmeal</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="2">
-                        <div className="flex flex-col my-4 gap-4">
-                          <p className="text-black/50 font-semibold">Wine</p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">American breakfast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">French toast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Oatmeal</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col my-4 gap-4">
-                          <p className="text-black/50 font-semibold">Whiskey</p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">American breakfast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">French toast</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Oatmeal</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="3">
-                        <div className="flex flex-col my-4 gap-4">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Picnic Day</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Massage and Spa day</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <div className="mr-4">
-                                <Image
-                                  alt="Burnt Ends"
-                                  className="w-16 h-16 object-cover rounded-lg"
-                                  height="60"
-                                  src="/placeholder.svg"
-                                  style={{
-                                    aspectRatio: "60/60",
-                                    objectFit: "cover",
-                                  }}
-                                  width="60"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold">Mountain bike experience</p>
-                                <p className="font-regular text-gray-500">
-                                  Description
-                                </p>
-                                <p className="font-bold text-sm">$10.00</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Button className="text-white" variant="default">
-                                Add
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
+                          ))}
+                        </TabsContent>
+                      ))}
                     </Tabs>
                   </div>
                 )}
               </div>
             </div>
             <div>
-                <div className="flex-col bg-gray-100 dark:bg-gray-800 rounded-lg p-6 grid sticky top-6 gap-8">
-                  <div className="grid gap-4">
-                    <h3 className="font-medium">Order Summary</h3>
-                    <div className="flex items-center justify-between">
-                      <span>Subtotal</span>
-                      <span className="font-medium">
-                        $
-                        {new Intl.NumberFormat("de-DE")
-                          .format(bookingData.subtotal)
-                          .replace(",", ".")}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Extras</span>
-                      <span className="font-medium">$0.00</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Taxes</span>
-                      <span className="font-medium">$8.40</span>
-                    </div>
-                    <Separator className="my-2" />
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Total</span>
-                      <span className="font-medium">$113.37</span>
-                    </div>
+              <div className="flex-col bg-gray-100 dark:bg-gray-800 rounded-lg p-6 grid sticky top-6 gap-8">
+                <div className="grid gap-4">
+                  <h3 className="font-medium">Order Summary</h3>
+                  <div className="flex items-center justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-medium">
+                      ${bookingData.subtotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Extras</span>
+                    <span className="font-medium">${fields.reduce((t, f) => (f.price * f.quantity) + t , 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Taxes</span>
+                    <span className="font-medium">$0.00</span>
+                  </div>
+                  <Separator className="my-2" />
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Total</span>
+                    <span className="font-medium">${fields.reduce((t, f) => (f.price * f.quantity) + t , bookingData.subtotal).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
+            </div>
             <div className="flex gap-2 justify-between">
               <Button variant="outline" className="invisible">
                 Back
               </Button>
-              <Button
-                type="submit"
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 {progresses[progress].btn}
               </Button>
             </div>

@@ -49,7 +49,7 @@ export const getSiteSpotData = async (domain: string, spotId: string) => {
             where: { startDate: { gte: new Date() } },
             select: { id: true, startDate: true, endDate: true },
           },
-          extras: { include: {category: true, subCategory: true} }
+          extras: { include: {category: true, subCategory: true, images: true} }
         },
       }),
     [`${domain}-${spotId}-metadata`],

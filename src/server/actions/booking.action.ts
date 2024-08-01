@@ -96,6 +96,18 @@ export const addBooking = async (data: {
 
   return { ...booking, guest };
 };
+export const addExtrasToBooking = async (data: {
+  extras: {extraId: string, price: number, quantity: number}[],
+  bookingId: string
+}) => {
+  const addedExtras = await db.bookingExtras.createMany({
+    data: data.extras.map((extra) => (
+      {bookingId: data.bookingId, extraId: extra.extraId, quantity: extra.quantity, price: extra.price}
+    ))
+  })
+
+  return addedExtras
+}
 
 export const addOrUpdateTransaction = async (data: {
   amount: number;

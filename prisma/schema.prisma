@@ -180,6 +180,7 @@ model BookingExtras {
   extra     Extras   @relation(fields: [extraId], references: [id])
   extraId   String
   quantity  Int      @default(1)
+  price     Float    
   createdAt DateTime @default(now())
 }
 
