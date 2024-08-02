@@ -438,17 +438,16 @@ function BookingSection({ spot }: Params) {
                               <PlusIcon size={16} />
                             </Button>
                           </div>
-                          <Button
-                            type="button"
-                            className="!p-0.5 rounded-full h-auto"
-                            variant="ghost"
-                            onClick={() => remove(index)}
-                          >
-                            <X size={16} />
-                          </Button>
+                            <Button
+                              type="button"
+                              className="!p-0.5 rounded-full h-auto"
+                              variant="ghost"
+                              onClick={() => remove(index)}
+                            >
+                              <X size={16} />
+                            </Button>
                         </div>
                       </div>
-
                       ))}
                     </div>
 
