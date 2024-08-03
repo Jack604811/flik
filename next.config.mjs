@@ -12,7 +12,10 @@ const nextConfig = {
             { hostname: "rnetulpcbgfmgdvyrsdh.supabase.co", protocol: "https"},
             { hostname: "mbcobsjjxvpydprpyybp.supabase.co", protocol: "https"}
         ]
-    }
+    },
+    experimental: {
+        missingSuspenseWithCSRBailout: false,
+    },
 };
 
 export default nextConfig;
