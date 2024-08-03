@@ -1,5 +1,6 @@
 import MainSidebar from "@/components/main-sidebar";
 import { MainHeader } from "@/components/header";
+import { Suspense } from "react";
 
 export default function MainLayout({
   children,
@@ -11,7 +12,9 @@ export default function MainLayout({
       <MainSidebar />
       <div className="flex flex-col w-full overflow-y-scroll">
         <MainHeader />
-        {children}
+        <Suspense>
+          {children}
+        </Suspense>
       </div>
     </div>
   );
