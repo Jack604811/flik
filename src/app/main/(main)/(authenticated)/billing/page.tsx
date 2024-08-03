@@ -1,16 +1,5 @@
 import { CustomerPortalLink } from "@/components/store/customer-portal-link";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import {
-  SelectValue,
-  SelectTrigger,
-  SelectItem,
-  SelectContent,
-  Select,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import Link from "next/link";
 import { Check, CreditCard } from "lucide-react";
 import { Metadata } from "next";
 

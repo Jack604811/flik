@@ -9,7 +9,6 @@ interface Props extends React.HTMLAttributes<HTMLButtonElement> {
 export function CustomerPortalLink({ children, ...props }: Props) {
 
     function goToCustomerPortal() {
-        console.log("running")
         fetch("/api/stripe/create-customer-portal-session", {
             method: "POST",
         })
