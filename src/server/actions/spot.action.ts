@@ -159,7 +159,6 @@ export const deleteSpot = async (id: string) => {
   return true;
 };
 
-
 export const deleteSpotImage = async (id: string) => {
   const sImage = await db.spotImages.delete({where: {id}, include: {spot: true}});
   await deleteSpotImageSB({spotId: sImage.spotId, id, userId: sImage.spot.userId});

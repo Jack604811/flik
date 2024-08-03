@@ -1,3 +1,4 @@
+import { Category, Extras, ExtrasImages, SubCategory } from "@prisma/client";
 import moment from "moment";
 import { DateRange } from "react-day-picker";
 
@@ -55,3 +56,27 @@ export const calculateSubtotal = (
     return total + getPriceForDay(dayOfWeek, workingHours);
   }, 0);
 };
+
+export function categorizeExtras(extras?: (Extras&{category?: Category, subCategory?: SubCategory, images: ExtrasImages[]})[]) {
+  const categorized: Record<
+    string,
+    Record<string, (Extras&{category?: Category, subCategory?: SubCategory, images: ExtrasImages[]})[]>
+  > = {};
+
+  extras?.forEach((extra) => {
+    const category = extra?.category?.name ?? "Others";
+    const subCategory = extra?.subCategory?.name ?? "Others";
+
+    if (!categorized[category]) {
+      categorized[category] = {};
+    }
+
+    if (!categorized[category][subCategory]) {
+      categorized[category][subCategory] = [];
+    }
+
+    categorized[category][subCategory].push(extra);
+  });
+
+  return categorized;
+}

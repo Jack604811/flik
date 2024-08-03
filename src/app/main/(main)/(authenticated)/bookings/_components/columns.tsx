@@ -34,6 +34,7 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+    accessorKey: "id"
   },
   {
     accessorKey: "guest",

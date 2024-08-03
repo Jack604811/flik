@@ -7,6 +7,7 @@ import StripeServer from "stripe";
 import { env } from "@/env";
 import { headers } from "next/headers";
 import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
+import moment from "moment";
 
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
@@ -19,9 +20,12 @@ export const getBookings = async (ownerId: string) => {
 };
 
 export const getBookingById = async (bookingId: string) => {
-  const booking = await db.booking.findFirst({where: {id: bookingId}, include: {guest: true, spot: true}});
+  const booking = await db.booking.findFirst({
+    where: { id: bookingId },
+    include: { guest: true, spot: true },
+  });
   return booking;
-}
+};
 
 export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
@@ -36,11 +40,24 @@ export const getTransactions = async (ownerId: string) => {
 export const getTransactionsByBooking = async (bookingId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { id: bookingId } },
-    orderBy: { createdAt: "desc"}
+    orderBy: { createdAt: "desc" },
   });
 
   return transactions;
 };
+
+export const getExtrasByBooking = async (bookingId: string) => {
+  const extras = await db.bookingExtras.findMany({
+    where: { booking: { id: bookingId } },
+    orderBy: { createdAt: "desc" },
+    include: {
+      extra: { select: { name: true, images: true, description: true } },
+    },
+  });
+
+  return extras;
+};
+
 export const getBookingsBySpot = async (spotId: string) => {
   const bookings = await db.booking.findMany({
     where: { spotId },
@@ -97,17 +114,37 @@ export const addBooking = async (data: {
   return { ...booking, guest };
 };
 export const addExtrasToBooking = async (data: {
-  extras: {extraId: string, price: number, quantity: number}[],
-  bookingId: string
+  extras: { extraId: string; price: number; quantity: number }[];
+  bookingId: string;
 }) => {
   const addedExtras = await db.bookingExtras.createMany({
-    data: data.extras.map((extra) => (
-      {bookingId: data.bookingId, extraId: extra.extraId, quantity: extra.quantity, price: extra.price}
-    ))
-  })
+    data: data.extras.map((extra) => ({
+      bookingId: data.bookingId,
+      extraId: extra.extraId,
+      quantity: extra.quantity,
+      price: extra.price,
+    })),
+  });
 
-  return addedExtras
-}
+  return addedExtras;
+};
+
+export const removeExtraFromBooking = async (id: string) => {
+  const deletedBookingExtra = await db.bookingExtras.delete({ where: { id } });
+  return deletedBookingExtra;
+};
+
+export const updateBookingExtra = async (
+  id: string,
+  data: { quantity?: number; price?: number }
+) => {
+  const updatedBookingExtra = await db.bookingExtras.update({
+    where: { id },
+    data: { ...data, updatedAt: moment().toDate() },
+  });
+
+  return updatedBookingExtra;
+};
 
 export const addOrUpdateTransaction = async (data: {
   amount: number;
@@ -192,7 +229,7 @@ export const updateBooking = async (data: {
       startDate: data.startDate,
       endDate: data.endDate,
       updatedAt: new Date(),
-      ...(data.spotId ? {spot: {connect: {id: data.spotId}}}: {}),
+      ...(data.spotId ? { spot: { connect: { id: data.spotId } } } : {}),
       ...(data.guest ? { guest: { update: { ...data.guest } } } : {}),
     },
   });
@@ -200,8 +237,9 @@ export const updateBooking = async (data: {
   return booking;
 };
 
-const mapWompiStatusToTransactionStatus = (status: string): TransactionStatus => {
-  console.log("Received Wompi status:", status); // Add logging
+const mapWompiStatusToTransactionStatus = (
+  status: string
+): TransactionStatus => {
   switch (status.toUpperCase()) {
     case "APPROVED":
       return TransactionStatus.Approved;
@@ -219,12 +257,25 @@ const mapWompiStatusToTransactionStatus = (status: string): TransactionStatus =>
 
 export const handleWompiBookingPaymentEvent = async (
   bookingId: string,
-  { amount, paymentDate, status, paymentType, reference }: { amount: number; paymentDate: Date; status: string; paymentType: string; reference: string }
+  {
+    amount,
+    paymentDate,
+    status,
+    paymentType,
+    reference,
+  }: {
+    amount: number;
+    paymentDate: Date;
+    status: string;
+    paymentType: string;
+    reference: string;
+  }
 ) => {
   const transactionStatus = mapWompiStatusToTransactionStatus(status);
-  const bookingStatus = transactionStatus === TransactionStatus.Approved
-    ? BookingStatus.Confirmed
-    : BookingStatus.Waiting_for_payment;
+  const bookingStatus =
+    transactionStatus === TransactionStatus.Approved
+      ? BookingStatus.Confirmed
+      : BookingStatus.Waiting_for_payment;
 
   await db.booking.update({
     where: { id: bookingId },
@@ -243,7 +294,6 @@ export const handleWompiBookingPaymentEvent = async (
     },
   });
 };
-
 
 export const handleStripeBookingPaymentEvent = async (
   bookingId: string,
@@ -310,6 +360,6 @@ export const createStripePaymentLink = async (
   return { url: session.url };
 };
 
-export const createWompiPaymentLink = async (data: CREATE_STRIPE_LINK_PARAMS) => {
-
-}
+export const createWompiPaymentLink = async (
+  data: CREATE_STRIPE_LINK_PARAMS
+) => {};

@@ -1,10 +1,8 @@
 "use client";
-import { env } from "@/env";
 import { CardTitle, CardContent, CardFooter, Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import {
   SelectValue,
   SelectTrigger,
@@ -12,8 +10,8 @@ import {
   SelectContent,
   Select,
 } from "@/components/ui/select";
-import { ChevronsUpDownIcon, CirclePlus, Copy, Edit, MinusIcon, MoreVerticalIcon, PlusIcon, X } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Copy, Edit,  MoreVerticalIcon } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Booking } from "@/schemas/booking.schema";
 import moment from "moment";
 import { BookingStatus, Spot } from "@prisma/client";
@@ -49,10 +47,7 @@ import { useBookingDetail } from "@/hooks/use-booking-detail";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsByUser } from "@/server/actions/spot.action";
 import { useSession } from "next-auth/react";
-import { Popover, PopoverContent, PopoverTrigger,  } from "../ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "../ui/command";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../ui/pagination";
+import BookingExtras from "@/app/main/(main)/(authenticated)/bookings/_components/BookingExtras";
 
 const bookingSchema = z.object({
   id: z.string(),
@@ -547,162 +542,7 @@ function BookingDetailSheet() {
                   </div>
                 </TabsContent>
                 <TabsContent className="p-6" value="extras">
-                  <div key="" className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="mr-4">
-                        <Image
-                          alt=""
-                          className="w-16 h-16 object-cover rounded-lg"
-                          height="60"
-                          src={"/placeholder.svg"}
-                          style={{
-                            aspectRatio: "60/60",
-                            objectFit: "cover",
-                          }}
-                          width="60"
-                        />
-                      </div>
-                      <div>
-                        <p className="font-semibold">American Breakfast</p>
-                        <p className="font-regular text-gray-500">description</p>
-                        <p className="font-bold text-sm">$100</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2 border-2 h-[32px] rounded-md">
-                        <Button
-                          className="border-none p-2 hover:bg-transparent"
-                          variant="ghost"
-                          type="button"
-                          //onClick={() => update(index, {...field, quantity: (field.quantity > 1 ?  field.quantity- 1 : 1) })}
-                          >
-                          <MinusIcon size={16} />
-                        </Button>
-                        <div className="text-sm">1</div>
-                        <Button
-                          className="border-none p-2 hover:bg-transparent"
-                          variant="ghost"
-                          type="button"
-                          //onClick={() => update(index, {...field, quantity: field.quantity + 1 })}
-                          >
-                          <PlusIcon size={16} />
-                        </Button>
-                      </div>
-                        <Button
-                          type="button"
-                          className="!p-0.5 rounded-full h-auto"
-                          variant="ghost"
-                          //onClick={() => remove(index)}
-                        >
-                          <X size={16} />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <Popover>
-                  <PopoverTrigger asChild>
-                  <Button className="gap-2 w-full h-12 my-4" size="sm" variant="ghost">
-                    <CirclePlus className="h-4 w-4"/> Add extras
-                  </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="flex w-[450px] p-0">
-                  <Command>
-                    <CommandInput placeholder="Search items..." />
-                    <CommandEmpty>No items found.</CommandEmpty>
-                    <CommandGroup>
-                        <CommandItem>
-                        <Accordion type="multiple" defaultValue={["item-1", "item-2"]} className="flex flex-col px-2 min-w-full justify-center">
-                          <AccordionItem value="item-1" className="flex flex-col">
-                            <AccordionTrigger>
-                              <div>Extra Category</div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                            <div>
-                              <p className="text-black/50 font-semibold mb-2">
-                                Extra Subcategory
-                              </p>
-                              </div>
-                            <div key="" className="flex justify-between items-center">
-                              <div className="flex items-center">
-                                <div className="mr-4">
-                                  <Image
-                                    alt=""
-                                    className="w-16 h-16 object-cover rounded-lg"
-                                    height="60"
-                                    src={"/placeholder.svg"}
-                                    style={{
-                                      aspectRatio: "60/60",
-                                      objectFit: "cover",
-                                    }}
-                                    width="60"
-                                  />
-                                </div>
-                                <div>
-                                  <p className="font-semibold">American Breakfast</p>
-                                  <p className="font-regular text-gray-500">description</p>
-                                  <p className="font-bold text-sm">$100</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                              <Button
-                                className=""
-                                variant="default"
-                                type="button">
-                                Add
-                              </Button>
-                              </div>
-                            </div>
-                            </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="item-2" className="flex flex-col min-w-[350px]">
-                            <AccordionTrigger>
-                              <div>Extra Category</div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                            <div>
-                              <p className="text-black/50 font-semibold mb-2">
-                                Extra Subcategory
-                              </p>
-                              </div>
-                            <div key="" className="flex justify-between items-center">
-                              <div className="flex items-center">
-                                <div className="mr-4">
-                                  <Image
-                                    alt=""
-                                    className="w-16 h-16 object-cover rounded-lg"
-                                    height="60"
-                                    src={"/placeholder.svg"}
-                                    style={{
-                                      aspectRatio: "60/60",
-                                      objectFit: "cover",
-                                    }}
-                                    width="60"
-                                  />
-                                </div>
-                                <div>
-                                  <p className="font-semibold">French Toast</p>
-                                  <p className="font-regular text-gray-500">description</p>
-                                  <p className="font-bold text-sm">$100</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                              <Button
-                                className=""
-                                variant="default"
-                                type="button">
-                                Add
-                              </Button>
-                              </div>
-                            </div>
-                            </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                        </CommandItem>
-                    </CommandGroup>
-                  </Command>
-                  </PopoverContent>
-                  </Popover>
+                  <BookingExtras bookingId={booking?.id!} spotId={booking?.spotId!} />
                 </TabsContent>
                 <TabsContent className="p-6" value="payments">
                   <BookingPayments

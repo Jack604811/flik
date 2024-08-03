@@ -87,7 +87,7 @@ export default async function Page() {
                   alt={extra.name}
                   className="aspect-square rounded-md object-cover"
                   height="64"
-                  src={extra.images[0].url}
+                  src={extra.images[0]?.url ?? "/placeholder.svg"}
                   width="64"
                 />
               </TableCell>

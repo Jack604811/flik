@@ -2,7 +2,7 @@
 
 import { unstable_cache } from "next/cache";
 import { db } from "../db";
-import { SpotStatus } from "@prisma/client";
+import { ExtrasStatus, SpotStatus } from "@prisma/client";
 
 export const getSiteData = async (domain: string) => {
   const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
@@ -49,7 +49,7 @@ export const getSiteSpotData = async (domain: string, spotId: string) => {
             where: { startDate: { gte: new Date() } },
             select: { id: true, startDate: true, endDate: true },
           },
-          extras: { include: {category: true, subCategory: true, images: true} }
+          extras: { include: {category: true, subCategory: true, images: true}, where: {status: ExtrasStatus.Public} }
         },
       }),
     [`${domain}-${spotId}-metadata`],

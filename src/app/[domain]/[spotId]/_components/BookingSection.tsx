@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
 import Image from "next/image";
-import { WORKING_HOUR_TYPE, calculateSubtotal } from "./util";
+import { WORKING_HOUR_TYPE, calculateSubtotal, categorizeExtras } from "./util";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import _ from "lodash";
 
@@ -56,13 +56,16 @@ const formSchema = z.object({
   note: z.string().optional(),
   countryCode: z.string().optional().nullable(),
   id: z.string().optional().nullable(),
-  extras: z.array(z.object({
-    extraId: z.string(),
-    name: z.string(),
-    price: z.number(),
-    quantity: z.number(),
-    image: z.string().optional().nullable()
-  }))
+  extras: z.array(
+    z.object({
+      extraId: z.string(),
+      name: z.string(),
+      description: z.string(),
+      price: z.number(),
+      quantity: z.number(),
+      image: z.string().optional().nullable(),
+    })
+  ),
 });
 
 type Params = {
@@ -70,12 +73,11 @@ type Params = {
     bookings: BookingDates[];
     owner: User;
     images: SpotImages[];
-    extras: (Extras &
-      {
-        category: Category;
-        subCategory: SubCategory;
-        images: ExtrasImages[];
-      })[];
+    extras: (Extras & {
+      category: Category;
+      subCategory: SubCategory;
+      images: ExtrasImages[];
+    })[];
   };
 };
 
@@ -115,8 +117,6 @@ function BookingSection({ spot }: Params) {
 
   const [progress, setProgress] = useState<ProgressKey>("personal_info");
   const bookings = spot.bookings;
-
-
 
   const handlePayment = async () => {
     const values = form.getValues();
@@ -191,6 +191,7 @@ function BookingSection({ spot }: Params) {
         router.replace(`/booking/${values.id}`);
         break;
       default:
+        router.replace(`/booking/${values.id}`);
         break;
     }
   };
@@ -255,13 +256,23 @@ function BookingSection({ spot }: Params) {
       if (progress === "personal_info") {
         const booking = await addBooking({ ...values, spotId: spot.id });
         form.setValue("id", booking.id);
+        if(!spot.extras.length) return handlePayment();
         setProgress("extras");
         return;
       } else if (progress === "extras") {
         // TODO: Add Extras to the database
         const bookingData = getBookingData();
-        form.setValue("totalPrice", values.extras.reduce((t, f) => (f.price * f.quantity) + t , bookingData.subtotal))
-        await addExtrasToBooking({bookingId: values.id!, extras: values.extras })
+        form.setValue(
+          "totalPrice",
+          values.extras.reduce(
+            (t, f) => f.price * f.quantity + t,
+            bookingData.subtotal
+          )
+        );
+        await addExtrasToBooking({
+          bookingId: values.id!,
+          extras: values.extras,
+        });
         handlePayment();
       }
     } catch (error: any) {
@@ -271,29 +282,7 @@ function BookingSection({ spot }: Params) {
     }
   };
 
-  function categorizeExtras(extras: Params["spot"]["extras"]) {
-    const categorized: Record<
-      string,
-      Record<string, Params["spot"]["extras"]>
-    > = {};
 
-    extras.forEach((extra) => {
-      const category = extra?.category?.name ?? "Others";
-      const subCategory = extra.subCategory?.name ?? "Others";
-
-      if (!categorized[category]) {
-        categorized[category] = {};
-      }
-
-      if (!categorized[category][subCategory]) {
-        categorized[category][subCategory] = [];
-      }
-
-      categorized[category][subCategory].push(extra);
-    });
-
-    return categorized;
-  }
 
   useEffect(() => {
     if (!searchParams.get("check-in") || !searchParams.get("check-out"))
@@ -306,7 +295,6 @@ function BookingSection({ spot }: Params) {
     control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
     name: "extras", // unique name for your Field Array
   });
-
 
   return (
     <div key="1" className="container mx-auto px-4 md:px-6 py-8">
@@ -397,47 +385,67 @@ function BookingSection({ spot }: Params) {
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col mb-4 gap-4">
                       {fields.map((field, index) => (
-                      <div key={field.id} className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          <div className="mr-4">
-                            <Image
-                              alt={field.name}
-                              className="w-16 h-16 object-cover rounded-lg"
-                              height="60"
-                              src={field.image ?? "/placeholder.svg"}
-                              style={{
-                                aspectRatio: "60/60",
-                                objectFit: "cover",
-                              }}
-                              width="60"
-                            />
+                        <div
+                          key={field.id}
+                          className="flex justify-between items-center"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="flex-2">
+                              <Image
+                                alt={field.name}
+                                className="w-16 h-16 object-cover rounded-lg"
+                                height="60"
+                                src={field.image ?? "/placeholder.svg"}
+                                style={{
+                                  aspectRatio: "60/60",
+                                  objectFit: "cover",
+                                }}
+                                width="60"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-semibold">{field.name}</p>
+                              <p className="font-regular text-gray-500 line-clamp-2">
+                                {field.description}
+                              </p>
+                              <p className="font-bold text-sm">
+                                ${field.price}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold">{field.name}</p>
-                            <p className="font-regular text-gray-500">description</p>
-                            <p className="font-bold text-sm">${field.price}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-2 border-2 h-[32px] rounded-md">
-                            <Button
-                              className="border-none p-2 hover:bg-transparent"
-                              variant="ghost"
-                              type="button"
-                              onClick={() => update(index, {...field, quantity: (field.quantity > 1 ?  field.quantity- 1 : 1) })}
-                            >
-                              <MinusIcon size={16} />
-                            </Button>
-                            <div className="text-sm">{field.quantity}</div>
-                            <Button
-                              className="border-none p-2 hover:bg-transparent"
-                              variant="ghost"
-                              type="button"
-                              onClick={() => update(index, {...field, quantity: field.quantity + 1 })}
-                            >
-                              <PlusIcon size={16} />
-                            </Button>
-                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 border-2 h-[32px] rounded-md">
+                              <Button
+                                className="border-none p-2 hover:bg-transparent"
+                                variant="ghost"
+                                type="button"
+                                onClick={() =>
+                                  update(index, {
+                                    ...field,
+                                    quantity:
+                                      field.quantity > 1
+                                        ? field.quantity - 1
+                                        : 1,
+                                  })
+                                }
+                              >
+                                <MinusIcon size={16} />
+                              </Button>
+                              <div className="text-sm">{field.quantity}</div>
+                              <Button
+                                className="border-none p-2 hover:bg-transparent"
+                                variant="ghost"
+                                type="button"
+                                onClick={() =>
+                                  update(index, {
+                                    ...field,
+                                    quantity: field.quantity + 1,
+                                  })
+                                }
+                              >
+                                <PlusIcon size={16} />
+                              </Button>
+                            </div>
                             <Button
                               type="button"
                               className="!p-0.5 rounded-full h-auto"
@@ -446,8 +454,8 @@ function BookingSection({ spot }: Params) {
                             >
                               <X size={16} />
                             </Button>
+                          </div>
                         </div>
-                      </div>
                       ))}
                     </div>
 
@@ -457,7 +465,11 @@ function BookingSection({ spot }: Params) {
                       )[0]?.toLowerCase()}
                       className="w-full"
                     >
-                      <TabsList className={`grid w-full grid-cols-${Object.keys(availableExtras).length}`}>
+                      <TabsList
+                        className={`grid w-full grid-cols-${
+                          Object.keys(availableExtras).length
+                        }`}
+                      >
                         {Object.keys(availableExtras).map((c) => (
                           <TabsTrigger
                             key={c.toLowerCase()}
@@ -480,56 +492,77 @@ function BookingSection({ spot }: Params) {
                               <p className="text-black/50 font-semibold">
                                 {sub}
                               </p>
-                              {extras.map((extra) => (
-                                <div
-                                  className="flex justify-between items-center"
-                                  key={extra.id}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <div className="flex-2">
-                                      <Image
-                                        alt="Image"
-                                        className="w-25 h-16 object-cover rounded-lg"
-                                        height="60"
-                                        src={
-                                          extra.images[0].url ??
-                                          "/placeholder.svg"
-                                        }
-                                        style={{
-                                          aspectRatio: "60/60",
-                                          objectFit: "cover",
+                              {extras.map((extra) => {
+                                const idx = fields.findIndex(
+                                  (f) => f.extraId == extra.id
+                                );
+                                if (idx !== -1) return null;
+                                return (
+                                  <div
+                                    className="flex justify-between items-center"
+                                    key={extra.id}
+                                  >
+                                    <div className="flex items-center gap-4">
+                                      <div className="flex-2">
+                                        <Image
+                                          alt="Image"
+                                          className="w-25 h-16 object-cover rounded-lg"
+                                          height="60"
+                                          src={
+                                            extra.images[0].url ??
+                                            "/placeholder.svg"
+                                          }
+                                          style={{
+                                            aspectRatio: "60/60",
+                                            objectFit: "cover",
+                                          }}
+                                          width="60"
+                                        />
+                                      </div>
+                                      <div className="flex-1">
+                                        <p className="font-semibold">
+                                          {extra.name}
+                                        </p>
+                                        <p className="font-regular text-gray-500 line-clamp-2">
+                                          {extra.description}
+                                        </p>
+                                        <p className="font-bold text-sm">
+                                          ${extra.price}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <Button
+                                        className="text-white"
+                                        variant="default"
+                                        type="button"
+                                        onClick={() => {
+                                          const idx = fields.findIndex(
+                                            (f) => f.extraId == extra.id
+                                          );
+                                          if (idx != -1)
+                                            update(idx, {
+                                              ...fields[idx],
+                                              quantity:
+                                                fields[idx].quantity + 1,
+                                            });
+                                          else
+                                            append({
+                                              extraId: extra.id,
+                                              price: extra.price,
+                                              quantity: 1,
+                                              image: extra.images[0].url,
+                                              name: extra.name,
+                                              description: extra.description,
+                                            });
                                         }}
-                                        width="60"
-                                      />
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="font-semibold">
-                                        {extra.name}
-                                      </p>
-                                      <p className="font-regular text-gray-500 line-clamp-1">
-                                        {extra.description}
-                                      </p>
-                                      <p className="font-bold text-sm">
-                                        ${extra.price}
-                                      </p>
+                                      >
+                                        Add
+                                      </Button>
                                     </div>
                                   </div>
-                                  <div className="flex items-center">
-                                    <Button
-                                      className="text-white"
-                                      variant="default"
-                                      type="button"
-                                      onClick={() => {
-                                        const idx = fields.findIndex(f => f.extraId == extra.id);
-                                        if(idx != -1) update(idx, {...fields[idx], quantity: fields[idx].quantity + 1})
-                                        else append({extraId: extra.id, price: extra.price, quantity: 1, image: extra.images[0].url, name: extra.name})}
-                                      }
-                                    >
-                                      Add
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           ))}
                         </TabsContent>
@@ -551,7 +584,12 @@ function BookingSection({ spot }: Params) {
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Extras</span>
-                    <span className="font-medium">${fields.reduce((t, f) => (f.price * f.quantity) + t , 0).toFixed(2)}</span>
+                    <span className="font-medium">
+                      $
+                      {fields
+                        .reduce((t, f) => f.price * f.quantity + t, 0)
+                        .toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Taxes</span>
@@ -560,7 +598,15 @@ function BookingSection({ spot }: Params) {
                   <Separator className="my-2" />
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Total</span>
-                    <span className="font-medium">${fields.reduce((t, f) => (f.price * f.quantity) + t , bookingData.subtotal).toFixed(2)}</span>
+                    <span className="font-medium">
+                      $
+                      {fields
+                        .reduce(
+                          (t, f) => f.price * f.quantity + t,
+                          bookingData.subtotal
+                        )
+                        .toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -570,7 +616,9 @@ function BookingSection({ spot }: Params) {
                 Back
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {progresses[progress].btn}
+                {progress === "extras" && !["wompi", "stripe"].includes(spot.owner.defaultPaymentMethod!)
+                  ? "Book now"
+                  : progresses[progress].btn}
               </Button>
             </div>
           </div>

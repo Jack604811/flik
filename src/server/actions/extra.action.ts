@@ -34,7 +34,7 @@ export const createNewExtra = async ({
   price,
   files,
   categoryId,
-  subCategoryId
+  subCategoryId,
 }: NEW_EXTRA_PARAMS) => {
   const extra = await db.extras.create({
     data: {
@@ -44,7 +44,7 @@ export const createNewExtra = async ({
       userId,
       price,
       categoryId,
-      subCategoryId
+      subCategoryId,
     },
   });
   await updateExtra({
@@ -56,7 +56,7 @@ export const createNewExtra = async ({
     files,
     price,
     categoryId,
-    subCategoryId
+    subCategoryId,
   });
 
   return extra;
@@ -71,7 +71,7 @@ export const updateExtra = async ({
   price,
   files,
   categoryId,
-  subCategoryId
+  subCategoryId,
 }: NEW_EXTRA_PARAMS & { id: string }) => {
   const imageFiles = files.getAll("files") as File[];
   let images = await Promise.all(
@@ -92,7 +92,7 @@ export const updateExtra = async ({
         createMany: { data: images.map((img) => ({ url: img!.url })) },
       },
       categoryId,
-      subCategoryId
+      subCategoryId,
     },
   });
 
@@ -102,6 +102,16 @@ export const getExtraById = async (id: string) => {
   const extra = await db.extras.findFirst({
     where: { id },
     include: { owner: true, images: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return extra;
+};
+
+export const getExtrasBySpotId = async (spotId: string) => {
+  const extra = await db.extras.findMany({
+    where: { spots: { every: { id: spotId } } },
+    include: {category: true, subCategory: true, images: true},
     orderBy: { createdAt: "desc" },
   });
 
@@ -174,23 +184,38 @@ export const getCategories = async ({ userId }: { userId: string }) => {
   return categories;
 };
 
-export const updateCategory = async ({id, name}: {id: string, name: string}) => {
-  const category = await db.category.update({where: { id }, data: {name}});
+export const updateCategory = async ({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) => {
+  const category = await db.category.update({ where: { id }, data: { name } });
 
-  return category
-}
-export const updateSubCategory = async ({id, name}: {id: string, name: string}) => {
-  const subCategory = await db.subCategory.update({where: { id }, data: {name}});
+  return category;
+};
+export const updateSubCategory = async ({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) => {
+  const subCategory = await db.subCategory.update({
+    where: { id },
+    data: { name },
+  });
 
-  return subCategory
-}
+  return subCategory;
+};
 
 export const deleteCategory = async (id: string) => {
-  const category = await db.category.delete({where: {id}});
-  return category
-}
+  const category = await db.category.delete({ where: { id } });
+  return category;
+};
 
 export const deleteSubCategory = async (id: string) => {
-  const subCategory = await db.subCategory.delete({where: {id}});
-  return subCategory
-}
+  const subCategory = await db.subCategory.delete({ where: { id } });
+  return subCategory;
+};

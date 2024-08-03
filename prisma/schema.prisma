@@ -174,14 +174,15 @@ model Guest {
 }
 
 model BookingExtras {
-  id        String   @id @default(cuid())
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  id        String    @id @default(cuid())
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   bookingId String
-  extra     Extras   @relation(fields: [extraId], references: [id])
+  extra     Extras    @relation(fields: [extraId], references: [id])
   extraId   String
-  quantity  Int      @default(1)
-  price     Float    
-  createdAt DateTime @default(now())
+  quantity  Int       @default(1)
+  price     Float
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now())
 }
 
 model Category {
