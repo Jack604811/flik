@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 type Props = {
   accountId: string | null | undefined;
@@ -79,16 +80,20 @@ const StripeConnectButton = (props: Props) => {
           <CredenzaHeader>
             <div className="flex items-center space-x-2 my-4 gap-0">
               <div className="flex flex-row w-full justify-center items-center gap-2">
-                <img
+                <Image
                   src="/placeholder.svg"
                   alt="App icon"
                   className="w-16 h-16 rounded-md"
+                  height={100}
+                  width={100}
                 />
                 <Repeat className="h-4 w-4 text-muted-foreground" />
-                <img
+                <Image
                   src="/stripe-logo.png"
                   alt="Stripe icon"
                   className="w-16 h-16 rounded-md"
+                  height={100}
+                  width={100}
                 />
               </div>
             </div>

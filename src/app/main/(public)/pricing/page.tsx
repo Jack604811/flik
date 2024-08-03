@@ -12,7 +12,7 @@ export default function Component() {
       <div className="text-center space-y-4 mb-12">
         <h1 className="text-3xl md:text-4xl font-bold">Pricing</h1>
         <p className="text-gray-500 dark:text-gray-400 max-w-3xl mx-auto">
-          Choose the plan that's right for your business. Our flexible pricing options make it easy to get started and
+          Choose the plan that&apos;s right for your business. Our flexible pricing options make it easy to get started and
           scale as you grow.
         </p>
       </div>

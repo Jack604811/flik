@@ -1,6 +1,6 @@
-import { BookingStatus, TransactionStatus } from "@prisma/client"
+import { TransactionStatus } from "@prisma/client"
 import { z } from "zod"
-import { bookingSchema } from "../../bookings/data/schema"
+import { bookingSchema } from "@/schemas/booking.schema"
 
 // We're keeping a simple non-relational schema here.
 // IRL, you will have a schema for your data models.

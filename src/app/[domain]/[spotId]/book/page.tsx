@@ -29,7 +29,7 @@ async function Page({
 
   return (
     <div>
-      <BookingSection spot={spotData} />
+      <BookingSection spot={spotData as any} />
     </div>
   );
 }

@@ -276,7 +276,7 @@ function BookingDetailSheet() {
                                   ) : (
                                     <FormField
                                       control={control}
-                                      name={`guest.${field}`}
+                                      name={field !== "spotId" ? `guest.${field}`: field}
                                       render={({ field: formField }) => (
                                         <Input
                                           {...formField}

@@ -35,8 +35,8 @@ export function DataTableRowActions<TData>({
   const router = useRouter()
   const deleteRef = useRef<any>();
   const transactionId = row.getValue("id") as string;
-  const booking = row.getValue("booking") as Schema["booking"];
-  const guest = booking.guest;
+  // const booking = row.getValue("booking")! as Schema["booking"];
+  // const guest = booking!.guest!;
 
   const onDelete = () => {
     const deleted = deleteTransaction(transactionId);
@@ -47,7 +47,7 @@ export function DataTableRowActions<TData>({
         return "Transaction deleted successfully!"
       },
       error: "There was an error deleting Transaction!",
-      description: `Transaction ${transactionId} by ${guest?.name}`,
+      // description: `Transaction ${transactionId} by ${guest?.name}`,
       duration: 3000,
 
     })
@@ -55,7 +55,7 @@ export function DataTableRowActions<TData>({
 
   return (
     <>
-      <ConfirmModal onConfirm={onDelete} warningText={`Do you want to DELETE this transaction by ${guest?.name}? This action cannot be undone.`}>
+      <ConfirmModal onConfirm={onDelete} warningText={`Do you want to DELETE this transaction? This action cannot be undone.`}>
         <div ref={deleteRef} className="hidden">
           Delete
         </div>

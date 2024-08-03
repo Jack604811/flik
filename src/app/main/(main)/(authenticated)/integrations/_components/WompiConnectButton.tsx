@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Image from "next/image";
 
 type Props = {
   accountId: Record<string, string>;
@@ -86,16 +87,20 @@ const WompiConnectButton = ({accountId}: Props) => {
             <CredenzaHeader>
               <div className="flex items-center space-x-2 my-4 gap-0">
                 <div className="flex flex-row w-full justify-center items-center gap-2">
-                  <img
+                  <Image
                     src="/placeholder.svg"
                     alt="App icon"
                     className="w-16 h-16 rounded-md"
+                    height={100}
+                    width={100}
                   />
                   <Repeat className="h-4 w-4 text-muted-foreground" />
-                  <img
+                  <Image
                     src="/wompi-logo.png"
                     alt="Wompi icon"
                     className="w-16 h-16 rounded-md"
+                    height={100}
+                    width={100}
                   />
                 </div>
               </div>

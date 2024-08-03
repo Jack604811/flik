@@ -1,7 +1,9 @@
+import Image from "next/image";
+
 export default function Loading(): JSX.Element {
     return (
     <div className="flex flex-col items-center justify-center h-screen">
-        <img 
+        <Image 
         src="/assets/logo.svg"
         alt="Loading..."
          width={100} 

@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable react/no-unescaped-entities */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import BookingInfo from "../../booking/[bookingId]/info";
 import moment from "moment";
@@ -116,7 +116,6 @@ function BookingSection({ spot }: Params) {
   });
 
   const [progress, setProgress] = useState<ProgressKey>("personal_info");
-  const bookings = spot.bookings;
 
   const handlePayment = async () => {
     const values = form.getValues();
@@ -196,12 +195,12 @@ function BookingSection({ spot }: Params) {
     }
   };
 
-  const onGoBack = () => {
+  const onGoBack = useCallback(() => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     const search = current.toString();
     const query = search ? `?${search}` : "";
     router.push(`${pathname.replace("/book", "")}${query}`, { scroll: true });
-  };
+  }, [pathname, searchParams, router]);
 
   function getCheckinDifference(checkIn: string, checkOut: string) {
     const checkInDate = moment(checkIn);
@@ -287,7 +286,7 @@ function BookingSection({ spot }: Params) {
   useEffect(() => {
     if (!searchParams.get("check-in") || !searchParams.get("check-out"))
       onGoBack();
-  }, []);
+  }, [searchParams, onGoBack]);
 
   const bookingData = getBookingData();
   const availableExtras = categorizeExtras(spot?.extras);

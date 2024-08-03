@@ -3,6 +3,7 @@ import { Credenza, CredenzaBody, CredenzaContent, CredenzaFooter, CredenzaHeader
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { JSX, SVGProps } from "react";
+import Image from 'next/image';
 
 const IntegrationModal: React.FC = () => {
   return (
@@ -12,11 +13,11 @@ const IntegrationModal: React.FC = () => {
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-2">
               <Avatar>
-                <img src="/placeholder.svg" alt="App icon" />
+                <Image height={16} width={16} src="/placeholder.svg" alt="App icon" />
               </Avatar>
               <ArrowRightIcon className="h-6 w-6 text-muted-foreground" />
               <Avatar>
-                <img src="/placeholder.svg" alt="Stripe icon" />
+                <Image height={16} width={16} src="/placeholder.svg" alt="Stripe icon" />
               </Avatar>
             </div>
           </div>
@@ -25,7 +26,7 @@ const IntegrationModal: React.FC = () => {
           <div className="mt-4 mb-6">
             <h3 className="text-lg font-semibold">Connect Stripe Account</h3>
             <p className="text-sm text-muted-foreground">
-              The world’s most successful platforms and marketplaces including Shopify and DoorDash, use Stripe Connect.
+              The world&apos;s most successful platforms and marketplaces including Shopify and DoorDash, use Stripe Connect.
             </p>
           </div>
           <hr className="border-b border-muted-background mb-4" />
