@@ -1,49 +1,42 @@
 "use client";
-import React, { FormEvent } from "react";
-import Image from "next/image"
+import React from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { updateSiteSetting } from "@/server/actions/user.action";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User } from "@prisma/client";
-
-
+import { updateCustomDomain, updateSubdomain } from "@/server/actions/user.action";
+import { Label } from "@radix-ui/react-label";
+import DomainForm from "@/components/domain";
 function SiteSettings({
-  user
+  subdomain,
+  customDomain,
+  userId,
 }: {
-  user: User
+  subdomain: string;
+  customDomain: string;
+  userId: string;
 }) {
   const onSave = async (formData: FormData) => {
-    const siteName = formData.get("siteName") as string;
-    if (!siteName.length) return toast.error("Site name should not be empty!");
-    const aboutUs = formData.get("aboutUs") as string;
-    if (!aboutUs.length) return toast.error("About us should not be empty!");
-    const promise = updateSiteSetting(user.id, formData);
+    const subdomain = formData.get("subdomain") as string;
+    if (!subdomain.length) return toast.error("Enter valid subdomain");
+    const promise = updateSubdomain(userId, subdomain);
     toast.promise(promise, {
       loading: "Saving...",
-      success: "Site Settings Saved Successfully!",
-      error: "There was a problem saving site settings!",
+      success: "Settings Updated Successfully!",
+      error: "Subdomain already taken!",
     });
   };
-
   return (
     <div className="flex flex-col lg:flex-row gap-4">
       <div className="min-w-[300px]">
-       <h2 className="text-2xl">Main Settings</h2>
-       <p>Update your site information.</p>
-       </div>
-       <div className="w-full min-w-[300px] gap-8">
-       <form
-          action={async (formData: FormData) => {
-            await onSave(formData);
-          }}>   
-          <div className="flex flex-col gap-2">
-          <Label htmlFor="siteLogo">Custom Logo</Label>
+        <h2 className="text-2xl">Site Settings</h2>
+        <p>Manage your frontend settings here.</p>
+      </div>
+      <div className="w-full min-w-[300px] gap-8">
+        <div>
+          <Label htmlFor="favicon">Favicon</Label>
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 relative rounded-md overflow-hidden">
+            <div className="w-10 h-10 relative rounded-md overflow-hidden">
               <Image
                 sizes="100vw"
                 src="/assets/placeholder.svg"
@@ -51,25 +44,33 @@ function SiteSettings({
                 fill
               />
             </div>
-            <Button variant="outline" type="button">Upload</Button>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="siteName">Name</Label>
-              <Input
-                defaultValue={user.siteName?? ""}
-                id="siteName"
-                name="siteName"
-                placeholder="Enter site name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="aboutUs">About us</Label>
-              <Textarea
-                defaultValue={user.aboutUs?? ""}
-                id="aboutUs"
-                name="aboutUs"
-                placeholder="Write something about your company"
-              />
+            <Button variant="outline">Upload</Button>
+          </div>
+        </div>
+
+        <form action={onSave}>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="subdomain">Subdomain</Label>
+              <div className="flex columns-2 items-center justify-center">
+                <Input
+                  placeholder="subdomain"
+                  name="subdomain"
+                  className="rounded-e-none"
+                  maxLength={32}
+                  defaultValue={subdomain!}
+                />
+                <Input
+                  placeholder="localhost:3000"
+                  disabled
+                  readOnly
+                  value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
+                  className="rounded-s-none w-4/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground font-semibold">
+                Please use 32 characters maximum.
+              </p>
             </div>
             {/*<div className="space-y-2">
               <Label htmlFor="logo">Logo</Label>
@@ -79,66 +80,63 @@ function SiteSettings({
               <Label htmlFor="favicon">Favicon</Label>
               <Input id="favicon" name="favicon" type="file" />
             </div>*/}
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
-              <Select defaultValue={user.country??""} name="country">
-              <SelectTrigger>
-                <SelectValue placeholder="Select a country" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Where are you located?</SelectLabel>
-                  <SelectItem value="colombia">🇨🇴 Colombia</SelectItem>
-                  <SelectItem value="mexico">🇲🇽 Mexico</SelectItem>
-                  <SelectItem value="brazil">🇧🇷 Brazil</SelectItem>
-                  <SelectItem value="peru">🇵🇪 Perú</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Select defaultValue={user.currency??""} name="currency">
-              <SelectTrigger>
-                <SelectValue placeholder="Select a currency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>What currency do you use?</SelectLabel>
-                  <SelectItem value="usd">🇺🇸 USD</SelectItem>
-                  <SelectItem value="cop">🇨🇴 COP</SelectItem>
-                  <SelectItem value="mxn">🇲🇽 MXN</SelectItem>
-                  <SelectItem value="brl">🇧🇷 BRL</SelectItem>
-                  <SelectItem value="pen">🇵🇪 PEN</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="paymentmethod">Payment Method as default</Label>
-              <Select defaultValue={user.defaultPaymentMethod??"cash"} name="defaultPaymentMethod">
-              <SelectTrigger className="">
-                <SelectValue placeholder="Select a payment method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Payment Method</SelectLabel>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="stripe">Stripe</SelectItem>
-                  <SelectItem value="wompi">Wompi</SelectItem>
-                  <SelectItem value="epayco">Epayco</SelectItem>
-                  <SelectItem value="mercadopago">Mercadopago</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            </div>
+
             <div className="flex justify-end">
-            <Button type="submit">Save Changes</Button>
+              <Button type="submit">Save Changes</Button>
             </div>
           </div>
         </form>
-       </div>
+        <div className="my-3">
+          <DomainForm
+              title="Custom Domain"
+              description="The custom domain for your site."
+              helpText="Please enter a valid domain."
+              inputAttrs={{
+                name: "customDomain",
+                type: "text",
+                defaultValue: customDomain!,
+                placeholder: "yourdomain.com",
+                maxLength: 64,
+                pattern: "^[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}$",
+              }}
+              userId={userId}
+              handleSubmit={updateCustomDomain}
+          />
+        </div>
+      </div>
     </div>
+    /* <Card className="w-full px-5">
+      <form action={onSave}>
+        <CardHeader>
+          <h2 className="text-2xl">Subdomain</h2>
+          <CardDescription>The subdomain for your spots site</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex columns-2 items-center justify-center">
+            <Input
+              placeholder="subdomain"
+              name="subdomain"
+              className="rounded-e-none"
+              maxLength={32}
+              defaultValue={subdomain!}
+            />
+            <Input
+              placeholder="localhost:3000"
+              disabled
+              readOnly
+              value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
+              className="rounded-s-none w-4/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <p className="text-xs text-muted-foreground font-bold">
+            Please use 32 characters maximum.
+          </p>
+          <Button>Save Changes</Button>
+        </CardFooter>
+      </form>
+    </Card>*/
   );
 }
 

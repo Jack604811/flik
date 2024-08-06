@@ -1,24 +1,13 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { getSubdomain, getUser } from "@/server/actions/user.action";
+import { getUser } from "@/server/actions/user.action";
 import { getCurrentUser } from "@/server/auth";
-import Subdomain from "./Subdomain";
-import { Label } from "@/components/ui/label";
 import SiteSettings from "./SiteSettings";
+import MainSettings from "./MainSettings";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Settings",
   description: "Setup your place from here",
-}
+};
 
 export default async function Page() {
   const currentUser = await getCurrentUser();
@@ -30,28 +19,13 @@ export default async function Page() {
         <div className="mt-4 mx-auto px-6 md:px-8 space-y-6">
           <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
           <div className="flex flex-col space-y-6">
-            <SiteSettings user={user as any} />
-            <Subdomain subdomain={user!.subdomain ?? ""} userId={currentUser!.id} />
-            {/*<Card className="w-full px-5">
-              <CardHeader>
-                <h2 className="text-2xl">Custom Domain</h2>
-                <CardDescription>
-                  The custom domain for your spots site
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex columns-2 items-center justify-center">
-                  <Input placeholder="yourdomain.com" />
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <p className="text-xs text-muted-foreground font-bold">
-                  Please enter a valid domain
-                </p>
-                <Button>Save Changes</Button>
-              </CardFooter>
-            </Card>*/}
+            <MainSettings user={user as any} />
 
+            <SiteSettings
+              subdomain={user!.subdomain ?? ""}
+              customDomain={user!.customDomain ?? ""}
+              userId={currentUser!.id}
+            />
           </div>
         </div>
       </section>

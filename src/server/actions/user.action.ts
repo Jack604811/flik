@@ -1,7 +1,10 @@
 "use server";
 
+import { env } from "@/env";
 import { db } from "../db";
 import { uploadSiteImage } from "./supabase.action";
+import { addDomainToVercel, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
+import { getCurrentUser } from "../auth";
 
 export const getUser = (id: string) => {
   const user = db.user.findFirst({ where: { id } });
@@ -27,6 +30,35 @@ export const updateSubdomain = async (id: string, subdomain: string) => {
   });
 
   return true;
+};
+
+export const updateCustomDomain = async (id: string, customDomain: string) => {
+  const currentUser = await getCurrentUser();
+  const user = await db.user.findFirst({where: {id: currentUser?.id!}});
+  let response;
+
+  if(customDomain.includes(env.NEXT_PUBLIC_ROOT_DOMAIN!)){
+    return {
+      error: `Cannot use ${env.NEXT_PUBLIC_ROOT_DOMAIN} subdomain as your custom domain`,
+    }
+  }else if(validDomainRegex.test(customDomain)){
+    await Promise.all([
+      addDomainToVercel(customDomain),
+      // Optional: add www subdomain as well and redirect to apex domain
+      // addDomainToVercel(`www.${customDomain}`),
+    ]);
+  }
+
+  if(user?.customDomain && user.customDomain !== customDomain){
+    response = await removeDomainFromVercelProject(user.customDomain);
+  }
+
+  response = await db.user.update({
+    where: { id },
+    data: { customDomain: customDomain ?? null },
+  });
+
+  return response;
 };
 
 export const getSubdomain = async (id: string) => {

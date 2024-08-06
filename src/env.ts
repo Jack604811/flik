@@ -17,7 +17,10 @@ export const env = createEnv({
         NEXTAUTH_SECRET: z.string().min(1),
         NEXTAUTH_URL: z.string().url(),
         SUPABASE_URL: z.string().url(),
-        SUPABASE_KEY: z.string()
+        SUPABASE_KEY: z.string(),
+        AUTH_BEARER_TOKEN: z.string().min(1),
+        PROJECT_ID_VERCEL: z.string().min(1),
+        TEAM_ID_VERCEL: z.string().min(1),
     },
     client: {
         NEXT_PUBLIC_CRISP_WEBSITE_ID: z.string().min(1).optional(),
