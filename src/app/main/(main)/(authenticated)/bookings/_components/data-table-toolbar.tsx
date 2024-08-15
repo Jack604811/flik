@@ -9,6 +9,7 @@ import { statuses } from "@/schemas/booking.schema"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableDateFilter } from "./data-table-date-filter"
 import Link from "next/link"
+import { PlusCircle } from "lucide-react";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -52,16 +53,23 @@ export function DataTableToolbar<TData>({
             onClick={() => table.resetColumnFilters()}
             className="h-10 px-2 lg:px-3"
           >
-            Reset
-            <Cross2Icon className="ml-2 h-4 w-4" />
+            <span className="sr-only md:not-sr-only md:whitespace-nowrap">
+              Reset
+            </span>
+            <Cross2Icon className="h-4 w-4" />
           </Button>
         )}
       </div>
       <div className="flex flex-row gap-4">
         
-        <Button>
-          New Booking
-        </Button>
+      <Link href="/extras/new">
+          <Button size="sm" className="h-10 gap-1 xs:rounded-full lg:rounded-md">
+            <PlusCircle className="h-5 w-5 md:h-3.5 md:w-3.5" />
+            <span className="sr-only md:not-sr-only md:whitespace-nowrap">
+              New Booking
+            </span>
+          </Button>
+        </Link>
 
       <DataTableViewOptions table={table} />
       </div>

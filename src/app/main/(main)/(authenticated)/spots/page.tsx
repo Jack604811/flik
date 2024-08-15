@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { getSpotsByUser } from "@/server/actions/spot.action";
 import { getCurrentUser } from "@/server/auth";
+import { PlusCircle } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,14 +36,19 @@ export default async function Page() {
         <Card x-chunk="dashboard-07-chunk-1" className="m-4 border-none shadow-none">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <CardTitle>Spots</CardTitle>
                 <CardDescription>
                   Available spots shows here and you can edit them
                 </CardDescription>
               </div>
               <Link href="/spots/new">
-                <Button className="mt-4">Add a new spot</Button>
+              <Button size="sm" className="h-10 gap-1 xs:rounded-full lg:rounded-md">
+            <PlusCircle className="h-5 w-5 md:h-3.5 md:w-3.5" />
+            <span className="sr-only md:not-sr-only md:whitespace-nowrap">
+              Add a new spot
+            </span>
+          </Button>
               </Link>
             </div>
           </CardHeader>

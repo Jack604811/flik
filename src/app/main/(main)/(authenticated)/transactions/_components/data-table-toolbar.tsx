@@ -11,6 +11,7 @@ import { statuses } from "../data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableDateFilter } from "./data-table-date-filter"
 import AddTransactionButton from "@/components/forms/AddTransactionButton"
+import { Span } from "next/dist/trace"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -52,8 +53,10 @@ export function DataTableToolbar<TData>({
             onClick={() => table.resetColumnFilters()}
             className="h-10 px-2 lg:px-3"
           >
-            Reset
-            <Cross2Icon className="ml-2 h-4 w-4" />
+            <span className="sr-only md:not-sr-only md:whitespace-nowrap">
+              Reset
+            </span>
+            <Cross2Icon className="h-4 w-4" />
           </Button>
         )}
       </div>

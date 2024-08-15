@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,16 @@ import Image from 'next/image';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 
 export const MainSidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const searchParams = useSearchParams();
   const favorites = searchParams.get("favorites");
   const archived = searchParams.get("archived");
   const pathname = usePathname();
+
+  const handleLinkClick = () => {
+    setIsOpen(false); // Close the sheet when a link is clicked
+  };
+
 
   return (
     <div>
@@ -204,7 +210,7 @@ export const MainSidebar = () => {
       </div>
 
       {/* Mobile Sidebar */}
-      <Sheet>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button
             variant="ghost"
@@ -237,7 +243,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/dashboard") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/dashboard">
                         <div className="flex items-center gap-2">
                           <Square className="h-4 w-4 mr-0" />
@@ -250,7 +257,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/bookings") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                        onClick={handleLinkClick}>
                       <Link href="/bookings">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 mr-0" />
@@ -263,7 +271,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/transactions") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/transactions">
                         <div className="flex items-center gap-2">
                           <Landmark className="h-4 w-4 mr-0" />
@@ -276,7 +285,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/extras") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/extras">
                         <div className="flex items-center gap-2">
                           <ShoppingCart className="h-4 w-4 mr-0" />
@@ -289,7 +299,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/spots") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/spots">
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4 mr-0" />
@@ -302,7 +313,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/integrations") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/integrations">
                         <div className="flex items-center gap-2">
                           <Zap className="h-4 w-4 mr-0" />
@@ -316,7 +328,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/billing") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/billing">
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-4 w-4 mr-0" />
@@ -330,7 +343,8 @@ export const MainSidebar = () => {
                     <Button
                       asChild
                       variant={pathname.includes("/settings") ? "secondary" : "ghost"}
-                      className="justify-start px-2 w-full h-[32px]">
+                      className="justify-start px-2 w-full h-[32px]"
+                      onClick={handleLinkClick}>
                       <Link href="/settings">
                         <div className="flex items-center gap-2">
                           <Settings className="h-4 w-4 mr-0" />

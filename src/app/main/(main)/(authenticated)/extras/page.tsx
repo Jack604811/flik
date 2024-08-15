@@ -50,9 +50,9 @@ export default async function Page() {
           className="h-10 w-[150px] lg:w-[250px]"
         />
         <Link href="/extras/new">
-          <Button size="sm" className="h-10 gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+          <Button size="sm" className="h-10 gap-1 xs:rounded-full lg:rounded-md">
+            <PlusCircle className="h-5 w-5 md:h-3.5 md:w-3.5" />
+            <span className="sr-only md:not-sr-only md:whitespace-nowrap">
               Add Product
             </span>
           </Button>
