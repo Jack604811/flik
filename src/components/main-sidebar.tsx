@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Menu } from "lucide-react";
+import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Menu, AlignLeft } from "lucide-react";
 import Image from 'next/image';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 
@@ -208,10 +208,10 @@ export const MainSidebar = () => {
         <SheetTrigger asChild>
           <Button
             variant="ghost"
-            size="icon"
+            size="lg"
             className="lg:hidden fixed top-3 left-2 z-50 p-3"
           >
-            <Menu className="h-8 w-8" />
+            <AlignLeft className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>

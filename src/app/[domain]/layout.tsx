@@ -40,7 +40,7 @@ export default async function RootLayout({
           <script type="text/javascript" src="https://checkout.wompi.co/widget.js" async></script>
         </head>
         <body>
-          <ThemeProvider attribute="class" defaultTheme="light">
+          <ThemeProvider attribute="class" defaultTheme="system">
             <NextTopLoader />
             <Toaster position="top-center" />
             {children}

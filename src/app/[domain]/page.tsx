@@ -1,30 +1,77 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { getSiteData } from "@/server/actions/domain.action";
 import Image from "next/image";
 import { env } from "@/env";
 import { Mountain } from "lucide-react";
 import Head from "next/head";
-
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/theme-toggle";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 
 export default async function Page({ params }: { params: { domain: string } }) {
   const domain = decodeURIComponent(params.domain);
   const siteData = await getSiteData(domain);
 
+  
   const firstSpot = siteData?.spots[0];
+  const hasSpots = siteData?.spots.length! > 1;
+
   return (
-    <div className="min-h-[100dvh] flex flex-col">
-      <section className="relative h-[70vh] w-full">
+    <div className="min-h-screen flex flex-col">
+      <header>
+        <div className="flex justify-between items-center h-16 w-full px-4 sm:px-6 lg:px-8">
+          <Link className="flex items-center" href="/">
+            {siteData?.logo ? (
+              <>
+                <Image
+                  width={100}
+                  height={100}
+                  src={siteData.logo}
+                  alt={siteData.siteName!}
+                />
+                <span className="ml-2 text-lg font-bold">
+                  {siteData?.siteName ?? ""}
+                </span>
+              </>
+            ) : (
+              <span className="ml-2 text-lg font-bold">
+                {siteData?.siteName ?? ""}
+              </span>
+            )}
+          </Link>
+
+          <div className="flex items-center space-x-8">
+          
+
+            <ModeToggle />
+          </div>
+        </div>
+      </header>
+
+      {/*<section
+        className={`relative w-full ${
+          hasSpots ? "h-[70vh]" : "h-[90vh]"
+        }`}
+      >
         <Image
           alt={firstSpot?.name ?? "Hero Image"}
           className="absolute inset-0 h-full w-full object-cover"
           height="1080"
           src={firstSpot?.images[0]?.url ?? "/placeholder.svg"}
           style={{
-            aspectRatio: "1920/1080",
+            aspectRatio: "3840 x 2160",
             objectFit: "cover",
           }}
-          width="1920"
+          width="3840"
         />
         <div className="absolute inset-0 bg-gray-900/50" />
         <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col items-center justify-center px-4 text-center text-white">
@@ -54,12 +101,12 @@ export default async function Page({ params }: { params: { domain: string } }) {
             )}
           </div>
         </div>
-      </section>
-      {siteData?.spots?.length! > 1 && (
-        <section className="bg-gray-100 py-12 md:py-16 lg:py-20">
+      </section>*/}
+      {siteData?.spots.length && (
+        <section className="py-12 md:py-16 lg:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-8 text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Featured Spots
               </h2>
               <p className="mt-4 text-gray-500">
@@ -69,64 +116,53 @@ export default async function Page({ params }: { params: { domain: string } }) {
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {siteData?.spots.slice(0).map((spot) => (
                 <div
-                  className="group relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-lg dark:border-2 dark:rounded-xl"
                   key={spot.id}
                 >
+                  <Link href={`/${spot.path ? spot.path : spot.id}`}>
                   <Image
                     alt={spot.name}
                     className="h-64 w-full object-cover"
                     height="300"
                     src={spot.images[0].url}
                     style={{
-                      aspectRatio: "400/300",
+                      aspectRatio: "16/9",
                       objectFit: "cover",
                     }}
-                    width="400"
+                    width="320"
                   />
-                  <div className="bg-white p-6">
-                    <h3 className="text-xl font-bold text-gray-900">
+                  <div className="p-4">
+                    <h3 className="text-xl font-bold">
                       {spot.name}
                     </h3>
-                    <p className="mt-2 text-gray-500 line-clamp-3">
+                    <p className="mt-2 line-clamp-3">
                       {spot.description}
                     </p>
                     <div className="mt-4">
-                      <Link
-                        className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        href={`/${spot.path ? spot.path : spot.id}`}
-                      >
-                        Explore
-                      </Link>
+                      <Button className="hover:scale-105">Explore</Button>
                     </div>
                   </div>
+                  </Link>
                 </div>
               ))}
             </div>
           </div>
         </section>
-        
       )}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
-        <div className="container px-4 md:px-6 text-center">
-          <h3 className="text-xl font-bold text-gray-900">
-           
-          </h3>
-        </div>
-      </section>
-      <footer className="bg-gray-900 py-8 text-white">
+      <footer className="mt-auto py-4">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between md:flex-row">
             <div className="mb-4 md:mb-0">
               <Link className="flex items-center" href="/">
                 {siteData?.logo ? (
                   <>
-                  <Image
-                    width={50}
-                    height={50}
-                    src={siteData.logo}
-                    alt={siteData.siteName!}
-                  />
-                  <span className="ml-2 text-lg font-bold">
+                    <Image
+                      width={100}
+                      height={300}
+                      src={siteData.logo}
+                      alt={siteData.siteName!}
+                    />
+                    <span className="ml-2 text-lg font-bold">
                       {siteData?.siteName ?? ""}
                     </span>
                   </>
@@ -143,19 +179,10 @@ export default async function Page({ params }: { params: { domain: string } }) {
               <Link className="text-gray-400 hover:text-white" href="/">
                 Home
               </Link>
-              {/* <Link className="text-gray-400 hover:text-white" href="#">
-                Destinations
-              </Link>
-              <Link className="text-gray-400 hover:text-white" href="#">
-                About
-              </Link>
-              <Link className="text-gray-400 hover:text-white" href="#">
-                Contact
-              </Link> */}
             </div>
           </div>
           <div className="mt-8 text-center text-gray-400">
-            © 2024 Travel. All rights reserved.
+            © 2024 {siteData?.siteName} All rights reserved.
           </div>
         </div>
       </footer>
