@@ -44,7 +44,7 @@ export default async function RootLayout({
             <NextTopLoader />
             <Toaster position="top-center" />
             {children}
-            <TailwindScreen />
+            {process.env.NODE_ENV === 'development' &&<TailwindScreen />}
           </ThemeProvider>
         </body>
       </html>

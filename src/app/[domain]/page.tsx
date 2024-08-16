@@ -28,6 +28,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
   return (
     <div className="min-h-screen flex flex-col">
       <header>
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <div className="flex justify-between items-center h-16 w-full px-4 sm:px-6 lg:px-8">
           <Link className="flex items-center" href="/">
             {siteData?.logo ? (

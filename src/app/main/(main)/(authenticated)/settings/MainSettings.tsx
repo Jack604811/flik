@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useRef, useState, useEffect } from "react";
+import React, { FormEvent, useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,25 +18,27 @@ import {
 } from "@/components/ui/select";
 import { User } from "@prisma/client";
 
-function MainSettings({
-  user,
-}: {
-  user: User;
-}) {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+function MainSettings({ user }: { user: User }) {
+  const [imagePreview, setImagePreview] = useState<string>(user.logo ?? "/assets/placeholder.svg");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string>(user.country ?? "");
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(user.currency ?? "usd");
 
   useEffect(() => {
-    // Set the initial logo URL
-    setLogoUrl(user.logo || "/assets/placeholder.svg");
-  }, [user.logo]);
+    // Set USD as the default currency when the country changes and no other currency is selected
+    if (selectedCountry && selectedCurrency === "") {
+      setSelectedCurrency("usd");
+    }
+  }, [selectedCountry]);
 
   const onSave = async (formData: FormData) => {
     const siteName = formData.get("siteName") as string;
     if (!siteName.length) return toast.error("Site name should not be empty!");
     const aboutUs = formData.get("aboutUs") as string;
     if (!aboutUs.length) return toast.error("About us should not be empty!");
-
+    if (selectedFile) {
+      formData.append("siteLogo", selectedFile); // Add the selected image file to the formData
+    }
     const promise = updateSiteSetting(user.id, formData);
     toast.promise(promise, {
       loading: "Saving...",
@@ -46,30 +47,15 @@ function MainSettings({
     });
   };
 
-  const handleUploadClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const formData = new FormData();
-      formData.append("logo", file);
-
-      const promise = updateSiteSetting(user.id, formData);
-      toast.promise(promise, {
-        loading: "Uploading logo...",
-        success: "Logo uploaded successfully!",
-        error: "There was a problem uploading the logo!",
-      });
-
-      // Update the logo preview immediately
-      promise.then(() => {
-        const newLogoUrl = URL.createObjectURL(file);
-        setLogoUrl(newLogoUrl);
-      });
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -88,29 +74,17 @@ function MainSettings({
           <div className="flex flex-col gap-4">
             <Label htmlFor="siteLogo">Custom Logo</Label>
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 relative rounded-md overflow-hidden">
-                <Image
-                  sizes="100vw"
-                  src={logoUrl || "/assets/placeholder.svg"}
-                  alt="Logo"
-                  fill
-                  priority
-                />
+              <div className="w-14 h-14 relative rounded-md overflow-hidden">
+                <Image sizes="100vw" src={imagePreview} alt="Logo" fill />
               </div>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={handleUploadClick}
-              >
+              <Button variant="outline" type="button" onClick={() => document.getElementById("logoInput")?.click()}>
                 Upload
               </Button>
-              <Input
-                ref={fileInputRef}
-                id="logo"
-                name="logo"
+              <input
                 type="file"
-                accept="image/*"
+                id="logoInput"
                 className="hidden"
+                accept="image/*"
                 onChange={handleFileChange}
               />
             </div>
@@ -134,13 +108,21 @@ function MainSettings({
             </div>
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
-              <Select defaultValue={user.country ?? ""} name="country">
+              <Select
+                defaultValue={user.country ?? ""}
+                name="country"
+                onValueChange={(value) => {
+                  setSelectedCountry(value);
+                  setSelectedCurrency("usd"); // Set USD as default whenever country is changed
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a country" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Where are you located?</SelectLabel>
+                    <SelectItem value="united states">🇺🇸 United States</SelectItem>
                     <SelectItem value="colombia">🇨🇴 Colombia</SelectItem>
                     <SelectItem value="mexico">🇲🇽 Mexico</SelectItem>
                     <SelectItem value="brazil">🇧🇷 Brazil</SelectItem>
@@ -151,28 +133,38 @@ function MainSettings({
             </div>
             <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Select defaultValue={user.currency ?? ""} name="currency">
+              <Select
+                value={selectedCurrency} // Bind to the selectedCurrency state
+                onValueChange={setSelectedCurrency} // Update the state when currency is changed
+                name="currency"
+                disabled={!selectedCountry} // Disable if country is not selected
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a currency" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>What currency do you use?</SelectLabel>
+                    <SelectLabel>What currency do you want to use?</SelectLabel>
                     <SelectItem value="usd">🇺🇸 USD</SelectItem>
-                    <SelectItem value="cop">🇨🇴 COP</SelectItem>
-                    <SelectItem value="mxn">🇲🇽 MXN</SelectItem>
-                    <SelectItem value="brl">🇧🇷 BRL</SelectItem>
-                    <SelectItem value="pen">🇵🇪 PEN</SelectItem>
+                    {selectedCountry === "colombia" && (
+                      <SelectItem value="cop">🇨🇴 COP</SelectItem>
+                    )}
+                    {selectedCountry === "mexico" && (
+                      <SelectItem value="mxn">🇲🇽 MXN</SelectItem>
+                    )}
+                    {selectedCountry === "brazil" && (
+                      <SelectItem value="brl">🇧🇷 BRL</SelectItem>
+                    )}
+                    {selectedCountry === "peru" && (
+                      <SelectItem value="pen">🇵🇪 PEN</SelectItem>
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentmethod">Payment Method as default</Label>
-              <Select
-                defaultValue={user.defaultPaymentMethod ?? "cash"}
-                name="defaultPaymentMethod"
-              >
+              <Select defaultValue={user.defaultPaymentMethod ?? "cash"} name="defaultPaymentMethod">
                 <SelectTrigger className="">
                   <SelectValue placeholder="Select a payment method" />
                 </SelectTrigger>
@@ -180,10 +172,12 @@ function MainSettings({
                   <SelectGroup>
                     <SelectLabel>Payment Method</SelectLabel>
                     <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="stripe">Stripe</SelectItem>
-                    <SelectItem value="wompi">Wompi</SelectItem>
-                    <SelectItem value="epayco">Epayco</SelectItem>
-                    <SelectItem value="mercadopago">Mercadopago</SelectItem>
+                    {user.stripeAccountId && (
+                      <SelectItem value="stripe">Stripe</SelectItem>
+                    )}
+                    {user.wompiAccountId && (
+                      <SelectItem value="wompi">Wompi</SelectItem>
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>

@@ -13,6 +13,7 @@ declare module "next-auth" {
       subscriptionId: string | null;
       customerId: string;
       oneTimeProductId: string | null;
+      country: string;
       // ...other properties
       // role: UserRole;
     };
@@ -24,6 +25,7 @@ declare module "next-auth" {
     subscriptionId: string | null;
     customerId: string;
     oneTimeProductId: string | null;
+    country: string;
   }
 }
 

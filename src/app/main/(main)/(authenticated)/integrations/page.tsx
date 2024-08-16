@@ -4,6 +4,7 @@ import { getConnectWompi, getConnectedStripe } from "@/server/actions/user.actio
 import { getCurrentUser } from "@/server/auth";
 import StripeConnectButton from "./_components/StripeConnectButton";
 import WompiConnectButton from "./_components/WompiConnectButton";
+import { User } from "@prisma/client";
 import { Metadata } from "next";
 
 interface IntegrationCardProps {
@@ -15,7 +16,7 @@ interface IntegrationCardProps {
 
 export const metadata: Metadata = {
   title: "Integrations",
-  description: "Connect every app that you need",
+  description: "Connect your favorite apps to boost your business!",
 }
 
 export default async function Page() {
