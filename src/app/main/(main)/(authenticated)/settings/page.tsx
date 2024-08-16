@@ -16,11 +16,9 @@ export default async function Page() {
   return (
     <div className="h-screen max-w-[800px] my-4">
       <section>
-        <div className="mt-4 mx-auto px-6 md:px-8 space-y-6">
-          <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-          <div className="flex flex-col space-y-6">
+        <div className="my-4 mx-6 space-y-6">
+          <div className="flex flex-col">
             <MainSettings user={user as any} />
-
             <SiteSettings
               subdomain={user!.subdomain ?? ""}
               customDomain={user!.customDomain ?? ""}

@@ -33,7 +33,7 @@ export default async function Page() {
   return (
     <div className="">
       {spots.length ? (
-        <Card x-chunk="dashboard-07-chunk-1" className="m-4 border-none shadow-none">
+        <Card x-chunk="dashboard-07-chunk-1" className="mt-3 mx-2 p-0 border-none shadow-none">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div className="space-y-2">
