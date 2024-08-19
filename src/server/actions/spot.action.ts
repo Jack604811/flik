@@ -4,9 +4,9 @@ import { db } from "../db";
 import {
   deleteSpotImageSB,
   deleteSpotImages,
-  getSpotImages,
   uploadSpotImage,
 } from "./supabase.action";
+import { clearDomainCache } from "../helpers/domains";
 
 export const getSpotsByUser = async ({ userId }: { userId: string }) => {
   const spots = await db.spot.findMany({
@@ -134,7 +134,10 @@ export const updateSpot = async ({
       },
       extras: {connect: extras.map(ex => ({id: ex}))}
     },
+    include: { owner: true }
   });
+
+  clearDomainCache(spot!.owner.subdomain, spot!.owner.customDomain, spot?.id!)
 
   return spot;
 };
@@ -151,10 +154,13 @@ export const getSpotById = async (id: string) => {
 export const deleteSpot = async (id: string) => {
   const spot = await db.spot.findFirst({
     where: { id },
+    include: {owner: true}
   });
   await db.spot.delete({ where: { id } });
   await db.spotImages.deleteMany({where: {spotId: id}})
   await deleteSpotImages({ userId: spot!.userId, spotId: id });
+
+  clearDomainCache(spot!.owner.subdomain, spot!.owner.customDomain, spot?.id!)
 
   return true;
 };

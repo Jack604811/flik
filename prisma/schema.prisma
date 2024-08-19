@@ -1,32 +1,26 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// Necessary for Next auth
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? // @db.Text
-  access_token      String? // @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? // @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -47,17 +41,11 @@ model User {
   email                String?          @unique
   emailVerified        DateTime?
   image                String?
-  accounts             Account[]
-  sessions             Session[]
   createdAt            DateTime         @default(now())
   customerId           String?          @unique
   stripeAccountId      String?
   wompiAccountId       Json?
   subscriptionId       String?
-  oneTimeProducts      OneTimeProduct[]
-  spots                Spot[]
-  extras               Extras[]
-  categories           Category[]
   siteName             String?
   aboutUs              String?
   logo                 String?
@@ -67,6 +55,12 @@ model User {
   defaultPaymentMethod String?          @default("cash")
   subdomain            String?          @unique
   customDomain         String?          @unique
+  accounts             Account[]
+  categories           Category[]
+  extras               Extras[]
+  sessions             Session[]
+  spots                Spot[]
+  oneTimeProducts      OneTimeProduct[] @relation("OneTimeProductToUser")
 }
 
 model Spot {
@@ -83,29 +77,29 @@ model Spot {
   allowAdditionalGuest Boolean      @default(false)
   additionalGuestPrice Float?
   workingHours         Json         @default("[]")
-  owner                User         @relation(fields: [userId], references: [id])
-  userId               String // Foreign key referencing User's id
-  bookings             Booking[]
-  images               SpotImages[]
+  userId               String
   createdAt            DateTime     @default(now())
   updatedAt            DateTime?    @default(now())
-  extras               Extras[]
+  bookings             Booking[]
+  owner                User         @relation(fields: [userId], references: [id])
+  images               SpotImages[]
+  extras               Extras[]     @relation("ExtrasToSpot")
 }
 
 model SpotImages {
   id        String   @id @default(cuid())
   url       String
-  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
-  spotId    String // Foreign key referencing Spot's id
+  spotId    String
   createdAt DateTime @default(now())
+  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
 }
 
 model ExtrasImages {
   id        String   @id @default(cuid())
   url       String
-  Extras    Extras   @relation(fields: [extraId], references: [id], onDelete: Cascade)
-  extraId   String // Foreign key referencing Extras's id
+  extraId   String
   createdAt DateTime @default(now())
+  Extras    Extras   @relation(fields: [extraId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
@@ -117,15 +111,15 @@ model Booking {
   startDate     DateTime?
   endDate       DateTime?
   status        BookingStatus
-  guest         Guest?          @relation(fields: [guestId], references: [id])
   guestId       String?
-  spot          Spot            @relation(fields: [spotId], references: [id])
-  spotId        String // Foreign key referencing Spot's id
-  transactions  Transaction[]
-  bookingExtras BookingExtras[]
+  spotId        String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @default(now())
   deletedAt     DateTime?
+  guest         Guest?          @relation(fields: [guestId], references: [id])
+  spot          Spot            @relation(fields: [spotId], references: [id])
+  bookingExtras BookingExtras[]
+  transactions  Transaction[]
 }
 
 model Transaction {
@@ -136,30 +130,30 @@ model Transaction {
   description String
   status      TransactionStatus @default(Pending)
   allowEdit   Boolean           @default(true)
-  booking     Booking           @relation(fields: [bookingId], references: [id])
   bookingId   String
   createdAt   DateTime          @default(now())
   updatedAt   DateTime?         @updatedAt
   deletedAt   DateTime?
+  booking     Booking           @relation(fields: [bookingId], references: [id])
 }
 
 model Extras {
   id            String          @id @default(cuid())
   name          String
   description   String
-  price         Float // Add price field for extras
+  price         Float
   status        ExtrasStatus
-  userId        String // Foreign key referencing User's id
-  owner         User            @relation(fields: [userId], references: [id])
-  images        ExtrasImages[]
-  bookingExtras BookingExtras[]
-  spots         Spot[]
+  userId        String
   categoryId    String?
   subCategoryId String?
-  category      Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  subCategory   SubCategory?    @relation(fields: [subCategoryId], references: [id], onDelete: SetNull)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @default(now())
+  bookingExtras BookingExtras[]
+  category      Category?       @relation(fields: [categoryId], references: [id])
+  subCategory   SubCategory?    @relation(fields: [subCategoryId], references: [id])
+  owner         User            @relation(fields: [userId], references: [id])
+  images        ExtrasImages[]
+  spots         Spot[]          @relation("ExtrasToSpot")
 }
 
 model Guest {
@@ -175,24 +169,24 @@ model Guest {
 
 model BookingExtras {
   id        String    @id @default(cuid())
-  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   bookingId String
-  extra     Extras    @relation(fields: [extraId], references: [id])
   extraId   String
   quantity  Int       @default(1)
   price     Float
   createdAt DateTime  @default(now())
   updatedAt DateTime? @default(now())
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  extra     Extras    @relation(fields: [extraId], references: [id])
 }
 
 model Category {
   id            String        @id @default(cuid())
   name          String
-  userId        String // Foreign key referencing User's id
-  owner         User          @relation(fields: [userId], references: [id])
-  subCategories SubCategory[]
-  extras        Extras[]
+  userId        String
   createdAt     DateTime      @default(now())
+  owner         User          @relation(fields: [userId], references: [id])
+  extras        Extras[]
+  subCategories SubCategory[]
 }
 
 model SubCategory {
@@ -200,15 +194,15 @@ model SubCategory {
   name       String
   createdAt  DateTime @default(now())
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   extras     Extras[]
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 
 model OneTimeProduct {
   id              String @id @default(cuid())
   stripeProductId String @unique
   name            String
-  users           User[]
+  users           User[] @relation("OneTimeProductToUser")
 }
 
 model VerificationToken {
@@ -236,8 +230,8 @@ enum TransactionStatus {
   Approved
   Pending
   Declined
-  Paid //for testing
-  Cancelled //for testing
+  Paid
+  Cancelled
 }
 
 enum ExtrasStatus {

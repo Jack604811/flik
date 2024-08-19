@@ -108,6 +108,7 @@ export const getConnectWompi = async (id: string) => {
 
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
+  const subdomain = formData.get("subdomain") as string;
   const aboutUs = formData.get("aboutUs") as string;
   const defaultPaymentMethod = formData.get("defaultPaymentMethod") as string;
   const country = formData.get("country") as string;
@@ -123,12 +124,14 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     defaultPaymentMethod?: string
     country?: string
     currency?: string
+    subdomain?:string
   } = {
     siteName,
     aboutUs,
     defaultPaymentMethod,
     country,
-    currency
+    currency,
+    subdomain
   };
 
   if (logo) {

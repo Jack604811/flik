@@ -1,31 +1,53 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { updateCustomDomain, updateSubdomain } from "@/server/actions/user.action";
+import { updateCustomDomain, updateSiteSetting, updateSubdomain } from "@/server/actions/user.action";
 import { Label } from "@radix-ui/react-label";
 import DomainForm from "@/components/domain";
 function SiteSettings({
   subdomain,
   customDomain,
   userId,
+  favicon
 }: {
   subdomain: string;
   customDomain: string;
   userId: string;
+  favicon?: string | null
 }) {
+  const [imagePreview, setImagePreview] = useState<string>(favicon ?? "/assets/placeholder.svg");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const onSave = async (formData: FormData) => {
+    if(selectedFile){
+      formData.append("favicon", selectedFile)
+    }
     const subdomain = formData.get("subdomain") as string;
     if (!subdomain.length) return toast.error("Enter valid subdomain");
-    const promise = updateSubdomain(userId, subdomain);
+    const promise = updateSiteSetting(userId, formData);
+    // const promise = updateSubdomain(userId, subdomain);
     toast.promise(promise, {
       loading: "Saving...",
       success: "Settings Updated Successfully!",
       error: "Subdomain already taken!",
     });
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-4">
       <div className="min-w-[300px]">
@@ -34,18 +56,26 @@ function SiteSettings({
       </div>
       <div className="w-full min-w-[300px] gap-8">
         <div>
-          <Label htmlFor="favicon">Favicon</Label>
+          <label htmlFor="favicon">Favicon
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 relative rounded-md overflow-hidden">
               <Image
                 sizes="100vw"
-                src="/assets/placeholder.svg"
-                alt="Logo"
+                src={imagePreview}
+                alt="Favicon"
                 fill
               />
             </div>
-            <Button variant="outline">Upload</Button>
+            <input
+                type="file"
+                id="faviconInput"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            <Button variant="outline" type="button"  onClick={() => document.getElementById("faviconInput")?.click()}>Upload</Button>
           </div>
+          </label>
         </div>
 
         <form action={onSave}>

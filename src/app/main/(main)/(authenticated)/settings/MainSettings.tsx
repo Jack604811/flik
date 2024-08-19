@@ -37,7 +37,7 @@ function MainSettings({ user }: { user: User }) {
     const aboutUs = formData.get("aboutUs") as string;
     if (!aboutUs.length) return toast.error("About us should not be empty!");
     if (selectedFile) {
-      formData.append("siteLogo", selectedFile); // Add the selected image file to the formData
+      formData.append("logo", selectedFile); // Add the selected image file to the formData
     }
     const promise = updateSiteSetting(user.id, formData);
     toast.promise(promise, {
@@ -78,8 +78,6 @@ function MainSettings({ user }: { user: User }) {
                 <Image sizes="100vw" src={imagePreview} alt="Logo" fill />
               </div>
               <Button variant="outline" type="button" onClick={() => document.getElementById("logoInput")?.click()}>
-                Upload
-              </Button>
               <input
                 type="file"
                 id="logoInput"
@@ -87,6 +85,8 @@ function MainSettings({ user }: { user: User }) {
                 accept="image/*"
                 onChange={handleFileChange}
               />
+                Upload
+              </Button>
             </div>
             <div className="space-y-2">
               <Label htmlFor="siteName">Name</Label>

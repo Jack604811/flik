@@ -23,6 +23,7 @@ export default async function Page() {
               subdomain={user!.subdomain ?? ""}
               customDomain={user!.customDomain ?? ""}
               userId={currentUser!.id}
+              favicon={user?.favicon}
             />
           </div>
         </div>
