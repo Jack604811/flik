@@ -42,9 +42,9 @@ export default async function middleware(req: NextRequest) {
     const res = await fetch(new URL(`/api/domain/${hostname}/user`, req.url));
     const resData = await res.json();
 
-    if(resData.redirect){
-      return NextResponse.redirect(`https://${resData.domain}${path === "/" ? "" : path}`)
-    }
+    // if(resData.redirect){
+    //   return NextResponse.redirect(`https://${resData.domain}${path === "/" ? "" : path}`)
+    // }
 
   }
 

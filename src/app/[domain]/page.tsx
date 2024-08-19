@@ -38,6 +38,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
                   height={100}
                   src={siteData.logo}
                   alt={siteData.siteName!}
+                  unoptimized
                 />
                 <span className="ml-2 text-lg font-bold">
                   {siteData?.siteName ?? ""}

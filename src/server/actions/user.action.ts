@@ -3,7 +3,7 @@
 import { env } from "@/env";
 import { db } from "../db";
 import { uploadSiteImage } from "./supabase.action";
-import { addDomainToVercel, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
+import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
 import { getCurrentUser } from "../auth";
 
 export const getUser = (id: string) => {
@@ -117,22 +117,22 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
   const favicon = formData.get("favicon") as File | null | undefined;
 
   const data: {
-    siteName: string;
-    aboutUs: string;
+    siteName?: string;
+    aboutUs?: string;
     logo?: string | null;
     favicon?: string | null;
     defaultPaymentMethod?: string
     country?: string
     currency?: string
     subdomain?:string
-  } = {
-    siteName,
-    aboutUs,
-    defaultPaymentMethod,
-    country,
-    currency,
-    subdomain
-  };
+  } = {};
+
+  if(subdomain) data.subdomain = subdomain;
+  if(siteName) data.siteName = siteName;
+  if(aboutUs) data.aboutUs = aboutUs;
+  if(country) data.country = country;
+  if(currency) data.currency = currency;
+  if(defaultPaymentMethod) data.defaultPaymentMethod = defaultPaymentMethod;
 
   if (logo) {
     data.logo = await uploadSiteImage(
@@ -149,5 +149,10 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     );
   }
 
-  return await db.user.update({ where: { id }, data });
+   
+  const updatedSettings = await db.user.update({ where: { id }, data });
+
+  clearDomainCache(updatedSettings.subdomain, updatedSettings.customDomain, "");
+
+  return updatedSettings;
 };

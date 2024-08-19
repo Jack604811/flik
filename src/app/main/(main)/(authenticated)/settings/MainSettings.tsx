@@ -75,7 +75,7 @@ function MainSettings({ user }: { user: User }) {
             <Label htmlFor="siteLogo">Custom Logo</Label>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 relative rounded-md overflow-hidden">
-                <Image sizes="100vw" src={imagePreview} alt="Logo" fill />
+                <Image sizes="100vw" src={imagePreview} alt="Logo" fill unoptimized />
               </div>
               <Button variant="outline" type="button" onClick={() => document.getElementById("logoInput")?.click()}>
               <input
