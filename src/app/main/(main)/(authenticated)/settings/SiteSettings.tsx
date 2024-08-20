@@ -18,7 +18,7 @@ function SiteSettings({
   userId: string;
   favicon?: string | null
 }) {
-  const [imagePreview, setImagePreview] = useState<string>(favicon ?? "/assets/placeholder.svg");
+  const [imagePreview, setImagePreview] = useState<string>(`${favicon ?? "/assets/placeholder.svg"}?${Date.now()}`);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onSave = async (formData: FormData) => {
@@ -64,6 +64,7 @@ function SiteSettings({
                 src={imagePreview}
                 alt="Favicon"
                 fill
+                unoptimized
               />
             </div>
             <input

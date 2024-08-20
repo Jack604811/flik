@@ -19,7 +19,7 @@ import {
 import { User } from "@prisma/client";
 
 function MainSettings({ user }: { user: User }) {
-  const [imagePreview, setImagePreview] = useState<string>(user.logo ?? "/assets/placeholder.svg");
+  const [imagePreview, setImagePreview] = useState<string>(`${user.logo ?? "/assets/placeholder.svg"}?${Date.now()}`);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>(user.country ?? "");
   const [selectedCurrency, setSelectedCurrency] = useState<string>(user.currency ?? "usd");
