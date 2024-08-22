@@ -5,6 +5,7 @@ import { db } from "../db";
 import { uploadSiteImage } from "./supabase.action";
 import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
 import { getCurrentUser } from "../auth";
+import { revalidatePath } from "next/cache";
 
 export const getUser = (id: string) => {
   const user = db.user.findFirst({ where: { id } });
@@ -57,6 +58,10 @@ export const updateCustomDomain = async (id: string, customDomain: string) => {
     where: { id },
     data: { customDomain: customDomain ?? null },
   });
+
+
+  clearDomainCache(response.subdomain, user?.customDomain!, "");
+  revalidatePath("")
 
   return response;
 };
