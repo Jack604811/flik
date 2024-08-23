@@ -204,7 +204,7 @@ export function Sales() {
               strokeDasharray="3 3"
               strokeWidth={1}
             >
-              <div className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-green-200">
+              
               <Label
                 position="insideBottomRight"
                 value="Average Bookings:"
@@ -219,7 +219,7 @@ export function Sales() {
                 offset={10}
                 startOffset={100}
               />
-              </div>
+           
             </ReferenceLine>
           </AreaChart>
         </ChartContainer>
