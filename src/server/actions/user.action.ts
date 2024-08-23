@@ -3,8 +3,9 @@
 import { env } from "@/env";
 import { db } from "../db";
 import { uploadSiteImage } from "./supabase.action";
-import { addDomainToVercel, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
+import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
 import { getCurrentUser } from "../auth";
+import { revalidatePath } from "next/cache";
 
 export const getUser = (id: string) => {
   const user = db.user.findFirst({ where: { id } });
@@ -58,6 +59,10 @@ export const updateCustomDomain = async (id: string, customDomain: string) => {
     data: { customDomain: customDomain ?? null },
   });
 
+
+  clearDomainCache(response.subdomain, user?.customDomain!, "");
+  revalidatePath("")
+
   return response;
 };
 
@@ -108,6 +113,7 @@ export const getConnectWompi = async (id: string) => {
 
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
+  const subdomain = formData.get("subdomain") as string;
   const aboutUs = formData.get("aboutUs") as string;
   const defaultPaymentMethod = formData.get("defaultPaymentMethod") as string;
   const country = formData.get("country") as string;
@@ -116,20 +122,22 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
   const favicon = formData.get("favicon") as File | null | undefined;
 
   const data: {
-    siteName: string;
-    aboutUs: string;
+    siteName?: string;
+    aboutUs?: string;
     logo?: string | null;
     favicon?: string | null;
     defaultPaymentMethod?: string
     country?: string
     currency?: string
-  } = {
-    siteName,
-    aboutUs,
-    defaultPaymentMethod,
-    country,
-    currency
-  };
+    subdomain?:string
+  } = {};
+
+  if(subdomain) data.subdomain = subdomain;
+  if(siteName) data.siteName = siteName;
+  if(aboutUs) data.aboutUs = aboutUs;
+  if(country) data.country = country;
+  if(currency) data.currency = currency;
+  if(defaultPaymentMethod) data.defaultPaymentMethod = defaultPaymentMethod;
 
   if (logo) {
     data.logo = await uploadSiteImage(
@@ -146,5 +154,10 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     );
   }
 
-  return await db.user.update({ where: { id }, data });
+   
+  const updatedSettings = await db.user.update({ where: { id }, data });
+
+  clearDomainCache(updatedSettings.subdomain, updatedSettings.customDomain, "");
+
+  return updatedSettings;
 };

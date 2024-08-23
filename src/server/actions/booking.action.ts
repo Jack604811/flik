@@ -8,6 +8,7 @@ import { env } from "@/env";
 import { headers } from "next/headers";
 import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
 import moment from "moment";
+import { clearDomainCache } from "../helpers/domains";
 
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
@@ -108,8 +109,7 @@ export const addBooking = async (data: {
   });
   const guest = await addGuestToBooking({ ...data, bookingId: booking.id });
 
-  revalidateTag(`${booking.spot.owner.subdomain}-${data.spotId}-metadata`);
-  revalidateTag(`${booking.spot.owner.customDomain}-${data.spotId}-metadata`);
+  clearDomainCache(booking.spot.owner.subdomain, booking.spot.owner.customDomain, data.spotId)
 
   return { ...booking, guest };
 };

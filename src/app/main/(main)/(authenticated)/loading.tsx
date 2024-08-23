@@ -26,11 +26,12 @@ export default async function Page() {
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <Image 
-                src={logoUrl}
+                src={`${logoUrl}?${Date.now()}`}
                 alt="Loading..."
                 width={100} 
                 height={100} 
                 className= "animate-pulse duration-700"
+                unoptimized
             />
         </div>
     );

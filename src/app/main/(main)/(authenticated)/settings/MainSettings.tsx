@@ -19,7 +19,7 @@ import {
 import { User } from "@prisma/client";
 
 function MainSettings({ user }: { user: User }) {
-  const [imagePreview, setImagePreview] = useState<string>(user.logo ?? "/assets/placeholder.svg");
+  const [imagePreview, setImagePreview] = useState<string>(`${user.logo ?? "/assets/placeholder.svg"}?${Date.now()}`);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>(user.country ?? "");
   const [selectedCurrency, setSelectedCurrency] = useState<string>(user.currency ?? "usd");
@@ -37,7 +37,7 @@ function MainSettings({ user }: { user: User }) {
     const aboutUs = formData.get("aboutUs") as string;
     if (!aboutUs.length) return toast.error("About us should not be empty!");
     if (selectedFile) {
-      formData.append("siteLogo", selectedFile); // Add the selected image file to the formData
+      formData.append("logo", selectedFile); // Add the selected image file to the formData
     }
     const promise = updateSiteSetting(user.id, formData);
     toast.promise(promise, {
@@ -75,11 +75,9 @@ function MainSettings({ user }: { user: User }) {
             <Label htmlFor="siteLogo">Custom Logo</Label>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 relative rounded-md overflow-hidden">
-                <Image sizes="100vw" src={imagePreview} alt="Logo" fill />
+                <Image sizes="100vw" src={imagePreview} alt="Logo" fill unoptimized />
               </div>
               <Button variant="outline" type="button" onClick={() => document.getElementById("logoInput")?.click()}>
-                Upload
-              </Button>
               <input
                 type="file"
                 id="logoInput"
@@ -87,6 +85,8 @@ function MainSettings({ user }: { user: User }) {
                 accept="image/*"
                 onChange={handleFileChange}
               />
+                Upload
+              </Button>
             </div>
             <div className="space-y-2">
               <Label htmlFor="siteName">Name</Label>

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSiteData } from "./server/actions/domain.action";
+import { getConfigResponse, getDomainResponse } from "./server/helpers/domains";
 
 export const config = {
   matcher: [
@@ -35,6 +37,18 @@ export default async function middleware(req: NextRequest) {
       new URL(`/main${path === "/" ? "" : path}`, req.url)
     );
   }
+
+  if(hostname.endsWith(process.env.NEXT_PUBLIC_ROOT_DOMAIN!)){
+    const res = await fetch(new URL(`/api/domain/${hostname}/user`, req.url));
+    const resData = await res.json();
+
+    if(resData.redirect){
+      return NextResponse.redirect(`https://${resData.domain}${path === "/" ? "" : path}`)
+    }
+
+  }
+
+
 //   // rewrite everything else to `/[domain]/[slug] dynamic route
   return NextResponse.rewrite(
     new URL(`/${hostname}${path === "/" ? "" : path}`, req.url)

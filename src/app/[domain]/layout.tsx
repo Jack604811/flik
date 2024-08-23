@@ -7,6 +7,9 @@ import { TailwindScreen } from "@/components/dev/tailwind-screen";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { getSiteData } from "@/server/actions/domain.action";
+import { env } from "@/env";
+import { getConfigResponse, getDomainResponse } from "@/server/helpers/domains";
+import { permanentRedirect } from "next/navigation";
 
 
 
@@ -18,7 +21,7 @@ export default async function RootLayout({
   params: { domain: string };
 }>) {
     const domain = decodeURIComponent(params.domain);
-  const siteData = await getSiteData(domain);
+    const siteData = await getSiteData(domain);
   return (
       <html lang={APP_LANG}>
         <head key="head">

@@ -1,9 +1,8 @@
 import { Metadata } from "next"
-
-import { columns } from "./_components/columns"
-import { DataTable } from "./_components/data-table"
 import { getBookings } from "@/server/actions/booking.action"
 import { getCurrentUser } from "@/server/auth"
+import { QueryClient } from "@tanstack/react-query"
+import BookingListing from "./BookingListing"
 
 export const metadata: Metadata = {
   title: "Bookings",
@@ -11,9 +10,9 @@ export const metadata: Metadata = {
 }
 
 
-export default async function TaskPage() {
+export default async function Page() {
   const currentUser = await getCurrentUser()
-  const bookings = await getBookings(currentUser!.id) as any
+  const bookings: any = await getBookings(currentUser!.id)
 
   return (
     <>
@@ -26,7 +25,7 @@ export default async function TaskPage() {
             </p>
           </div>
         </div>
-        <DataTable data={bookings} columns={columns} />
+          <BookingListing bookings={bookings} userId={currentUser?.id!} />
       </div>
     </>
   )

@@ -3,6 +3,7 @@ import {
     DomainConfigResponse,
     DomainVerificationResponse,
   } from "@/lib/types";
+import { revalidateTag } from "next/cache";
   
   export const addDomainToVercel = async (domain: string) => {
     return await fetch(
@@ -140,3 +141,10 @@ import {
   export const validDomainRegex = new RegExp(
     /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/,
   );
+
+  export const clearDomainCache = (subdomain: string|null, customDomain: string|null, spotId: string) => {
+    revalidateTag(`${subdomain}-metadata`)
+    revalidateTag(`${subdomain}-${spotId}-metadata`)
+    revalidateTag(`${customDomain}-metadata`)
+    revalidateTag(`${customDomain}-${spotId}-metadata`)
+  }
