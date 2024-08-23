@@ -178,12 +178,10 @@ function AddTransactionButton({
                             </SelectTrigger>
                             <SelectContent>
                               {[
-                                "Cash",
-                                "Bank transfer",
-                                "Wompi",
-                                "Epayco",
-                                "Mercadopago",
-                                "Stripe",
+                                "Cash", //visible for all
+                                "Bank transfer", //visible for all
+                                "Stripe",//hide if user.stripeAccountid is empty
+                                "Wompi",//hide if user.stripeAccountid is empty
                               ].map((pt, key) => (
                                 <SelectItem key={key} value={pt}>
                                   {pt}
