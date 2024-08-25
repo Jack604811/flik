@@ -44,9 +44,9 @@ export default function RootLayout({
         </head>
         <CrispWithNoSSR />
         <body>
-          <ThemeProvider attribute="class" defaultTheme="light">
+          <ThemeProvider attribute="class" defaultTheme="system">
             <NextTopLoader />
-            <Toaster position="top-center" />
+            <Toaster position="bottom-center" />
             <TanstackQueryProvider>{children}</TanstackQueryProvider>
             {process.env.NODE_ENV === 'development' && <TailwindScreen />}
           </ThemeProvider>

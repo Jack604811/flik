@@ -19,7 +19,7 @@ export default function Component() {
       <div className="grid md:grid-cols-3 gap-6">
         <ProductCard
           price="$35"
-          features={["1 user", "5 spots", "Subdomain", "Email support"]}
+          features={["2 user", "200 events", "1.000 visits", "Subdomain", "Email support"]}
           title="Starter"
           description="Perfect for individuals and small teams."
           purchaseButton={
@@ -28,7 +28,7 @@ export default function Component() {
         />
         <ProductCard
           price="$59"
-          features={["5 users", "15 spots", "Custom domain", "Priority email support"]}
+          features={["5 users", "500 events", "10.000 visits", "Custom domain", "Priority email support"]}
           title="Pro"
           description="Perfect for growing teams."
           purchaseButton={
@@ -37,7 +37,7 @@ export default function Component() {
         />
         <ProductCard
           price="$99"
-          features={["10 users", "50 spots", "Custom domain", "Dedicated account manager"]}
+          features={["10 users", "1.000 events", "50.000 visits", "Custom domain", "Dedicated account manager"]}
           title="Enterprise"
           description="Perfect for large organizations."
           purchaseButton={

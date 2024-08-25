@@ -9,9 +9,9 @@ export function Footer() {
   ];
 
   const moreLinks = [
-    { name: "Something Cool", path: "" },
-    { name: "Something Nice", path: "" },
-    { name: "Something Funny", path: "" },
+    { name: "Docs", path: "/docs" },
+    { name: "Roadmap", path: "roadmap" },
+    { name: "Changelog", path: "changelog" },
   ];
 
   return (
@@ -47,8 +47,9 @@ export function Footer() {
               <div className="flex gap-1 items-center">
                 <span>Built with</span>
                 <span className="font-bold flex gap-0.5 items-center tracking-tight">
-                  Shipit
+                  Love
                 </span>
+                <span className="gap-0.5">❤️</span>
               </div>
             </Link>
             {/**
@@ -82,7 +83,7 @@ export function Footer() {
             </div>
             <div className="lg:w-1/3 md:w-1/2 w-full px-4">
               <div className="footer-title font-semibold  tracking-widest text-sm md:text-left mb-3">
-                MORE
+                RESOURCES
               </div>
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 {moreLinks.map((link) => (

@@ -1,5 +1,5 @@
 import MainSidebar from "@/components/main-sidebar";
-import { MainHeader } from "@/components/header";
+import { MainHeader } from "@/components/marketing-blocks/header";
 
 export default function MainLayout({
   children,

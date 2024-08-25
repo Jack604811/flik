@@ -39,6 +39,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
                   src={`${siteData.logo}?${Date.now()}`}
                   alt={siteData.siteName!}
                   unoptimized
+                  className="max-w-[90px]"
                 />
                 <span className="ml-2 text-lg font-bold">
                   {siteData?.siteName ?? ""}
@@ -160,9 +161,10 @@ export default async function Page({ params }: { params: { domain: string } }) {
                   <>
                     <Image
                       width={100}
-                      height={300}
+                      height={100}
                       src={`${siteData.logo}?${Date.now()}`}
                       alt={siteData.siteName!}
+                      className="max-w-[90px]"
                     />
                     <span className="ml-2 text-lg font-bold">
                       {siteData?.siteName ?? ""}

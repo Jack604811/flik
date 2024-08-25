@@ -1,6 +1,6 @@
 // ****** General app settings ******
-export const APP_NAME = "Shit Fast";
-export const APP_DESCRIPTION = `My app is a great app for doing great things.`;
+export const APP_NAME = "Flik";
+export const APP_DESCRIPTION = `Bookings made easy with Flik.`;
 export const APP_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://yourprodurl';
 export const APP_LANG = "en";
 // ****** / General app settings / ******
@@ -16,9 +16,9 @@ export const APP_LANG = "en";
 
 
 export const APP_ROUTES: Route[] = [
-  { name: "Home", path: "/", visibleBy: "all" },
+  { name: "Features", path: "/", visibleBy: "all" },
   { name: "Pricing", path: "/pricing", visibleBy: "all" },
-  { name: "Blog", path: "/blog", visibleBy: "all" },
+  { name: "Enterprise", path: "/enterprise", visibleBy: "all" },
   { name: "Dashboard", path: "/dashboard", visibleBy: "subscribed" },
 ];
 //this routes will show in the user dropdown of the header (signout is already included by default)
@@ -45,7 +45,7 @@ export const AFTER_CUSTOMER_PORTAL_REDIRECT_URL = "/dashboard"; // where to redi
 
 
 // ****** SEO settings ******
-export const SEO_TITLE = "My app"; // recommended 30-65 characters
+export const SEO_TITLE = "Flik"; // recommended 30-65 characters
 export const SEO_DESCRIPTION = APP_DESCRIPTION; // recommended 120-320 characters, you can use APP_DESCRIPTION as long as it is within the recommended length range
 /*
  * SEO_IMAGE
