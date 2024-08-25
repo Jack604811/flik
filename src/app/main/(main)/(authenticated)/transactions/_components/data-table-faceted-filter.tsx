@@ -1,7 +1,6 @@
 import * as React from "react";
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Column } from "@tanstack/react-table";
-
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,15 +36,30 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
-  const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const [selectedValues, setSelectedValues] = React.useState(
+    new Set(column?.getFilterValue() as string[])
+  );
 
   // Set "Approved" as default selected value
   React.useEffect(() => {
     if (!selectedValues.has("Approved")) {
-      selectedValues.add("Approved");
-      column?.setFilterValue(Array.from(selectedValues));
+      const updatedValues = new Set(selectedValues);
+      updatedValues.add("Approved");
+      setSelectedValues(updatedValues);
+      column?.setFilterValue(Array.from(updatedValues));
     }
-  }, []);
+  }, [selectedValues, column]); // Add all necessary dependencies
+
+  const handleSelect = (value: string, isSelected: boolean) => {
+    const updatedValues = new Set(selectedValues);
+    if (isSelected) {
+      updatedValues.delete(value);
+    } else {
+      updatedValues.add(value);
+    }
+    setSelectedValues(updatedValues);
+    column?.setFilterValue(Array.from(updatedValues).length ? Array.from(updatedValues) : undefined);
+  };
 
   return (
     <Popover>
@@ -103,17 +117,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 return (
                   <CommandItem
                     key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value);
-                      } else {
-                        selectedValues.add(option.value);
-                      }
-                      const filterValues = Array.from(selectedValues);
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      );
-                    }}
+                    onSelect={() => handleSelect(option.value, isSelected)}
                   >
                     <div
                       className={cn(
@@ -143,7 +147,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
+                    onSelect={() => {
+                      setSelectedValues(new Set());
+                      column?.setFilterValue(undefined);
+                    }}
                     className="justify-center text-center"
                   >
                     Clear filters
