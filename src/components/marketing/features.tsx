@@ -1,3 +1,5 @@
+"use client";
+
 import { CalendarIcon, FileTextIcon } from "@radix-ui/react-icons";
 import { BellIcon, Share2Icon } from "lucide-react";
 
@@ -35,7 +37,8 @@ const features = [
   {
     Icon: CalendarIcon,
     name: "Dynamic Booking Flexibility",
-    description: "Set up your booking durations and time slots with complete flexibility. Tailor your availability down to the hour, day, or week – whatever suits your business needs.",
+    description:
+      "Set up your booking durations and time slots with complete flexibility. Tailor your availability down to the hour, day, or week – whatever suits your business needs.",
     className: "col-span-3 lg:col-span-1",
     href: "#",
     cta: "Learn more",
@@ -47,22 +50,26 @@ const features = [
       />
     ),
   },
-  
   {
     Icon: BellIcon,
-    name: " Instant Website Creation",
-    description: "Automatically generate a professional, SEO-friendly website based on your spaces. Customize it with your logo, favicon, and domain to match your brand perfectly. Drive traffic with paid ads or organic searches to boost your bookings.",
+    name: "Instant Website Creation",
+    description:
+      "Automatically generate a professional, SEO-friendly website based on your spaces. Customize it with your logo, favicon, and domain to match your brand perfectly. Drive traffic with paid ads or organic searches to boost your bookings.",
     href: "#",
     cta: "Learn more",
     className: "col-span-3 lg:col-span-2",
     background: (
-      <AnimatedListItem children={undefined} />
+      <AnimatedListItem>
+        {/* Default content can go here, or simply leave it empty */}
+        <span></span>
+      </AnimatedListItem>
     ),
   },
   {
     Icon: Share2Icon,
     name: "Integrated Payment Solutions",
-    description: "Connect with leading payment platforms or manually track transactions for cash, bank transfers, and more. Our system supports multiple payment methods, ensuring you never miss a payment.",
+    description:
+      "Connect with leading payment platforms or manually track transactions for cash, bank transfers, and more. Our system supports multiple payment methods, ensuring you never miss a payment.",
     href: "#",
     cta: "Learn more",
     className: "col-span-3 lg:col-span-2",
@@ -73,7 +80,8 @@ const features = [
   {
     Icon: FileTextIcon,
     name: "Insightful Analytics",
-    description: "Dive into detailed analytics to track your bookings, transactions, and revenues. Understand your performance at a glance with metrics like occupancy rates, total visits, and upsell effectiveness.",
+    description:
+      "Dive into detailed analytics to track your bookings, transactions, and revenues. Understand your performance at a glance with metrics like occupancy rates, total visits, and upsell effectiveness.",
     href: "#",
     cta: "Learn more",
     className: "col-span-3 lg:col-span-1",
@@ -89,7 +97,7 @@ const features = [
               "relative w-32 cursor-pointer overflow-hidden rounded-xl border p-4",
               "border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]",
               "dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]",
-              "transform-gpu blur-[1px] transition-all duration-300 ease-out hover:blur-none",
+              "transform-gpu blur-[1px] transition-all duration-300 ease-out hover:blur-none"
             )}
           >
             <div className="flex flex-row items-center gap-2">
@@ -120,7 +128,8 @@ export function Features() {
               Features
             </h2>
             <p className="text-balance text-lg tracking-tight text-gray-400 md:text-xl py-4">
-            Discover Our Tools and Flexibility You Need to Manage Your Spaces, Drive Traffic, and Maximize Bookings.
+              Discover Our Tools and Flexibility You Need to Manage Your Spaces,
+              Drive Traffic, and Maximize Bookings.
             </p>
           </div>
           <div className="container mx-auto my-12 max-w-[1200px] space-y-12">

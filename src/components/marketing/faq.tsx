@@ -13,7 +13,7 @@ const faqs = [
     section: "",
     qa: [
       {
-        question: "How can I use the website to attrack more bookings?",
+        question: "How can I use the website to attract more bookings?",
         answer: (
           <span>
             The automatically generated website is SEO-friendly, 
@@ -40,8 +40,8 @@ const faqs = [
             Our platform features an intuitive calendar system that allows you to customize 
             booking availability for each spot. You can set different time slots, durations, 
             and even block out specific times or days as needed. This flexibility lets you 
-            tailor each spot's calendar to fit your unique scheduling needs, 
-            whether it's for hourly, daily, or multi-day bookings. All changes are reflected in real-time, 
+            tailor each spot&apos;s calendar to fit your unique scheduling needs, 
+            whether it&apos;s for hourly, daily, or multi-day bookings. All changes are reflected in real-time, 
             ensuring your customers always see the most up-to-date availability.
           </span>
         ),
@@ -79,11 +79,6 @@ const faqs = [
       },
     ],
   },
-  
-  
-      
-    
-  
 ];
 
 export function FAQ() {
