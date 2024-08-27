@@ -1,4 +1,4 @@
-import { Header } from "@/components/marketing-blocks/header";
+import { Header } from "@/components/marketing/header";
 import { Footer } from "@/components/blocks/footers/footer1";
 
 

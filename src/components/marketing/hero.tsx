@@ -39,7 +39,7 @@ export function Hero() {
         <div className="container z-10 flex flex-col">
           <div className="mt-20 grid grid-cols-1">
             <div className="flex flex-col items-center gap-4 pb-0 text-center">
-            <div className="z-10 flex items-center justify-center">
+            <div className="z-0 flex items-center justify-center">
               <motion.div
                   animate={fadeInInView ? "animate" : "initial"}
                   variants={fadeUpVariants}
@@ -60,7 +60,7 @@ export function Hero() {
               </div>
               <motion.h1
                 ref={fadeInRef}
-                className="text-balance bg-gradient-to-br from-black from-30% to-black/60 bg-clip-text py-0 text-5xl font-medium leading-none tracking-tighter text-transparent dark:from-white dark:to-white/40 sm:text-6xl md:text-7xl lg:text-8xl"
+                className=" text-balance bg-gradient-to-br from-black from-30% to-black/60 bg-clip-text p-2 text-5xl font-medium leading-none tracking-tighter text-transparent dark:from-white dark:to-white/40 sm:text-6xl md:text-7xl lg:text-8xl"
                 animate={fadeInInView ? "animate" : "initial"}
                 variants={fadeUpVariants}
                 initial={false}
@@ -71,7 +71,7 @@ export function Hero() {
                   type: "spring",
                 }}
               >
-                Bookings and your website <br /> In the same platform <br />
+                Turn visitors <br /> Into Bookings<br />
               </motion.h1>
               <motion.p
                 className="text-balance text-lg tracking-tight text-gray-400 md:text-xl"
@@ -85,7 +85,7 @@ export function Hero() {
                   type: "spring",
                 }}
               >
-                Bookings made easy with Flik
+                Create your website in minutes and start to get bookings easy
               </motion.p>
 
               <motion.div

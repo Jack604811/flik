@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { FormEvent, useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,19 +19,17 @@ import {
 import { User } from "@prisma/client";
 
 function MainSettings({ user }: { user: User }) {
-  const [imagePreview, setImagePreview] = useState<string>(
-    `${user.logo ?? "/assets/placeholder.svg"}?${Date.now()}`
-  );
+  const [imagePreview, setImagePreview] = useState<string>(`${user.logo ?? "/assets/placeholder.svg"}?${Date.now()}`);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>(user.country ?? "");
   const [selectedCurrency, setSelectedCurrency] = useState<string>(user.currency ?? "usd");
 
-  // Ensure that selectedCurrency is included in the dependency array
   useEffect(() => {
+    // Set USD as the default currency when the country changes and no other currency is selected
     if (selectedCountry && selectedCurrency === "") {
       setSelectedCurrency("usd");
     }
-  }, [selectedCountry, selectedCurrency]); // Added selectedCurrency here
+  }, [selectedCountry]);
 
   const onSave = async (formData: FormData) => {
     const siteName = formData.get("siteName") as string;
@@ -80,13 +78,13 @@ function MainSettings({ user }: { user: User }) {
                 <Image sizes="100vw" src={imagePreview} alt="Logo" fill unoptimized />
               </div>
               <Button variant="outline" type="button" onClick={() => document.getElementById("logoInput")?.click()}>
-                <input
-                  type="file"
-                  id="logoInput"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
+              <input
+                type="file"
+                id="logoInput"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
                 Upload
               </Button>
             </div>
