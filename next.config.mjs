@@ -10,7 +10,8 @@ const nextConfig = {
     images: {
         remotePatterns: [
             { hostname: "rnetulpcbgfmgdvyrsdh.supabase.co", protocol: "https"},
-            { hostname: "mbcobsjjxvpydprpyybp.supabase.co", protocol: "https"}
+            { hostname: "mbcobsjjxvpydprpyybp.supabase.co", protocol: "https"},
+            { hostname: "randomuser.me", protocol: "https" }
         ]
     },
     experimental: {

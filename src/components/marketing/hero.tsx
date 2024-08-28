@@ -144,6 +144,8 @@ export function Hero() {
               )}
             />
 
+
+
             {/* <img
               src="/dashboard-light.png"
               className="relative block h-full w-full rounded-xl border dark:hidden"

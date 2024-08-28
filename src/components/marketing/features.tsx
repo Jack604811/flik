@@ -121,7 +121,7 @@ export function Features() {
       <div className="py-24">
         <div className="container mx-auto px-4 md:px-8">
           <div className="mx-auto text-center">
-            <h5 className="text-xl font-bold tracking-tight text-black dark:text-white text-muted-foreground">
+            <h5 className="text-xl font-bold tracking-tight text-gray-500">
               Explore
             </h5>
             <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
