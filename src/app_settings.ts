@@ -1,3 +1,5 @@
+import { CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart } from "lucide-react";
+
 // ****** General app settings ******
 export const APP_NAME = "Flik";
 export const APP_DESCRIPTION = `Bookings made easy with Flik.`;
@@ -29,7 +31,17 @@ export const USER_ROUTES = [
 
 ];
 
-// ****** / Routes / ******
+// ****** / Sidebar Routes / ******
+export const SIDEBAR_ROUTES = [
+{ name: "Dashboard", icon: Square, path: "/dashboard" },
+{ name: "Bookings", icon: Calendar, path: "/bookings" },
+{ name: "Transactions", icon: Landmark, path: "/transactions" },
+{ name: "Extras", icon: ShoppingCart, path: "/extras" },
+{ name: "Spots", icon: MapPin, path: "/spots" },
+{ name: "Integrations", icon: Zap, path: "/integrations" },
+{ name: "Billing", icon: CreditCard, path: "/billing" },
+{ name: "Settings", icon: Settings, path: "/settings" },
+];
 
 
 // ****** Auth settings ******

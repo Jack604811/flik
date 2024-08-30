@@ -12,14 +12,14 @@ export function ModeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div>
+    <div className="flex items-center">
     {theme === "dark" ? (
-        <Button variant="ghost" className="hover:bg-inherit border-zinc-900 bg-[#0c0c0d]" size="icon" onClick={() => setTheme("light")}>
+        <Button variant="ghost" className="hover: border-zinc-900 bg-[#0c0c0d]" size="icon" onClick={() => setTheme("light")}>
             <MoonIcon className="w-5 h-5" />
             <span className="sr-only">Toggle theme</span>
         </Button>
     ) : (
-        <Button variant="ghost" size="icon" className="hover:bg-inherit border-zinc-100 bg-inherit" onClick={() => setTheme("dark")}>
+        <Button variant="ghost" size="icon" className="hover: border-zinc-100" onClick={() => setTheme("dark")}>
             <SunIcon className="w-5 h-5" />
             <span className="sr-only">Toggle theme</span>
         </Button>

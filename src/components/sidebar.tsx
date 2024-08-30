@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Menu, AlignLeft } from "lucide-react";
+import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Menu, AlignLeft, AlignRight } from "lucide-react";
 import Image from 'next/image';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { APP_NAME } from '@/app_settings';
+import { ModeToggle } from './theme-toggle';
 
-export const MainSidebar = () => {
+export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const searchParams = useSearchParams();
   const favorites = searchParams.get("favorites");
@@ -25,16 +27,11 @@ export const MainSidebar = () => {
     <div>
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex flex-col min-w-[280px] h-screen p-0 gap-14 border-r sticky top-0">
-        <Link href="/">
-          <div className="flex items-center gap-2 p-4">
-            <Image
-              src="/assets/logo.svg"
-              alt="logo"
-              height={32}
-              width={104}
-            />
-          </div>
-        </Link>
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
+            <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
+              {APP_NAME}
+            </strong>
+          </Link>
         <Command className="gap-4 bg-inherit">
           {/*<CommandInput placeholder="Search..." />*/}
           <CommandList>
@@ -211,28 +208,23 @@ export const MainSidebar = () => {
 
       {/* Mobile Sidebar */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
+        {/* <SheetTrigger asChild>
           <Button
             variant="ghost"
             size="lg"
-            className="lg:hidden fixed top-3 left-2 z-50 p-3"
+            className="lg:hidden fixed top-3 right-2 z-50 p-4"
           >
-            <AlignLeft className="h-5 w-5" />
+            <AlignRight className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0">
+        </SheetTrigger> */}
+        <SheetContent side="right" className="p-0">
           <div className="flex flex-col gap-10">
-            <Link href="/">
-              <div className="flex items-center p-4">
-                <Image
-                  src="/assets/logo.svg"
-                  alt="logo"
-                  height={24}
-                  width={104}
-                />
-              </div>
-            </Link>
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
+            <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
+              {APP_NAME}
+            </strong>
+          </Link>
             <Command className="gap-0 bg-inherit">
               {/*<CommandInput placeholder="Search..." />*/}
               <CommandList>
@@ -363,4 +355,4 @@ export const MainSidebar = () => {
   );
 };
 
-export default MainSidebar;
+export default Sidebar;
