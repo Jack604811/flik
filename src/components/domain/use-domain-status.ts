@@ -8,7 +8,7 @@ export function useDomainStatus({ domain }: { domain: string }) {
     domainJson: DomainResponse & { error: { code: string; message: string } };
   }>(`/api/domain/${domain}/verify`, fetcher, {
     revalidateOnMount: true,
-    refreshInterval: 5000,
+    refreshInterval: 50000,
     keepPreviousData: true,
   });
 

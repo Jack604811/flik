@@ -12,7 +12,7 @@ import {
   CredenzaTitle,
   CredenzaTrigger,
 } from "@/components/ui/credenza";
-import {  Repeat } from "lucide-react";
+import {  CheckIcon, CopyIcon, ExternalLinkIcon, Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +24,10 @@ import { Switch } from "@/components/ui/switch";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
+import Link from "next/link";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { env } from "@/env";
+
 
 type Props = {
   accountId: Record<string, string>;
@@ -34,6 +38,8 @@ const WompiConnectButton = ({accountId}: Props) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>(null);
   const [open, setOpen] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,6 +71,19 @@ const WompiConnectButton = ({accountId}: Props) => {
       setErrors(null);
     }
   }, [])
+
+  const webhookUrl = `${env.NEXT_PUBLIC_ROOT_DOMAIN}/api/webhooks/connected/wompi`;
+
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(webhookUrl)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (err) {
+      console.error("Failed to copy text: ", err)
+    }
+  }
 
   return (
     <>
@@ -112,13 +131,28 @@ const WompiConnectButton = ({accountId}: Props) => {
                   The world’s most successful platforms and marketplaces
                   including Shopify and WooCommerce, use Wompi Connect.
                 </p>
+                <Link
+                  href="https://docs.wompi.co/docs/colombia/ambientes-y-llaves/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline mt-2 inline-flex items-center"
+                >
+                  Learn more about API key configuration
+                  <ExternalLinkIcon className="h-3 w-3 ml-1" />
+                </Link>
               </CredenzaDescription>
             </CredenzaHeader>
             <CredenzaBody className="my-2">
-              <div className="mt-4 space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Test Keys</CardTitle>
+              <div className="my-6 space-y-4">
+              
+                <div className="flex items-center space-x-2 mb-6">
+                  <Switch
+                    name="useSandbox" id="useSandbox" defaultChecked={accountId?.useSandbox === "on"} defaultValue={accountId?.useSandbox ?? "on"}
+                  />
+                  <Label htmlFor="test-mode" className="text-sm font-medium">
+                    Test Mode
+                  </Label>
+                </div>
                     {errors?.test?.message && (
                       <Alert variant="destructive">
                         <AlertDescription>
@@ -126,8 +160,8 @@ const WompiConnectButton = ({accountId}: Props) => {
                         </AlertDescription>
                       </Alert>
                     )}
-                  </CardHeader>
-                  <CardContent>
+                  
+                  
                     <div className="space-y-2">
                       <Label htmlFor="testPublicKey">Test Public Key</Label>
                       <Input
@@ -149,11 +183,11 @@ const WompiConnectButton = ({accountId}: Props) => {
                         placeholder="Enter Test Private Key"
                       />
                     </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Live Keys</CardTitle>
+                  
+                
+               
+                  
+                    
                     {errors?.live?.message && (
                       <Alert variant="destructive">
                         <AlertDescription>
@@ -161,8 +195,8 @@ const WompiConnectButton = ({accountId}: Props) => {
                         </AlertDescription>
                       </Alert>
                     )}
-                  </CardHeader>
-                  <CardContent>
+               
+                  
                     <div className="space-y-2">
                       <Label htmlFor="livePublicKey">Live Public Key</Label>
                       <Input
@@ -184,13 +218,42 @@ const WompiConnectButton = ({accountId}: Props) => {
                         placeholder="Enter Live Private Key"
                       />
                     </div>
-                  </CardContent>
-                </Card>
-                <div className="space-y-2">
-                  <Label htmlFor="useSandbox" className="block">
-                    Use Test Keys
-                  </Label>
-                  <Switch name="useSandbox" id="useSandbox" defaultChecked={accountId?.useSandbox === "on"} defaultValue={accountId?.useSandbox ?? "on"} />
+                  
+                    <div className="mt-8 space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">Events URL</h3>
+                      <div className="flex items-center space-x-2">
+                        <Input 
+                        value={webhookUrl} 
+                        readOnly disabled
+                        className="bg-transparent text-black dark:text-white text-sm leading-10 ring-offset-background dark:placeholder-white/40 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-zinc-950/[0.03] disabled:text-zinc-950/80 dark:disabled:bg-white/[0.03] dark:disabled:text-white/80 focus:border-zinc-950/70 dark:focus:border-white/70"/>
+                        <TooltipProvider>
+                          <Tooltip open={isCopied}>
+                            <TooltipTrigger asChild>
+                              <Button onClick={copyToClipboard} variant="outline">
+                                {isCopied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
+                                <span className="sr-only">{isCopied ? "Copied" : "Copy"}</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copied!</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Please paste this URL into your Wompi account{" "}
+                        <Link
+                          href="https://comercios.wompi.co/developers"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline inline-flex items-center"
+                        >
+                          here
+                          <ExternalLinkIcon className="h-3 w-3 ml-1" />
+                        </Link>
+                      </p>
+                    </div>
                 </div>
               </div>
             </CredenzaBody>

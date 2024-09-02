@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { MoreHorizontal, CalendarIcon } from "lucide-react"
+import { MoreHorizontal, CalendarIcon, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { format } from "date-fns"
 
 type FieldData = {
@@ -121,7 +121,7 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
           })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select target type" />
+            <SelectValue placeholder="Select an option" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="field">Field</SelectItem>
@@ -135,7 +135,7 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
           <Label>Target</Label>
           <Select value={conditional.target} onValueChange={(value) => onChange({ ...conditional, target: value })}>
             <SelectTrigger>
-              <SelectValue placeholder="Select target" />
+              <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
               {fields.map((item) => (
@@ -153,7 +153,7 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
           onValueChange={(value: typeof conditional.condition) => onChange({ ...conditional, condition: value, value: value === 'any' ? '' : conditional.value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select condition" />
+            <SelectValue placeholder="Select an option" />
           </SelectTrigger>
           <SelectContent>
             {(conditional.targetType === 'spot' ? spotConditions : fieldConditions).map((condition) => (
@@ -169,7 +169,7 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
           {conditional.targetType === 'spot' ? (
             <Select value={conditional.value} onValueChange={(value) => onChange({ ...conditional, value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select spot" />
+                <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
                 {spots.map((spot) => (
@@ -187,7 +187,7 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
         <Label>Then</Label>
         <Select value={conditional.action} onValueChange={(value: 'show' | 'hide' | 'change options' | 'disable') => onChange({ ...conditional, action: value })}>
           <SelectTrigger>
-            <SelectValue placeholder="Select action" />
+            <SelectValue placeholder="Select an option" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="show">Show</SelectItem>
@@ -216,12 +216,16 @@ export default function Component() {
     placeholder: '',
     helperText: '',
     required: false,
-    conditionals: []
+    conditionals: [{
+      targetType: 'field',
+      target: '',
+      condition: 'is',
+      value: '',
+      action: 'show'
+    }]
   })
 
-  const [leftWidth, setLeftWidth] = useState(60)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const dividerRef = useRef<HTMLDivElement>(null)
+  const [currentConditionalIndex, setCurrentConditionalIndex] = useState(0)
 
   // Mock data for existing fields and spots
   const existingFields = ['Field 1', 'Field 2', 'Field 3']
@@ -237,45 +241,20 @@ export default function Component() {
     console.log('Form submitted', field)
   }
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-  }, [])
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect()
-      const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100
-      setLeftWidth(newLeftWidth)
-    }
-  }, [])
-
-  const handleMouseUp = useCallback(() => {
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }, [handleMouseMove])
-
-  useEffect(() => {
-    const divider = dividerRef.current
-    divider?.addEventListener('mousedown', handleMouseDown as any)
-
-    return () => {
-      divider?.removeEventListener('mousedown', handleMouseDown as any)
-    }
-  }, [handleMouseDown])
-
   const addConditional = () => {
-    setField(prev => ({
-      ...prev,
-      conditionals: [...prev.conditionals, {
-        targetType: 'field',
-        target: '',
-        condition: 'is',
-        value: '',
-        action: 'show'
-      }]
-    }))
+    if (field.conditionals.length < 6) {
+      setField(prev => ({
+        ...prev,
+        conditionals: [...prev.conditionals, {
+          targetType: 'field',
+          target: '',
+          condition: 'is',
+          value: '',
+          action: 'show'
+        }]
+      }))
+      setCurrentConditionalIndex(field.conditionals.length)
+    }
   }
 
   const updateConditional = (index: number, updatedConditional: Conditional) => {
@@ -290,116 +269,145 @@ export default function Component() {
       ...prev,
       conditionals: prev.conditionals.filter((_, i) => i !== index)
     }))
+    setCurrentConditionalIndex(Math.min(currentConditionalIndex, field.conditionals.length - 2))
   }
 
   const cloneConditional = (index: number) => {
-    setField(prev => ({
-      ...prev,
-      conditionals: [
-        ...prev.conditionals.slice(0, index + 1),
-        { ...prev.conditionals[index] },
-        ...prev.conditionals.slice(index + 1)
-      ]
-    }))
+    if (field.conditionals.length < 6) {
+      setField(prev => ({
+        ...prev,
+        conditionals: [
+          ...prev.conditionals.slice(0, index + 1),
+          { ...prev.conditionals[index] },
+          ...prev.conditionals.slice(index + 1)
+        ]
+      }))
+      setCurrentConditionalIndex(index + 1)
+    }
   }
 
   return (
-    <div ref={containerRef} className="flex h-[calc(100vh-2rem)] max-w-7xl mx-auto">
-      <div style={{ width: `${leftWidth}%` }} className="overflow-auto">
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle>Create Custom Field</CardTitle>
-          </CardHeader>
+    
+        <Tabs defaultValue="basic" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="basic">Basic Info</TabsTrigger>
+            <TabsTrigger value="conditionals">Conditionals</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+          </TabsList>
           <form onSubmit={handleSubmit}>
-            <CardContent>
-              <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                  <TabsTrigger value="conditionals">Conditionals</TabsTrigger>
-                </TabsList>
-                <TabsContent value="basic" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" name="name" value={field.name} onChange={handleChange} placeholder="Enter field name" required />
+            <TabsContent value="basic" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" value={field.name} onChange={handleChange} placeholder="Enter field name" required />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="type">Type</Label>
+                <Select value={field.type} onValueChange={(value) => setField(prev => ({ ...prev, type: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="input">Input</SelectItem>
+                    <SelectItem value="number">Number</SelectItem>
+                    <SelectItem value="date">Date</SelectItem>
+                    <SelectItem value="dropdown">Dropdown</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {field.type === 'dropdown' && (
+                <div className="space-y-2">
+                  <Label htmlFor="options">Options (comma-separated)</Label>
+                  <Input id="options" name="options" value={field.options} onChange={handleChange} placeholder="Option 1, Option 2, Option 3" />
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="placeholder">Placeholder</Label>
+                <Input id="placeholder" name="placeholder" value={field.placeholder} onChange={handleChange} placeholder="Enter placeholder text" />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="helperText">Helper Text</Label>
+                <Textarea id="helperText" name="helperText" value={field.helperText} onChange={handleChange} placeholder="Enter helper text" />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch id="required" checked={field.required}
+                  onCheckedChange={(checked) => setField(prev => ({ ...prev, required: checked }))} />
+                <Label htmlFor="required">Required</Label>
+              </div>
+            </TabsContent>
+            <TabsContent value="conditionals" className="space-y-4">
+              {field.conditionals.length > 0 && (
+                <ConditionalForm
+                  conditional={field.conditionals[currentConditionalIndex]}
+                  onChange={(updatedConditional) => updateConditional(currentConditionalIndex, updatedConditional)}
+                  onDelete={() => deleteConditional(currentConditionalIndex)}
+                  onClone={() => cloneConditional(currentConditionalIndex)}
+                  fields={existingFields}
+                  spots={existingSpots}
+                />
+              )}
+              {field.conditionals.length > 1 && (
+                <div className="flex justify-between items-center mt-4 space-x-2">
+                  <Button
+                    onClick={() => setCurrentConditionalIndex(prev => Math.max(prev - 1, 0))}
+                    disabled={currentConditionalIndex === 0}
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="flex-1 flex justify-center space-x-2">
+                    {field.conditionals.map((_, index) => (
+                      <Button
+                        key={index}
+                        onClick={() => setCurrentConditionalIndex(index)}
+                        type="button"
+                        size="sm"
+                        variant={currentConditionalIndex === index ? "default" : "outline"}
+                      >
+                        {index + 1}
+                      </Button>
+                    ))}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Type</Label>
-                    <Select value={field.type} onValueChange={(value) => setField(prev => ({ ...prev, type: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select field type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="input">Input</SelectItem>
-                        <SelectItem value="number">Number</SelectItem>
-                        <SelectItem value="date">Date</SelectItem>
-                        <SelectItem value="dropdown">Dropdown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {field.type === 'dropdown' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="options">Options (comma-separated)</Label>
-                      <Input id="options" name="options" value={field.options} onChange={handleChange} placeholder="Option 1, Option 2, Option 3" />
-                    </div>
+                  {field.conditionals.length < 6 ? (
+                    <Button
+                      onClick={addConditional}
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setCurrentConditionalIndex(prev => Math.min(prev + 1, field.conditionals.length - 1))}
+                      disabled={currentConditionalIndex === field.conditionals.length - 1}
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="placeholder">Placeholder</Label>
-                    <Input id="placeholder" name="placeholder" value={field.placeholder} onChange={handleChange} placeholder="Enter placeholder text" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="helperText">Helper Text</Label>
-                    <Textarea id="helperText" name="helperText" value={field.helperText} onChange={handleChange} placeholder="Enter helper text" />
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch id="required" checked={field.required}
-                      onCheckedChange={(checked) => setField(prev => ({ ...prev, required: checked }))} />
-                    <Label htmlFor="required">Required</Label>
-                  </div>
-                </TabsContent>
-                <TabsContent value="conditionals" className="space-y-4">
-                  {field.conditionals.map((conditional, index) => (
-                    <ConditionalForm
-                      key={index}
-                      conditional={conditional}
-                      onChange={(updatedConditional) => updateConditional(index, updatedConditional)}
-                      onDelete={() => deleteConditional(index)}
-                      onClone={() => cloneConditional(index)}
-                      fields={existingFields}
-                      spots={existingSpots}
-                    />
-                  ))}
-                  <Button onClick={addConditional}>Add Conditional</Button>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-            
-            <CardFooter>
+                </div>
+              )}
+              {field.conditionals.length === 1 && (
+                <Button onClick={addConditional} type="button" className="w-full">Add Conditional</Button>
+              )}
+            </TabsContent>
+            <TabsContent value="preview" className="pt-4">
+              <Preview field={field} />
+            </TabsContent>
+            <div className="mt-6">
               <Button type="submit" className="w-full">Save Custom Field</Button>
-            </CardFooter>
+            </div>
           </form>
-        </Card>
-      </div>
-
-      <div
-        ref={dividerRef}
-        className="w-1 bg-border cursor-col-resize hover:bg-primary transition-colors"
-      />
-
-      <div style={{ width: `${100 - leftWidth}%` }} className="overflow-auto">
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle>Preview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Preview field={field} />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+        </Tabs>
+     
   )
 }

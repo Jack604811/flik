@@ -16,7 +16,7 @@ export default async function Page() {
 
   return (
     <>
-      <div className="h-full flex-1 flex-col space-y-8 my-8 mx-6 md:flex">
+      <div className="flex-1 p-6 pt-4 space-y-8 md:p-8 md:pt-6">
         <div className="flex items-center justify-between space-y-2">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Bookings</h2>

@@ -11,7 +11,7 @@ export function Docker() {
 
   return (
     <div className="relative w-full">
-      <Dock direction="middle" className="rounded-none bg-white/100 border-t w-full justify-center">
+      <Dock direction="middle" className="rounded-none  bg-white border-t w-full justify-center dark:bg-black">
         {filteredRoutes.map((route) => (
           <DockIcon key={route.path}>
             <Link href={route.path} className="flex justify-center items-center">

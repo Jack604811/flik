@@ -122,14 +122,14 @@ const averageSales = chartData.reduce((acc, curr) => acc + curr.sales, 0) / char
 
 export function Sales() {
   return (
-    <Card className="xl:col-span-2 min-w-[420px]">
+    <Card className="2xl:col-span-2 xl:col-span-3 xs:max-w-[300px] md:w-full">
       <CardHeader className="flex flex-col items-stretch space-y-0 p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>{chartConfig.sales.label}</CardTitle>
           <CardDescription>January - June 2024</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:p-6">
+      <CardContent className="px-2 xs:px-0 sm:p-6">
         <ChartContainer
           config={chartConfig}
           className="w-full max-h-[350px]">
@@ -158,8 +158,8 @@ export function Sales() {
             <CartesianGrid vertical={false} horizontal={true} />
             <XAxis
               dataKey="date"
-              tickLine={true}
-              axisLine={true}
+              tickLine={false}
+              axisLine={false}
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
@@ -170,11 +170,13 @@ export function Sales() {
                 });
               }}
             />
+           
             <YAxis
-              tickLine={true}
-              axisLine={true}
+              tickLine={false}
+              axisLine={false}
               tickMargin={8}
             />
+            
             <ChartTooltip
               content={
                 <ChartTooltipContent

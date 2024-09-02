@@ -60,18 +60,18 @@ function MainSettings({ user }: { user: User }) {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-      <div className="min-w-[300px]">
-        <h2 className="text-2xl font-bold tracking-tight">Main Settings</h2>
-        <p className="text-muted-foreground">Update your site information.</p>
+    <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">
+      <div className="w-full xl:w-1/3">
+        <h2 className="text-xl font-semibold">Main Settings</h2>
+        <p className="text-sm text-muted-foreground">Update your business information</p>
       </div>
-      <div className="w-full min-w-[300px] gap-8">
+      <div className="w-full xl:w-2/3">
         <form
           action={async (formData: FormData) => {
             await onSave(formData);
           }}
         >
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 lg:max-w-[600px]">
             <Label htmlFor="siteLogo">Custom Logo</Label>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 relative rounded-md overflow-hidden">

@@ -98,7 +98,7 @@ export default async function Page() {
                 <Badge variant="outline">{extra.status}</Badge>
               </TableCell>
               <TableCell className="hidden md:table-cell">${extra.price}</TableCell>
-              <TableCell className="hidden md:table-cell">{extra._count.bookingExtras}</TableCell>
+              {/* <TableCell className="hidden md:table-cell">{extra._count.bookingExtras}</TableCell> */}
               <TableCell className="hidden md:table-cell">
                 {moment(extra.createdAt).format("MM/DD/YYYY hh:mm A")}
               </TableCell>

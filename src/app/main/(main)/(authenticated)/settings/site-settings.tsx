@@ -49,15 +49,15 @@ function SiteSettings({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-      <div className="min-w-[300px]">
-        <h2 className="text-2xl">Site Settings</h2>
-        <p>Manage your frontend settings here.</p>
-      </div>
-      <div className="w-full min-w-[300px] gap-8">
-        <div>
-          <label htmlFor="favicon">Favicon
-          <div className="flex items-center gap-4">
+    <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">
+      <div className="w-full xl:w-1/3">
+            <h2 className="text-xl font-semibold mb-2">Site Settings</h2>
+            <p className="text-sm text-muted-foreground">Manage your site settings</p>
+          </div>
+      <div className="w-full xl:w-2/3">
+        <div className="flex flex-col gap-4">
+        <Label htmlFor="siteLogo">Favicon</Label>
+          <div className="flex items-center gap-4 my-2">
             <div className="w-10 h-10 relative rounded-md overflow-hidden">
               <Image
                 sizes="100vw"
@@ -76,14 +76,14 @@ function SiteSettings({
               />
             <Button variant="outline" type="button"  onClick={() => document.getElementById("faviconInput")?.click()}>Upload</Button>
           </div>
-          </label>
+          
         </div>
-
         <form action={onSave}>
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="subdomain">Subdomain</Label>
-              <div className="flex columns-2 items-center justify-center">
+          <div className="flex flex-col gap-2 lg:max-w-[600px]">
+            <div className="flex flex-col space-y-2">
+            
+              <Label htmlFor="subdomain" className="gap-8">Subdomain</Label>
+              <div className="flex columns-2 items-center justify-center mt-4">
                 <Input
                   placeholder="subdomain"
                   name="subdomain"
@@ -92,26 +92,17 @@ function SiteSettings({
                   defaultValue={subdomain!}
                 />
                 <Input
-                  placeholder="localhost:3000"
+                  placeholder="process.env.NEXT_PUBLIC_ROOT_DOMAIN"
                   disabled
                   readOnly
                   value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
                   className="rounded-s-none w-4/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
                 />
               </div>
-              <p className="text-xs text-muted-foreground font-semibold">
+              {/* <p className="text-xs text-muted-foreground font-semibold">
                 Please use 32 characters maximum.
-              </p>
+              </p> */}
             </div>
-            {/*<div className="space-y-2">
-              <Label htmlFor="logo">Logo</Label>
-              <Input id="logo" name="logo" type="file" placeholder="Picture" />
-            </div>*/}
-            {/*<div className="space-y-2">
-              <Label htmlFor="favicon">Favicon</Label>
-              <Input id="favicon" name="favicon" type="file" />
-            </div>*/}
-
             <div className="flex justify-end">
               <Button type="submit">Save Changes</Button>
             </div>
@@ -136,38 +127,6 @@ function SiteSettings({
         </div>
       </div>
     </div>
-    /* <Card className="w-full px-5">
-      <form action={onSave}>
-        <CardHeader>
-          <h2 className="text-2xl">Subdomain</h2>
-          <CardDescription>The subdomain for your spots site</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex columns-2 items-center justify-center">
-            <Input
-              placeholder="subdomain"
-              name="subdomain"
-              className="rounded-e-none"
-              maxLength={32}
-              defaultValue={subdomain!}
-            />
-            <Input
-              placeholder="localhost:3000"
-              disabled
-              readOnly
-              value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-              className="rounded-s-none w-4/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <p className="text-xs text-muted-foreground font-bold">
-            Please use 32 characters maximum.
-          </p>
-          <Button>Save Changes</Button>
-        </CardFooter>
-      </form>
-    </Card>*/
   );
 }
 

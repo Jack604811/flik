@@ -743,7 +743,7 @@ function SpotForm({
                         </p>
                       </div>
                     </FormItem>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                       <FormField
                         control={form.control}
                         name="allowAdditionalGuest"
@@ -762,7 +762,7 @@ function SpotForm({
                           </FormItem>
                         )}
                       />
-                    </div>
+                    </div> */}
                     {form.getValues().allowAdditionalGuest && (
                       <div className="grid gap-3">
                         <FormField

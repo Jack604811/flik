@@ -21,7 +21,7 @@ export default async function Dashboard() {
   const currentUser = await getCurrentUser();
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex-1 p-6 pt-4 space-y-8 md:p-8 md:pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
@@ -47,7 +47,7 @@ export default async function Dashboard() {
         <TabsContent value="overview" className="space-y-4">
         <div className="flex-1 space-y-4 p-0 pt-0">
           <TopCards />
-          <div className="grid gap-4 w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
+          <div className="grid gap-4 xs:max-w-[300px] md:w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
             <Sales/>
             <BookingsSource/>
             <BookingStatus/> 

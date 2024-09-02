@@ -55,7 +55,7 @@ export default function DomainForm({
           }
         });
       }}
-      className="rounded-lg border border-stone-200 bg-white dark:border-stone-700 dark:bg-black overflow-x-auto"
+      className="rounded-lg border border-stone-200 bg-white dark:border-stone-700 dark:bg-black overflow-x-auto max-w-[600px]"
     >
       <div className="relative flex flex-col space-y-4 p-5 sm:p-10">
         <h2 className="font-cal text-xl dark:text-white">{title}</h2>
@@ -63,7 +63,7 @@ export default function DomainForm({
           {description}
         </p>
         {inputAttrs.name === "subdomain" ? (
-          <div className="flex w-full max-w-md">
+          <div className="flex w-full">
             <Input
               {...inputAttrs}
               required

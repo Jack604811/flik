@@ -25,14 +25,14 @@ export default async function Page() {
   const wompiConnection = await getConnectWompi(currentUser!.id);
 
   return (
-    <div className="flex flex-col w-full gap-4 items-start justify-start my-8 mx-6">
+    <div className="flex-1 p-6 pt-4 space-y-8 md:p-8 md:pt-6">
       <div className="mb-8">
         <h2 className="text-2xl font-bold tracking-tight">Integrations</h2>
         <p className="text-muted-foreground">
           Connect your favorite apps to boost your business!
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 w-full max-w-5xl justify-start items-start pr-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 w-full max-w-5xl justify-start items-start">
         <Card className="flex flex-col pt-6 md:w-full xs:max-w-[400px]">
           <CardContent className="flex flex-col gap-2 items-center">
             <div className="flex w-full justify-between items-start">

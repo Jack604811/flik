@@ -119,8 +119,8 @@ export async function MainHeader() {
 
 
   return (
-    <header className="sticky top-0 border-b bg-background w-full z-10">
-      <div className="flex h-16 items-center justify-end gap-4 px-8 w-full mx-auto">
+    <header className="lg:fixed top-0 left-0 z-50 border-none bg-transparent w-full">
+      <div className="flex h-16 items-center justify-end gap-4 px-6 md:px-8 w-full mx-auto">
         <nav className="flex w-full justify-between lg:justify-end items-center gap-2">
           <Link href="/" className="lg:hidden flex items-center gap-2 text-lg font-semibold md:text-base">
             <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
@@ -129,7 +129,7 @@ export async function MainHeader() {
           </Link>
           <div className="flex gap-2">
             <ModeToggle />
-            
+         
             {/* <Button
               variant="ghost"
               size="icon"

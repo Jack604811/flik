@@ -11,7 +11,7 @@ export default function DomainStatus({ domain }: { domain: string }) {
     <LoadingSpinner />
   ) : status === "Valid Configuration" ? (
     <CheckCircle2
-      fill="#2563EB"
+      fill="#22c55e"
       stroke="currentColor"
       className="text-white dark:text-black"
     />
