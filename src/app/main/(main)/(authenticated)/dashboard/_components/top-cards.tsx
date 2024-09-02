@@ -1,6 +1,15 @@
+"use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getTotalCardsMetric } from "@/server/actions/dashboard.action";
+import { useQuery } from "@tanstack/react-query";
 
-export function TopCards() {
+type Params = {startDate: Date, endDate: Date, userId: string}
+export function TopCards({ userId, endDate, startDate } : Params) {
+  const { data, } = useQuery({
+    queryKey: ["top-cards-metric", startDate, endDate],
+    queryFn: () => getTotalCardsMetric(userId, startDate, endDate),
+  })
+
   return (
     <div className="grid gap-4 min-w-[359px] md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -20,7 +29,7 @@ export function TopCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$45,231.89</div>
+          <div className="text-2xl font-bold">${data?.totalRevenue ?? "0.00"}</div>
           <p className="text-xs text-muted-foreground">+20.1% from last month</p>
         </CardContent>
       </Card>
@@ -43,7 +52,7 @@ export function TopCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">+2350</div>
+          <div className="text-2xl font-bold"> {data?.totalBookings ? `+${data?.totalBookings}` : "0"}</div>
           <p className="text-xs text-muted-foreground">+18.1% from last month</p>
         </CardContent>
       </Card>
@@ -65,7 +74,7 @@ export function TopCards() {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$12,234</div>
+          <div className="text-2xl font-bold">${data?.totalExtraSales.toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">+19% from last month</p>
         </CardContent>
       </Card>

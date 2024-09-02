@@ -46,13 +46,13 @@ export default async function Dashboard() {
         </div>
         <TabsContent value="overview" className="space-y-4">
         <div className="flex-1 space-y-4 p-0 pt-0">
-          <TopCards />
+          <TopCards  userId={currentUser?.id!} startDate={new Date()} endDate={new Date()}/>
           <div className="grid gap-4 xs:max-w-[300px] md:w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
             <Sales/>
             <BookingsSource/>
-            <BookingStatus/> 
-            <BookingList/>
-            <Income/>
+            <BookingStatus userId={currentUser?.id!} startDate={new Date()} endDate={new Date()} /> 
+            <BookingList userId={currentUser?.id!} startDate={new Date()} endDate={new Date()} />
+            <Income userId={currentUser?.id!} startDate={new Date()} endDate={new Date()}/>
             <BookingsPerMonth/> 
             <SpotsAndExtras/>
             <Traffic/>
