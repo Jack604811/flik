@@ -35,7 +35,7 @@ const files = [
 
 const features = [
   {
-    Icon: CalendarIcon,
+    
     name: "Dynamic Booking Flexibility",
     description:
       "Set up your booking durations and time slots with complete flexibility. Tailor your availability down to the hour, day, or week – whatever suits your business needs.",
@@ -51,7 +51,7 @@ const features = [
     ),
   },
   {
-    Icon: BellIcon,
+   
     name: "Instant Website Creation",
     description:
       "Automatically generate a professional, SEO-friendly website based on your spaces. Customize it with your logo, favicon, and domain to match your brand perfectly. Drive traffic with paid ads or organic searches to boost your bookings.",
@@ -66,7 +66,7 @@ const features = [
     ),
   },
   {
-    Icon: Share2Icon,
+    
     name: "Integrated Payment Solutions",
     description:
       "Connect with leading payment platforms or manually track transactions for cash, bank transfers, and more. Our system supports multiple payment methods, ensuring you never miss a payment.",
@@ -78,7 +78,7 @@ const features = [
     ),
   },
   {
-    Icon: FileTextIcon,
+ 
     name: "Insightful Analytics",
     description:
       "Dive into detailed analytics to track your bookings, transactions, and revenues. Understand your performance at a glance with metrics like occupancy rates, total visits, and upsell effectiveness.",

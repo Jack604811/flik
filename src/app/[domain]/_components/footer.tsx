@@ -14,7 +14,7 @@ export default function Footer({ siteData }: FooterProps): JSX.Element {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="sticky bottom-0 mt-auto py-4 bg-inherit">
+    <footer className="sticky z-50 bottom-0 mt-auto py-4 bg-inherit">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between md:flex-row">
           <div className="mb-4 md:mb-0">

@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
   const hasSpots = siteData?.spots.length! > 1;
 
   return (
-    <div className="flex flex-col h-[90vh]  items-center justify-start">
+    <div className="flex flex-col min-h-screen items-center justify-start">
 
       {/*<section
         className={`relative w-full ${
@@ -70,7 +70,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
         </div>
       </section>*/}
       {siteData?.spots.length && (
-       <section className="min-h-[90vh] w-full pt-12 md:pt-16 lg:pt-20">
+       <section className="w-full py-12 md:py-16 lg:py-20">
        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
          <div className="mb-8 text-center">
            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -124,7 +124,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
        </div>
      </section>
       )}
-            
+        
     </div>
   );
 }

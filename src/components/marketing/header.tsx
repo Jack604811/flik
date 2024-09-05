@@ -26,7 +26,7 @@ const sidebarLinks = SIDEBAR_ROUTES;
 export async function MarketingHeader() {
   const session = await getServerSession(authOptions);
   return (
-    <header className="sticky top-0 border-b w-full z-10">
+    <header className="sticky top-0 border-b w-full z-10 backdrop-blur-lg">
       <div className="flex h-16 items-center gap-4 px-4 md:px-4 w-full mx-auto justify-start">
         <nav className="relative md:flex md:flex-1 justify-between gap-6 text-lg font-medium md:items-center md:text-sm lg:gap-6">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
@@ -119,7 +119,7 @@ export async function MainHeader() {
 
 
   return (
-    <header className="lg:fixed top-0 left-0 z-50 border-none bg-transparent w-full">
+    <header className="lg:fixed top-0 left-0 z-50 border-none ">
       <div className="flex h-16 items-center justify-end gap-4 px-6 md:px-8 w-full mx-auto">
         <nav className="flex w-full justify-between lg:justify-end items-center gap-2">
           <Link href="/" className="lg:hidden flex items-center gap-2 text-lg font-semibold md:text-base">
