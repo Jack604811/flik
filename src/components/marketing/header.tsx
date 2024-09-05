@@ -18,6 +18,7 @@ import { LogoutButton } from "../auth/logout-button";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth/options";
 import ShimmerButton from "../magicui/shimmer-button";
+import DashboardButton from "./dashboard-button";
 
 const navigationLinks = APP_ROUTES; 
 const sidebarLinks = SIDEBAR_ROUTES;
@@ -66,19 +67,7 @@ export async function MarketingHeader() {
                 <span>Login</span>
               </Link>
             )}
-            {session?.user ? (
-              <Link href={"/dashboard"}>
-                <ShimmerButton>
-                  <span className="text-sm text-background dark:text-primary">Dashboard</span>
-                </ShimmerButton>
-              </Link>
-            ) : (
-              <Link href={"/signin"}>
-                <ShimmerButton>
-                  <span className="text-sm text-background dark:text-primary">Get started</span>
-                </ShimmerButton>
-              </Link>
-            )}
+            <DashboardButton/>
           </div>
           <div className="flex lg:hidden items-center justify-end flex-1">
             <Sheet>
@@ -119,7 +108,7 @@ export async function MainHeader() {
 
 
   return (
-    <header className="lg:fixed top-0 left-0 z-50 border-none ">
+    <header className="lg:fixed top-0 left-0 z-50 border-none w-full pointer-events-none">
       <div className="flex h-16 items-center justify-end gap-4 px-6 md:px-8 w-full mx-auto">
         <nav className="flex w-full justify-between lg:justify-end items-center gap-2">
           <Link href="/" className="lg:hidden flex items-center gap-2 text-lg font-semibold md:text-base">

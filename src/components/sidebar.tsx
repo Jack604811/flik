@@ -104,7 +104,7 @@ export const Sidebar = () => {
                   </Link>
                 </Button>
               </CommandItem>
-              <CommandItem className="h-[32px]">
+              {/* <CommandItem className="h-[32px]">
                 <Button
                   asChild
                   variant={pathname.includes("/integrations") ? "secondary" : "ghost"}
@@ -131,7 +131,7 @@ export const Sidebar = () => {
                   </Link>
                 </Button>
               </CommandItem>
-              }
+              } */}
               <CommandItem className="h-[32px]">
                 <Button
                   asChild

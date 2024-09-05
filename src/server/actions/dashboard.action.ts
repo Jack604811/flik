@@ -12,7 +12,7 @@ export const getTotalCardsMetric = async (
     where: {
       booking: { spot: { userId } },
       AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-      status: TransactionStatus.Approved
+      // status: TransactionStatus.Approved
     },
   })
 

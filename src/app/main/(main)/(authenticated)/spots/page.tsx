@@ -20,7 +20,7 @@ export default async function Page() {
     <>
       <div className="flex-1 p-6 pt-16 space-y-8 md:p-8 md:pt-16">
         <div className="flex items-center justify-between space-y-2">
-          <div>
+          <div className="mt-8 mx-8">
             <h2 className="text-2xl font-bold tracking-tight">Spots</h2>
             <p className="text-muted-foreground">
               Available spots show here, and you can edit them

@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import TeamManagement from "./team-management";
 import Billing from "./billing";
 import CustomFields from "./custom-fields";
+import Integrations from "./integrations/page";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -47,6 +48,9 @@ export default async function Page() {
         </TabsContent>
         <TabsContent value="team">
           <TeamManagement/>
+        </TabsContent>
+        <TabsContent value="integrations">
+          <Integrations/>
         </TabsContent>
         <TabsContent value="fields">
           <CustomFields/>
