@@ -1,6 +1,5 @@
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
-import GithubProvider from "next-auth/providers/github";
 import { type Provider } from "next-auth/providers/index";
 import { env } from "@/env";
 import { Resend } from 'resend';
@@ -14,10 +13,7 @@ export const providers: Provider[] = [
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
   }),
-  GithubProvider({
-    clientId: env.GITHUB_CLIENT_ID,
-    clientSecret: env.GITHUB_CLIENT_SECRET,
-  }),
+  
   EmailProvider({
     async sendVerificationRequest({ identifier: email, url }) {
       await resend.emails.send({

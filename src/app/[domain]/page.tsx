@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { getSiteData } from "@/server/actions/domain.action";
 import Image from "next/image";
-import { env } from "@/env";
-import { Mountain } from "lucide-react";
-import Head from "next/head";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/theme-toggle";
+import { getSiteData } from "@/server/actions/domain.action";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -16,6 +11,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import CardList from "./_components/card-list";
 
 export default async function Page({ params }: { params: { domain: string } }) {
   const domain = decodeURIComponent(params.domain);
@@ -26,39 +22,7 @@ export default async function Page({ params }: { params: { domain: string } }) {
   const hasSpots = siteData?.spots.length! > 1;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header>
-      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <div className="flex justify-between items-center h-16 w-full px-4 sm:px-6 lg:px-8">
-          <Link className="flex items-center" href="/">
-            {siteData?.logo ? (
-              <>
-                <Image
-                  width={100}
-                  height={100}
-                  src={`${siteData.logo}?${Date.now()}`}
-                  alt={siteData.siteName!}
-                  unoptimized
-                  className="max-w-[90px]"
-                />
-                <span className="ml-2 text-lg font-bold">
-                  {siteData?.siteName ?? ""}
-                </span>
-              </>
-            ) : (
-              <span className="ml-2 text-lg font-bold">
-                {siteData?.siteName ?? ""}
-              </span>
-            )}
-          </Link>
-
-          <div className="flex items-center space-x-8">
-          
-
-            <ModeToggle />
-          </div>
-        </div>
-      </header>
+    <div className="flex flex-col h-[90vh]  items-center justify-start">
 
       {/*<section
         className={`relative w-full ${
@@ -106,90 +70,61 @@ export default async function Page({ params }: { params: { domain: string } }) {
         </div>
       </section>*/}
       {siteData?.spots.length && (
-        <section className="py-12 md:py-16 lg:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Featured Spots
-              </h2>
-              <p className="mt-4 text-gray-500">
-                Discover our most popular spots.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {siteData?.spots.slice(0).map((spot) => (
-                <div
-                  className="group relative overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-lg dark:border-2 dark:rounded-xl"
-                  key={spot.id}
-                >
-                  <Link href={`/${spot.path ? spot.path : spot.id}`}>
-                  <Image
-                    alt={spot.name}
-                    className="h-64 w-full object-cover"
-                    height="300"
-                    src={spot.images[0].url}
-                    style={{
-                      aspectRatio: "16/9",
-                      objectFit: "cover",
-                    }}
-                    width="320"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-xl font-bold">
-                      {spot.name}
-                    </h3>
-                    <p className="mt-2 line-clamp-3">
-                      {spot.description}
-                    </p>
-                    <div className="mt-4">
-                      <Button className="hover:scale-105">Explore</Button>
-                    </div>
-                  </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+       <section className="min-h-[90vh] w-full pt-12 md:pt-16 lg:pt-20">
+       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+         <div className="mb-8 text-center">
+           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+             Featured Spots
+           </h2>
+           <p className="mt-4 text-gray-500">Discover our exclusive selection of spots</p>
+         </div>
+         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+           {siteData?.spots
+             ?.map((spot: {
+               id: string;
+               path?: string;
+               name: string;
+               images: { url: string }[];
+               description: string;
+             }) => (
+               <div
+                 className="group relative overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-lg dark:border-2 dark:rounded-xl"
+                 key={spot.id}
+               >
+                 <Link href={`/${spot.path ? spot.path : spot.id}`}>
+                   <div className="relative h-64 w-full">
+                     <Image
+                       alt={spot.name}
+                       className="h-full w-full object-cover"
+                       src={spot.images.length > 0 ? spot.images[0].url : "/placeholder.svg"}
+                       width={640}
+                       height={360}
+                       style={{
+                         aspectRatio: "16/9",
+                         objectFit: "cover",
+                       }}
+                     />
+                   </div>
+                   <div className="p-4">
+                     <h3 className="text-xl font-bold">{spot.name}</h3>
+                     <p className="mt-2 line-clamp-3">{spot.description}</p>
+                     <div className="mt-4">
+                       <button
+                         style={{ backgroundColor: "var(--primary-color)" }}
+                         className="hover:scale-105 py-2 px-4 rounded"
+                       >
+                         Explore
+                       </button>
+                     </div>
+                   </div>
+                 </Link>
+               </div>
+             ))}
+         </div>
+       </div>
+     </section>
       )}
-      <footer className="mt-auto py-4">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between md:flex-row">
-            <div className="mb-4 md:mb-0">
-              <Link className="flex items-center" href="/">
-                {siteData?.logo ? (
-                  <>
-                    <Image
-                      width={100}
-                      height={100}
-                      src={`${siteData.logo}?${Date.now()}`}
-                      alt={siteData.siteName!}
-                      className="max-w-[90px]"
-                    />
-                    <span className="ml-2 text-lg font-bold">
-                      {siteData?.siteName ?? ""}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="ml-2 text-lg font-bold">
-                      {siteData?.siteName ?? ""}
-                    </span>
-                  </>
-                )}
-              </Link>
-            </div>
-            <div className="flex flex-col items-center space-y-4 md:flex-row md:space-y-0 md:space-x-8">
-              <Link className="text-gray-400 hover:text-white" href="/">
-                Home
-              </Link>
-            </div>
-          </div>
-          <div className="mt-8 text-center text-gray-400">
-            © 2024 {siteData?.siteName} All rights reserved.
-          </div>
-        </div>
-      </footer>
+            
     </div>
   );
 }

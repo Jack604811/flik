@@ -10,8 +10,8 @@ import { getSiteData } from "@/server/actions/domain.action";
 import { env } from "@/env";
 import { getConfigResponse, getDomainResponse } from "@/server/helpers/domains";
 import { permanentRedirect } from "next/navigation";
-
-
+import Footer from "./_components/footer";
+import Header from "./_components/header";
 
 export default async function RootLayout({
   children,
@@ -20,36 +20,45 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { domain: string };
 }>) {
-    const domain = decodeURIComponent(params.domain);
-    const siteData = await getSiteData(domain);
+  const domain = decodeURIComponent(params.domain);
+  const siteData = await getSiteData(domain);
+  
   return (
-      <html lang={APP_LANG}>
-        <head key="head">
+    <html lang={APP_LANG}>
+      <head key="head">
         <title>{siteData?.siteName ?? "Spot Page"}</title>
         <link
           rel="icon"
           type="image/x-icon"
           href={siteData?.favicon ?? "/placeholder.svg"}
         />
-          <link
-            rel="apple-touch-icon"
-            sizes="180x180"
-            href={siteData?.favicon ?? "/placeholder.svg"}
-          />
-          <link rel="manifest" href="/site.webmanifest" />
-          <link rel="mask-icon" href={siteData?.favicon ?? "/placeholder.svg"} color="#5bbad5" />
-          <meta name="msapplication-TileColor" content="#da532c" />
-          <meta name="theme-color" content="#ffffff" />
-          <script type="text/javascript" src="https://checkout.wompi.co/widget.js" async></script>
-        </head>
-        <body>
-          <ThemeProvider attribute="class" defaultTheme="system">
-            <NextTopLoader />
-            <Toaster position="top-center" />
-            {children}
-            {process.env.NODE_ENV === 'development' &&<TailwindScreen />}
-          </ThemeProvider>
-        </body>
-      </html>
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href={siteData?.favicon ?? "/placeholder.svg"}
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href={siteData?.favicon ?? "/placeholder.svg"} color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+        <script type="text/javascript" src="https://checkout.wompi.co/widget.js" async></script>
+      </head>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system">
+          <NextTopLoader />
+          <Toaster position="top-center" />
+          <Header  siteData={{
+          logo: siteData?.logo ?? undefined,
+          siteName: siteData?.siteName ?? undefined
+        }} />
+          <main>{children}</main>
+          <Footer siteData={{
+        logo: siteData?.logo ?? undefined,
+        siteName: siteData?.siteName ?? undefined
+      }} />
+          {process.env.NODE_ENV === 'development' && <TailwindScreen />}
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

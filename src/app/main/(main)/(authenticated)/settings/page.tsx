@@ -28,8 +28,10 @@ export default async function Page() {
       <Tabs defaultValue="main">
         <TabsList>
           <TabsTrigger value="main">Main</TabsTrigger>
+          <TabsTrigger value="site">Website</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="fields">Fields</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="fields">Custom Fields</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
         <TabsContent 

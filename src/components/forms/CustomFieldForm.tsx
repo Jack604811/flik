@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { MoreHorizontal, CalendarIcon, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { MoreHorizontal, CalendarIcon, Plus, ChevronDown } from "lucide-react"
 import { format } from "date-fns"
 
 type FieldData = {
@@ -24,6 +24,8 @@ type FieldData = {
 }
 
 type Conditional = {
+  id: string
+  name: string
   targetType: 'field' | 'spot'
   target: string
   condition: 'is' | 'is not' | 'contains' | 'does not contain' | 'any'
@@ -90,23 +92,41 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
   fields: string[]
   spots: string[]
 }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
   const spotConditions = ['is', 'is not', 'any']
   const fieldConditions = ['is', 'is not', 'contains', 'does not contain']
 
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isEditing])
+
   return (
-    <div className="space-y-4 border p-4 rounded-md relative">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0 absolute top-2 right-2">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onClone}>Clone</DropdownMenuItem>
-          <DropdownMenuItem onClick={onDelete}>Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <Input
+          ref={inputRef}
+          value={conditional.name}
+          onChange={(e) => onChange({ ...conditional, name: e.target.value })}
+          className={`text-lg font-semibold bg-transparent ${isEditing ? 'border' : 'border-none'}`}
+          onBlur={() => setIsEditing(false)}
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => setIsEditing(true)}>Rename</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onClone}>Clone</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onDelete}>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <div className="space-y-2">
         <Label>If</Label>
@@ -208,6 +228,49 @@ function ConditionalForm({ conditional, onChange, onDelete, onClone, fields, spo
   )
 }
 
+function CustomAccordion({ items, activeItem, onItemClick, renderContent }: {
+  items: { id: string; title: string }[]
+  activeItem: string | null
+  onItemClick: (id: string) => void
+  renderContent: (id: string) => React.ReactNode
+}) {
+  return (
+    <div className="space-y-2">
+      {items.map((item) => (
+        <div key={item.id} className="border rounded-md">
+          {activeItem !== item.id && (
+            <button
+              className="w-full p-4 text-left flex justify-between items-center"
+              onClick={() => onItemClick(item.id)}
+            >
+              <span>{item.title}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          )}
+          {activeItem === item.id && (
+            <div className="p-4">
+              {renderContent(item.id)}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyState({ onAddConditional }: { onAddConditional: () => void }) {
+  return (
+    <div className="text-center py-10">
+      <h3 className="text-lg font-semibold mb-2">No conditionals yet</h3>
+      <p className="text-muted-foreground mb-4">Add a conditional to customize the behavior of your field.</p>
+      <Button onClick={onAddConditional} variant="outline">
+        <Plus className="h-4 w-4 mr-2" />
+        Add Your First Conditional
+      </Button>
+    </div>
+  )
+}
+
 export default function Component() {
   const [field, setField] = useState<FieldData>({
     name: '',
@@ -216,16 +279,10 @@ export default function Component() {
     placeholder: '',
     helperText: '',
     required: false,
-    conditionals: [{
-      targetType: 'field',
-      target: '',
-      condition: 'is',
-      value: '',
-      action: 'show'
-    }]
+    conditionals: []
   })
 
-  const [currentConditionalIndex, setCurrentConditionalIndex] = useState(0)
+  const [activeConditional, setActiveConditional] = useState<string | null>(null)
 
   // Mock data for existing fields and spots
   const existingFields = ['Field 1', 'Field 2', 'Field 3']
@@ -243,171 +300,153 @@ export default function Component() {
 
   const addConditional = () => {
     if (field.conditionals.length < 6) {
+      const newConditional: Conditional = {
+        id: String(field.conditionals.length + 1),
+        name: `Condition ${field.conditionals.length + 1}`,
+        targetType: 'field',
+        target: '',
+        condition: 'is',
+        value: '',
+        action: 'show'
+      }
       setField(prev => ({
         ...prev,
-        conditionals: [...prev.conditionals, {
-          targetType: 'field',
-          target: '',
-          condition: 'is',
-          value: '',
-          action: 'show'
-        }]
+        conditionals: [...prev.conditionals, newConditional]
       }))
-      setCurrentConditionalIndex(field.conditionals.length)
+      setActiveConditional(newConditional.id)
     }
   }
 
-  const updateConditional = (index: number, updatedConditional: Conditional) => {
+  const updateConditional = (updatedConditional: Conditional) => {
     setField(prev => ({
       ...prev,
-      conditionals: prev.conditionals.map((c, i) => i === index ? updatedConditional : c)
+      conditionals: prev.conditionals.map((c) => c.id === updatedConditional.id ? updatedConditional : c)
     }))
   }
 
-  const deleteConditional = (index: number) => {
+  const deleteConditional = (id: string) => {
     setField(prev => ({
       ...prev,
-      conditionals: prev.conditionals.filter((_, i) => i !== index)
+      conditionals: prev.conditionals.filter((c) => c.id !== id)
     }))
-    setCurrentConditionalIndex(Math.min(currentConditionalIndex, field.conditionals.length - 2))
+    if (activeConditional === id) {
+      setActiveConditional(prev => {
+        const index = field.conditionals.findIndex(c => c.id === id)
+        return index > 0 ? field.conditionals[index - 1].id : null
+      })
+    }
   }
 
-  const cloneConditional = (index: number) => {
+  const cloneConditional = (id: string) => {
     if (field.conditionals.length < 6) {
-      setField(prev => ({
-        ...prev,
-        conditionals: [
-          ...prev.conditionals.slice(0, index + 1),
-          { ...prev.conditionals[index] },
-          ...prev.conditionals.slice(index + 1)
-        ]
-      }))
-      setCurrentConditionalIndex(index + 1)
+      const conditionalToClone = field.conditionals.find(c => c.id === id)
+      if (conditionalToClone) {
+        const clonedConditional: Conditional = { 
+          ...conditionalToClone, 
+          id: String(field.conditionals.length + 1),
+          name: `${conditionalToClone.name} (Copy)` 
+        }
+        setField(prev => ({
+          ...prev,
+          conditionals: [...prev.conditionals, clonedConditional]
+        }))
+        setActiveConditional(clonedConditional.id)
+      }
     }
   }
 
   return (
-    
-        <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="conditionals">Conditionals</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
-          <form onSubmit={handleSubmit}>
-            <TabsContent value="basic" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" value={field.name} onChange={handleChange} placeholder="Enter field name" required />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="type">Type</Label>
-                <Select value={field.type} onValueChange={(value) => setField(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="input">Input</SelectItem>
-                    <SelectItem value="number">Number</SelectItem>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="dropdown">Dropdown</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {field.type === 'dropdown' && (
-                <div className="space-y-2">
-                  <Label htmlFor="options">Options (comma-separated)</Label>
-                  <Input id="options" name="options" value={field.options} onChange={handleChange} placeholder="Option 1, Option 2, Option 3" />
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="placeholder">Placeholder</Label>
-                <Input id="placeholder" name="placeholder" value={field.placeholder} onChange={handleChange} placeholder="Enter placeholder text" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="helperText">Helper Text</Label>
-                <Textarea id="helperText" name="helperText" value={field.helperText} onChange={handleChange} placeholder="Enter helper text" />
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Switch id="required" checked={field.required}
-                  onCheckedChange={(checked) => setField(prev => ({ ...prev, required: checked }))} />
-                <Label htmlFor="required">Required</Label>
-              </div>
-            </TabsContent>
-            <TabsContent value="conditionals" className="space-y-4">
-              {field.conditionals.length > 0 && (
-                <ConditionalForm
-                  conditional={field.conditionals[currentConditionalIndex]}
-                  onChange={(updatedConditional) => updateConditional(currentConditionalIndex, updatedConditional)}
-                  onDelete={() => deleteConditional(currentConditionalIndex)}
-                  onClone={() => cloneConditional(currentConditionalIndex)}
-                  fields={existingFields}
-                  spots={existingSpots}
-                />
-              )}
-              {field.conditionals.length > 1 && (
-                <div className="flex justify-between items-center mt-4 space-x-2">
-                  <Button
-                    onClick={() => setCurrentConditionalIndex(prev => Math.max(prev - 1, 0))}
-                    disabled={currentConditionalIndex === 0}
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <div className="flex-1 flex justify-center space-x-2">
-                    {field.conditionals.map((_, index) => (
-                      <Button
-                        key={index}
-                        onClick={() => setCurrentConditionalIndex(index)}
-                        type="button"
-                        size="sm"
-                        variant={currentConditionalIndex === index ? "default" : "outline"}
-                      >
-                        {index + 1}
-                      </Button>
-                    ))}
-                  </div>
-                  {field.conditionals.length < 6 ? (
-                    <Button
-                      onClick={addConditional}
-                      type="button"
-                      size="icon"
-                      variant="outline"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => setCurrentConditionalIndex(prev => Math.min(prev + 1, field.conditionals.length - 1))}
-                      disabled={currentConditionalIndex === field.conditionals.length - 1}
-                      type="button"
-                      size="icon"
-                      variant="outline"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              )}
-              {field.conditionals.length === 1 && (
-                <Button onClick={addConditional} type="button" className="w-full">Add Conditional</Button>
-              )}
-            </TabsContent>
-            <TabsContent value="preview" className="pt-4">
-              <Preview field={field} />
-            </TabsContent>
-            <div className="mt-6">
-              <Button type="submit" className="w-full">Save Custom Field</Button>
+    <Tabs defaultValue="basic" className="w-full">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="basic">Basic Info</TabsTrigger>
+        <TabsTrigger value="conditionals">Conditionals</TabsTrigger>
+        <TabsTrigger value="preview">Preview</TabsTrigger>
+      </TabsList>
+      <form onSubmit={handleSubmit}>
+        <TabsContent value="basic" className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" name="name" value={field.name} onChange={handleChange} placeholder="Enter field name" required />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="type">Type</Label>
+            <Select value={field.type} onValueChange={(value) => setField(prev => ({ ...prev, type: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="input">Input</SelectItem>
+                <SelectItem value="number">Number</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+                <SelectItem value="dropdown">Dropdown</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {field.type === 'dropdown' && (
+            <div className="space-y-2">
+              <Label htmlFor="options">Options (comma-separated)</Label>
+              <Input id="options" name="options" value={field.options} onChange={handleChange} placeholder="Option 1, Option 2, Option 3" />
             </div>
-          </form>
-        </Tabs>
-     
+          )}
+          
+          <div className="space-y-2">
+            <Label htmlFor="placeholder">Placeholder</Label>
+            <Input id="placeholder" name="placeholder" value={field.placeholder} onChange={handleChange} placeholder="Enter placeholder text" />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="helperText">Helper Text</Label>
+            <Textarea id="helperText" name="helperText" value={field.helperText} onChange={handleChange} placeholder="Enter helper text" />
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch id="required" checked={field.required}
+              onCheckedChange={(checked) => setField(prev => ({ ...prev, required: checked }))} />
+            <Label htmlFor="required">Required</Label>
+          </div>
+        </TabsContent>
+        <TabsContent value="conditionals" className="space-y-4">
+          {field.conditionals.length === 0 ? (
+            <EmptyState onAddConditional={addConditional} />
+          ) : (
+            <>
+              <CustomAccordion
+                items={field.conditionals.map(c => ({ id: c.id, title: c.name }))}
+                activeItem={activeConditional}
+                onItemClick={setActiveConditional}
+                renderContent={(id) => {
+                  const conditional = field.conditionals.find(c => c.id === id)
+                  if (!conditional) return null
+                  return (
+                    <ConditionalForm
+                      conditional={conditional}
+                      onChange={updateConditional}
+                      onDelete={() => deleteConditional(id)}
+                      onClone={() => cloneConditional(id)}
+                      fields={existingFields}
+                      spots={existingSpots}
+                    />
+                  )
+                }}
+              />
+              {field.conditionals.length < 6 && (
+                <Button onClick={addConditional} type="button" className="w-full" variant="ghost">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Conditional
+                </Button>
+              )}
+            </>
+          )}
+        </TabsContent>
+        <TabsContent value="preview" className="pt-4">
+          <Preview field={field} />
+        </TabsContent>
+        <div className="mt-6">
+          <Button type="submit" className="w-full">Save Custom Field</Button>
+        </div>
+      </form>
+    </Tabs>
   )
 }

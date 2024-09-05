@@ -1,32 +1,43 @@
 "use client";
 /* eslint-disable react/no-unescaped-entities */
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
 import { Spot, SpotImages, User } from "@prisma/client";
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, X, XIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import { useState } from "react";
 import { BookingDates } from "@/lib/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+ // Import react-swipeable for swipe gestures
 import BookingAvailability from "./BookingAvailability";
 import moment from "moment";
 import { DateRange } from "react-day-picker";
+import Link from "next/link";
+import CardList from "@/app/[domain]/_components/card-list";
+import { Button } from "@/components/ui/button";
 
-export default function SpotDetails({
-  spot,
-}: {
+interface SpotDetailsProps {
   spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[] };
-}) {
+  siteData: {
+    // Define the structure of siteData here
+  };
+}
+
+const SpotDetails: React.FC<SpotDetailsProps> = ({ spot, siteData }) => {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
@@ -82,47 +93,154 @@ export default function SpotDetails({
           : undefined,
       };
 
+  // const swipeHandlers = useSwipeable({
+  //   onSwipedLeft: () => handleNext(),
+  //   onSwipedRight: () => handlePrevious(),
+  //   preventScrollOnSwipe: true,
+  //   trackMouse: true,
+  // });
+
   return (
     <div className="max-w-6xl mx-auto p-4 lg:px-6 sm:py-8 md:py-10">
-      <Carousel opts={{ loop: true }} className="w-full max-w-6xl">
-        <CarouselContent>
-          {spot.images.map((image, index) => (
-            <CarouselItem
-              key={image.id}
-              className={index === currentIndex ? "block" : "hidden"}
-            >
-              <div className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300">
-                <Image
-                  alt={`Image ${image.id}`}
-                  className=" aspect-video object-cover"
-                  height={450}
-                  src={image.url}
-                  width={1920}
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <button
-          onClick={handlePrevious}
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2"
-        >
-          <ChevronLeftIcon className="w-6 h-6" />
-          <span className="sr-only">Previous slide</span>
-        </button>
-        <button
-          onClick={handleNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2"
-        >
-          <ChevronRightIcon className="w-6 h-6" />
-          <span className="sr-only">Next slide</span>
-        </button>
-      </Carousel>
+      
+        <div className="flex items-center gap-2 h-10 mb-2">
+            <Link href="/">
+              <Button
+                type="button"
+                className="h-7 w-7"
+                size="icon"
+                variant="outline"
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+              </Button>
+            </Link>
+            <h3 className="whitespace-nowrap text-xl font-semibold tracking-tight ">
+              Back
+            </h3>
+        </div>
+      
+
+      {spot.images.length > 0 ? (
+        <>
+          <Carousel opts={{ loop: true }} className="w-full max-w-6xl">
+            <CarouselContent>
+              {spot.images.map((image, index) => (
+                <CarouselItem
+                  key={image.id}
+                  className={index === currentIndex ? "block" : "hidden"}
+                >
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <div className="relative cursor-pointer after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all rounded-xl overflow-hidden dark:focus-visible:ring-gray-300">
+                        <Image
+                          alt={`Image ${image.id}`}
+                          className="aspect-video object-cover"
+                          height={450}
+                          src={image.url}
+                          width={1920}
+                          onClick={() => {
+                            setCurrentIndex(index);
+                            setIsDialogOpen(true);
+                          }}
+                        />
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="p-0 bg-black">
+                      <Button
+                        onClick={() => setIsDialogOpen(false)}
+                        variant="destructive"
+                        className="absolute top-4 right-4 rounded-full !p-0.5 h-auto z-50"
+                      >
+                        <X size={16} />
+                        <span className="sr-only">Close dialog</span>
+                      </Button>
+                      <div>
+                        <Carousel opts={{ loop: true }} className="w-full h-full">
+                          <CarouselContent>
+                            {spot.images.map((image, idx) => (
+                              <CarouselItem
+                                key={image.id}
+                                className={idx === currentIndex ? "block" : "hidden"}
+                              >
+                                <div className="relative after:opacity-0 after:absolute after:inset-0 after:bg-black hover:after:opacity-20 focus:after:opacity-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 transition-all overflow-hidden">
+                                  <Image
+                                    alt={`Image ${image.id}`}
+                                    className="object-cover"
+                                    height={450}
+                                    src={image.url}
+                                    width={1920}
+                                  />
+                                </div>
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+
+                          {spot.images.length > 1 && (
+                            <>
+                              <button
+                                onClick={handlePrevious}
+                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2"
+                              >
+                                <ChevronLeftIcon className="w-6 h-6" />
+                                <span className="sr-only">Previous slide</span>
+                              </button>
+                              <button
+                                onClick={handleNext}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2"
+                              >
+                                <ChevronRightIcon className="w-6 h-6" />
+                                <span className="sr-only">Next slide</span>
+                              </button>
+                            </>
+                          )}
+                        </Carousel>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            {spot.images.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevious}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2"
+                >
+                  <ChevronLeftIcon className="w-6 h-6" />
+                  <span className="sr-only">Previous slide</span>
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2"
+                >
+                  <ChevronRightIcon className="w-6 h-6" />
+                  <span className="sr-only">Next slide</span>
+                </button>
+              </>
+            )}
+          </Carousel>
+        </>
+      ) : (
+        // Placeholder Image when there are no images
+        <div className="w-full max-w-6xl">
+          <div className="relative rounded-xl overflow-hidden shadow-md">
+            <Image
+              alt="Placeholder Image"
+              className="aspect-video object-cover"
+              height={450}
+              src="/placeholder.svg" // Path to your placeholder image
+              width={1920}
+            />
+          </div>
+        </div>
+      )}
 
       <section className="py-8 grid md:grid-cols-2 lg:grid-cols-[1fr_360px] gap-8 sm:gap-12 md:gap-16 items-start">
         <div className="grid gap-4">
-          <div className="hidden md:flex flex-col gap-1">
-            <h2 className="text-3xl font-semibold">{spot.name}</h2>
+          <div className="md:flex flex-col gap-1">
+            <h1 className="text-3xl font-semibold">{spot.name}</h1>
           </div>
           <div
             className="prose"
@@ -143,56 +261,14 @@ export default function SpotDetails({
               ))}
             </ul>
           </div>
-          <Separator />
-          <div className="grid gap-8">
-            <div className="grid gap-0.5">
-              <h3 className="text-xl font-semibold">Reviews</h3>
-              <div className="text-gray-500 dark:text-gray-400">
-                See what previous guests have said about this property.
-              </div>
-            </div>
-            <div className="grid gap-4">
-              <article className="grid gap-3">
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-11 h-11 border">
-                    <AvatarImage alt="@username" src="/placeholder-user.jpg" />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid">
-                    <div className="font-semibold">Scott</div>
-                    <div className="text-gray-500 text-sm dark:text-gray-400">
-                      Bernard Hill, California
-                    </div>
-                  </div>
-                </div>
-                <div className="font-semibold flex items-center text-xs gap-2">
-                  <div className="flex items-center gap-px">
-                    <StarIcon className="w-2.5 h-2.5 fill-primary" />
-                    <StarIcon className="w-2.5 h-2.5 fill-primary" />
-                    <StarIcon className="w-2.5 h-2.5 fill-primary" />
-                    <StarIcon className="w-2.5 h-2.5 fill-primary" />
-                    <StarIcon className="w-2.5 h-2.5" />
-                  </div>
-                  ·<span>1 week ago</span>
-                </div>
-                <div>
-                  Catherine's place was amazing! The views were incredible and
-                  the house was very clean. We had a great time.
-                </div>
-              </article>
-            </div>
-            <Button variant="outline">Show all reviews</Button>
-          </div>
         </div>
         <div className="grid gap-4">
-          <div className="flex sm:hidden flex-col gap-1">
-            <h2 className="sm:text-3xl font-semibold">{spot.name}</h2>
-          </div>
+          
           <Card>
             <CardHeader>
               <div className="flex gap-2 justify-center">
                 <div>
-                  <h2 className="text-2xl font-bold">Check Availability</h2>
+                  <h2 className="text-2xl font-bold">Book Now</h2>
                 </div>
               </div>
             </CardHeader>
@@ -208,6 +284,9 @@ export default function SpotDetails({
           </Card>
         </div>
       </section>
+      <CardList excludeSpotId={spot.id} siteData={siteData} title={"Maybe can interest you"} subtitle={"Select a spot to explore"} />
     </div>
   );
-}
+};
+
+export default SpotDetails;

@@ -13,7 +13,7 @@ async function Page({params: { spotId }}: {params: {spotId: string}}) {
   if(!spot) redirect("/spots/new")
 
   return (
-    <main className="flex-1 p-6 pt-4 space-y-8 md:p-8 md:pt-6">
+    <main className="flex-1 p-6 mt-16 pt-4 space-y-8 md:p-8 md:pt-6">
         <SpotForm userId={currentUser!.id} spot={spot as any} />
     </main>
   );

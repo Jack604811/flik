@@ -228,18 +228,18 @@ const WompiConnectButton = ({accountId}: Props) => {
                         readOnly disabled
                         className="bg-transparent text-black dark:text-white text-sm leading-10 ring-offset-background dark:placeholder-white/40 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-zinc-950/[0.03] disabled:text-zinc-950/80 dark:disabled:bg-white/[0.03] dark:disabled:text-white/80 focus:border-zinc-950/70 dark:focus:border-white/70"/>
                         <TooltipProvider>
-                          <Tooltip open={isCopied}>
-                            <TooltipTrigger asChild>
-                              <Button onClick={copyToClipboard} variant="outline">
-                                {isCopied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
-                                <span className="sr-only">{isCopied ? "Copied" : "Copy"}</span>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Copied!</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+  <Tooltip open={isCopied}>
+    <TooltipTrigger asChild>
+      <Button type="button" onClick={copyToClipboard} variant="outline">
+        {isCopied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
+        <span className="sr-only">{isCopied ? "Copied" : "Copy"}</span>
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent>
+      <p>Copied!</p>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
                         Please paste this URL into your Wompi account{" "}

@@ -134,7 +134,7 @@ const Particles: React.FC<ParticlesProps> = ({
     [context, color, dpr]
   );
 
-  const resizeCanvas = useCallback(() => {
+  const resizeCanvas = useCallback((): void => {
     if (canvasContainerRef.current && canvasRef.current && context.current) {
       circles.current.length = 0;
       canvasSize.current.w = canvasContainerRef.current.offsetWidth;

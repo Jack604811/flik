@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-import { getSiteSpotData } from "@/server/actions/domain.action";
+import { getSiteSpotData, getSiteData } from "@/server/actions/domain.action";
 import React from "react";
 import Link from "next/link";
 import SpotDetails from "./_components/SpotDetails";
@@ -11,6 +11,7 @@ async function Page({
 }) {
   const domain = decodeURIComponent(params.domain);
   const spotData = await getSiteSpotData(domain, params.spotId);
+  const siteData = await getSiteData(domain);
 
   if (!spotData)
     return (
@@ -29,7 +30,7 @@ async function Page({
 
   return (
     <div>
-      <SpotDetails spot={spotData} />
+      <SpotDetails spot={spotData} siteData={siteData || {}} />
     </div>
   );
 }
