@@ -1,6 +1,6 @@
 import { NextAuthProvider } from "@/components/auth/session-provider";
 import { APP_LANG } from "@/app_settings";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/main/theme-provider";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
 import { TailwindScreen } from "@/components/dev/tailwind-screen";

@@ -1,7 +1,7 @@
 import {
   APP_LANG,
 } from "@/app_settings";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/main/theme-provider";
 import "../globals.css";
 import { TailwindScreen } from "@/components/dev/tailwind-screen";
 import NextTopLoader from "nextjs-toploader";

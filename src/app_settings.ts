@@ -20,7 +20,7 @@ export const APP_LANG = "en";
 export const APP_ROUTES: Route[] = [
   { name: "Features", path: "/", visibleBy: "all" },
   { name: "Pricing", path: "/pricing", visibleBy: "all" },
-  { name: "Enterprise", path: "/enterprise", visibleBy: "all" },
+  { name: "Blog", path: "/blog", visibleBy: "all" },
   { name: "Dashboard", path: "/dashboard", visibleBy: "subscribed" },
 ];
 //this routes will show in the user dropdown of the header (signout is already included by default)

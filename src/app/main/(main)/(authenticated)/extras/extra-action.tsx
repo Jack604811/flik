@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { deleteExtra } from "@/server/actions/extra.action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import ConfirmModal from "@/components/confirm-modal";
+import ConfirmModal from "@/components/main/confirm-modal";
 function ExtraAction({ id }: { id: string }) {
     const router = useRouter();
     const deleteRef = useRef<any>();

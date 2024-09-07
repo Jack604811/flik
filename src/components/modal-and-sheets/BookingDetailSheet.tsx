@@ -156,7 +156,7 @@ function BookingDetailSheet() {
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="p-0 sm:min-w-[360px] md:min-w-[500px] xl:min-w-[600px]">
+      <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
         <Card className="flex flex-col overflow-hidden justify-between h-screen">
           <CardContent className="p-0 text-sm h-[95%] relative">
             <div className="flex flex-row items-start bg-muted/50 p-6">

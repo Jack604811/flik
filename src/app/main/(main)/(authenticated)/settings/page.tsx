@@ -27,7 +27,8 @@ export default async function Page() {
         </p>
       </div>
       <Tabs defaultValue="main">
-        <TabsList>
+        <div className="overflow-x-auto space-y-8">
+        <TabsList className="min-w-full md:min-w-[300px]">
           <TabsTrigger value="main">Main</TabsTrigger>
           <TabsTrigger value="site">Website</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
@@ -35,6 +36,7 @@ export default async function Page() {
           <TabsTrigger value="fields">Custom Fields</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
+        </div>
         <TabsContent 
         value="main" 
         >

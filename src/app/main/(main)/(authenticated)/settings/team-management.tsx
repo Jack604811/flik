@@ -99,7 +99,7 @@ export default function Component() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isValidEmail}
               >
-                <UserPlus className="mr-2 h-4 w-4" /> Invite member
+                <UserPlus className="mr-0 md:mr-2 h-4 w-4" /> <span className="hidden md:block">Invite member</span>
               </Button>
             </div>
           </div>
@@ -112,84 +112,86 @@ export default function Component() {
           </div>
           <div className="w-full xl:w-2/3">
             <div className="bg-transparent rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-b border-gray-200 dark:border-gray-700">
-                    <TableHead className="text-gray-900 dark:text-white">Member</TableHead>
-                    <TableHead className="text-gray-900 dark:text-white">Permission</TableHead>
-                    <TableHead className="text-gray-900 dark:text-white">Status</TableHead>
-                    <TableHead className="text-gray-900 dark:text-white">Date joined</TableHead>
-                    <TableHead className="text-gray-900 dark:text-white sr-only">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    Array.from({ length: 3 }).map((_, index) => (
-                      <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
-                        <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                        <TableCell><Skeleton className="h-8 w-8 rounded-full" /></TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    members.map((member, index) => (
-                      <TableRow key={member.email} className="border-b border-gray-200 dark:border-gray-700">
-                        <TableCell className="font-medium">{member.email}</TableCell>
-                        <TableCell>
-                          {index === 0 ? (
-                            <span className="text-gray-600 dark:text-gray-400">Owner</span>
-                          ) : (
-                            <Select 
-                              value={member.permission} 
-                              onValueChange={(value: Permission) => handlePermissionChange(member.email, value)}
-                              disabled={member.permission === 'Owner'}
-                            >
-                              <SelectTrigger className="w-[140px] bg-transparent border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
-                                <SelectValue placeholder="Select permission" />
-                              </SelectTrigger>
-                              <SelectContent className="">
-                                <SelectItem value="Admin">Admin</SelectItem>
-                                <SelectItem value="Manager">Manager</SelectItem>
-                                <SelectItem value="Editor">Editor</SelectItem>
-                                <SelectItem value="Read-Only">Read-Only</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.status === 'Active' ? (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300">
-                              ● Active
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
-                              <Mail className="mr-1 h-3 w-3" /> Invited
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.status === 'Invited' ? 'Pending' : member.dateJoined}
-                        </TableCell>
-                        <TableCell>
-                          {member.status === 'Invited' && (
-                            <Button
-                              onClick={() => handleRemove(member.email)}
-                              variant="ghost"
-                              size="icon"
-                              className="hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Remove</span>
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table className="min-w-full">
+                  <TableHeader>
+                    <TableRow className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
+                      <TableHead className="text-gray-900 dark:text-white">Member</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Permission</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Status</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white">Date joined</TableHead>
+                      <TableHead className="text-gray-900 dark:text-white sr-only">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      Array.from({ length: 3 }).map((_, index) => (
+                        <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
+                          <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                          <TableCell><Skeleton className="h-8 w-8 rounded-full" /></TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      members.map((member, index) => (
+                        <TableRow key={member.email} className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
+                          <TableCell className="font-medium">{member.email}</TableCell>
+                          <TableCell>
+                            {index === 0 ? (
+                              <span className="text-gray-600 dark:text-gray-400">Owner</span>
+                            ) : (
+                              <Select 
+                                value={member.permission} 
+                                onValueChange={(value: Permission) => handlePermissionChange(member.email, value)}
+                                disabled={member.permission === 'Owner'}
+                              >
+                                <SelectTrigger className="w-[140px] bg-transparent border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
+                                  <SelectValue placeholder="Select permission" />
+                                </SelectTrigger>
+                                <SelectContent className="">
+                                  <SelectItem value="Admin">Admin</SelectItem>
+                                  <SelectItem value="Manager">Manager</SelectItem>
+                                  <SelectItem value="Editor">Editor</SelectItem>
+                                  <SelectItem value="Read-Only">Read-Only</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {member.status === 'Active' ? (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300">
+                                ● Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                                <Mail className="mr-1 h-3 w-3" /> Invited
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {member.status === 'Invited' ? 'Pending' : member.dateJoined}
+                          </TableCell>
+                          <TableCell>
+                            {member.status === 'Invited' && (
+                              <Button
+                                onClick={() => handleRemove(member.email)}
+                                variant="ghost"
+                                size="icon"
+                                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Remove</span>
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
         </div>

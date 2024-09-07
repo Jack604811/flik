@@ -89,85 +89,88 @@ export default function CustomFields() {
             />
           </div>
           <Button onClick={() => handleOpenDialog(null)}>
-            <Plus className="mr-2 h-4 w-4" /> New Field
+            <Plus className="mr-0 md:mr-2 h-4 w-4" /> <span className="hidden md:block">New Field</span>
           </Button>
         </div>
-        <div className="bg-transparent rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-gray-200 dark:border-gray-700">
-                <TableHead className="text-gray-900 dark:text-white">Field Name</TableHead>
-                <TableHead className="text-gray-900 dark:text-white">Conditionals</TableHead>
-                <TableHead className="text-gray-900 dark:text-white">Date Created</TableHead>
-                <TableHead className="text-gray-900 dark:text-white sr-only">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 3 }).map((_, index) => (
-                  <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
-                    <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+        <div className="w-full xl:w-2/3">
+          <div className="bg-transparent rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="overflow-x-auto">
+              <Table className="min-w-full">
+                <TableHeader>
+                  <TableRow className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
+                    <TableHead className="text-gray-900 dark:text-white">Field Name</TableHead>
+                    <TableHead className="text-gray-900 dark:text-white">Conditionals</TableHead>
+                    <TableHead className="text-gray-900 dark:text-white">Date Created</TableHead>
+                    <TableHead className="text-gray-900 dark:text-white sr-only">Actions</TableHead>
                   </TableRow>
-                ))
-              ) : (
-                filteredFields.map((field) => (
-                  <TableRow 
-                    key={field.id} 
-                    className="border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                    onClick={() => handleOpenDialog(field)}
-                  >
-                    <TableCell className="font-medium">{field.name}</TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        field.conditional === "Applied"
-                          ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
-                      }`}>
-                        {field.conditional}
-                      </span>
-                    </TableCell>
-                    <TableCell>{field.dateCreated}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hover:bg-gray-100 dark:hover:bg-gray-700"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation()
-                            handleEdit(field)
-                          }}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>Edit</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation()
-                            handleDelete(field.id)
-                          }}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>Delete</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <TableRow key={index} className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
+                        <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    filteredFields.map((field) => (
+                      <TableRow 
+                        key={field.id} 
+                        className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                        onClick={() => handleOpenDialog(field)}
+                      >
+                        <TableCell className="font-medium">{field.name}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            field.conditional === "Applied"
+                              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
+                          }`}>
+                            {field.conditional}
+                          </span>
+                        </TableCell>
+                        <TableCell>{field.dateCreated}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation()
+                                handleEdit(field)
+                              }}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>Edit</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(field.id)
+                              }}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div> 
+          </div>
         </div>
       </div>
-
       <Credenza open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <CredenzaContent className="p-6">
           <CredenzaHeader className="space-y-0">

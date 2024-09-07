@@ -72,7 +72,7 @@ import {
 } from "@/server/actions/spot.action";
 import { Spot, SpotStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
-import ConfirmModal from "../confirm-modal";
+import ConfirmModal from "../main/confirm-modal";
 import MultiSelect from "../ui/multiselect";
 import { AMENITIES } from "@/lib/constant";
 import { env } from "@/env";

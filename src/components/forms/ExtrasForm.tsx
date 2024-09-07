@@ -40,7 +40,7 @@ import { useRouter } from "next/navigation";
 
 import { Extras, ExtrasStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
-import ConfirmModal from "../confirm-modal";
+import ConfirmModal from "../main/confirm-modal";
 import {
   createCategory,
   createNewExtra,

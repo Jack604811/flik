@@ -1,6 +1,6 @@
-import Sidebar from "@/components/sidebar";
+import Sidebar from "@/components/main/sidebar";
 import { MainHeader } from "@/components/marketing/header";
-import { Docker } from "@/components/docker"
+import { Docker } from "@/components/main/docker"
 
 export default function MainLayout({
   children,

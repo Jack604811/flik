@@ -71,9 +71,9 @@ export function DataTable<TData, TValue>({
       <DataTableToolbar table={table} />
       <div>
         <div className="max-w-50">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+          <div className="overflow-x-auto rounded-md border">
+            <Table className="min-w-full">
+              <TableHeader className="whitespace-nowrap">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
@@ -97,6 +97,7 @@ export function DataTable<TData, TValue>({
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
+                      className="whitespace-nowrap"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>

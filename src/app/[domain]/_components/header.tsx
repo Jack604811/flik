@@ -1,6 +1,6 @@
 import React from "react";
 import { getSiteData } from "@/server/actions/domain.action";
-import { ModeToggle } from "@/components/theme-toggle";
+import { ModeToggle } from "@/components/main/theme-toggle";
 import Link from "next/link";
 import Image from "next/image";
 

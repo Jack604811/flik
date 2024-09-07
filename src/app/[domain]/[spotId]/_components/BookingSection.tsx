@@ -116,6 +116,9 @@ function BookingSection({ spot }: Params) {
   });
 
   const [progress, setProgress] = useState<ProgressKey>("personal_info");
+  
+
+  
 
   const handlePayment = async () => {
     const values = form.getValues();
@@ -296,7 +299,7 @@ function BookingSection({ spot }: Params) {
   });
 
   return (
-    <div key="1" className="container mx-auto px-4 md:px-6 py-8">
+    <div key="1" className="container mx-auto px-0 py-4 md:px-6 md:py-8">
       <Form {...form}>
         <form
           className="flex flex-col gap-2 space-y-4"
@@ -457,116 +460,115 @@ function BookingSection({ spot }: Params) {
                         </div>
                       ))}
                     </div>
-
-                    <Tabs
-                      defaultValue={Object.keys(
-                        availableExtras
-                      )[0]?.toLowerCase()}
-                      className="w-full"
-                    >
-                      <TabsList
-                        className={`grid w-full grid-cols-${
-                          Object.keys(availableExtras).length
-                        }`}
+                      <Tabs
+                        defaultValue={Object.keys(
+                          availableExtras
+                        )[0]?.toLowerCase()}
+                        className="w-full"
                       >
-                        {Object.keys(availableExtras).map((c) => (
-                          <TabsTrigger
-                            key={c.toLowerCase()}
+                        <div className="overflow-x-auto">
+                          <TabsList className="flex w-max md:w-full">
+                            {Object.keys(availableExtras).map((c) => (
+                              <TabsTrigger
+                                key={c.toLowerCase()}
+                                value={c.toLowerCase()}
+                                className="px-4 py-2 whitespace-nowrap"
+                              >
+                                {c}
+                              </TabsTrigger>
+                            ))}
+                          </TabsList>
+                        </div>
+                        {Object.entries(availableExtras).map(([c, subs]) => (
+                          <TabsContent
                             value={c.toLowerCase()}
+                            key={c.toLowerCase()}
                           >
-                            {c}
-                          </TabsTrigger>
-                        ))}
-                      </TabsList>
-                      {Object.entries(availableExtras).map(([c, subs]) => (
-                        <TabsContent
-                          value={c.toLowerCase()}
-                          key={c.toLowerCase()}
-                        >
-                          {Object.entries(subs).map(([sub, extras]) => (
-                            <div
-                              className="flex flex-col my-4 gap-4"
-                              key={sub.toLowerCase()}
-                            >
-                              <p className="text-black/50 font-semibold">
-                                {sub}
-                              </p>
-                              {extras.map((extra) => {
-                                const idx = fields.findIndex(
-                                  (f) => f.extraId == extra.id
-                                );
-                                if (idx !== -1) return null;
-                                return (
-                                  <div
-                                    className="flex justify-between items-center"
-                                    key={extra.id}
-                                  >
-                                    <div className="flex items-center gap-4">
-                                      <div className="flex-2">
-                                        <Image
-                                          alt="Image"
-                                          className="w-25 h-16 object-cover rounded-lg"
-                                          height="60"
-                                          src={
-                                            extra.images[0].url ??
-                                            "/placeholder.svg"
-                                          }
-                                          style={{
-                                            aspectRatio: "60/60",
-                                            objectFit: "cover",
+                            {Object.entries(subs).map(([sub, extras]) => (
+                              <div
+                                className="flex flex-col my-4 gap-4"
+                                key={sub.toLowerCase()}
+                              >
+                                <p className="text-black/50 font-semibold">
+                                  {sub}
+                                </p>
+                                {extras.map((extra) => {
+                                  const idx = fields.findIndex(
+                                    (f) => f.extraId == extra.id
+                                  );
+                                  if (idx !== -1) return null;
+                                  return (
+                                    <div
+                                      className="flex justify-between items-center"
+                                      key={extra.id}
+                                    >
+                                      <div className="flex items-center gap-4">
+                                        <div className="flex-2">
+                                          <Image
+                                            alt="Image"
+                                            className="w-25 h-16 object-cover rounded-lg"
+                                            height="60"
+                                            src={
+                                              extra.images[0].url ??
+                                              "/placeholder.svg"
+                                            }
+                                            style={{
+                                              aspectRatio: "60/60",
+                                              objectFit: "cover",
+                                            }}
+                                            width="60"
+                                          />
+                                        </div>
+                                        <div className="flex-1">
+                                          <p className="font-semibold">
+                                            {extra.name}
+                                          </p>
+                                          <p className="font-regular text-gray-500 line-clamp-2">
+                                            {extra.description}
+                                          </p>
+                                          <p className="font-bold text-sm">
+                                            ${extra.price}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <Button
+                                          className="text-white"
+                                          variant="default"
+                                          type="button"
+                                          onClick={() => {
+                                            const idx = fields.findIndex(
+                                              (f) => f.extraId == extra.id
+                                            );
+                                            if (idx != -1)
+                                              update(idx, {
+                                                ...fields[idx],
+                                                quantity:
+                                                  fields[idx].quantity + 1,
+                                              });
+                                            else
+                                              append({
+                                                extraId: extra.id,
+                                                price: extra.price,
+                                                quantity: 1,
+                                                image: extra.images[0].url,
+                                                name: extra.name,
+                                                description: extra.description,
+                                              });
                                           }}
-                                          width="60"
-                                        />
-                                      </div>
-                                      <div className="flex-1">
-                                        <p className="font-semibold">
-                                          {extra.name}
-                                        </p>
-                                        <p className="font-regular text-gray-500 line-clamp-2">
-                                          {extra.description}
-                                        </p>
-                                        <p className="font-bold text-sm">
-                                          ${extra.price}
-                                        </p>
+                                        >
+                                          Add
+                                        </Button>
                                       </div>
                                     </div>
-                                    <div className="flex items-center">
-                                      <Button
-                                        className="text-white"
-                                        variant="default"
-                                        type="button"
-                                        onClick={() => {
-                                          const idx = fields.findIndex(
-                                            (f) => f.extraId == extra.id
-                                          );
-                                          if (idx != -1)
-                                            update(idx, {
-                                              ...fields[idx],
-                                              quantity:
-                                                fields[idx].quantity + 1,
-                                            });
-                                          else
-                                            append({
-                                              extraId: extra.id,
-                                              price: extra.price,
-                                              quantity: 1,
-                                              image: extra.images[0].url,
-                                              name: extra.name,
-                                              description: extra.description,
-                                            });
-                                        }}
-                                      >
-                                        Add
-                                      </Button>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ))}
-                        </TabsContent>
-                      ))}
-                    </Tabs>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                          </TabsContent>
+                        ))}
+                      </Tabs>
+                    
                   </div>
                 )}
               </div>

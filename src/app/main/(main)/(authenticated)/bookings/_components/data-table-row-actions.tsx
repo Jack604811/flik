@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Booking } from "@/schemas/booking.schema";
-import ConfirmModal from "@/components/confirm-modal";
+import ConfirmModal from "@/components/main/confirm-modal";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { deleteBooking } from "@/server/actions/booking.action";
