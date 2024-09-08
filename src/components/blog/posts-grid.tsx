@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BLOG_DESCRIPTION, BLOG_TITLE } from "@/app_settings";
+import { BLOG_DESCRIPTION, BLOG_TITLE } from "@/app-settings";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getAllPosts } from "@/server/helpers/blog/get-all-posts";

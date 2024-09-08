@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { BLOG_POSTS_PATH } from "@/app_settings";
+import { BLOG_POSTS_PATH } from "@/app-settings";
 
 export async function getPostsList() {
   const workDir = process.cwd();

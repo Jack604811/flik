@@ -1,6 +1,6 @@
 "use client"
 
-import { AFTER_PURCHASE_REDIRECT_URL, AFTER_SUBSCRIPTION_REDIRECT_URL } from "@/app_settings";
+import { AFTER_PURCHASE_REDIRECT_URL, AFTER_SUBSCRIPTION_REDIRECT_URL } from "@/app-settings";
 import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 

@@ -1,4 +1,3 @@
-Welcome to shipit.
+Welcome to Flik.
 
 ## Getting Started
-To get started, please read [the docs](https://docs.shipit.so)

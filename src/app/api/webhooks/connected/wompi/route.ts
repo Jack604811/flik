@@ -1,4 +1,4 @@
-import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
+import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import { handleWompiBookingPaymentEvent } from "@/server/actions/booking.action";
 import _ from "lodash";
 import moment from "moment";

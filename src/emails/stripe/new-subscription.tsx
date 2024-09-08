@@ -1,4 +1,4 @@
-import { APP_NAME } from "@/app_settings";
+import { APP_NAME } from "@/app-settings";
 
 interface EmailTemplateProps {
     // add any prop you want to use on the email template

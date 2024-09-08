@@ -3,7 +3,7 @@ import { env } from "@/env";
 const stripe = new StripeServer(env.STRIPE_SECRET_KEY);
 import { handleStripeBookingPaymentEvent } from "@/server/actions/booking.action";
 import _ from "lodash";
-import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
+import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import moment from "moment";
 
 export async function POST(request: Request) {

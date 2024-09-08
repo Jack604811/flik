@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { APP_NAME, APP_ROUTES, USER_ROUTES, SIDEBAR_ROUTES } from "@/app_settings";
+import { APP_NAME, APP_ROUTES, USER_ROUTES, SIDEBAR_ROUTES } from "@/app-settings";
 import { LogoutButton } from "../auth/logout-button";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth/options";
@@ -24,7 +24,7 @@ const navigationLinks = APP_ROUTES;
 const sidebarLinks = SIDEBAR_ROUTES;
 
 
-export async function MarketingHeader() {
+export async function Header() {
   const session = await getServerSession(authOptions);
   return (
     <header className="sticky top-0 border-b w-full z-10 backdrop-blur-lg">
@@ -95,73 +95,6 @@ export async function MarketingHeader() {
                 </nav>
               </SheetContent>
             </Sheet>
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-export async function MainHeader() {
-  const session = await getServerSession(authOptions);
-  
-
-
-  return (
-    <header className="sticky top-0 border-b bg-background w-full z-10">
-      <div className="flex h-16 items-center justify-end gap-4 px-6 md:px-8 w-full mx-auto">
-        <nav className="flex w-full justify-between lg:justify-end items-center gap-2">
-          <Link href="/" className="lg:hidden flex items-center gap-2 text-lg font-semibold md:text-base">
-            <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
-              {APP_NAME}
-            </strong>
-          </Link>
-          <div className="flex gap-2">
-            <ModeToggle />
-         
-            {/* <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-            >
-              <AlignRight className="h-5 w-5" />
-              <span className="sr-only">Toggle navigation menu</span>
-            </Button> */}
-            {session?.user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hidden lg:flex"
-                  >
-                    <CircleUser className="h-5 w-5" />
-                    <span className="sr-only">Toggle navigation menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {USER_ROUTES.filter((e) => e.path !== "/dashboard").map(
-                    (link) => (
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        asChild
-                        key={link.path}
-                      >
-                        <Link href={link.path}>{link.name}</Link>
-                      </DropdownMenuItem>
-                    )
-                  )}
-                  <DropdownMenuSeparator />
-                  <LogoutButton />
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button asChild>
-                <Link href={"/signin"}>Get Started</Link>
-              </Button>
-            )}
           </div>
         </nav>
       </div>

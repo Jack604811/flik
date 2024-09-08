@@ -92,7 +92,7 @@ export default function CustomFields() {
             <Plus className="mr-0 md:mr-2 h-4 w-4" /> <span className="hidden md:block">New Field</span>
           </Button>
         </div>
-        <div className="w-full xl:w-2/3">
+        <div className="w-full">
           <div className="bg-transparent rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
             <div className="overflow-x-auto">
               <Table className="min-w-full">

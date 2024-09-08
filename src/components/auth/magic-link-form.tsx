@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "next-auth/react";
-import { AFTER_SIGNIN_REDIRECT_URL, APP_DOMAIN } from "@/app_settings";
+import { AFTER_SIGNIN_REDIRECT_URL, APP_DOMAIN } from "@/app-settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { z } from "zod";

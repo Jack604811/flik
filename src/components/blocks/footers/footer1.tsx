@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { APP_DESCRIPTION, APP_NAME, APP_ROUTES } from "@/app_settings";
+import { APP_DESCRIPTION, APP_NAME, APP_ROUTES } from "@/app-settings";
 export function Footer() {
   const baseLinks = APP_ROUTES; // or custom ones if you prefer
 

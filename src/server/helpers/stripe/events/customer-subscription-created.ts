@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { createRecurringSubscription } from "@/server/helpers/stripe/subscriptions";
-import { APP_NAME } from "@/app_settings";
+import { APP_NAME } from "@/app-settings";
 import { Resend } from "resend";
 import { env } from "@/env";
 import { NewSubscriptionTemplate } from "@/emails/stripe/new-subscription";

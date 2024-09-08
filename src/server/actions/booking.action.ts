@@ -6,7 +6,7 @@ import { revalidateTag } from "next/cache";
 import StripeServer from "stripe";
 import { env } from "@/env";
 import { headers } from "next/headers";
-import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
+import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import moment from "moment";
 import { clearDomainCache } from "../helpers/domains";
 

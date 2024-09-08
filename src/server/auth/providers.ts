@@ -3,7 +3,7 @@ import EmailProvider from "next-auth/providers/email";
 import { type Provider } from "next-auth/providers/index";
 import { env } from "@/env";
 import { Resend } from 'resend';
-import { APP_NAME } from "@/app_settings";
+import { APP_NAME } from "@/app-settings";
 import { MagicLinkTemplate } from "@/emails/auth/magic-link";
 
 const resend = new Resend(env.RESEND_API_KEY);

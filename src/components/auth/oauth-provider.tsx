@@ -1,7 +1,7 @@
 "use client";
 import { ClientSafeProvider, signIn } from "next-auth/react";
 import Image from "next/image";
-import { AFTER_SIGNIN_REDIRECT_URL, APP_DOMAIN } from "@/app_settings";
+import { AFTER_SIGNIN_REDIRECT_URL, APP_DOMAIN } from "@/app-settings";
 import { Button } from "@/components/ui/button";
 export const OauthProvider = ({
   provider,

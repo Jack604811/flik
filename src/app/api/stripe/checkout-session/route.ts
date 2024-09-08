@@ -3,7 +3,7 @@ import { authOptions } from "@/server/auth/options";
 import Stripe from "stripe";
 import { NextRequest } from "next/server";
 import { env } from "@/env";
-import { APP_DOMAIN, TRIAL_DAYS } from "@/app_settings";
+import { APP_DOMAIN, TRIAL_DAYS } from "@/app-settings";
 const stripe: Stripe = require("stripe")(env.STRIPE_SECRET_KEY);
 
 export async function POST(req: NextRequest) {

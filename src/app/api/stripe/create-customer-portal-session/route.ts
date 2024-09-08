@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { env } from "@/env";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth/options";
-import { AFTER_CUSTOMER_PORTAL_REDIRECT_URL, APP_DOMAIN } from "@/app_settings";
+import { AFTER_CUSTOMER_PORTAL_REDIRECT_URL, APP_DOMAIN } from "@/app-settings";
 const stripe: Stripe = require("stripe")(env.STRIPE_SECRET_KEY);
 
 export async function POST() {

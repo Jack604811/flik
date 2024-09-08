@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { APP_NAME } from "@/app_settings";
+import { APP_NAME } from "@/app-settings";
 import { User } from "lucide-react";
 import { getProviders, signIn } from "next-auth/react";
 import { OauthProvider } from "@/components/auth/oauth-provider";
@@ -20,7 +20,6 @@ export default async function Page() {
               </div>
               <h1 className="font-bold text-xl">Sign In to {APP_NAME} </h1>
             </div>
-
             <div className="mt-3">
               <MagicLinkForm />
             </div>

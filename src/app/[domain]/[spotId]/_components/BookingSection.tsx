@@ -34,7 +34,7 @@ import {
   PlusIcon,
   X,
 } from "lucide-react";
-import { WOMPI_CENT_MULTIPLIER } from "@/app_settings";
+import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import Image from "next/image";
 import { WORKING_HOUR_TYPE, calculateSubtotal, categorizeExtras } from "./util";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

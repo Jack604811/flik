@@ -8,8 +8,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Menu, AlignLeft, AlignRight } from "lucide-react";
 import Image from 'next/image';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
-import { APP_NAME } from '@/app_settings';
+import { APP_NAME } from '@/app-settings';
 import { ModeToggle } from './theme-toggle';
+import  SidebarProfileDropdown from './sidebar-profile-dropdown';
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -204,6 +205,7 @@ export const Sidebar = () => {
             )}
           </CommandList>
         </Command>
+        <SidebarProfileDropdown/>
       </div>
 
       {/* Mobile Sidebar */}
@@ -349,6 +351,7 @@ export const Sidebar = () => {
               </CommandList>
             </Command>
           </div>
+         
         </SheetContent>
       </Sheet>
     </div>

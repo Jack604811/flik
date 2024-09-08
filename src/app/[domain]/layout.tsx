@@ -1,6 +1,6 @@
 import {
   APP_LANG,
-} from "@/app_settings";
+} from "@/app-settings";
 import { ThemeProvider } from "@/components/main/theme-provider";
 import "../globals.css";
 import { TailwindScreen } from "@/components/dev/tailwind-screen";

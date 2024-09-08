@@ -4,6 +4,7 @@ import { CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, Sh
 export const APP_NAME = "Flik";
 export const APP_DESCRIPTION = `Bookings made easy with Flik.`;
 export const APP_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://yourprodurl';
+export const APP_SUBDOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://app.yourprodurl';
 export const APP_LANG = "en";
 // ****** / General app settings / ******
 

@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { purchaseProduct } from "@/server/helpers/stripe/purchase-product";
 import { Resend } from "resend";
 import { env } from "@/env";
-import { APP_NAME } from "@/app_settings";
+import { APP_NAME } from "@/app-settings";
 import { ProductPurchaseTemplate } from "@/emails/stripe/product-purchase";
 const resend = new Resend(env.RESEND_API_KEY);
 

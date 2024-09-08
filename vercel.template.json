@@ -1,0 +1,15 @@
+{
+    "rewrites": [
+      {
+        "source": "/:path*",
+        "has": [{ "type": "host", "value": "__APP_SUBDOMAIN__" }],
+        "destination": "/src/app/main/(main)/:path*"
+      },
+      {
+        "source": "/:path*",
+        "has": [{ "type": "host", "value": "__APP_DOMAIN__" }],
+        "destination": "/src/app/main/(public)/:path*"
+      }
+    ]
+  }
+  

@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { APP_DESCRIPTION, APP_NAME } from "@/app_settings";
+import { APP_DESCRIPTION, APP_NAME } from "@/app-settings";
 export const runtime = "edge";
 
 export async function GET() {

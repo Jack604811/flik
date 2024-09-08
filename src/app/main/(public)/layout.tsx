@@ -1,4 +1,4 @@
-import { MarketingHeader } from "@/components/marketing/header";
+import { Header } from "@/components/marketing/header";
 import { Footer } from "@/components/blocks/footers/footer1";
 
 
@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
   <>
   
-  <MarketingHeader />
+  <Header />
   {children}
   <Footer />
   

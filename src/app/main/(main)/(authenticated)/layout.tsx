@@ -1,4 +1,4 @@
-import { NON_AUTHENTICATED_REDIRECT_URL } from "@/app_settings";
+import { NON_AUTHENTICATED_REDIRECT_URL } from "@/app-settings";
 import ModalAndSheetProvider from "@/components/providers/ModalAndSheetProvider";
 import { authOptions } from "@/server/auth/options";
 import { getServerSession } from "next-auth";

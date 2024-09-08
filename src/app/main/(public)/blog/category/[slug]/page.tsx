@@ -1,7 +1,7 @@
 
 export const dynamic = 'force-static'
 
-import { BLOG_DESCRIPTION, BLOG_TITLE } from "@/app_settings";
+import { BLOG_DESCRIPTION, BLOG_TITLE } from "@/app-settings";
 import { getAllPosts } from "@/server/helpers/blog/get-all-posts";
 import { PostsGrid } from "@/components/blog/posts-grid";
 import { notFound } from "next/navigation";

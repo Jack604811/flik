@@ -1,5 +1,5 @@
 import { NextAuthProvider } from "@/components/auth/session-provider";
-import { APP_LANG } from "@/app_settings";
+import { APP_LANG } from "@/app-settings";
 import { ThemeProvider } from "@/components/main/theme-provider";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
@@ -8,6 +8,7 @@ import NextTopLoader from "nextjs-toploader";
 import dynamic from "next/dynamic";
 import { Toaster } from "sonner";
 import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
+import SidebarProfileDropdown from "@/components/main/sidebar-profile-dropdown";
 
 const CrispWithNoSSR = dynamic(() => import("@/components/support/crisp-chat"));
 
@@ -47,8 +48,9 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system">
             <NextTopLoader />
             <Toaster position="bottom-center" />
+            
             <TanstackQueryProvider>{children}</TanstackQueryProvider>
-            {process.env.NODE_ENV === 'development' && <TailwindScreen />}
+            {process.env.NODE_ENV === 'production' && <TailwindScreen />}
           </ThemeProvider>
         </body>
       </html>

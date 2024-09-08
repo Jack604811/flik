@@ -36,14 +36,14 @@ export default async function Page() {
   const currentUser = await getCurrentUser();
   const extras = await getExtrasByUser({ userId: currentUser!.id });
   return (
-    <Card className="p-0 border-none shadow-none">
-      <div className="mt-8 mx-8">
+    <Card className="p-4 pt-4 space-y-8 md:p-8 md:pt-16 border-none shadow-none">
+      <div>
         <h2 className="text-2xl font-bold tracking-tight">Extras</h2>
         <p className="text-muted-foreground">
         Manage your extras and view their sales performance.
         </p>
       </div>
-      <CardHeader>
+      <CardHeader className="p-0">
         <div className="flex flex-row justify-between items-center">
         <Input
           placeholder="Search extras..."
@@ -59,7 +59,7 @@ export default async function Page() {
         </Link>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
       <div className="rounded-md border">
         <Table>
           <TableHeader>

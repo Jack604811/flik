@@ -1,4 +1,4 @@
-import { APP_DOMAIN, APP_ROUTES } from "@/app_settings";
+import { APP_DOMAIN, APP_ROUTES } from "@/app-settings";
 import { getPostsList } from "@/server/helpers/blog/get-post-list";
 import { getPostDate } from "@/server/helpers/blog/get-post-date";
 export default async function sitemap() {
