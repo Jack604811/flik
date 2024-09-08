@@ -14,12 +14,12 @@ export function ModeToggle() {
   return (
     <div className="flex items-center">
     {theme === "dark" ? (
-        <Button variant="ghost" className="hover: border-zinc-900 bg-[#0c0c0d]" size="icon" onClick={() => setTheme("light")}>
+        <Button variant="ghost" className=" bg-inherit hover:bg-transparent lg:hover:border-zinc-900 lg:bg-[#0c0c0d]" size="icon" onClick={() => setTheme("light")}>
             <MoonIcon className="w-5 h-5" />
             <span className="sr-only">Toggle theme</span>
         </Button>
     ) : (
-        <Button variant="ghost" size="icon" className="hover: border-zinc-100" onClick={() => setTheme("dark")}>
+        <Button variant="ghost" size="icon" className="bg-inherit hover:bg-transparent lg:hover:border-zinc-100" onClick={() => setTheme("dark")}>
             <SunIcon className="w-5 h-5" />
             <span className="sr-only">Toggle theme</span>
         </Button>

@@ -49,7 +49,7 @@ function PersonalInfoForm({user}: {user: User}) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card>
+        <Card className="border-none shadow-none">
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
             <CardDescription>

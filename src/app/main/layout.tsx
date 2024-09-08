@@ -50,7 +50,7 @@ export default function RootLayout({
             <Toaster position="bottom-center" />
             
             <TanstackQueryProvider>{children}</TanstackQueryProvider>
-            {process.env.NODE_ENV === 'production' && <TailwindScreen />}
+            {process.env.NODE_ENV === 'development' && <TailwindScreen />}
           </ThemeProvider>
         </body>
       </html>

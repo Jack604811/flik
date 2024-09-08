@@ -27,7 +27,7 @@ export function Docker() {
 
     // Set a timeout to hide the Docker after 1 second of no scroll activity
     scrollTimeout = setTimeout(() => {
-      setIsVisible(false);
+      setIsVisible(true);
     }, 1000);
   };
 
@@ -46,7 +46,7 @@ export function Docker() {
 
   return (
     <div
-      className={`fixed bottom-4 w-full flex justify-center items-center p-4 transition-opacity duration-500 ${
+      className={`fixed bottom-2 w-full flex justify-center items-center p-4 transition-opacity duration-500 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -54,25 +54,25 @@ export function Docker() {
         <div className="flex space-x-1">
         <Link href="/dashboard">
         <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
-            <Home className="h-5 w-5"/>
+            <Home className="h-5 w-5 text-white"/>
             <span className="sr-only">Home</span>
           </Button>
           </Link>
           <Link href="/bookings">
           <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
-            <Calendar className="h-5 w-5"/>
+            <Calendar className="h-5 w-5 text-white"/>
             <span className="sr-only">Bookings</span>
           </Button>
           </Link>
           <Link href="/transactions">
           <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
-            <Landmark className="h-5 w-5"/>
+            <Landmark className="h-5 w-5 text-white"/>
             <span className="sr-only">Transactions</span>
           </Button>
           </Link>
           <Link href="/settings">
           <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
-            <Settings className="h-5 w-5"/>
+            <Settings className="h-5 w-5 text-white"/>
             <span className="sr-only">Open settings</span>
           </Button>
           </Link>

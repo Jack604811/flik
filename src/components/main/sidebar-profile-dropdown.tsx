@@ -76,7 +76,7 @@ export default function SidebarProfileDropdown() {
               <FileText className="w-5 h-5 mr-3" />
               Docs
             </Button>
-            <div className="my-2 border-t border-gray-800"></div>
+            <div className="my-2 border-t"></div>
             <Button 
               className="w-full h-8 px-2 py-2 flex items-center justify-start text-left whitespace-nowrap"
               variant="ghost"
