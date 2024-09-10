@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { APP_NAME, APP_ROUTES, USER_ROUTES, SIDEBAR_ROUTES } from "@/app-settings";
+import { APP_NAME, APP_ROUTES, USER_ROUTES, SIDEBAR_ROUTES, APP_DOMAIN } from "@/app-settings";
 import { LogoutButton } from "../auth/logout-button";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth/options";
@@ -24,7 +24,7 @@ const navigationLinks = APP_ROUTES;
 const sidebarLinks = SIDEBAR_ROUTES;
 
 
-export async function Header() {
+export default async function Header() {
   const session = await getServerSession(authOptions);
   return (
     <header className="sticky top-0 border-b w-full z-10 backdrop-blur-lg">
@@ -63,7 +63,7 @@ export async function Header() {
           <div className="hidden lg:flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
             <ModeToggle />
             {!session && (
-              <Link href={"/signin"}>
+              <Link href={`//app.${APP_DOMAIN}/signin`}>
                 <span>Login</span>
               </Link>
             )}

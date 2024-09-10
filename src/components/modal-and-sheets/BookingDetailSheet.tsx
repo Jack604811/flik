@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import { FormField } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import BookingPayments from "@/app/main/(main)/(authenticated)/bookings/_components/BookingPayments";
+import BookingPayments from "../booking/BookingPayments";
 import {
   Carousel,
   CarouselContent,
@@ -41,13 +41,13 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import EditBookingDate from "@/app/main/(main)/(authenticated)/bookings/_components/EditBookingDate";
+import EditBookingDate from "../booking/EditBookingDate";
 import { Textarea } from "@/components/ui/textarea";
 import { useBookingDetail } from "@/hooks/use-booking-detail";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsByUser } from "@/server/actions/spot.action";
 import { useSession } from "next-auth/react";
-import BookingExtras from "@/app/main/(main)/(authenticated)/bookings/_components/BookingExtras";
+import BookingExtras from "../booking/BookingExtras";
 
 const bookingSchema = z.object({
   id: z.string(),

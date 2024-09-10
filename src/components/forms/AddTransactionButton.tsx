@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { statuses } from "@/app/main/(main)/(authenticated)/transactions/data/data";
+import { statuses } from "../transaction/schema";
 import {
   Popover,
   PopoverContent,

@@ -1,10 +1,10 @@
 import { CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart } from "lucide-react";
+import { env } from "./env";
 
 // ****** General app settings ******
 export const APP_NAME = "Flik";
 export const APP_DESCRIPTION = `Bookings made easy with Flik.`;
-export const APP_DOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://yourprodurl';
-export const APP_SUBDOMAIN = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://app.yourprodurl';
+export const APP_DOMAIN = env.NEXT_PUBLIC_ROOT_DOMAIN;
 export const APP_LANG = "en";
 // ****** / General app settings / ******
 
@@ -22,7 +22,7 @@ export const APP_ROUTES: Route[] = [
   { name: "Features", path: "/", visibleBy: "all" },
   { name: "Pricing", path: "/pricing", visibleBy: "all" },
   { name: "Blog", path: "/blog", visibleBy: "all" },
-  { name: "Dashboard", path: "/dashboard", visibleBy: "subscribed" },
+  { name: "Dashboard", path: `//app.${APP_DOMAIN}/dashboard`, visibleBy: "subscribed" },
 ];
 //this routes will show in the user dropdown of the header (signout is already included by default)
 export const USER_ROUTES = [

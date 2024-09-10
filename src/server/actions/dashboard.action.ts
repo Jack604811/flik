@@ -7,34 +7,45 @@ export const getTotalCardsMetric = async (
   startDate: Date,
   endDate: Date
 ) => {
-  const { _sum: { amount: totalRevenue } } = await db.transaction.aggregate({
-    _sum: {amount: true},
-    where: {
-      booking: { spot: { userId } },
-      AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-      // status: TransactionStatus.Approved
-    },
-  })
+  try {
+    const { _sum: { amount: totalRevenue = 0 } } = await db.transaction.aggregate({
+      _sum: { amount: true },
+      where: {
+        booking: { spot: { userId } },
+        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+      },
+    }) || { _sum: { amount: 0 } };
 
-  const totalBookings = await db.booking.count({
-    where: { spot: {userId }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}] },
-  })
+    const totalBookings = await db.booking.count({
+      where: { spot: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+    });
 
-  const records = await db.bookingExtras.findMany({
-    where: {extra: { userId }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}]},
-    select: {quantity: true, price: true}
-  })
-  const totalExtraSales = records.reduce((sum, record) => {
-    return sum + (record.price * record.quantity);
-  }, 0);
-
-
-return {
+    const records = await db.bookingExtras.findMany({
+      where: { extra: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+      select: { quantity: true, price: true }
+    });
+    const totalExtraSales = records.reduce((sum, record) => {
+      return sum + (record.price * record.quantity);
+    }, 0);
+console.log({
   totalBookings, 
   totalRevenue,
   totalExtraSales
-}
-
+})
+    return {
+      totalBookings, 
+      totalRevenue,
+      totalExtraSales
+    };
+  } catch (error) {
+    console.error('Error in getTotalCardsMetric:', error);
+    // Return default values instead of throwing
+    return {
+      totalBookings: 0,
+      totalRevenue: 0,
+      totalExtraSales: 0
+    };
+  }
 }
 
 export const getBookingsByDates = async (

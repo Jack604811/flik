@@ -30,11 +30,25 @@ export default async function middleware(req: NextRequest) {
   }`;
 
 
+  if (hostname === "localhost:3000" ||
+    hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+      const headers = new Headers(req.headers);
+      headers.set("x-current-path", req.nextUrl.pathname);
+  
+      return NextResponse.rewrite(
+        new URL(`/main/landing/${path === "/" ? "" : path}`, req.url), {headers}
+      );
+    }
+
+
+
   // rewrites for app pages
-  if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` || hostname === "localhost:3000" ||
-  hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+  if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
+    const headers = new Headers(req.headers);
+    headers.set("x-current-path", req.nextUrl.pathname);
+
     return NextResponse.rewrite(
-      new URL(`/main${path === "/" ? "" : path}`, req.url)
+      new URL(`/main/app${path === "/" ? "" : path}`, req.url), {headers}
     );
   }
 

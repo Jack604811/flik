@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";  
 import ShimmerButton from "../magicui/shimmer-button";
+import { APP_DOMAIN } from "@/app-settings";
 
 export default function ShimmerButtonWithSession() {
   const { data: session } = useSession(); 
@@ -10,7 +11,7 @@ export default function ShimmerButtonWithSession() {
   return (
     <>
       {session?.user ? (
-        <Link href="/dashboard">
+        <Link href={`//app.${APP_DOMAIN}/dashboard`}>
           <ShimmerButton>
             <span className="text-sm text-background dark:text-primary">
               Dashboard
@@ -18,7 +19,7 @@ export default function ShimmerButtonWithSession() {
           </ShimmerButton>
         </Link>
       ) : (
-        <Link href="/signin">
+        <Link href={`//app.${APP_DOMAIN}/signin`}>
           <ShimmerButton>
             <span className="text-sm text-background dark:text-primary">
               Get started
