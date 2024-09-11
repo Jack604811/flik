@@ -63,7 +63,7 @@ export default async function Header() {
           <div className="hidden lg:flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
             <ModeToggle />
             {!session && (
-              <Link href={`//app.${APP_DOMAIN}/signin`}>
+              <Link href={`//app.${APP_DOMAIN}/`}>
                 <span>Login</span>
               </Link>
             )}

@@ -27,7 +27,8 @@ export function BookingList({ startDate, endDate, userId }: Params) {
   const { data, isLoading } = useQuery({
     queryKey: ["bookings", startDate, endDate],
     queryFn: () => getBookingsByDates(userId, startDate, endDate),
-    initialData: [],
+    enabled: !!startDate && !!endDate,
+    initialData: []
   });
 
   return (

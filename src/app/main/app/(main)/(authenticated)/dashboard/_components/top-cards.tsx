@@ -8,6 +8,8 @@ export function TopCards({ userId, endDate, startDate } : Params) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["top-cards-metric", startDate.toLocaleDateString(), endDate.toLocaleDateString()],
     queryFn: async () =>  getTotalCardsMetric(userId, startDate, endDate),
+    enabled: !!startDate && !!endDate,
+    initialData: { totalBookings: 0, totalExtraSales: 0, totalRevenue: 0 }
   });
 
   if (isLoading) return <div>Loading...</div>;
