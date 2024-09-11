@@ -1,5 +1,5 @@
 import StripeServer from "stripe";
-import { NON_AUTHENTICATED_REDIRECT_URL, NON_SUBSCRIBED_REDIRECT_URL } from "@/app_settings";
+import { NON_AUTHENTICATED_REDIRECT_URL, NON_SUBSCRIBED_REDIRECT_URL } from "@/app-settings";
 import { authOptions } from "@/server/auth/options"
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation";

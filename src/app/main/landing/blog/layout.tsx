@@ -1,4 +1,4 @@
-import { BLOG_ENABLED } from "@/app_settings"
+import { BLOG_ENABLED } from "@/app-settings"
 import { notFound } from "next/navigation"
 export default function BlogLayout({
     children,
