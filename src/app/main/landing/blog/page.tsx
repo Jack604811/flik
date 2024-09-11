@@ -2,7 +2,7 @@
 import { getAllPosts } from "@/server/helpers/blog/get-all-posts";
 import { PostsGrid } from "@/components/blog/posts-grid";
 import { CategoryPicker } from "@/components/blog/category-picker";
-import { BLOG_DESCRIPTION, BLOG_TITLE } from "@/app_settings";
+import { BLOG_DESCRIPTION, BLOG_TITLE } from "@/app-settings";
 
 export default async function Page() {
   const posts = await getAllPosts();

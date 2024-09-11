@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { APP_NAME } from "@/app-settings";
 import { User } from "lucide-react";
 import { getProviders } from "next-auth/react";

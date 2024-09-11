@@ -16,6 +16,10 @@ const nextConfig = {
     },
     experimental: {
         missingSuspenseWithCSRBailout: false,
+        serverActions: {
+            allowedOrigins: ["app.localhost:3000"],
+            allowedForwardedHosts: ["localhost:3000", "app.localhost:3000"],
+        },
     },
 };
 

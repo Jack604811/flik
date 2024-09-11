@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSiteData } from "./server/actions/domain.action";
-import { getConfigResponse, getDomainResponse } from "./server/helpers/domains";
 
 export const config = {
   matcher: [
