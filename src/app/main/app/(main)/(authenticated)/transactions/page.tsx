@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
-import { columns } from "./_components/columns"
-import { DataTable } from "./_components/data-table"
+import { columns } from "@/components/transaction/columns"
+import { DataTable } from "@/components/transaction/data-table"
 import { getTransactions } from "@/server/actions/booking.action"
 import { getCurrentUser } from "@/server/auth"
 

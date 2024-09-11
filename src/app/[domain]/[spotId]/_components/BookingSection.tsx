@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import Image from "next/image";
-import { WORKING_HOUR_TYPE, calculateSubtotal, categorizeExtras } from "./util";
+import { WORKING_HOUR_TYPE, calculateSubtotal, categorizeExtras } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import _ from "lodash";
 
