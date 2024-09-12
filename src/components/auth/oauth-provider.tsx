@@ -16,7 +16,7 @@ export const OauthProvider = ({
     >
       <Image
         alt=""
-        src={`/assets/icons/nextauth-providers/${provider.name}.svg`}
+        src={`/assets/icons/nextauth-providers/${provider.name.toLowerCase()}.svg`}
         width={20}
         height={20}
       />

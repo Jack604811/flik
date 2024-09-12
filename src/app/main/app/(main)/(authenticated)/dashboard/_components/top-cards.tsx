@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 type Params = {startDate: Date, endDate: Date, userId: string}
 export function TopCards({ userId, endDate, startDate } : Params) {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["top-cards-metric", startDate.toLocaleDateString(), endDate.toLocaleDateString()],
+    queryKey: ["top-cards-metric", startDate.toISOString(), endDate.toISOString()],
     queryFn: async () =>  getTotalCardsMetric(userId, startDate, endDate),
     enabled: !!startDate && !!endDate,
     initialData: { totalBookings: 0, totalExtraSales: 0, totalRevenue: 0 }
