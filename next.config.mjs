@@ -7,6 +7,14 @@ jiti("./src/env");
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+    async rewrites() {
+        return [
+          {
+            source: '/:path*',
+            destination: '/:path*',
+          },
+        ]
+    },
     async headers() {
         return [
             {
