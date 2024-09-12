@@ -7,14 +7,6 @@ jiti("./src/env");
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-    async rewrites() {
-        return [
-          {
-            source: '/:path*',
-            destination: '/:path*',
-          },
-        ]
-    },
     async headers() {
         return [
             {
@@ -40,6 +32,8 @@ const nextConfig = {
     experimental: {
         missingSuspenseWithCSRBailout: false,
     },
+    crossOrigin: 'anonymous',
+    trailingSlash: true
 };
 
 export default nextConfig;
