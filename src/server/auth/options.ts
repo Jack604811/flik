@@ -14,6 +14,5 @@ export const authOptions: NextAuthOptions = {
   events,
   adapter: PrismaAdapter(db) as Adapter,
   providers,
-  pages,
-  debug: true
+  pages
 };
