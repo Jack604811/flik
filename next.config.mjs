@@ -11,7 +11,7 @@ const nextConfig = {
         return [
             {
                 // matching all API routes
-                source: "/api/:path*",
+                source: "/:path*",
                 headers: [
                     { key: "Access-Control-Allow-Credentials", value: "true" },
                     { key: "Access-Control-Allow-Origin", value: "*" }, // replace this your actual origin
@@ -31,8 +31,11 @@ const nextConfig = {
     },
     experimental: {
         missingSuspenseWithCSRBailout: false,
+        serverActions: {
+            allowedOrigins: ["localhost:3000",".localhost:3000", ".ecohotel.xyz", ".naijaesecia.com"]
+        }
     },
-    // crossOrigin: 'anonymous',
+    crossOrigin: 'anonymous',
     // trailingSlash: true
 };
 

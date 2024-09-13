@@ -22,7 +22,7 @@ export const APP_ROUTES: Route[] = [
   { name: "Features", path: "/", visibleBy: "all" },
   { name: "Pricing", path: "/pricing", visibleBy: "all" },
   { name: "Blog", path: "/blog", visibleBy: "all" },
-  { name: "Dashboard", path: `${env.NEXTAUTH_URL}/dashboard`, visibleBy: "subscribed" },
+  { name: "Dashboard", path: `//:${APP_DOMAIN}/dashboard`, visibleBy: "subscribed" },
 ];
 //this routes will show in the user dropdown of the header (signout is already included by default)
 export const USER_ROUTES = [
