@@ -10,7 +10,7 @@ export const OauthProvider = ({
 }) => {
   return (
     <Button
-      onClick={() => signIn(provider.id)}
+      onClick={() => signIn(provider.id, { callbackUrl: AFTER_SIGNIN_REDIRECT_URL })}
       className="flex gap-2 items-center justify-center w-full "
       variant={"secondary"}
     >

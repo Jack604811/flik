@@ -29,7 +29,8 @@ export function MagicLinkForm() {
     setIsLoading(true);
     const { email } = values;
     await signIn("email", {
-      email
+      email,
+      callbackUrl: AFTER_SIGNIN_REDIRECT_URL,
     });
     setIsLoading(false);
   }
