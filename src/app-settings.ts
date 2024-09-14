@@ -87,7 +87,7 @@ export const BLOG_DESCRIPTION = "This is my blog description";
 // ****** Store Settings ******
 
 // Redirect for one-time purchases
-export const AFTER_PURCHASE_REDIRECT_URL = "/";
+export const AFTER_PURCHASE_REDIRECT_URL = "/dashboard";
 // Redirect for subscriptions
 export const AFTER_SUBSCRIPTION_REDIRECT_URL = "/dashboard";
 
