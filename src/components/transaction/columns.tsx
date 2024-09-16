@@ -11,25 +11,25 @@ import { Booking } from "@/schemas/booking.schema";
 
 export const columns: ColumnDef<Schema>[] = [
   {
-    accessorKey: "guest",
+    accessorKey: "customer",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Customer" />
     ),
     cell: ({ row }) => {
-      const guest = (row.original.booking as Booking).guest;
+      const customer = (row.original.booking as Booking).customer;
       return (
         <div className="flex flex-col">
-          <span className="font-medium">{guest?.name}</span>
-          <span className="text-muted-foreground">{guest?.email}</span>
+          <span className="font-medium">{customer?.name}</span>
+          <span className="text-muted-foreground">{customer?.email}</span>
         </div>
       );
     },
     filterFn: (row, id, value) => {
-      const guest = (row.original.booking as Booking).guest;
+      const customer = (row.original.booking as Booking).customer;
       value = value.toLowerCase();
       return (
-        guest?.email?.toLowerCase().includes(value) ||
-        guest?.name?.toLowerCase().includes(value) ||
+        customer?.email?.toLowerCase().includes(value) ||
+        customer?.name?.toLowerCase().includes(value) ||
         (row.original.id as string).includes(value) ||
         (row.original.booking as Booking).spot.name.includes(value)
       );
@@ -39,7 +39,7 @@ export const columns: ColumnDef<Schema>[] = [
   {
     accessorKey: "amount",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Payment Amount" />
+      <DataTableColumnHeader column={column} title="Amount" />
     ),
     cell: ({ row }) => {
       return (
@@ -51,9 +51,9 @@ export const columns: ColumnDef<Schema>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "booking",
+    accessorKey: "spot",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Booking" />
+      <DataTableColumnHeader column={column} title="Spot" />
     ),
     cell: ({ row }) => {
       const booking = row.original.booking as Booking
@@ -71,14 +71,14 @@ export const columns: ColumnDef<Schema>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "paymentType",
+    accessorKey: "paymentMethod",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Payment Method" />
     ),
     cell: ({ row }) => {
       return (
         <div className="flex w-[100px] items-center">
-          <span>{row.getValue("paymentType")}</span>
+          <span>{row.getValue("paymentMethod")}</span>
         </div>
       );
     },
@@ -163,6 +163,13 @@ export const columns: ColumnDef<Schema>[] = [
       const rowId = row.original.id as string;
       return rowId.includes(value);
     },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    enableSorting: false,
+    enableHiding: true,
+    
   },
   {
     id: "actions",

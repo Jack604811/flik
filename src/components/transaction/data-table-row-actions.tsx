@@ -36,7 +36,7 @@ export function DataTableRowActions<TData>({
   const deleteRef = useRef<any>();
   const transactionId = row.getValue("id") as string;
   // const booking = row.getValue("booking")! as Schema["booking"];
-  // const guest = booking!.guest!;
+  // const customer = booking!.customer!;
 
   const onDelete = () => {
     const deleted = deleteTransaction(transactionId);
@@ -47,7 +47,7 @@ export function DataTableRowActions<TData>({
         return "Transaction deleted successfully!"
       },
       error: "There was an error deleting Transaction!",
-      // description: `Transaction ${transactionId} by ${guest?.name}`,
+      // description: `Transaction ${transactionId} by ${customer?.name}`,
       duration: 3000,
 
     })

@@ -53,7 +53,6 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
         <Table>
           <TableHeader>
             <TableRow>
-              
               <TableHead>Date</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Amount</TableHead>
@@ -69,7 +68,7 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
                 <TableCell>{item.description}</TableCell>
                 <TableCell>${new Intl.NumberFormat('de-DE').format(item.amount).replace(',', '.')}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{item.paymentType}</Badge>
+                  <Badge variant="outline">{item.paymentMethod}</Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{statuses.find(i => i.value === item.status)?.label}</Badge>

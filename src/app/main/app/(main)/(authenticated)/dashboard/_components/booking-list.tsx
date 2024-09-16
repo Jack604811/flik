@@ -63,9 +63,9 @@ export function BookingList({ startDate, endDate, userId }: Params) {
             {data.length ? data.map((booking, index) => (
               <TableRow key={index}>
                 <TableCell>
-                  <div className="font-medium">{booking.guest?.name}</div>
+                  <div className="font-medium">{booking.customer?.name}</div>
                   <div className="hidden text-sm text-muted-foreground md:inline">
-                    {booking.guest?.email}
+                    {booking.customer?.email}
                   </div>
                 </TableCell>
                 <TableCell className="">

@@ -88,7 +88,7 @@ export default function Income({userId, startDate, endDate} : Params) {
               data?.paymentMethodMetrics.length ? 
               data?.paymentMethodMetrics.map((pmm, key) => (
                 <TableRow key={key}>
-                  <TableCell>{pmm.paymentType}</TableCell>
+                  <TableCell>{pmm.paymentMethod}</TableCell>
                   <TableCell>{pmm._count}</TableCell>
                   <TableCell>${pmm._sum.amount}</TableCell>
                 </TableRow>

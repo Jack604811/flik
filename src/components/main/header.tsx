@@ -12,12 +12,13 @@ import SidebarProfileDropdown from "./sidebar-profile-dropdown";
 
 export async function Header() {
   const session = await getServerSession(authOptions);
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "";
 
   return (
     <header className="border-none bg-transparent w-full z-50 mb-0 lg:mb-[-68px]">
       <div className="flex h-16 items-center justify-end gap-4 px-4 md:px-8 w-full mx-auto">
         <nav className="flex w-full justify-between lg:justify-end items-center gap-2">
-          <Link href="/" className="lg:hidden flex items-center gap-2 text-lg font-semibold md:text-base">
+        <Link href={rootDomain} className="lg:hidden flex items-center gap-2 text-lg font-semibold md:text-base">
             <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
               {APP_NAME}
             </strong>

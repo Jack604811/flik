@@ -12,7 +12,7 @@ export default async function Page({
   const booking = await getSpotBooking(params.domain, params.bookingId);
   return (
     <>
-      {!booking?.guestId ? (
+      {!booking?.customerId ? (
         <section className="w-full h-screen bg-gray-100 dark:bg-gray-800">
           <div className="flex items-center justify-center flex-col h-screen space-y-4">
             <h1 className="text-8xl font-bold text-red-600">404</h1>
@@ -104,26 +104,26 @@ export default async function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Name:
                       </span>
-                      <span>{booking.guest?.name}</span>
+                      <span>{booking.customer?.name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
                         Email:
                       </span>
-                      <span>{booking.guest?.email}</span>
+                      <span>{booking.customer?.email}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
                         Phone:
                       </span>
-                      <span>{booking.guest?.phone}</span>
+                      <span>{booking.customer?.phone}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500 dark:text-gray-400">
                         Address:
                       </span>
                       <span className="text-right">
-                        {booking.guest?.address}
+                        {booking.customer?.address}
                       </span>
                     </div>
                   </div>

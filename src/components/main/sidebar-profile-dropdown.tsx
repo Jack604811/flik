@@ -13,8 +13,8 @@ export default function SidebarProfileDropdown() {
   const { data: session, status } = useSession(); // Fetch session data
 
   // Fallback data if no session is found or the user is not logged in
-  const userName = session?.user?.name || "Guest";
-  const userEmail = session?.user?.email || "guest@example.com";
+  const userName = session?.user?.name || "User";
+  const userEmail = session?.user?.email || "user@example.com";
   const userImage = session?.user?.image || "/assets/profile-placeholder.svg";
 
 

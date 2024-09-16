@@ -3,7 +3,7 @@ import {
 } from "@/app-settings";
 import { ThemeProvider } from "@/components/main/theme-provider";
 import "../globals.css";
-import { TailwindScreen } from "@/components/dev/tailwind-screen";
+import { TailwindScreen } from "@/components/main/tailwind-screen";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { getSiteData } from "@/server/actions/domain.action";

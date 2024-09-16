@@ -18,9 +18,10 @@ export const Sidebar = () => {
   const favorites = searchParams.get("favorites");
   const archived = searchParams.get("archived");
   const pathname = usePathname();
-
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "";
+  
   const handleLinkClick = () => {
-    setIsOpen(false); // Close the sheet when a link is clicked
+    setIsOpen(false); 
   };
 
 
@@ -28,7 +29,7 @@ export const Sidebar = () => {
     <div>
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex flex-col min-w-[248px] h-screen p-0 gap-14 border-r sticky top-0">
-          <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
+          <Link href={rootDomain} className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
             <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
               {APP_NAME}
             </strong>

@@ -14,6 +14,7 @@ declare module "next-auth" {
       customerId: string;
       oneTimeProductId: string | null;
       country: string;
+      
       // ...other properties
       // role: UserRole;
     };

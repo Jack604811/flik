@@ -52,7 +52,7 @@ const formSchema = z.object({
   amount: z.string(),
   date: z.date(),
   description: z.string(),
-  paymentType: z.string(),
+  paymentMethod: z.string(),
   status: z.nativeEnum(TransactionStatus),
 });
 
@@ -74,7 +74,7 @@ function AddTransactionButton({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      paymentType: "Cash",
+      paymentMethod: "Cash",
       status: "Approved",
       ...defaultTransaction
     },
@@ -163,7 +163,7 @@ function AddTransactionButton({
                 <div className="grid grid-cols-1 items-center gap-4">
                   <FormField
                     control={form.control}
-                    name="paymentType"
+                    name="paymentMethod"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Payment Method</FormLabel>

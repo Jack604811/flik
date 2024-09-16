@@ -72,7 +72,7 @@ export const SEO_IMAGE = null;
 
 // ****** Blog settings ******
 // set this to false if you don't want to currently use the blog feature, but you want to keep the code for future use
-export const BLOG_ENABLED = false;
+export const BLOG_ENABLED = true;
 // this is the default storage path for blog posts, update this if you move your blog posts to a different folder
 export const BLOG_POSTS_PATH = "src/blog_content/posts";
 export const BLOG_TITLE = "My blog";
@@ -103,4 +103,3 @@ type Route = {
   path: string;
   visibleBy?: "all" | "authenticated" | "subscribed";
 };
-

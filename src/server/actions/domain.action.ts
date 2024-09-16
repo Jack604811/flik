@@ -74,7 +74,7 @@ export const getSpotBooking = async (domain: string, bookingId: string) => {
       spot: { owner: subdomain ? { subdomain } : { customDomain: domain } },
     },
     include: {
-      guest: true,
+      customer: true,
       spot: { select: { name: true, description: true } },
     },
   });

@@ -20,7 +20,7 @@ export const POST = async (req: NextRequest) => {
             wompiEvent?.data?.transaction?.created_at
           ).toDate(),
           status: wompiEvent?.data?.transaction?.status as string,
-          paymentType: wompiEvent?.data?.transaction?.payment_method_type,
+          paymentMethod: wompiEvent?.data?.transaction?.payment_method_type,
           reference: wompiEvent?.data?.transaction?.reference
         }
       );

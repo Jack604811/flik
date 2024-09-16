@@ -13,7 +13,7 @@ import { clearDomainCache } from "../helpers/domains";
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
     where: { spot: { userId: ownerId } },
-    include: { spot: true, guest: true },
+    include: { spot: true, customer: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -23,7 +23,7 @@ export const getBookings = async (ownerId: string) => {
 export const getBookingById = async (bookingId: string) => {
   const booking = await db.booking.findFirst({
     where: { id: bookingId },
-    include: { guest: true, spot: true },
+    include: { customer: true, spot: true },
   });
   return booking;
 };
@@ -31,7 +31,7 @@ export const getBookingById = async (bookingId: string) => {
 export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { spot: { userId: ownerId } } },
-    include: { booking: { include: { guest: true, spot: true } } },
+    include: { booking: { include: { customer: true, spot: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -107,11 +107,11 @@ export const addBooking = async (data: {
       },
     },
   });
-  const guest = await addGuestToBooking({ ...data, bookingId: booking.id });
+  const customer = await addCustomerToBooking({ ...data, bookingId: booking.id });
 
   clearDomainCache(booking.spot.owner.subdomain, booking.spot.owner.customDomain, data.spotId)
 
-  return { ...booking, guest };
+  return { ...booking, customer };
 };
 export const addExtrasToBooking = async (data: {
   extras: { extraId: string; price: number; quantity: number }[];
@@ -151,7 +151,7 @@ export const addOrUpdateTransaction = async (data: {
   date: Date;
   description: string;
   status?: TransactionStatus;
-  paymentType: string;
+  paymentMethod: string;
   bookingId: string;
   id?: string;
 }) => {
@@ -160,7 +160,7 @@ export const addOrUpdateTransaction = async (data: {
     paymentDate: data.date,
     status: data.status ?? TransactionStatus.Pending,
     description: data.description,
-    paymentType: data.paymentType,
+    paymentMethod: data.paymentMethod,
     booking: { connect: { id: data.bookingId } },
   };
   const transaction = await db.transaction.upsert({
@@ -172,7 +172,7 @@ export const addOrUpdateTransaction = async (data: {
   return transaction;
 };
 
-export const addGuestToBooking = async ({
+export const addCustomerToBooking = async ({
   bookingId,
   name,
   email,
@@ -189,7 +189,7 @@ export const addGuestToBooking = async ({
   address: string;
   note?: string;
 }) => {
-  const guest = await db.guest.create({
+  const customer = await db.customer.create({
     data: {
       name,
       address,
@@ -201,7 +201,7 @@ export const addGuestToBooking = async ({
     },
   });
 
-  return guest;
+  return customer;
 };
 
 export const updateBooking = async (data: {
@@ -210,7 +210,7 @@ export const updateBooking = async (data: {
   subtotal?: number;
   startDate?: Date;
   endDate?: Date;
-  guest?: {
+  customer?: {
     id: string;
     name?: string;
     email?: string;
@@ -230,7 +230,7 @@ export const updateBooking = async (data: {
       endDate: data.endDate,
       updatedAt: new Date(),
       ...(data.spotId ? { spot: { connect: { id: data.spotId } } } : {}),
-      ...(data.guest ? { guest: { update: { ...data.guest } } } : {}),
+      ...(data.customer ? { customer: { update: { ...data.customer } } } : {}),
     },
   });
 
@@ -261,13 +261,13 @@ export const handleWompiBookingPaymentEvent = async (
     amount,
     paymentDate,
     status,
-    paymentType,
+    paymentMethod,
     reference,
   }: {
     amount: number;
     paymentDate: Date;
     status: string;
-    paymentType: string;
+    paymentMethod: string;
     reference: string;
   }
 ) => {
@@ -286,7 +286,7 @@ export const handleWompiBookingPaymentEvent = async (
           id: reference,
           amount,
           paymentDate,
-          paymentType,
+          paymentMethod,
           status: transactionStatus,
           description: "Payment from Wompi!",
         },
@@ -307,7 +307,7 @@ export const handleStripeBookingPaymentEvent = async (
         create: {
           amount,
           paymentDate,
-          paymentType: "Stripe",
+          paymentMethod: "Stripe",
           status: TransactionStatus.Approved,
           description: "Payment from Stripe!",
         },

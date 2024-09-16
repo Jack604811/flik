@@ -6,12 +6,13 @@ import { Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableViewOptions } from "./data-table-view-options"
-
 import { statuses } from "./schema"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableDateFilter } from "./data-table-date-filter"
 import AddTransactionButton from "@/components/forms/AddTransactionButton"
 import { Span } from "next/dist/trace"
+import { DataTableSpotFilter } from "./data-table-spot-filter"
+import { useState } from "react"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -21,15 +22,16 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
+  const [spots, setSpots] = useState<{ id: string; name: string }[]>([]);
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter transactions..."
-          value={(table.getColumn("guest")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("customer")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("guest")?.setFilterValue(event.target.value)
+            table.getColumn("customer")?.setFilterValue(event.target.value)
           }
           className="h-10 w-[150px] lg:w-[250px]"
         />
@@ -38,6 +40,13 @@ export function DataTableToolbar<TData>({
           <DataTableDateFilter
             column={table.getColumn("createdAt")}
             title="Booking Date"
+          />
+        )}
+        {table.getColumn("spot") && (
+          <DataTableSpotFilter
+            column={table.getColumn("spot")}
+            title="Spot"
+            spots={spots}
           />
         )}
         {table.getColumn("status") && (

@@ -128,7 +128,7 @@ export type Database = {
           deletedAt: string | null
           endDate: string | null
           extras: number | null
-          guestId: string | null
+          customerId: string | null
           id: string
           spotId: string
           startDate: string | null
@@ -143,7 +143,7 @@ export type Database = {
           deletedAt?: string | null
           endDate?: string | null
           extras?: number | null
-          guestId?: string | null
+          customerId?: string | null
           id: string
           spotId: string
           startDate?: string | null
@@ -158,7 +158,7 @@ export type Database = {
           deletedAt?: string | null
           endDate?: string | null
           extras?: number | null
-          guestId?: string | null
+          customerId?: string | null
           id?: string
           spotId?: string
           startDate?: string | null
@@ -170,10 +170,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "Booking_guestId_fkey"
-            columns: ["guestId"]
+            foreignKeyName: "Booking_customerId_fkey"
+            columns: ["customerId"]
             isOneToOne: false
-            referencedRelation: "Guest"
+            referencedRelation: "Customer"
             referencedColumns: ["id"]
           },
           {
@@ -349,7 +349,7 @@ export type Database = {
           },
         ]
       }
-      Guest: {
+      Customer: {
         Row: {
           address: string | null
           dni: string

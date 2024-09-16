@@ -36,7 +36,7 @@ export function DataTableRowActions<TData>({
   const router = useRouter();
   const deleteRef = useRef<any>();
   const bookingId = row.getValue("id") as string;
-  const guestName = row.getValue("guest") as Booking["guest"];
+  const customerName = row.getValue("customer") as Booking["customer"];
 
   const onDelete = () => {
     const deleted = deleteBooking(bookingId);
@@ -47,7 +47,7 @@ export function DataTableRowActions<TData>({
         return "Booking deleted successfully!";
       },
       error: "There was an error deleting booking!",
-      description: `Booking ${bookingId} by ${guestName?.name}`,
+      description: `Booking ${bookingId} by ${customerName?.name}`,
       duration: 3000,
     });
   };
@@ -56,7 +56,7 @@ export function DataTableRowActions<TData>({
     <>
       <ConfirmModal
         onConfirm={onDelete}
-        warningText={`Do you want to DELETE the booking by ${guestName?.name}? This action cannot be undone.`}
+        warningText={`Do you want to DELETE the booking by ${customerName?.name}? This action cannot be undone.`}
       >
         <div ref={deleteRef} className="hidden">
           Delete

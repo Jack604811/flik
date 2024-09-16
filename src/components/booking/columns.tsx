@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 
 export const columns: ColumnDef<Booking>[] = [
+ 
   {
     id: "select",
     header: ({ table }) => (
@@ -34,10 +35,9 @@ export const columns: ColumnDef<Booking>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-    accessorKey: "id"
   },
   {
-    accessorKey: "guest",
+    accessorKey: "customer",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Customer" />
     ),
@@ -45,20 +45,20 @@ export const columns: ColumnDef<Booking>[] = [
       return (
         <BookingDetailButton booking={row.original}>
         <div className="flex flex-col">
-          <span className="font-medium">{row.original.guest?.name}</span>
+          <span className="font-medium">{row.original.customer?.name}</span>
           <span className="text-muted-foreground">
-            {row.original.guest?.email}
+            {row.original.customer?.email}
           </span>
         </div>
         </BookingDetailButton>
       );
     },
     filterFn: (row, id, value) => {
-      const guest = row.getValue("guest") as Booking["guest"];
+      const customer = row.getValue("customer") as Booking["customer"];
       const bookingId = row.getValue("id") as string;
       return (
-        guest?.email?.toLowerCase().includes(value) ||
-        guest?.name?.toLowerCase().includes(value) ||
+        customer?.email?.toLowerCase().includes(value) ||
+        customer?.name?.toLowerCase().includes(value) ||
         bookingId.includes(value)
       );
     },
@@ -168,6 +168,12 @@ export const columns: ColumnDef<Booking>[] = [
       return value.includes(row.getValue(id));
     },
     enableSorting: false,
+  },
+  {
+    accessorKey: "id",
+    header: "ID",
+    enableSorting: false,
+    enableHiding: true,
   },
   /*{
     accessorKey: "createdAt",

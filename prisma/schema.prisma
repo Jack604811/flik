@@ -111,30 +111,30 @@ model Booking {
   startDate     DateTime?
   endDate       DateTime?
   status        BookingStatus
-  guestId       String?
+  customerId    String?  
   spotId        String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @default(now())
   deletedAt     DateTime?
-  guest         Guest?          @relation(fields: [guestId], references: [id])
+  customer      Customer?       @relation(fields: [customerId], references: [id])
   spot          Spot            @relation(fields: [spotId], references: [id])
   bookingExtras BookingExtras[]
   transactions  Transaction[]
 }
 
 model Transaction {
-  id          String            @id @default(cuid())
-  amount      Float
-  paymentDate DateTime
-  paymentType String            @default("Cash")
-  description String
-  status      TransactionStatus @default(Pending)
-  allowEdit   Boolean           @default(true)
-  bookingId   String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime?         @updatedAt
-  deletedAt   DateTime?
-  booking     Booking           @relation(fields: [bookingId], references: [id])
+  id            String            @id @default(cuid())
+  amount        Float
+  paymentDate   DateTime
+  paymentMethod String            @default("Cash")
+  description   String
+  status        TransactionStatus @default(Pending)
+  allowEdit     Boolean           @default(true)
+  bookingId     String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime?         @updatedAt
+  deletedAt     DateTime?
+  booking       Booking           @relation(fields: [bookingId], references: [id])
 }
 
 model Extras {
@@ -156,7 +156,7 @@ model Extras {
   spots         Spot[]          @relation("ExtrasToSpot")
 }
 
-model Guest {
+model Customer {
   id       String    @id @default(cuid())
   name     String
   email    String

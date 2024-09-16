@@ -334,10 +334,10 @@ function BookingSection({ spot }: Params) {
                       alt="Booking Image"
                       className="rounded-md object-cover"
                       height={80}
-                      src={spot.images[0].url}
+                      src={spot.images[0]?.url || "/assets/placeholder.svg"}
                       style={{ aspectRatio: "120/80", objectFit: "cover" }}
                       width={120}
-                    />
+                     />
                     <div className="flex flex-col">
                       <div className="flex w-full justify-between">
                         <div className="font-bold">{spot.name}</div>

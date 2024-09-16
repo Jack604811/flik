@@ -56,7 +56,7 @@ export const getBookingsByDates = async (
   const bookings = await db.booking.findMany({
     where: { spot: {userId }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}] },
     include: {
-      guest: true,
+      customer: true,
       transactions: {
         select: { amount: true },
         where: { status: TransactionStatus.Approved },
@@ -104,7 +104,7 @@ export const getIncomeMetricData = async (
     },
   });
   const paymentMethodMetrics = await db.transaction.groupBy({
-    by: ["paymentType"],
+    by: ["paymentMethod"],
     _sum: { amount: true },
     _count: true,
     where: {

@@ -50,7 +50,7 @@ export const bookingSchema = z.object({
     units: z.number(),
     workingHours: z.array(z.any())
   }),
-  guest: z.object({
+  customer: z.object({
     id: z.string(),
     name: z.string(),
     email: z.string(),

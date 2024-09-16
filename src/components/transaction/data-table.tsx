@@ -37,8 +37,12 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  
+  // Initialize columnVisibility with createdAt set to false
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+    createdAt: false, // Hide the createdAt column by default
+  });
+  
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -49,7 +53,7 @@ export function DataTable<TData, TValue>({
     columns,
     state: {
       sorting,
-      columnVisibility,
+      columnVisibility, // Apply the columnVisibility state here
       rowSelection,
       columnFilters,
     },
@@ -57,7 +61,7 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: setColumnVisibility, // Handle visibility changes
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -124,7 +128,7 @@ export function DataTable<TData, TValue>({
           </div>
           <DataTablePagination table={table} />
         </div>
-        </div>
+      </div>
     </div>
   );
 }

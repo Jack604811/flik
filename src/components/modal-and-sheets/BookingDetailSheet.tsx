@@ -53,7 +53,7 @@ const bookingSchema = z.object({
   id: z.string(),
   status: z.nativeEnum(BookingStatus).optional(),
   spotId: z.string().optional(),
-  guest: z
+  customer: z
     .object({
       id: z.string(),
       name: z.string().optional(),
@@ -113,10 +113,10 @@ function BookingDetailSheet() {
     updatedData.status = data.status;
   } else if (editingField === "spotId") {
     updatedData.spotId = data.spotId;
-  } else if (editingField && data.guest) {
-    updatedData.guest = {
-      id: data.guest.id,
-      [editingField as keyof typeof data.guest]: data.guest[editingField as keyof typeof data.guest],
+  } else if (editingField && data.customer) {
+    updatedData.customer = {
+      id: data.customer.id,
+      [editingField as keyof typeof data.customer]: data.customer[editingField as keyof typeof data.customer],
     };
   }
 
@@ -162,7 +162,7 @@ function BookingDetailSheet() {
             <div className="flex flex-row items-start bg-muted/50 p-6">
               <div className="grid gap-2">
                 <CardTitle className="group flex items-center gap-2 text-xl">
-                  {booking?.guest.name}
+                  {booking?.customer.name}
                 </CardTitle>
                 <div className="flex flex-row w-full items-center gap-2">
                   <EditBookingDate
@@ -235,7 +235,7 @@ function BookingDetailSheet() {
                                   {field === "phone" ? (
                                     <FormField
                                       control={control}
-                                      name={`guest.${field}`}
+                                      name={`customer.${field}`}
                                       render={({
                                         field: { onChange, value },
                                       }) => (
@@ -276,7 +276,7 @@ function BookingDetailSheet() {
                                   ) : (
                                     <FormField
                                       control={control}
-                                      name={field !== "spotId" ? `guest.${field}`: field}
+                                      name={field !== "spotId" ? `customer.${field}`: field}
                                       render={({ field: formField }) => (
                                         <Input
                                           {...formField}
@@ -318,8 +318,8 @@ function BookingDetailSheet() {
                                             (s) =>
                                               s.value === getValues()?.status
                                           )?.label
-                                        : getValues()!.guest?.[
-                                            field as keyof Booking["guest"]
+                                        : getValues()!.customer?.[
+                                            field as keyof Booking["customer"]
                                           ] ??
                                           String(
                                             getValues()![field as keyof Booking]
@@ -477,7 +477,7 @@ function BookingDetailSheet() {
                                   <>
                                     <FormField
                                       control={control}
-                                      name={`guest.note`}
+                                      name={`customer.note`}
                                       render={({ field: formField }) => (
                                         <Textarea
                                           {...formField}
@@ -517,8 +517,8 @@ function BookingDetailSheet() {
                                         }
                                       >
                                         {
-                                          booking!.guest?.[
-                                            field as keyof Booking["guest"]
+                                          booking!.customer?.[
+                                            field as keyof Booking["customer"]
                                           ]
                                         }
                                       </span>

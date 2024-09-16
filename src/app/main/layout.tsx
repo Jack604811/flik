@@ -3,7 +3,7 @@ import { APP_LANG } from "@/app-settings";
 import { ThemeProvider } from "@/components/main/theme-provider";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
-import { TailwindScreen } from "@/components/dev/tailwind-screen";
+import { TailwindScreen } from "@/components/main/tailwind-screen";
 import NextTopLoader from "nextjs-toploader";
 import dynamic from "next/dynamic";
 import { Toaster } from "sonner";
