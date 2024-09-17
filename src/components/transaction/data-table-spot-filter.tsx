@@ -1,10 +1,10 @@
-import * as React from "react"
-import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons"
-import { Column } from "@tanstack/react-table"
+import * as React from "react";
+import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
+import { Column } from "@tanstack/react-table";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -13,21 +13,21 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
 interface DataTableSpotFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>
-  title?: string
+  column?: Column<TData, TValue>;
+  title?: string;
   spots: {
-    id: string
-    name: string
-  }[]
+    id: string;
+    name: string;
+  }[];
 }
 
 export function DataTableSpotFilter<TData, TValue>({
@@ -35,8 +35,19 @@ export function DataTableSpotFilter<TData, TValue>({
   title,
   spots,
 }: DataTableSpotFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues()
-  const selectedValues = new Set(column?.getFilterValue() as string[])
+  // Log spots to verify if the data is being passed correctly
+  console.log('Spots:', spots);
+  if (!spots || spots.length === 0) {
+    console.error('Spots are not loaded or empty.');
+  }
+
+  // Log the column to verify if it is passed and properly initialized
+  console.log('Column:', column);
+  
+  const facets = column?.getFacetedUniqueValues();
+  console.log('Facets:', facets); // Log the facets to check if they are being calculated correctly
+
+  const selectedValues = new Set(column?.getFilterValue() as string[]);
 
   return (
     <Popover>
@@ -86,20 +97,20 @@ export function DataTableSpotFilter<TData, TValue>({
             <CommandEmpty>No spots found.</CommandEmpty>
             <CommandGroup>
               {spots.map((spot) => {
-                const isSelected = selectedValues.has(spot.id)
+                const isSelected = selectedValues.has(spot.id);
                 return (
                   <CommandItem
                     key={spot.id}
                     onSelect={() => {
                       if (isSelected) {
-                        selectedValues.delete(spot.id)
+                        selectedValues.delete(spot.id);
                       } else {
-                        selectedValues.add(spot.id)
+                        selectedValues.add(spot.id);
                       }
-                      const filterValues = Array.from(selectedValues)
+                      const filterValues = Array.from(selectedValues);
                       column?.setFilterValue(
                         filterValues.length ? filterValues : undefined
-                      )
+                      );
                     }}
                   >
                     <div
@@ -119,7 +130,7 @@ export function DataTableSpotFilter<TData, TValue>({
                       </span>
                     )}
                   </CommandItem>
-                )
+                );
               })}
             </CommandGroup>
             {selectedValues.size > 0 && (
@@ -139,5 +150,5 @@ export function DataTableSpotFilter<TData, TValue>({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

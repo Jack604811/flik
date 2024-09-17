@@ -8,13 +8,15 @@ export const getTotalCardsMetric = async (
   endDate: Date
 ) => {
   try {
-    const { _sum: { amount: totalRevenue = 0 } } = await db.transaction.aggregate({
+    const aggregateResult = await db.transaction.aggregate({
       _sum: { amount: true },
       where: {
         booking: { spot: { userId } },
         AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
       },
-    }) || { _sum: { amount: 0 } };
+    });
+
+    const totalRevenue = aggregateResult?._sum?.amount || 0; // Guarding against undefined
 
     const totalBookings = await db.booking.count({
       where: { spot: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
@@ -22,16 +24,13 @@ export const getTotalCardsMetric = async (
 
     const records = await db.bookingExtras.findMany({
       where: { extra: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
-      select: { quantity: true, price: true }
+      select: { quantity: true, price: true },
     });
+
     const totalExtraSales = records.reduce((sum, record) => {
       return sum + (record.price * record.quantity);
     }, 0);
-console.log({
-  totalBookings, 
-  totalRevenue,
-  totalExtraSales
-})
+
     return {
       totalBookings, 
       totalRevenue,
@@ -39,14 +38,13 @@ console.log({
     };
   } catch (error) {
     console.error('Error in getTotalCardsMetric:', error);
-    // Return default values instead of throwing
     return {
       totalBookings: 0,
       totalRevenue: 0,
       totalExtraSales: 0
     };
   }
-}
+};
 
 export const getBookingsByDates = async (
   userId: string,
@@ -79,12 +77,13 @@ export const getBookingStatusGroupTotal = async (
     _count: {
       status: true,
     },
-    where: { spot: {userId }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}] },
+    where: { spot: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
   });
 
+  // Ensure that the data is valid before accessing _count
   return bookingGroups.map((data, i) => ({
-    status: data.status.toLocaleLowerCase(),
-    count: data._count.status,
+    status: data.status ? data.status.toLocaleLowerCase() : 'unknown',
+    count: data._count?.status || 0, // Guarding against undefined
   }));
 };
 

@@ -1,9 +1,9 @@
-import * as React from "react";
-import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { Column } from "@tanstack/react-table";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react"
+import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons"
+import { Column } from "@tanstack/react-table"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -12,54 +12,71 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
 
 interface DataTableFacetedFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>;
-  title?: string;
+  column?: Column<TData, TValue>
+  title?: string
   options: {
-    label: string;
-    value: string;
-    icon?: React.ComponentType<{ className?: string }>;
-  }[];
+    label: string
+    value: string
+    icon?: React.ComponentType<{ className?: string }>
+  }[]
+  reset?: boolean // Add a prop to trigger reset
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  reset, // Receive reset prop
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues();
-  const [selectedValues, setSelectedValues] = React.useState(
-    new Set(column?.getFilterValue() as string[])
-  );
+  const facets = column?.getFacetedUniqueValues()
 
-  // Set "Approved" as default selected value
-  React.useEffect(() => {
-    if (!selectedValues.has("Approved")) {
-      const updatedValues = new Set(selectedValues);
-      updatedValues.add("Approved");
-      setSelectedValues(updatedValues);
-      column?.setFilterValue(Array.from(updatedValues));
+  // Initialize the filter with "Approved" selected
+  const [selectedValues, setSelectedValues] = useState<Set<string>>(
+    new Set(["Approved"])
+  )
+
+  useEffect(() => {
+    // Apply the default "Approved" filter on page load
+    column?.setFilterValue(["Approved"])
+  }, [column])
+
+  // Clear selected values when reset prop is triggered
+  useEffect(() => {
+    if (reset) {
+      setSelectedValues(new Set())
+      column?.setFilterValue(undefined)
     }
-  }, [selectedValues, column]); // Add all necessary dependencies
+  }, [reset, column])
 
-  const handleSelect = (value: string, isSelected: boolean) => {
-    const updatedValues = new Set(selectedValues);
-    if (isSelected) {
-      updatedValues.delete(value);
+  const handleSelect = (value: string) => {
+    const newSelectedValues = new Set(selectedValues)
+
+    // Toggle the selection of the option
+    if (newSelectedValues.has(value)) {
+      newSelectedValues.delete(value)
     } else {
-      updatedValues.add(value);
+      newSelectedValues.add(value)
     }
-    setSelectedValues(updatedValues);
-    column?.setFilterValue(Array.from(updatedValues).length ? Array.from(updatedValues) : undefined);
-  };
+
+    setSelectedValues(newSelectedValues)
+
+    const filterValues = Array.from(newSelectedValues)
+    column?.setFilterValue(filterValues.length ? filterValues : undefined)
+  }
+
+  const clearFilters = () => {
+    setSelectedValues(new Set())
+    column?.setFilterValue(undefined)
+  }
 
   return (
     <Popover>
@@ -113,11 +130,11 @@ export function DataTableFacetedFilter<TData, TValue>({
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
+                const isSelected = selectedValues.has(option.value)
                 return (
                   <CommandItem
                     key={option.value}
-                    onSelect={() => handleSelect(option.value, isSelected)}
+                    onSelect={() => handleSelect(option.value)}
                   >
                     <div
                       className={cn(
@@ -139,7 +156,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       </span>
                     )}
                   </CommandItem>
-                );
+                )
               })}
             </CommandGroup>
             {selectedValues.size > 0 && (
@@ -147,10 +164,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => {
-                      setSelectedValues(new Set());
-                      column?.setFilterValue(undefined);
-                    }}
+                    onSelect={clearFilters}
                     className="justify-center text-center"
                   >
                     Clear filters
@@ -162,5 +176,5 @@ export function DataTableFacetedFilter<TData, TValue>({
         </Command>
       </PopoverContent>
     </Popover>
-  );
+  )
 }

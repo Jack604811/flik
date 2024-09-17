@@ -1,18 +1,13 @@
-"use client"
-
+import { useState } from "react"
 import { Cross2Icon } from "@radix-ui/react-icons"
 import { Table } from "@tanstack/react-table"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableViewOptions } from "./data-table-view-options"
 import { statuses } from "./schema"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableDateFilter } from "./data-table-date-filter"
-import AddTransactionButton from "@/components/forms/AddTransactionButton"
-import { Span } from "next/dist/trace"
 import { DataTableSpotFilter } from "./data-table-spot-filter"
-import { useState } from "react"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -22,7 +17,14 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
-  const [spots, setSpots] = useState<{ id: string; name: string }[]>([]);
+  const [spots, setSpots] = useState<{ id: string; name: string }[]>([])
+  const [resetFilters, setResetFilters] = useState(false)
+
+  const handleResetFilters = () => {
+    table.resetColumnFilters()
+    setResetFilters(true)
+    setTimeout(() => setResetFilters(false), 0) // Reset the flag immediately
+  }
 
   return (
     <div className="flex items-center justify-between">
@@ -35,7 +37,6 @@ export function DataTableToolbar<TData>({
           }
           className="h-10 w-[150px] lg:w-[250px]"
         />
-        
         {table.getColumn("createdAt") && (
           <DataTableDateFilter
             column={table.getColumn("createdAt")}
@@ -54,12 +55,13 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("status")}
             title="Status"
             options={statuses}
+            reset={resetFilters} // Pass reset flag here
           />
         )}
         {isFiltered && (
           <Button
             variant="outline"
-            onClick={() => table.resetColumnFilters()}
+            onClick={handleResetFilters}
             className="h-10 px-2 lg:px-3"
           >
             <span className="sr-only md:not-sr-only md:whitespace-nowrap">
@@ -70,12 +72,6 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
-
-      {/* <div className="ml-2">
-          <AddTransactionButton>
-            <Button>Add Transaction</Button>
-          </AddTransactionButton>
-      </div> */}
     </div>
   )
 }
