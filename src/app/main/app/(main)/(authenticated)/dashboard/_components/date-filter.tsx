@@ -34,8 +34,8 @@ export function DateFilter<TData, TValue>({
   const updateDateState = (startDate: Date, endDate: Date) => {
     const query = `?from=${moment(startDate).format("MM/DD/YYYY")}&to=${moment(endDate).format("MM/DD/YYYY")}`;
     const newURI = `${pathname}${query}`;
-    
-    router.push(newURI, { scroll: true });
+    window.history.pushState({}, "", newURI);
+    // router.push(newURI, { scroll: true });
   };
 
   const handleSelect = (val: DateRange | undefined) => {

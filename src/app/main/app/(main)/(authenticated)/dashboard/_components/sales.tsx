@@ -38,7 +38,7 @@ export function Sales({userId}: Params) {
   const { data } = useQuery({
     queryKey: ["sales-metrics"],
     queryFn: async () => getTotalSalesByDateRange(userId, startDate, endDate),
-    initialData: [{ date: moment().format("YYYY-MM-DD"), sales: 0, income: 0 }]
+    initialData: []
   })
 
   // Calculate average bookings
@@ -50,7 +50,7 @@ export function Sales({userId}: Params) {
       <CardHeader className="flex flex-col items-stretch space-y-0 p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>{chartConfig.sales.label}</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardDescription>{moment(startDate).format("MMMM")} - {moment(endDate).format("MMMM YYYY")}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="px-2 xs:px-0 sm:p-6">

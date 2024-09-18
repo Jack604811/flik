@@ -20,6 +20,7 @@ import { useSearchParams } from "next/navigation";
 import { parseDashboardDates } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getBookingsGroupedByMonth } from "@/server/actions/dashboard.action";
+import moment from "moment";
 
 
 const chartConfig = {
@@ -41,17 +42,16 @@ export function BookingsPerMonth({userId}: Params) {
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
 
   const { data } = useQuery({
-    queryKey: ["sales-metrics"],
+    queryKey: ["booking-cancellation-metrics"],
     queryFn: async () => getBookingsGroupedByMonth(userId, startDate, endDate),
     initialData: []
   })
-
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Bookings vs Cancellations</CardTitle>
-        <CardDescription>January - December 2024</CardDescription>
+        <CardDescription>{moment(startDate).format("MMMM")} - {moment(endDate).format("MMMM YYYY")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

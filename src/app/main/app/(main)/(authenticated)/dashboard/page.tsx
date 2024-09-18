@@ -27,19 +27,19 @@ export default async function Dashboard() {
           </div>
         </div>
         <TabsContent value="overview" className="space-y-4">
-          <>
+          <div>
             <TopCards userId={currentUser?.id!} />
             <div className="grid gap-4 xs:max-w-[300px] md:w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
               <Sales userId={currentUser?.id!} />
-              {/* <BookingsSource userId={currentUser?.id!} /> */}
-              {/* <BookingStatus userId={currentUser?.id!} /> */}
+              <BookingsSource userId={currentUser?.id!} />
+              <BookingStatus userId={currentUser?.id!} />
               <BookingList userId={currentUser?.id!} />
               <Income userId={currentUser?.id!} />
               <BookingsPerMonth userId={currentUser?.id!} />
               <SpotsAndExtras userId={currentUser?.id!} />
               <Traffic userId={currentUser?.id!}/>
             </div>
-          </>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
