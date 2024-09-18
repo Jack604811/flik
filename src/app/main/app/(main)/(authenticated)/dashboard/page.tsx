@@ -1,43 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { getCurrentUser } from "@/server/auth";
 import { DateFilter } from "./_components/date-filter";
 import { TopCards } from "./_components/top-cards";
 import { Traffic } from "./_components/traffic";
 import { BookingStatus } from "./_components/booking-status";
 import { Sales } from "./_components/sales";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { ArrowUpRightIcon } from "lucide-react";
 import { BookingsPerMonth } from "./_components/bookings-montly";
 import Income from "./_components/income";
 import { SpotsAndExtras } from "./_components/spots-extras";
 import { BookingList } from "./_components/booking-list";
 import { BookingsSource } from "./_components/bookings-source";
-import { endOfMonth, startOfMonth } from "date-fns";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
-type Params = {
-  searchParams?: { [key: string]: string | undefined };
-}
-
-export default async function Dashboard({searchParams} : Params) {
+export default async function Dashboard() {
   const currentUser = await getCurrentUser();
-  const pathname = headers().get("x-current-path")
-
-  if (!searchParams?.from || !searchParams?.to) {
-    const currentMonthStart = startOfMonth(new Date());
-    const currentMonthEnd = endOfMonth(new Date());
-
-    return redirect(`${pathname}?from=${currentMonthStart.toLocaleDateString()}&to=${currentMonthEnd.toLocaleDateString()}`)
-  }
- 
-  const startDate = new Date(searchParams?.from);
-  const endDate = new Date(searchParams?.to);
-
   return (
     <div className="flex-1 p-6 pt-4 space-y-8 md:p-8 md:pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -46,22 +22,22 @@ export default async function Dashboard({searchParams} : Params) {
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="flex justify-between">
           <div className="flex w-full items-center justify-between space-x-2">
-            <DateFilter dates={[startDate, endDate]} />
+            <DateFilter />
             <Button>Download</Button>
           </div>
         </div>
         <TabsContent value="overview" className="space-y-4">
           <>
-            <TopCards userId={currentUser?.id!} startDate={startDate} endDate={endDate} />
+            <TopCards userId={currentUser?.id!} />
             <div className="grid gap-4 xs:max-w-[300px] md:w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
-              <Sales />
-              <BookingsSource />
-              <BookingStatus userId={currentUser?.id!} startDate={startDate} endDate={endDate} />
-              <BookingList userId={currentUser?.id!} startDate={startDate} endDate={endDate} />
-              <Income userId={currentUser?.id!} startDate={startDate} endDate={endDate} />
-              <BookingsPerMonth />
-              <SpotsAndExtras />
-              <Traffic />
+              <Sales userId={currentUser?.id!} />
+              <BookingsSource userId={currentUser?.id!} />
+              <BookingStatus userId={currentUser?.id!} />
+              <BookingList userId={currentUser?.id!} />
+              <Income userId={currentUser?.id!} />
+              <BookingsPerMonth userId={currentUser?.id!} />
+              <SpotsAndExtras userId={currentUser?.id!} />
+              <Traffic userId={currentUser?.id!}/>
             </div>
           </>
         </TabsContent>

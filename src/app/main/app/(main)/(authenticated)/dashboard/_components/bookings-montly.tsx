@@ -16,21 +16,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useSearchParams } from "next/navigation";
+import { parseDashboardDates } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getBookingsGroupedByMonth } from "@/server/actions/dashboard.action";
 
-const chartData = [
-  { month: "January", bookings: 186, cancellations: 50 },
-  { month: "February", bookings: 305, cancellations: 30 },
-  { month: "March", bookings: 237, cancellations: 40 },
-  { month: "April", bookings: 73, cancellations: 20 },
-  { month: "May", bookings: 209, cancellations: 15 },
-  { month: "June", bookings: 214, cancellations: 25 },
-  { month: "July", bookings: 203, cancellations: 18 },
-  { month: "August", bookings: 264, cancellations: 12 },
-  { month: "September", bookings: 370, cancellations: 22 },
-  { month: "October", bookings: 106, cancellations: 10 },
-  { month: "November", bookings: 235, cancellations: 30 },
-  { month: "December", bookings: 280, cancellations: 28 },
-];
 
 const chartConfig = {
   bookings: {
@@ -43,7 +33,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BookingsPerMonth() {
+type Params = {
+  userId: string
+}
+export function BookingsPerMonth({userId}: Params) {
+  const searchParams = useSearchParams();
+  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+
+  const { data } = useQuery({
+    queryKey: ["sales-metrics"],
+    queryFn: async () => getBookingsGroupedByMonth(userId, startDate, endDate),
+    initialData: []
+  })
+
+
   return (
     <Card>
       <CardHeader>
@@ -52,7 +55,7 @@ export function BookingsPerMonth() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={data}>
             <XAxis
               dataKey="month"
               tickLine={false}

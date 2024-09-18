@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { getBookingStatusGroupTotal } from "@/server/actions/dashboard.action";
+import { useSearchParams } from "next/navigation";
+import { parseDashboardDates } from "@/lib/utils";
 
 
 const chartConfig = {
@@ -48,9 +50,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type Params = {startDate: Date, endDate: Date, userId: string}
+type Params = { userId: string}
 
-export function BookingStatus({ userId, endDate, startDate } : Params) {
+export function BookingStatus({ userId, } : Params) {
+  const searchParams = useSearchParams()
+  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+  
   const id = "pie-interactive";
   const [activeStatus, setActiveStatus] = React.useState('confirmed');
   const { data, } = useQuery({

@@ -3,8 +3,10 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { parseDashboardDates } from "@/lib/utils";
 import { getIncomeMetricData } from "@/server/actions/dashboard.action";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { AreaChart, CartesianGrid, XAxis, Area, ReferenceLine, Label } from "recharts";
 
 const chartConfig = {
@@ -23,9 +25,12 @@ const chartData = [
 ];
 
 
-type Params = { startDate: Date; endDate: Date; userId: string };
+type Params = {  userId: string };
 
-export default function Income({userId, startDate, endDate} : Params) {
+export default function Income({userId} : Params) {
+  const searchParams = useSearchParams()
+  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+
   const { data } = useQuery({
     queryKey: ["income-metrics"],
     queryFn: () => getIncomeMetricData(userId, startDate, endDate),

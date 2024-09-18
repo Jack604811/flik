@@ -20,10 +20,15 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getBookingsByDates } from "@/server/actions/dashboard.action";
 import moment from "moment";
+import { useSearchParams } from "next/navigation";
+import { parseDashboardDates } from "@/lib/utils";
 
-type Params = { startDate: Date; endDate: Date; userId: string };
+type Params = { userId: string };
 
-export function BookingList({ startDate, endDate, userId }: Params) {
+export function BookingList({ userId }: Params) {
+  const searchParams = useSearchParams()
+  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+
   const { data, isLoading } = useQuery({
     queryKey: ["bookings", startDate, endDate],
     queryFn: () => getBookingsByDates(userId, startDate, endDate),

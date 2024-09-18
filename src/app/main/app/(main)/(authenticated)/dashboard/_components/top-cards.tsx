@@ -1,21 +1,24 @@
-"use client"
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { parseDashboardDates } from "@/lib/utils";
 import { getTotalCardsMetric } from "@/server/actions/dashboard.action";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 
-type Params = {startDate: Date, endDate: Date, userId: string}
-export function TopCards({ userId, endDate, startDate } : Params) {
+type Params = { userId: string };
+
+export function TopCards({ userId }: Params) {
+  const searchParams = useSearchParams();
+  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+  
+
+  // React Query to fetch data using the validated dates
   const { data, isLoading, error } = useQuery({
-    queryKey: ["top-cards-metric", startDate.toISOString(), endDate.toISOString()],
-    queryFn: async () =>  getTotalCardsMetric(userId, startDate, endDate),
+    queryKey: ["top-cards-metric", startDate.toLocaleDateString(), endDate.toLocaleDateString()],
+    queryFn: async () => getTotalCardsMetric(userId, startDate, endDate),
     enabled: !!startDate && !!endDate,
-    initialData: { totalBookings: 0, totalExtraSales: 0, totalRevenue: 0 }
+    initialData: { totalBookings: 0, totalExtraSales: 0, totalRevenue: 0, outstanding: 0 },
   });
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {(error as Error).message}</div>;
-
-
 
   return (
     <div className="grid gap-4 min-w-[359px] md:grid-cols-2 lg:grid-cols-4">
@@ -102,11 +105,10 @@ export function TopCards({ userId, endDate, startDate } : Params) {
           </svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$573</div>
+          <div className="text-2xl font-bold">${(data?.outstanding ?? 0).toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">+201 since last hour</p>
         </CardContent>
       </Card>
-      
     </div>
   );
 }

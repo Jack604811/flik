@@ -42,7 +42,10 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Traffic() {
+type Params = {
+  userId: string
+}
+export function Traffic({userId} :Params) {
   const totalVisitors = chartData[0].desktop + chartData[0].mobile;
 
   return (

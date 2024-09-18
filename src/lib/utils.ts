@@ -96,3 +96,14 @@ export function categorizeExtras(extras?: (Extras&{category?: Category, subCateg
 
   return categorized;
 }
+
+export const parseDate = (dateString: string | null, fallback: Date = new Date()) => {
+  const parsedDate = dateString ? new Date(dateString) : fallback;
+  return isNaN(parsedDate.getTime()) ? fallback : parsedDate;
+};
+
+export const parseDashboardDates = (startDateString: string|null, endDateString: string|null) => {
+  const startDate = startDateString ? moment(startDateString).toDate() : moment().toDate();
+  const endDate = endDateString ? moment(endDateString).toDate() : moment().toDate();
+  return { startDate, endDate }
+}

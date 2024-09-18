@@ -37,7 +37,10 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BookingsSource() {
+type Params = {
+  userId: string
+}
+export function BookingsSource({userId}: Params) {
   return (
     <Card className="flex flex-col justify-between min-w-[350px]">
       <CardHeader>

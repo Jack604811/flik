@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
+import { parseDashboardDates } from "@/lib/utils"
+import { useQuery } from "@tanstack/react-query"
+import { getSpotsAndExtrasMetrics } from "@/server/actions/dashboard.action"
 
 interface SpotData {
   product: string;
@@ -55,14 +59,23 @@ const chartConfig = {
   },
 }
 
-export function SpotsAndExtras() {
+type Params = {
+  userId: string
+}
+export function SpotsAndExtras({userId}: Params) {
+  const searchParams = useSearchParams()
+  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["bookings", startDate, endDate],
+    queryFn: () => getSpotsAndExtrasMetrics(userId, startDate, endDate),
+    enabled: !!startDate && !!endDate,
+    initialData: { spots: [], extras: [], total: { spots: 0, extras: 0 } }
+  });
+
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("spots")
 
-  const total = {
-    spots: totalSpotsRevenue,
-    extras: totalExtrasRevenue,
-  }
 
   return (
     <Card>
@@ -87,7 +100,7 @@ export function SpotsAndExtras() {
                   {chartConfig[chart].label}
                 </span>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
-                  ${total[chart].toLocaleString()}
+                  ${(data?.total?.[chart] ?? 0).toLocaleString()}
                 </span>
               </button>
             )
@@ -109,7 +122,7 @@ export function SpotsAndExtras() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {spotsData.map((spot, index) => (
+              {data?.spots?.map((spot, index) => (
                 <TableRow key={index}>
                   <TableCell>
                     <Image
@@ -142,21 +155,21 @@ export function SpotsAndExtras() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {extrasData.map((extras, index) => (
+              {data?.extras?.map((extra, index) => (
                 <TableRow key={index}>
                   <TableCell>
                     <Image
-                      alt="Extras Image"
+                      alt="extra Image"
                       className="aspect-square rounded-md object-cover"
                       height="64"
                       src="/placeholder.svg"
                       width="64"
                     />
                   </TableCell>
-                  <TableCell>{extras.product}</TableCell>
-                  <TableCell>{extras.totalSales}</TableCell>
-                  <TableCell>{extras.revenue}</TableCell>
-                  <TableCell>{extras.clickThroughRate}</TableCell>
+                  <TableCell>{extra.product}</TableCell>
+                  <TableCell>{extra.totalSales}</TableCell>
+                  <TableCell>{extra.revenue}</TableCell>
+                  <TableCell>{extra.clickThroughRate}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
