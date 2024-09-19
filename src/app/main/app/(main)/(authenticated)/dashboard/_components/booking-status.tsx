@@ -119,127 +119,68 @@ export function BookingStatus({ userId, } : Params) {
         </Select>
       </CardHeader>
       <CardContent className="flex flex-1 justify-center pb-0">
-        
-          {
-            data.length ? (
-              <ChartContainer
-                id={id}
-                config={chartConfig}
-                className="mx-auto aspect-square w-full max-w-[300px]"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
+            <ChartContainer
+              id={id}
+              config={chartConfig}
+              className="mx-auto aspect-square w-full max-w-[300px]"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={data}
+                  dataKey="count"
+                  nameKey="status"
+                  innerRadius={60}
+                  strokeWidth={5}
+                  activeIndex={activeIndex}
+                  activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
+                    <g>
+                      <Sector {...props} outerRadius={outerRadius + 10} />
+                      <Sector
+                        {...props}
+                        outerRadius={outerRadius + 25}
+                        innerRadius={outerRadius + 12}
+                      />
+                    </g>
+                  )}
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {data[activeIndex].count.toLocaleString()}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              {chartConfig[
+                                data[activeIndex].status as keyof typeof chartConfig
+                              ]?.label}
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
                   />
-                  <Pie
-                    data={data}
-                    dataKey="count"
-                    nameKey="status"
-                    innerRadius={60}
-                    strokeWidth={5}
-                    activeIndex={activeIndex}
-                    activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
-                      <g>
-                        <Sector {...props} outerRadius={outerRadius + 10} />
-                        <Sector
-                          {...props}
-                          outerRadius={outerRadius + 25}
-                          innerRadius={outerRadius + 12}
-                        />
-                      </g>
-                    )}
-                  >
-                    <Label
-                      content={({ viewBox }) => {
-                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          return (
-                            <text
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                            >
-                              <tspan
-                                x={viewBox.cx}
-                                y={viewBox.cy}
-                                className="fill-foreground text-3xl font-bold"
-                              >
-                                {data[activeIndex].count.toLocaleString()}
-                              </tspan>
-                              <tspan
-                                x={viewBox.cx}
-                                y={(viewBox.cy || 0) + 24}
-                                className="fill-muted-foreground"
-                              >
-                                {chartConfig[
-                                  data[activeIndex].status as keyof typeof chartConfig
-                                ]?.label}
-                              </tspan>
-                            </text>
-                          );
-                        }
-                      }}
-                    />
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            ) : (
-              <ChartContainer
-                id={"no-record"}
-                config={chartConfig}
-                className="mx-auto aspect-square w-full max-w-[300px]"
-              >
-                <PieChart>
-                  <Pie
-                    data={[{
-                      fill: "hsl(var(--chart-1))",
-                      status: "",
-                      count: 100
-                  }]}
-                    dataKey="count"
-                    nameKey="status"
-                    innerRadius={60}
-                    strokeWidth={5}
-                    activeIndex={activeIndex}
-                    activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
-                      <g>
-                        <Sector {...props} outerRadius={outerRadius + 10} />
-                        <Sector
-                          {...props}
-                          outerRadius={outerRadius + 25}
-                          innerRadius={outerRadius + 12}
-                        />
-                      </g>
-                    )}>
-                      <Label
-                      content={({ viewBox }) => {
-                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          return (
-                            <text
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                            >
-                              <tspan
-                                x={viewBox.cx}
-                                y={viewBox.cy}
-                                className="fill-foreground text-3xl font-bold"
-                              >
-                                No Record
-                              </tspan>
-                            </text>
-                          );
-                        }
-                      }}
-                    />
-                    </Pie>
-                </PieChart>
-              </ChartContainer>
-            )
-          }
-        
+                </Pie>
+              </PieChart>
+            </ChartContainer>
       </CardContent>
     </Card>
   );
