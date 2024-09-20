@@ -95,7 +95,7 @@ const features = [
     cta: "Learn more 👉",
     className: "col-span-3 lg:col-span-2",
     background: (
-      <div className="absolute right-2 top-10 h-[300px] w-[600px] transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
+      <div className="absolute right-2 top-10 h-[300px] w-full max-w-[600px] mx-4 transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
         <SleekBrowserFrame />
       </div>
     ),
@@ -108,7 +108,7 @@ const features = [
     cta: "Learn more 👉",
     className: "col-span-3 lg:col-span-2",
     background: (
-      <div className="absolute right-2 top-10 h-[200px] w-[600px] transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
+      <div className="flex absolute right-2 top-10 h-[200px] max-w-[600px] justify-center transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
       <AnimatedList>
         {notifications.map((item, idx) => (
           <Notification key={idx} {...item} />
@@ -141,7 +141,7 @@ const features = [
           >
             <div className="flex flex-row items-center gap-2">
               <div className="flex flex-col">
-                <figcaption className="text-sm font-medium dark:text-white ">
+                <figcaption className="text-sm font-medium dark:text-white">
                   {f.name}
                 </figcaption>
               </div>
