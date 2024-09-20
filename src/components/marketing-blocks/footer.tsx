@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { APP_DESCRIPTION, APP_NAME, APP_ROUTES } from "@/app-settings";
+import { APP_DESCRIPTION, APP_NAME, APP_ROUTES, APP_DOMAIN } from "@/app-settings";
 export function Footer() {
-  const baseLinks = APP_ROUTES; // or custom ones if you prefer
+  const baseLinks = APP_ROUTES; 
+
 
   const legalLinks = [
     { name: "Terms of services", path: "/terms-of-service" },
@@ -41,7 +42,7 @@ export function Footer() {
              */}
             <Link
               className="inline-block mt-4 text-sm border cursor-pointer rounded  px-2 py-1"
-              href="https://shipit.so"
+              href={APP_DOMAIN || "#"}
               rel="noopener noreferrer"
             >
               <div className="flex gap-1 items-center">

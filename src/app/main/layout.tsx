@@ -10,7 +10,7 @@ import { Toaster } from "sonner";
 import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-const CrispWithNoSSR = dynamic(() => import("@/components/support/crisp-chat"));
+
 
 export default function RootLayout({
   children,
@@ -43,7 +43,6 @@ export default function RootLayout({
           <meta name="msapplication-TileColor" content="#da532c" />
           <meta name="theme-color" content="#ffffff" />
         </head>
-        <CrispWithNoSSR />
         <body>
           <ThemeProvider attribute="class" defaultTheme="system">
             <NextTopLoader />

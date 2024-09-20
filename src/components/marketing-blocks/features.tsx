@@ -1,14 +1,11 @@
 "use client";
-
-import { CalendarIcon, FileTextIcon } from "@radix-ui/react-icons";
-import { BellIcon, Share2Icon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { AnimatedBeamMultipleOutputDemo } from "@/components/magicui/animated-beam-multiple-outputs";
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import Marquee from "@/components/magicui/marquee";
-import { AnimatedListItem } from "@/components/magicui/animated-list";
+import { AnimatedList } from "@/components/magicui/animated-list";
+import SleekBrowserFrame from "../magicui/sleek-browser-frame";
 
 const files = [
   {
@@ -33,15 +30,55 @@ const files = [
   },
 ];
 
+let notifications = [
+  {
+    name: "Payment received",
+    description: "Stripe",
+    time: "Now",
+    icon: "💸",
+    color: "#00C9A7",
+  },
+  {
+    name: "Payment received",
+    description: "Stripe",
+    time: "Now",
+    icon: "💸",
+    color: "#FFB800",
+  },
+  {
+    name: "Payment received",
+    description: "Stripe",
+    time: "Now",
+    icon: "💸",
+    color: "#FF3D71",
+  },
+  {
+    name: "Payment received",
+    description: "Stripe",
+    time: "Now",
+    icon: "💸",
+    color: "#1E86FF",
+  },
+];
+
+notifications = Array.from({ length: 10 }, () => notifications).flat();
+
+const Notification = ({ name, description, icon, color, time }: any) => (
+  <div style={{ borderLeft: `4px solid ${color}` }} className="p-2 mb-2">
+    <h4>{icon} {name}</h4>
+    <p>{description}</p>
+    <span>{time}</span>
+  </div>
+);
+
 const features = [
   {
-    
     name: "Dynamic Booking Flexibility",
     description:
       "Set up your booking durations and time slots with complete flexibility. Tailor your availability down to the hour, day, or week – whatever suits your business needs.",
     className: "col-span-3 lg:col-span-1",
     href: "#",
-    cta: "Learn more",
+    cta: "Learn more 👉",
     background: (
       <Calendar
         mode="single"
@@ -51,34 +88,36 @@ const features = [
     ),
   },
   {
-   
     name: "Instant Website Creation",
     description:
       "Automatically generate a professional, SEO-friendly website based on your spaces. Customize it with your logo, favicon, and domain to match your brand perfectly. Drive traffic with paid ads or organic searches to boost your bookings.",
     href: "#",
-    cta: "Learn more",
+    cta: "Learn more 👉",
     className: "col-span-3 lg:col-span-2",
     background: (
-      <AnimatedListItem>
-        {/* Default content can go here, or simply leave it empty */}
-        <span></span>
-      </AnimatedListItem>
+      <div className="absolute right-2 top-10 h-[300px] w-[600px] transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
+        <SleekBrowserFrame />
+      </div>
     ),
   },
   {
-    
     name: "Integrated Payment Solutions",
     description:
       "Connect with leading payment platforms or manually track transactions for cash, bank transfers, and more. Our system supports multiple payment methods, ensuring you never miss a payment.",
     href: "#",
-    cta: "Learn more",
+    cta: "Learn more 👉",
     className: "col-span-3 lg:col-span-2",
     background: (
-      <AnimatedBeamMultipleOutputDemo className="absolute right-2 top-4 h-[300px] w-[600px] border-none transition-all duration-300 ease-out [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] group-hover:scale-105" />
+      <div className="absolute right-2 top-10 h-[200px] w-[600px] transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
+      <AnimatedList>
+        {notifications.map((item, idx) => (
+          <Notification key={idx} {...item} />
+        ))}
+      </AnimatedList>
+      </div>
     ),
   },
   {
- 
     name: "Insightful Analytics",
     description:
       "Dive into detailed analytics to track your bookings, transactions, and revenues. Understand your performance at a glance with metrics like occupancy rates, total visits, and upsell effectiveness.",

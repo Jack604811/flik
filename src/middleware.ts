@@ -27,16 +27,17 @@ export default async function middleware(req: NextRequest) {
     searchParams.length > 0 ? `?${searchParams}` : ""
   }`;
 
-
-  if (hostname === "localhost:3000" ||
-    hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
-      const headers = new Headers(req.headers);
-      headers.set("x-current-path", req.nextUrl.pathname);
+  if (hostname === "localhost:3000" || hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+    const headers = new Headers(req.headers);
+    headers.set("x-current-path", req.nextUrl.pathname);
   
-      return NextResponse.rewrite(
-        new URL(`/main/landing/${path === "/" ? "" : path}`, req.url), {headers}
-      );
-    }
+    return NextResponse.rewrite(
+      new URL(`/main/public${path === "/" ? "" : path}`, req.url), { headers }
+    );
+  }
+  
+  
+  
 
 
 

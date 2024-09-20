@@ -1,37 +1,44 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Menu, CircleUser, AlignLeft, AlignRight, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { AlignRight } from "lucide-react";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { ModeToggle } from "@/components/main/theme-toggle";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { APP_NAME, APP_ROUTES, USER_ROUTES, SIDEBAR_ROUTES, APP_DOMAIN } from "@/app-settings";
-import { LogoutButton } from "../auth/logout-button";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth/options";
-import ShimmerButton from "../magicui/shimmer-button";
 import DashboardButton from "./dashboard-button";
+import { APP_NAME, APP_ROUTES, APP_DOMAIN } from "@/app-settings";
 
-const navigationLinks = APP_ROUTES; 
-const sidebarLinks = SIDEBAR_ROUTES;
+const navigationLinks = APP_ROUTES;
 
+export default function Header() {
+  const pathname = usePathname(); // Get the current path using Next.js usePathname hook
+  const [activePath, setActivePath] = useState("");
+  const [activeHash, setActiveHash] = useState("");
 
-export default async function Header() {
-  const session = await getServerSession(authOptions);
+  // Update the current path and hash when the route changes
+  useEffect(() => {
+    setActivePath(pathname);
+    setActiveHash(window.location.hash);
+  }, [pathname]);
+
+  // Check if the current path and hash match the link's path and hash
+  const isActive = (path: string) => {
+    const [linkPath, linkHash] = path.split("#");
+    const currentHash = activeHash || "#"; // Handle case where there is no hash
+    return (
+      activePath === linkPath &&
+      (linkHash ? currentHash === `#${linkHash}` : currentHash === "#")
+    );
+  };
+
   return (
     <header className="sticky top-0 border-b w-full z-10 backdrop-blur-lg">
       <div className="flex h-16 items-center gap-4 px-4 md:px-4 w-full mx-auto justify-start">
         <nav className="relative md:flex md:flex-1 justify-between gap-6 text-lg font-medium md:items-center md:text-sm lg:gap-6">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
-            <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
+            <strong className="font-bold tracking-tight text-xl md:text-2xl">
               {APP_NAME}
             </strong>
           </Link>
@@ -41,33 +48,21 @@ export default async function Header() {
               .map((link) => (
                 <Link
                   href={link.path}
-                  className="text-foreground transition-colors hover:text-foreground/90 capitalize"
                   key={link.path}
+                  className={`font-semibold text-foreground transition-colors hover:text-foreground/90 capitalize ${
+                    isActive(link.path) ? "bg-black text-white dark:bg-white dark:text-black hover:text-white rounded-md px-2" : ""
+                  }`}
                 >
                   {link.name}
                 </Link>
               ))}
-            {(session?.user?.subscriptionId || session?.user?.oneTimeProductId) &&
-              navigationLinks
-                .filter((route) => route.visibleBy === "subscribed")
-                .map((link) => (
-                  <Link
-                    href={link.path}
-                    className="text-foreground transition-colors hover:text-foreground/90 capitalize"
-                    key={link.path}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
           </div>
           <div className="hidden lg:flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
             <ModeToggle />
-            {!session && (
-              <Link href={`//app.${APP_DOMAIN}/`}>
-                <span>Login</span>
-              </Link>
-            )}
-            <DashboardButton/>
+            <Link href={`//app.${APP_DOMAIN}/`}>
+              <span>Login</span>
+            </Link>
+            <DashboardButton />
           </div>
           <div className="flex lg:hidden items-center justify-end flex-1">
             <Sheet>
@@ -86,8 +81,10 @@ export default async function Header() {
                   {navigationLinks.map((link) => (
                     <Link
                       href={link.path}
-                      className="text-foreground transition-colors hover:text-foreground/90 capitalize"
                       key={link.path}
+                      className={`text-foreground transition-colors hover:text-foreground/90 capitalize ${
+                        isActive(link.path) ? "bg-black text-white dark:bg-white dark:text-black hover:text-white rounded-md px-2" : ""
+                      }`}
                     >
                       {link.name}
                     </Link>

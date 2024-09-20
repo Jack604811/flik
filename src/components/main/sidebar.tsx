@@ -8,7 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Archive, CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Menu, AlignLeft, AlignRight } from "lucide-react";
 import Image from 'next/image';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
-import { APP_NAME } from '@/app-settings';
+import { APP_NAME, APP_DOMAIN } from '@/app-settings';
 import { ModeToggle } from './theme-toggle';
 import  SidebarProfileDropdown from './sidebar-profile-dropdown';
 
@@ -29,7 +29,7 @@ export const Sidebar = () => {
     <div>
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex flex-col min-w-[248px] h-screen p-0 gap-14 border-r sticky top-0">
-          <Link href={rootDomain} className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
+          <Link href={APP_DOMAIN || ""} className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
             <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
               {APP_NAME}
             </strong>

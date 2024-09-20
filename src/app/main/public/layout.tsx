@@ -1,5 +1,5 @@
-import MarketingHeader from "@/components/marketing/header";
-import { Footer } from "@/components/blocks/footers/footer1";
+import MarketingHeader from "@/components/marketing-blocks/header";
+import { Footer } from "@/components/marketing-blocks/footer";
 
 
 export default function RootLayout({

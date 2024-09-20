@@ -19,7 +19,7 @@ export const APP_LANG = "en";
 
 
 export const APP_ROUTES: Route[] = [
-  { name: "Features", path: "/", visibleBy: "all" },
+  { name: "Features", path: "/#features", visibleBy: "all" },
   { name: "Pricing", path: "/pricing", visibleBy: "all" },
   { name: "Blog", path: "/blog", visibleBy: "all" },
   { name: "Dashboard", path: `://app.${APP_DOMAIN}/dashboard`, visibleBy: "subscribed" },

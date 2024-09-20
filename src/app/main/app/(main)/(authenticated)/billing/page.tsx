@@ -1,4 +1,4 @@
-import { CustomerPortalLink } from "@/components/store/customer-portal-link";
+import { CustomerPortalLink } from "@/components/marketing-blocks/pricing/customer-portal-link";
 import { Button } from "@/components/ui/button";
 import { Check, CreditCard } from "lucide-react";
 import { Metadata } from "next";
