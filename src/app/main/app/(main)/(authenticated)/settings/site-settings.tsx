@@ -4,18 +4,21 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { updateCustomDomain, updateSiteSetting, updateSubdomain } from "@/server/actions/user.action";
+import { updateCustomDomain, updateSiteSetting, updateSubdomain } from "@/server/actions/workspace.action";
 import { Label } from "@radix-ui/react-label";
 import DomainForm from "@/components/domain";
+import { Workspace } from "@prisma/client";
+
+
 function SiteSettings({
   subdomain,
   customDomain,
-  userId,
+  workspaceId,
   favicon
 }: {
   subdomain: string;
   customDomain: string;
-  userId: string;
+  workspaceId: string;
   favicon?: string | null
 }) {
   const [imagePreview, setImagePreview] = useState<string>(`${favicon ?? "/assets/placeholder.svg"}?${Date.now()}`);
@@ -27,7 +30,7 @@ function SiteSettings({
     }
     const subdomain = formData.get("subdomain") as string;
     if (!subdomain.length) return toast.error("Enter valid subdomain");
-    const promise = updateSiteSetting(userId, formData);
+    const promise = updateSiteSetting(workspaceId, formData);
     // const promise = updateSubdomain(userId, subdomain);
     toast.promise(promise, {
       loading: "Saving...",
@@ -121,7 +124,7 @@ function SiteSettings({
                 maxLength: 64,
                 pattern: "^[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}$",
               }}
-              userId={userId}
+              workspaceId={workspaceId}
               handleSubmit={updateCustomDomain}
           />
         </div>

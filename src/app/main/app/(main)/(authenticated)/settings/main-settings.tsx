@@ -1,10 +1,12 @@
+// app/settings/main-settings.tsx
+
 "use client";
-import React, { FormEvent, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { updateSiteSetting } from "@/server/actions/user.action";
+import { updateSiteSetting } from "@/server/actions/workspace.action"; // Import from workspace.action.ts
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -16,13 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User } from "@prisma/client";
+import { Workspace } from "@prisma/client";
 
-function MainSettings({ user }: { user: User }) {
-  const [imagePreview, setImagePreview] = useState<string>(`${user.logo ?? "/assets/placeholder.svg"}?${Date.now()}`);
+function MainSettings({ workspace }: { workspace: Workspace }) {
+  const [imagePreview, setImagePreview] = useState<string>(
+    `${workspace.logo ?? "/assets/placeholder.svg"}?${Date.now()}`
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string>(user.country ?? "");
-  const [selectedCurrency, setSelectedCurrency] = useState<string>(user.currency ?? "usd");
+  const [selectedCountry, setSelectedCountry] = useState<string>(
+    workspace.country ?? ""
+  );
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(
+    workspace.currency ?? "usd"
+  );
 
   useEffect(() => {
     // Set USD as the default currency when the country changes and no other currency is selected
@@ -33,13 +41,15 @@ function MainSettings({ user }: { user: User }) {
 
   const onSave = async (formData: FormData) => {
     const siteName = formData.get("siteName") as string;
-    if (!siteName.length) return toast.error("Site name should not be empty!");
+    if (!siteName.length)
+      return toast.error("Site name should not be empty!");
     const aboutUs = formData.get("aboutUs") as string;
-    if (!aboutUs.length) return toast.error("About us should not be empty!");
+    if (!aboutUs.length)
+      return toast.error("About us should not be empty!");
     if (selectedFile) {
       formData.append("logo", selectedFile); // Add the selected image file to the formData
     }
-    const promise = updateSiteSetting(user.id, formData);
+    const promise = updateSiteSetting(workspace.id, formData);
     toast.promise(promise, {
       loading: "Saving...",
       success: "Site Settings Saved Successfully!",
@@ -63,7 +73,9 @@ function MainSettings({ user }: { user: User }) {
     <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">
       <div className="w-full xl:w-1/3">
         <h2 className="text-xl font-semibold">Main Settings</h2>
-        <p className="text-sm text-muted-foreground">Update your business information</p>
+        <p className="text-sm text-muted-foreground">
+          Update your business information
+        </p>
       </div>
       <div className="w-full xl:w-2/3">
         <form
@@ -75,23 +87,35 @@ function MainSettings({ user }: { user: User }) {
             <Label htmlFor="siteLogo">Custom Logo</Label>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 relative rounded-md overflow-hidden">
-                <Image sizes="100vw" src={imagePreview} alt="Logo" fill unoptimized />
+                <Image
+                  sizes="100vw"
+                  src={imagePreview}
+                  alt="Logo"
+                  fill
+                  unoptimized
+                />
               </div>
-              <Button variant="outline" type="button" onClick={() => document.getElementById("logoInput")?.click()}>
-              <input
-                type="file"
-                id="logoInput"
-                className="hidden"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() =>
+                  document.getElementById("logoInput")?.click()
+                }
+              >
+                <input
+                  type="file"
+                  id="logoInput"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
                 Upload
               </Button>
             </div>
             <div className="space-y-2">
               <Label htmlFor="siteName">Name</Label>
               <Input
-                defaultValue={user.siteName ?? ""}
+                defaultValue={workspace.siteName ?? ""}
                 id="siteName"
                 name="siteName"
                 placeholder="Enter site name"
@@ -100,7 +124,7 @@ function MainSettings({ user }: { user: User }) {
             <div className="space-y-2">
               <Label htmlFor="aboutUs">About us</Label>
               <Textarea
-                defaultValue={user.aboutUs ?? ""}
+                defaultValue={workspace.aboutUs ?? ""}
                 id="aboutUs"
                 name="aboutUs"
                 placeholder="Write something about your company"
@@ -109,7 +133,7 @@ function MainSettings({ user }: { user: User }) {
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
               <Select
-                defaultValue={user.country ?? ""}
+                defaultValue={workspace.country ?? ""}
                 name="country"
                 onValueChange={(value) => {
                   setSelectedCountry(value);
@@ -122,10 +146,18 @@ function MainSettings({ user }: { user: User }) {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Where are you located?</SelectLabel>
-                    <SelectItem value="united states">🇺🇸 United States</SelectItem>
-                    <SelectItem value="colombia">🇨🇴 Colombia</SelectItem>
-                    <SelectItem value="mexico">🇲🇽 Mexico</SelectItem>
-                    <SelectItem value="brazil">🇧🇷 Brazil</SelectItem>
+                    <SelectItem value="united states">
+                      🇺🇸 United States
+                    </SelectItem>
+                    <SelectItem value="colombia">
+                      🇨🇴 Colombia
+                    </SelectItem>
+                    <SelectItem value="mexico">
+                      🇲🇽 Mexico
+                    </SelectItem>
+                    <SelectItem value="brazil">
+                      🇧🇷 Brazil
+                    </SelectItem>
                     <SelectItem value="peru">🇵🇪 Perú</SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -144,7 +176,9 @@ function MainSettings({ user }: { user: User }) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>What currency do you want to use?</SelectLabel>
+                    <SelectLabel>
+                      What currency do you want to use?
+                    </SelectLabel>
                     <SelectItem value="usd">🇺🇸 USD</SelectItem>
                     {selectedCountry === "colombia" && (
                       <SelectItem value="cop">🇨🇴 COP</SelectItem>
@@ -163,8 +197,13 @@ function MainSettings({ user }: { user: User }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="paymentmethod">Payment Method as default</Label>
-              <Select defaultValue={user.defaultPaymentMethod ?? "cash"} name="defaultPaymentMethod">
+              <Label htmlFor="paymentmethod">
+                Payment Method as default
+              </Label>
+              <Select
+                defaultValue={workspace.defaultPaymentMethod ?? "cash"}
+                name="defaultPaymentMethod"
+              >
                 <SelectTrigger className="">
                   <SelectValue placeholder="Select a payment method" />
                 </SelectTrigger>
@@ -172,10 +211,10 @@ function MainSettings({ user }: { user: User }) {
                   <SelectGroup>
                     <SelectLabel>Payment Method</SelectLabel>
                     <SelectItem value="cash">Cash</SelectItem>
-                    {user.stripeAccountId && (
+                    {workspace.stripeAccountId && (
                       <SelectItem value="stripe">Stripe</SelectItem>
                     )}
-                    {user.wompiAccountId && (
+                    {workspace.wompiAccountId && (
                       <SelectItem value="wompi">Wompi</SelectItem>
                     )}
                   </SelectGroup>

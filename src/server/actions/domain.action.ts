@@ -11,7 +11,7 @@ export const getSiteData = async (domain: string) => {
 
   const fetcher = unstable_cache(
     async () =>
-      db.user.findUnique({
+      db.workspace.findUnique({
         where: subdomain ? { subdomain } : { customDomain: domain },
         include: {
           spots: {
@@ -39,12 +39,12 @@ export const getSiteSpotData = async (domain: string, spotId: string) => {
       db.spot.findFirst({
         where: {
           OR: [{ id: spotId }, { path: spotId }],
-          owner: subdomain ? { subdomain } : { customDomain: domain },
+          workspace: subdomain ? { subdomain } : { customDomain: domain },
           status: SpotStatus.Public,
         },
         include: {
           images: true,
-          owner: true,
+          workspace: true,
           bookings: {
             where: { startDate: { gte: new Date() } },
             select: { id: true, startDate: true, endDate: true },
@@ -71,7 +71,7 @@ export const getSpotBooking = async (domain: string, bookingId: string) => {
   const booking = await db.booking.findFirst({
     where: {
       id: bookingId,
-      spot: { owner: subdomain ? { subdomain } : { customDomain: domain } },
+      spot: { workspace: subdomain ? { subdomain } : { customDomain: domain } },
     },
     include: {
       customer: true,

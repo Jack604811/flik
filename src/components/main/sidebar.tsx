@@ -11,6 +11,9 @@ import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { APP_NAME, APP_DOMAIN } from '@/app-settings';
 import { ModeToggle } from './theme-toggle';
 import  SidebarProfileDropdown from './sidebar-profile-dropdown';
+import WorkspaceSwitcher from './workspace-switcher';
+
+
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +22,8 @@ export const Sidebar = () => {
   const archived = searchParams.get("archived");
   const pathname = usePathname();
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "";
+
+
   
   const handleLinkClick = () => {
     setIsOpen(false); 
@@ -34,6 +39,9 @@ export const Sidebar = () => {
               {APP_NAME}
             </strong>
           </Link>
+          <div className="mx-4">
+            <WorkspaceSwitcher/>
+          </div>
         <Command className="gap-4 bg-inherit">
           {/*<CommandInput placeholder="Search..." />*/}
           <CommandList>

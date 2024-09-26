@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { getConnectWompi, getConnectedStripe } from "@/server/actions/user.action";
+import { getConnectWompi, getConnectedStripe } from "@/server/actions/workspace.action";
 import { getCurrentUser } from "@/server/auth";
 import StripeConnectButton from "./_components/StripeConnectButton";
 import WompiConnectButton from "./_components/WompiConnectButton";
@@ -10,6 +10,7 @@ import { Metadata } from "next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
 
 
 interface IntegrationCardProps {
@@ -21,9 +22,9 @@ interface IntegrationCardProps {
 
 
 export default async function Integrations() {
-  const currentUser = await getCurrentUser();
-  const stripeConnection = await getConnectedStripe(currentUser!.id);
-  const wompiConnection = await getConnectWompi(currentUser!.id);
+  const currentWorkspace = await getCurrentWorkspace();
+  const stripeConnection = await getConnectedStripe(currentWorkspace!.id);
+  const wompiConnection = await getConnectWompi(currentWorkspace!.id);
   
   return (
     <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">

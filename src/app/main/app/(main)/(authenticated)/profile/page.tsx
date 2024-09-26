@@ -8,6 +8,7 @@ import { getUser } from '@/server/actions/user.action';
 import { getCurrentUser } from '@/server/auth';
 import PersonalInfoForm from '@/components/forms/PersonalInfoForm';
 import { User } from '@prisma/client';
+import WorkspaceSwitcher from '@/components/main/workspace-switcher';
 
 
 async function Profile() {
@@ -23,6 +24,9 @@ async function Profile() {
           <div>
             <h3 className="text-lg font-medium">Account Settings</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">Manage your account preferences.</p>
+          </div>
+          <div className="mx-4">
+            <WorkspaceSwitcher/>
           </div>
           <form className="grid gap-4">
             <div className="grid gap-2">

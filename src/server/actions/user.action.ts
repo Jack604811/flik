@@ -7,11 +7,12 @@ import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, val
 import { getCurrentUser } from "../auth";
 import { revalidatePath } from "next/cache";
 
+// Fetch the user
 export const getUser = (id: string) => {
-  const user = db.user.findFirst({ where: { id } });
-  return user;
+  return db.user.findFirst({ where: { id } });
 };
 
+// Update the user profile
 export const updateUser = async (
   id: string,
   data: { name: string; email: string }
@@ -24,140 +25,38 @@ export const updateUser = async (
   return user;
 };
 
-export const updateSubdomain = async (id: string, subdomain: string) => {
-  await db.user.update({
-    where: { id },
-    data: { subdomain },
+// Update the current workspace for the user
+export const updateCurrentWorkspace = async (userId: string, workspaceId: string) => {
+  return await db.user.update({
+    where: { id: userId },
+    data: { currentWorkspaceId: workspaceId },
   });
-
-  return true;
 };
 
-export const updateCustomDomain = async (id: string, customDomain: string) => {
+// Fetch the current workspace of the user
+export const getCurrentWorkspace = async () => {
   const currentUser = await getCurrentUser();
-  const user = await db.user.findFirst({where: {id: currentUser?.id!}});
-  let response;
 
-  if(customDomain.includes(env.NEXT_PUBLIC_ROOT_DOMAIN!)){
-    return {
-      error: `Cannot use ${env.NEXT_PUBLIC_ROOT_DOMAIN} subdomain as your custom domain`,
-    }
-  }else if(validDomainRegex.test(customDomain)){
-    await Promise.all([
-      addDomainToVercel(customDomain),
-      // Optional: add www subdomain as well and redirect to apex domain
-      // addDomainToVercel(`www.${customDomain}`),
-    ]);
+  if (!currentUser) {
+    return null;
   }
 
-  if(user?.customDomain && user.customDomain !== customDomain){
-    response = await removeDomainFromVercelProject(user.customDomain);
-  }
-
-  response = await db.user.update({
-    where: { id },
-    data: { customDomain: customDomain ?? null },
-  });
-
-
-  clearDomainCache(response.subdomain, user?.customDomain!, "");
-  revalidatePath("")
-
-  return response;
-};
-
-export const getSubdomain = async (id: string) => {
+  // Fetch the user's profile, including the currentWorkspaceId
   const user = await db.user.findFirst({
-    where: { id },
-    select: { subdomain: true },
+    where: { id: currentUser.id },
+    select: { currentWorkspaceId: true },
   });
 
-  return user?.subdomain;
-};
-
-export const updateStripeConnection = async (id: string, stripeAccountId: string) => {
-  await db.user.update({
-    where: { id },
-    data: { stripeAccountId },
-  });
-
-  return true;
-};
-
-export const updateWompiConnection = async (id: string, wompiAccountId: Record<string, any>) => {
-  await db.user.update({
-    where: { id },
-    data: { wompiAccountId },
-  });
-
-  return true;
-};
-
-export const getConnectedStripe = async (id: string) => {
-  const user = await db.user.findFirst({
-    where: { id },
-    select: { stripeAccountId: true },
-  });
-
-  return user?.stripeAccountId;
-};
-
-export const getConnectWompi = async (id: string) => {
-  const user = await db.user.findFirst({
-    where: { id },
-    select: { wompiAccountId: true },
-  });
-
-  return user?.wompiAccountId;
-};
-
-export const updateSiteSetting = async (id: string, formData: FormData) => {
-  const siteName = formData.get("siteName") as string;
-  const subdomain = formData.get("subdomain") as string;
-  const aboutUs = formData.get("aboutUs") as string;
-  const defaultPaymentMethod = formData.get("defaultPaymentMethod") as string;
-  const country = formData.get("country") as string;
-  const currency = formData.get("currency") as string;
-  const logo = formData.get("logo") as File | null | undefined;
-  const favicon = formData.get("favicon") as File | null | undefined;
-
-  const data: {
-    siteName?: string;
-    aboutUs?: string;
-    logo?: string | null;
-    favicon?: string | null;
-    defaultPaymentMethod?: string
-    country?: string
-    currency?: string
-    subdomain?:string
-  } = {};
-
-  if(subdomain) data.subdomain = subdomain;
-  if(siteName) data.siteName = siteName;
-  if(aboutUs) data.aboutUs = aboutUs;
-  if(country) data.country = country;
-  if(currency) data.currency = currency;
-  if(defaultPaymentMethod) data.defaultPaymentMethod = defaultPaymentMethod;
-
-  if (logo) {
-    data.logo = await uploadSiteImage(
-      id,
-      `logo.webp`,
-      logo
-    );
-  }
-  if (favicon) {
-    data.favicon = await uploadSiteImage(
-      id,
-      `favicon.webp`,
-      favicon
-    );
+  if (!user?.currentWorkspaceId) {
+    return null;
   }
 
-   
-  const updatedSettings = await db.user.update({ where: { id }, data });
+  // Fetch the workspace associated with currentWorkspaceId
+  const currentWorkspace = await db.workspace.findFirst({
+    where: { id: user.currentWorkspaceId },
+  });
 
-  clearDomainCache(updatedSettings.subdomain, updatedSettings.customDomain, "");
-
-  return updatedSettings;
+  return currentWorkspace;
 };
+
+

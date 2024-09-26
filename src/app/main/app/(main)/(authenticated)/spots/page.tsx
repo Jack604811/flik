@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getSpotsByUser } from "@/server/actions/spot.action";
-import { getCurrentUser } from "@/server/auth";
+import { getSpotsByWorkspace } from "@/server/actions/spot.action";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
 import { PlusCircle } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const currentUser = await getCurrentUser();
-  const spots = await getSpotsByUser({ userId: currentUser!.id });
+  const currentWorkspace = await getCurrentWorkspace();
+  const spots = await getSpotsByWorkspace({ workspaceId: currentWorkspace!.id });
 
   return (
     <>

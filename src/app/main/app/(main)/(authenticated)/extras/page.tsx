@@ -22,10 +22,11 @@ import {
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { getCurrentUser } from "@/server/auth"
-import { getExtrasByUser } from "@/server/actions/extra.action"
+import { getExtrasByWorkspace } from "@/server/actions/extra.action"
 import moment from "moment"
 import ExtraAction from "./extra-action"
 import { Metadata } from "next"
+import { getCurrentWorkspace } from "@/server/actions/user.action"
 
 export const metadata: Metadata = {
   title: "Extras",
@@ -33,8 +34,10 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const currentUser = await getCurrentUser();
-  const extras = await getExtrasByUser({ userId: currentUser!.id });
+  const currentWorkspace = await getCurrentWorkspace();
+  const extras = await getExtrasByWorkspace({ workspaceId: currentWorkspace!.id });
+
+
   return (
     <Card className="p-0 border-none shadow-none">
       <div className="mt-8 mx-8">

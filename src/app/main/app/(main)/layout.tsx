@@ -2,14 +2,18 @@ import Sidebar from "@/components/main/sidebar";
 import {Header} from "@/components/main/header";
 import { Docker } from "@/components/main/docker"
 
-export default function MainLayout({
+
+
+
+export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <div className="flex h-screen w-full flex-row relative overflow-hidden">
-      <Sidebar />
+      <Sidebar/>
       <div className="flex flex-col w-full overflow-y-scroll">
         <Header />
         {children}

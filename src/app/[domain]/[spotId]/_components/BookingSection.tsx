@@ -18,6 +18,7 @@ import {
   SpotImages,
   SubCategory,
   User,
+  Workspace,
 } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,7 @@ const formSchema = z.object({
 type Params = {
   spot: Spot & {
     bookings: BookingDates[];
-    owner: User;
+    owner: Workspace;
     images: SpotImages[];
     extras: (Extras & {
       category: Category;

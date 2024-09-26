@@ -1,15 +1,14 @@
-import { NextAuthProvider } from "@/components/auth/session-provider";
-import { APP_LANG } from "@/app-settings";
-import { ThemeProvider } from "@/components/main/theme-provider";
-import "rsuite/dist/rsuite-no-reset.min.css";
-import "../globals.css";
-import { TailwindScreen } from "@/components/main/tailwind-screen";
-import NextTopLoader from "nextjs-toploader";
-import dynamic from "next/dynamic";
-import { Toaster } from "sonner";
-import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// app/layout.tsx
 
+import { APP_LANG } from '@/app-settings';
+import 'rsuite/dist/rsuite-no-reset.min.css';
+import '../globals.css';
+import { ThemeProvider } from '@/components/main/theme-provider';
+import NextTopLoader from 'nextjs-toploader';
+import { Toaster } from 'sonner';
+import TanstackQueryProvider from '@/components/providers/TanstackQueryProvider';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { NextAuthProvider } from '@/components/auth/session-provider';
 
 
 export default function RootLayout({
@@ -18,42 +17,49 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <NextAuthProvider>
-      <html lang={APP_LANG}>
-        <head key="head">
-          <link
-            rel="apple-touch-icon"
-            sizes="180x180"
-            href="/apple-touch-icon.png"
-          />
-          <link
-            rel="icon"
-            type="image/png"
-            sizes="32x32"
-            href="/favicon-32x32.png"
-          />
-          <link
-            rel="icon"
-            type="image/png"
-            sizes="16x16"
-            href="/favicon-16x16.png"
-          />
-          <link rel="manifest" href="/site.webmanifest" />
-          <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
-          <meta name="msapplication-TileColor" content="#da532c" />
-          <meta name="theme-color" content="#ffffff" />
-        </head>
-        <body>
+    <html lang={APP_LANG}>
+      <head key="head">
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link
+          rel="mask-icon"
+          href="/safari-pinned-tab.svg"
+          color="#5bbad5"
+        />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#ffffff" />
+      </head>
+      <body>
+        <NextAuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system">
             <NextTopLoader />
             <Toaster position="bottom-center" />
-            <TanstackQueryProvider>{children}
-              <ReactQueryDevtools />
+            <TanstackQueryProvider>
+                {children}
+                <ReactQueryDevtools />
             </TanstackQueryProvider>
             {/* {process.env.NODE_ENV === 'development' && <TailwindScreen />} */}
           </ThemeProvider>
-        </body>
-      </html>
-    </NextAuthProvider>
+        </NextAuthProvider>
+      </body>
+    </html>
   );
 }
+
+ 

@@ -1,12 +1,12 @@
 import React from 'react';
-import { getCurrentUser } from '@/server/auth';
 import SpotForm from '@/components/forms/SpotForm';
+import { getCurrentWorkspace } from '@/server/actions/user.action';
 
 async function Page() {
-  const currentUser = await getCurrentUser();
+  const currentWorkspace = await getCurrentWorkspace();
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 mt-16 mb-24">
-        <SpotForm userId={currentUser!.id} />
+        <SpotForm workspaceId={currentWorkspace!.id} />
     </main>
   );
 }

@@ -7,16 +7,16 @@ import {
   uploadImageToStorage,
 } from "./supabase.action";
 
-export const getExtrasByUser = async ({ userId }: { userId: string }) => {
+export const getExtrasByWorkspace = async ({ workspaceId }: { workspaceId: string }) => {
   const spots = await db.extras.findMany({
-    where: { userId },
+    where: { workspaceId },
     include: { images: true, _count: { select: { bookingExtras: true } } },
   });
   return spots;
 };
 
 type NEW_EXTRA_PARAMS = {
-  userId: string;
+  workspaceId: string;
   name: string;
   description: string;
   status: ExtrasStatus;
@@ -27,7 +27,7 @@ type NEW_EXTRA_PARAMS = {
 };
 
 export const createNewExtra = async ({
-  userId,
+  workspaceId,
   name,
   description,
   status,
@@ -41,7 +41,7 @@ export const createNewExtra = async ({
       name,
       description,
       status,
-      userId,
+      workspaceId,
       price,
       categoryId,
       subCategoryId,
@@ -49,7 +49,7 @@ export const createNewExtra = async ({
   });
   await updateExtra({
     id: extra.id,
-    userId,
+    workspaceId,
     name,
     description,
     status,
@@ -63,7 +63,7 @@ export const createNewExtra = async ({
 };
 
 export const updateExtra = async ({
-  userId,
+  workspaceId,
   name,
   description,
   status,
@@ -76,7 +76,7 @@ export const updateExtra = async ({
   const imageFiles = files.getAll("files") as File[];
   let images = await Promise.all(
     imageFiles.map((file) =>
-      uploadImageToStorage({ file, userId, objectId: id, path: "extras" })
+      uploadImageToStorage({ file, workspaceId, objectId: id, path: "extras" })
     )
   );
 
@@ -87,7 +87,7 @@ export const updateExtra = async ({
       description,
       status,
       price,
-      userId,
+      workspaceId,
       images: {
         createMany: { data: images.map((img) => ({ url: img!.url })) },
       },
@@ -101,7 +101,7 @@ export const updateExtra = async ({
 export const getExtraById = async (id: string) => {
   const extra = await db.extras.findFirst({
     where: { id },
-    include: { owner: true, images: true },
+    include: { workspace: true, images: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -125,7 +125,7 @@ export const deleteExtra = async (id: string) => {
   await db.extras.delete({ where: { id } });
   await db.extrasImages.deleteMany({ where: { extraId: id } });
   await deleteImagesFromStorage({
-    userId: extra!.userId,
+    workspaceId: extra!.workspaceId,
     objectId: id,
     path: "extras",
   });
@@ -141,7 +141,7 @@ export const deleteExtraImage = async (id: string) => {
   await deleteImageFromStorageObject({
     objectId: exImage.extraId,
     id,
-    userId: exImage.Extras.userId,
+    workspaceId: exImage.Extras.workspaceId,
     path: "extras",
   });
 
@@ -149,14 +149,14 @@ export const deleteExtraImage = async (id: string) => {
 };
 
 export const createCategory = async ({
-  userId,
+  workspaceId,
   categoryName,
 }: {
-  userId: string;
+  workspaceId: string;
   categoryName: string;
 }) => {
   const category = await db.category.create({
-    data: { userId, name: categoryName },
+    data: { workspaceId, name: categoryName },
   });
 
   return category;
@@ -176,13 +176,25 @@ export const createSubCategory = async ({
   return subCategory;
 };
 
-export const getCategories = async ({ userId }: { userId: string }) => {
-  const categories = await db.category.findMany({
-    where: { userId },
-    include: { subCategories: true },
-  });
-  return categories;
+export const getCategories = async ({ workspaceId }: { workspaceId: string }) => {
+  try {
+    const categories = await db.category.findMany({
+      where: { workspaceId },
+      include: { subCategories: true },
+    });
+
+    if (!categories) {
+      console.log(`No categories found for workspace: ${workspaceId}`);
+      return [];
+    }
+
+    return categories;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return []; // Return an empty array in case of any error
+  }
 };
+
 
 export const updateCategory = async ({
   id,

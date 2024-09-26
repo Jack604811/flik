@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import { columns } from "@/components/transaction/columns"
 import { DataTable } from "@/components/transaction/data-table"
 import { getTransactions } from "@/server/actions/booking.action"
-import { getCurrentUser } from "@/server/auth"
+import { getCurrentWorkspace } from "@/server/actions/user.action"
 
 export const metadata: Metadata = {
   title: "Transactions",
@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 
 export default async function TaskPage() {
-  const currentUser = await getCurrentUser()
-  const transactions = await getTransactions(currentUser!.id) as any
+  const currentWorkspace = await getCurrentWorkspace()
+  const transactions = await getTransactions(currentWorkspace!.id) as any
 
   return (
     <>

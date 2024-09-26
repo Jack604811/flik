@@ -1,6 +1,7 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getUser } from "@/server/actions/user.action";
-import { getCurrentUser } from "@/server/auth";
+// app/settings/page.tsx
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
 import SiteSettings from "./site-settings";
 import MainSettings from "./main-settings";
 import { Metadata } from "next";
@@ -15,8 +16,20 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const currentUser = await getCurrentUser();
-  const user = await getUser(currentUser!.id);
+  const currentWorkspace = await getCurrentWorkspace();
+
+  if (!currentWorkspace) {
+    return (
+      <div className="flex-1 pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold tracking-tight">No Workspace Selected</h2>
+          <p className="text-muted-foreground">
+            Please select a workspace to view settings.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
@@ -28,40 +41,37 @@ export default async function Page() {
       </div>
       <Tabs defaultValue="main">
         <div className="overflow-x-auto space-y-8">
-        <TabsList className="min-w-full md:min-w-[300px]">
-          <TabsTrigger value="main">Main</TabsTrigger>
-          <TabsTrigger value="site">Website</TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-          <TabsTrigger value="fields">Custom Fields</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
-        </TabsList>
+          <TabsList className="min-w-full md:min-w-[300px]">
+            <TabsTrigger value="main">Main</TabsTrigger>
+            <TabsTrigger value="site">Website</TabsTrigger>
+            <TabsTrigger value="team">Team</TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
+            <TabsTrigger value="fields">Custom Fields</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
+          </TabsList>
         </div>
-        <TabsContent 
-        value="main" 
-        >
-          <MainSettings user={user as any} />
+        <TabsContent value="main">
+          <MainSettings workspace={currentWorkspace} />
           <SiteSettings
-              subdomain={user!.subdomain ?? ""}
-              customDomain={user!.customDomain ?? ""}
-              userId={currentUser!.id}
-              favicon={user?.favicon}
-            />
+            subdomain={currentWorkspace.subdomain ?? ""}
+            customDomain={currentWorkspace.customDomain ?? ""}
+            workspaceId={currentWorkspace.id}
+            favicon={currentWorkspace.favicon}
+          />
         </TabsContent>
         <TabsContent value="team">
-          <TeamManagement/>
+          <TeamManagement />
         </TabsContent>
         <TabsContent value="integrations">
-          <Integrations/>
+          <Integrations />
         </TabsContent>
         <TabsContent value="fields">
-          <CustomFields/>
+          <CustomFields />
         </TabsContent>
         <TabsContent value="billing">
-          <Billing/>
+          <Billing />
         </TabsContent>
       </Tabs>
-     
     </div>
   );
 }

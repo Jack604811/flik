@@ -37,7 +37,6 @@ import { z } from "zod";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
 import { Extras, ExtrasStatus } from "@prisma/client";
 import { useDropzone } from "react-dropzone";
 import ConfirmModal from "../main/confirm-modal";
@@ -72,21 +71,21 @@ const formSchema = z.object({
 
 // LR.registerBlocks(LR);
 function ExtrasForm({
-  userId,
+  workspaceId,
   extra,
 }: {
-  userId: string;
+  workspaceId: string;
   extra?: Extras & { images: Record<string, string>[] };
 }) {
   const { data: categories, refetch: fetchCategories } = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => getCategories({ userId }),
+    queryFn: async () => getCategories({ workspaceId }),
     initialData: [],
   });
 
   const { mutate: addNewCategory } = useMutation({
     mutationFn: async (categoryName: string) =>
-      createCategory({ userId, categoryName }),
+      createCategory({ workspaceId, categoryName }),
     onSuccess() {
       fetchCategories();
     },
@@ -121,7 +120,7 @@ function ExtrasForm({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let obj = {
-      userId,
+      workspaceId,
       ...values,
       images: [],
       price: Number(values.price),

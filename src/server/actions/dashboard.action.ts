@@ -3,7 +3,7 @@ import { BookingStatus, TransactionStatus, } from "@prisma/client";
 import { db } from "../db";
 
 export const getTotalCardsMetric = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
@@ -11,7 +11,7 @@ export const getTotalCardsMetric = async (
     const aggregateResult = await db.transaction.aggregate({
       _sum: { amount: true },
       where: {
-        booking: { spot: { userId } },
+        booking: { spot: { workspaceId } },
         AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
       },
     });
@@ -19,11 +19,11 @@ export const getTotalCardsMetric = async (
     const totalRevenue = aggregateResult?._sum?.amount || 0; // Guarding against undefined
 
     const totalBookings = await db.booking.count({
-      where: { spot: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+      where: { spot: { workspaceId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
     });
 
     const records = await db.bookingExtras.findMany({
-      where: { extra: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+      where: { extra: { workspaceId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
       select: { quantity: true, price: true },
     });
 
@@ -33,7 +33,7 @@ export const getTotalCardsMetric = async (
 
     const totalBookingsAmount = await db.booking.aggregate({
       _sum: { subtotal: true },
-      where: { spot: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+      where: { spot: { workspaceId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
     });
 
     const totalBookingsAmountValue = totalBookingsAmount?._sum?.subtotal || 0; // Guarding against undefined
@@ -57,12 +57,12 @@ export const getTotalCardsMetric = async (
 };
 
 export const getBookingsByDates = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
   const bookings = await db.booking.findMany({
-    where: { spot: {userId }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}] },
+    where: { spot: {workspaceId }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}] },
     include: {
       customer: true,
       transactions: {
@@ -78,7 +78,7 @@ export const getBookingsByDates = async (
 };
 
 export const getBookingStatusGroupTotal = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
@@ -87,7 +87,7 @@ export const getBookingStatusGroupTotal = async (
     _count: {
       status: true,
     },
-    where: { spot: { userId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+    where: { spot: { workspaceId }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
   });
 
   // Ensure that the data is valid before accessing _count
@@ -98,7 +98,7 @@ export const getBookingStatusGroupTotal = async (
 };
 
 export const getIncomeMetricData = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
@@ -107,7 +107,7 @@ export const getIncomeMetricData = async (
     _avg: { amount: true },
     _sum: { amount: true },
     where: {
-      booking: { spot: { userId } },
+      booking: { spot: { workspaceId } },
       AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
       status: TransactionStatus.Approved
     },
@@ -117,7 +117,7 @@ export const getIncomeMetricData = async (
     _sum: { amount: true },
     _count: true,
     where: {
-        booking: { spot: { userId } },
+        booking: { spot: { workspaceId } },
         AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
         status: TransactionStatus.Approved
       },
@@ -128,7 +128,7 @@ export const getIncomeMetricData = async (
 };
 
 export const getTotalSalesByDateRange = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
@@ -141,7 +141,7 @@ export const getTotalSalesByDateRange = async (
       subtotal: true,
     },
     where: {
-      spot: { userId },
+      spot: { workspaceId },
       AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
     },
     orderBy: {
@@ -157,7 +157,7 @@ export const getTotalSalesByDateRange = async (
 };
 
 export const getBookingsGroupedByMonth = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
@@ -167,7 +167,7 @@ export const getBookingsGroupedByMonth = async (
       _all: true,
     },
     where: {
-      spot: { userId },
+      spot: { workspaceId },
       AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
       status: { in: [BookingStatus.Cancelled, BookingStatus.Confirmed] },
     },
@@ -200,12 +200,12 @@ export const getBookingsGroupedByMonth = async (
 };
 
 export const getSpotsAndExtrasMetrics = async (
-  userId: string,
+  workspaceId: string,
   startDate: Date,
   endDate: Date
 ) => {
   const spots = await db.spot.findMany({
-    where: { userId },
+    where: { workspaceId },
     include: {
       bookings: {
         where: { createdAt: { gte: startDate, lte: endDate } },
@@ -221,7 +221,7 @@ export const getSpotsAndExtrasMetrics = async (
   });
 
   const extras = await db.extras.findMany({
-    where: { userId },
+    where: { workspaceId },
     include: {
       bookingExtras: {
         where: { createdAt: { gte: startDate, lte: endDate } },
