@@ -1,19 +1,19 @@
 import { db } from "@/server/db";
 
 interface CreateRecurringSubscriptionInput {
-    userId: string;
+    workspaceId: string;
     subscriptionId: string;
 
 }
 
-export async function createRecurringSubscription({ userId, subscriptionId }: CreateRecurringSubscriptionInput) {
+export async function createRecurringSubscription({ workspaceId, subscriptionId }: CreateRecurringSubscriptionInput) {
     try {
-        const user = await db.user.update({
+        const user = await db.workspace.update({
             data: {
                 subscriptionId
             },
             where: {
-                id: userId
+                id: workspaceId
             }
         })
         return user;

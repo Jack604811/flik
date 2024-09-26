@@ -7,7 +7,7 @@ interface DeleteRecurringSubscriptionInput {
 
 export async function deleteRecurringSubscription({ customerId }: DeleteRecurringSubscriptionInput) {
     try {
-        const user = await db.user.update({
+        const workspace = await db.workspace.update({
             data: {
                 subscriptionId: null
             },
@@ -15,7 +15,7 @@ export async function deleteRecurringSubscription({ customerId }: DeleteRecurrin
                 customerId: customerId
             }
         })
-        return user;
+        return workspace;
     } catch (error) {
         console.error(error)
     }

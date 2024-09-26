@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Check,
   ChevronsUpDown,
@@ -10,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import WorkspaceModal from './workspace-modal'; // Import the modal component
+import WorkspaceModal from './workspace-modal'; 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -22,21 +23,16 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkspaceModal } from '@/hooks/use-workspace-modal'; // Import the modal hook
+import { useWorkspaceModal } from '@/hooks/use-workspace-modal';
 
 interface WorkspacesData {
   workspaces: Workspace[];
   currentWorkspaceId: string | null;
 }
 
-export default function WorkspaceSwitcher({
-  className,
-}: {
-  className?: string;
-}) {
-  const workspaceModal = useWorkspaceModal(); // Use the hook here
+export default function WorkspaceSwitcher({ className }: { className?: string }) {
+  const workspaceModal = useWorkspaceModal(); 
   const router = useRouter();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 
@@ -98,7 +94,8 @@ export default function WorkspaceSwitcher({
     };
 
     fetchWorkspaces();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 'defaultWorkspace' can safely be excluded from the dependency array
 
   const formattedItems = workspaces.map((item) => ({
     label: item.siteName,
@@ -148,6 +145,7 @@ export default function WorkspaceSwitcher({
                 <CommandGroup heading="Workspaces">
                   {formattedItems.map((workspace) => (
                     <CommandItem
+                      className="text-sm cursor-pointer"
                       key={workspace.value}
                       onSelect={() =>
                         onWorkspaceSelect({
@@ -155,7 +153,6 @@ export default function WorkspaceSwitcher({
                           label: workspace.label || '',
                         })
                       }
-                      className="text-sm"
                     >
                       <WorkspaceIcon className="mr-2 h-4 w-4" />
                       {workspace.label}
@@ -176,12 +173,13 @@ export default function WorkspaceSwitcher({
             <CommandList>
               <CommandGroup>
                 <CommandItem
+                  className="cursor-pointer"
                   onSelect={() => {
                     setOpen(false);
-                    workspaceModal.onOpen(); // Open modal
+                    workspaceModal.onOpen(); 
                   }}
                 >
-                  <PlusCircle className="mr-2 h-5 w-5" />
+                  <PlusCircle className="mr-2 h-4 w-4" />
                   Create Workspace
                 </CommandItem>
               </CommandGroup>
@@ -189,8 +187,6 @@ export default function WorkspaceSwitcher({
           </Command>
         </PopoverContent>
       </Popover>
-
-      {/* Include the Workspace Modal */}
       <WorkspaceModal 
         isOpen={workspaceModal.isOpen} 
         onClose={workspaceModal.onClose} 

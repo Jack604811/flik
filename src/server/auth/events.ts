@@ -14,7 +14,7 @@ export const events: Partial<EventCallbacks | undefined> = {
 
     // add the stripe customer id to the user
 
-    await db.user.update({
+    await db.workspace.update({
       where: {
         id: user.id,
       },

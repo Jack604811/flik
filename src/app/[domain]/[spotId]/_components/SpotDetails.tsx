@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { AMENITIES } from "@/lib/constant";
-import { Spot, SpotImages, User } from "@prisma/client";
+import { Spot, SpotImages, User, Workspace } from "@prisma/client";
 import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, X, XIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
@@ -28,7 +28,7 @@ import CardList from "@/app/[domain]/_components/card-list";
 import { Button } from "@/components/ui/button";
 
 interface SpotDetailsProps {
-  spot: Spot & { bookings: BookingDates[]; owner: User; images: SpotImages[] };
+  spot: Spot & { bookings: BookingDates[]; workspace: Workspace; images: SpotImages[] };
   siteData: {
     // Define the structure of siteData here
   };

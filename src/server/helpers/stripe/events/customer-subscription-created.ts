@@ -15,10 +15,10 @@ export async function handleCustomerSubscriptionCreated(event: Stripe.CustomerSu
     const { metadata } = event.data.object
 
 
-    const userId = metadata.userId
+    const workspaceId = metadata.userId
     const userEmail = metadata.userEmail
 
-    await createRecurringSubscription({ userId, subscriptionId })
+    await createRecurringSubscription({ workspaceId, subscriptionId })
 
 
     const { error } = await resend.emails.send({
