@@ -9,7 +9,15 @@ export const config = {
      * 3. /_static (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
      */
-    "/((?!api/|_next/|_static/|_vercel|[\\w-]+\\.\\w+|assets/|sites/).*)",
+    {
+      source: "/((?!api/|_next/|_static/|_vercel|[\\w-]+\\.\\w+|assets/|sites/).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "next-action" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
+    }
+
   ],
 };
 

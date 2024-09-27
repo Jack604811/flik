@@ -1,13 +1,12 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth/options";
 import Stripe from "stripe";
 import { NextRequest } from "next/server";
 import { env } from "@/env";
 import { APP_DOMAIN, TRIAL_DAYS } from "@/app-settings";
+import { auth } from "@/server/auth";
 const stripe: Stripe = require("stripe")(env.STRIPE_SECRET_KEY);
 
 export async function POST(req: NextRequest) {
-    const userSession = await getServerSession(authOptions);
+    const userSession = await auth();
     if (!userSession || !userSession.user || !userSession.user.customerId) {
         return new Response(null, { status: 401 });
     }
@@ -77,7 +76,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || !session.user) {
         return new Response(null, { status: 401 });
     }

@@ -22,19 +22,23 @@ import { getBookingsByDates } from "@/server/actions/dashboard.action";
 import moment from "moment";
 import { useSearchParams } from "next/navigation";
 import { parseDashboardDates } from "@/lib/utils";
+import useSWR from "swr";
+import { useEffect } from "react";
 
 type Params = { userId: string };
 
 export function BookingList({ userId }: Params) {
-  const searchParams = useSearchParams()
-  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+  const searchParams = useSearchParams();
+  const { startDate, endDate } = parseDashboardDates(
+    searchParams.get("from"),
+    searchParams.get("to")
+  );
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["bookings", startDate, endDate],
-    queryFn: () => getBookingsByDates(userId, startDate, endDate),
-    enabled: !!startDate && !!endDate,
-    initialData: []
-  });
+  const { data, isLoading } = useSWR(
+    ["bookings", startDate, endDate],
+    () => getBookingsByDates(userId, startDate, endDate),
+    { fallbackData: [] }
+  );
 
   return (
     <Card
@@ -65,36 +69,51 @@ export function BookingList({ userId }: Params) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length ? data.map((booking, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <div className="font-medium">{booking.customer?.name}</div>
-                  <div className="hidden text-sm text-muted-foreground md:inline">
-                    {booking.customer?.email}
-                  </div>
-                </TableCell>
-                <TableCell className="">
-                  {moment(booking.startDate).format("YYYY-MM-DD")}
-                </TableCell>
-                <TableCell className="">
-                  {moment(booking.endDate).format("YYYY-MM-DD")}
-                </TableCell>
-                <TableCell className="">${(booking.subtotal +
-                    booking.bookingExtras.reduce(
-                      (acc, ex) => acc + ex.price * ex.quantity,
-                      0
-                    )) - (booking.transactions.reduce((acc, tr) => acc + tr.amount ,0))}</TableCell>
-                <TableCell className="text-right">
-                  ${booking.subtotal +
-                    booking.bookingExtras.reduce(
-                      (acc, ex) => acc + ex.price * ex.quantity,
-                      0
-                    )}
-                </TableCell>
-              </TableRow>
-            )): (
+            {data.length ? (
+              data.map((booking, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <div className="font-medium">{booking.customer?.name}</div>
+                    <div className="hidden text-sm text-muted-foreground md:inline">
+                      {booking.customer?.email}
+                    </div>
+                  </TableCell>
+                  <TableCell className="">
+                    {moment(booking.startDate).format("YYYY-MM-DD")}
+                  </TableCell>
+                  <TableCell className="">
+                    {moment(booking.endDate).format("YYYY-MM-DD")}
+                  </TableCell>
+                  <TableCell className="">
+                    $
+                    {booking.subtotal +
+                      booking.bookingExtras.reduce(
+                        (acc, ex) => acc + ex.price * ex.quantity,
+                        0
+                      ) -
+                      booking.transactions.reduce(
+                        (acc, tr) => acc + tr.amount,
+                        0
+                      )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    $
+                    {booking.subtotal +
+                      booking.bookingExtras.reduce(
+                        (acc, ex) => acc + ex.price * ex.quantity,
+                        0
+                      )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground text-xs">No Record found.</TableCell>
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground text-xs"
+                >
+                  No Record found.
+                </TableCell>
               </TableRow>
             )}
           </TableBody>

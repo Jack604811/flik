@@ -103,7 +103,7 @@ export const parseDate = (dateString: string | null, fallback: Date = new Date()
 };
 
 export const parseDashboardDates = (startDateString: string|null, endDateString: string|null) => {
-  const startDate = startDateString ? moment(startDateString).toDate() : moment().toDate();
-  const endDate = endDateString ? moment(endDateString).toDate() : moment().toDate();
+  const startDate = startDateString ? moment(startDateString, ["MM/DD/YYYY"]).toDate() : moment().toDate();
+  const endDate = endDateString ? moment(endDateString, ["MM/DD/YYYY"]).toDate() : moment().toDate();
   return { startDate, endDate }
 }

@@ -16,40 +16,6 @@ import { parseDashboardDates } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
 import { getSpotsAndExtrasMetrics } from "@/server/actions/dashboard.action"
 
-interface SpotData {
-  product: string;
-  bookings: string;
-  revenue: string;
-  visits: string;
-  occupancyRate: string;
-  clickThroughRate: string;
-}
-
-const spotsData: SpotData[] = [
-  { product: "Luxury Suite", bookings: "1,234", revenue: "$123,456", visits: "1,000", occupancyRate: "16%", clickThroughRate: "30%" },
-  { product: "Standard Room", bookings: "2,345", revenue: "$780,901", visits: "1,000", occupancyRate: "19%", clickThroughRate: "60%" },
-  { product: "Family Suite", bookings: "567", revenue: "$45,678", visits: "1,000", occupancyRate: "7%", clickThroughRate: "10%" },
-  { product: "Deluxe Room", bookings: "890", revenue: "$34,567", visits: "1,000", occupancyRate: "25%", clickThroughRate: "24%" },
-];
-
-interface ExtrasData {
-  product: string;
-  totalSales: string;
-  revenue: string;
-  clickThroughRate: string;
-}
-
-const extrasData: ExtrasData[] = [
-  { product: "Brunch", totalSales: "1,234", revenue: "$123,456", clickThroughRate: "30%" },
-  { product: "Red Wine", totalSales: "2,345", revenue: "$78,901", clickThroughRate: "60%" },
-  { product: "Picnic Day", totalSales: "567", revenue: "$45,678", clickThroughRate: "10%" },
-  { product: "Extra People", totalSales: "890", revenue: "$34,567", clickThroughRate: "24%" },
-];
-
-// Calculate the total revenue for spots and extras
-const totalSpotsRevenue = spotsData.reduce((sum, spot) => sum + parseFloat(spot.revenue.replace(/[^0-9.-]+/g, "")), 0);
-const totalExtrasRevenue = extrasData.reduce((sum, extra) => sum + parseFloat(extra.revenue.replace(/[^0-9.-]+/g, "")), 0);
-
 const chartConfig = {
   spots: {
     label: "Spots",
@@ -129,7 +95,7 @@ export function SpotsAndExtras({userId}: Params) {
                       alt="Spot Image"
                       className="aspect-square rounded-md object-cover hidden sm:table-column"
                       height="64"
-                      src="/placeholder.svg"
+                      src={spot.image || "/placeholder.svg"}
                       width="64"
                     />
                   </TableCell>
@@ -159,10 +125,10 @@ export function SpotsAndExtras({userId}: Params) {
                 <TableRow key={index}>
                   <TableCell>
                     <Image
-                      alt="extra Image"
+                      alt="Extra Image"
                       className="aspect-square rounded-md object-cover"
                       height="64"
-                      src="/placeholder.svg"
+                      src={extra.image || "/placeholder.svg"}
                       width="64"
                     />
                   </TableCell>

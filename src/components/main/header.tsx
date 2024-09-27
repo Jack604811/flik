@@ -5,13 +5,12 @@ import { ModeToggle } from "@/components/main/theme-toggle";
 import { APP_NAME, USER_ROUTES } from "@/app-settings";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { LogoutButton } from "../auth/logout-button";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth/options";
 import Image from "next/image";
 import SidebarProfileDropdown from "./sidebar-profile-dropdown";
+import { auth } from "@/server/auth";
 
 export async function Header() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "";
 
   return (

@@ -1,16 +1,12 @@
 import { APP_NAME } from "@/app-settings";
 import { User } from "lucide-react";
-import { getProviders } from "next-auth/react";
 import { OauthProvider } from "@/components/auth/oauth-provider";
 import { MagicLinkForm } from "@/components/auth/magic-link-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { AFTER_SIGNIN_REDIRECT_URL } from "@/app-settings"
+import { providers } from "@/server/auth";
+import { Provider } from "next-auth/providers";
 
 export default async function Page() {
-  const providers = await getProviders();
-
-  
-
   return (
     <div className="py-8 px-2  min-h-screen flex flex-col md:justify-center gap-6 ">
       <Card className="md:max-w-md  mx-auto w-full py-4  md:px-8 md:py-12 ">
@@ -32,7 +28,7 @@ export default async function Page() {
               {providers &&
                 Object.values(providers)
                   //we don't want to show the email provider as we have a separate form for that
-                  .filter((provider) => provider.id !== "email")
+                  .filter((provider: Provider) => provider.id !== "resend")
                   .map((provider) => (
                     <OauthProvider key={provider.id} provider={provider} />
                   ))}

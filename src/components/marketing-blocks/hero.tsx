@@ -6,7 +6,6 @@ import { motion, useInView } from "framer-motion";
 import { ArrowRightIcon, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import AnimatedShinyText from "../magicui/animated-shiny-text";
-import { getServerSession } from "next-auth";
 import ShimmerButton from "../magicui/shimmer-button";
 import Particles from "../magicui/particles";
 import DashboardButton from "./dashboard-button";

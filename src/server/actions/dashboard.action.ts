@@ -217,6 +217,10 @@ export const getSpotsAndExtrasMetrics = async (
           },
         },
       },
+      images: {
+        take: 1, // Fetch only one image
+        select: { url: true },
+      },
     },
   });
 
@@ -226,6 +230,10 @@ export const getSpotsAndExtrasMetrics = async (
       bookingExtras: {
         where: { createdAt: { gte: startDate, lte: endDate } },
         select: { quantity: true, price: true },
+      },
+      images: {
+        take: 1, // Fetch only one image
+        select: { url: true },
       },
     },
   });
@@ -248,6 +256,7 @@ export const getSpotsAndExtrasMetrics = async (
       visits: visits.toString(),
       occupancyRate,
       clickThroughRate,
+      image: spot.images[0]?.url || null, // Guarding against undefined
     };
   });
 
@@ -263,15 +272,19 @@ export const getSpotsAndExtrasMetrics = async (
       totalSales: totalSales.toString(),
       revenue: revenue.toFixed(2),
       clickThroughRate,
+      image: extra.images[0]?.url || null, // Guarding against undefined
     };
   });
+
+  const totalSpotsRevenue = spotsMetrics.reduce((sum, spot) => sum + parseFloat(spot.revenue), 0);
+  const totalExtrasRevenue = extrasMetrics.reduce((sum, extra) => sum + parseFloat(extra.revenue), 0);
 
   return {
     spots: spotsMetrics,
     extras: extrasMetrics,
     total: {
-      spots: spotsMetrics.length,
-      extras: extrasMetrics.length,
+      spots: totalSpotsRevenue.toFixed(2),
+      extras: totalExtrasRevenue.toFixed(2),
     },
   };
 };

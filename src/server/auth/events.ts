@@ -1,7 +1,8 @@
-import { type EventCallbacks } from "next-auth";
+
 import { createStripeCustomer } from "@/server/helpers/stripe/create-stripe-customer";
 import { db } from "@/server/db";
-export const events: Partial<EventCallbacks | undefined> = {
+import { NextAuthConfig } from "next-auth";
+export const events: Partial<NextAuthConfig["events"]> = {
   //add customer id to the new user
   createUser: async ({ user }) => {
     if(user.customerId) return;

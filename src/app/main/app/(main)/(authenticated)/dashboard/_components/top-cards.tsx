@@ -21,7 +21,7 @@ export function TopCards({ userId }: Params) {
   });
 
   return (
-    <div className="grid gap-4 min-w-[359px] md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 min-w-[359px] md:grid-cols-2 lg:grid-cols-4 mb-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>

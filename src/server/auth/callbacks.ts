@@ -1,9 +1,7 @@
 import { env } from "@/env";
-import type { Account, CallbacksOptions, Profile } from "next-auth";
+import type { Account, NextAuthConfig, Profile } from "next-auth";
 
-export const callbacks:
-  | Partial<CallbacksOptions<Profile, Account>>
-  | undefined = {
+export const callbacks: Partial<NextAuthConfig["callbacks"]> = {
   session: ({ session, user }) => ({
     ...session,
     user: {

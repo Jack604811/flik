@@ -1,5 +1,4 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type Adapter } from "next-auth/adapters";
 import { db } from "@/server/db";
 import { events, providers, callbacks, pages } from "@/server/auth";
@@ -9,7 +8,7 @@ import { events, providers, callbacks, pages } from "@/server/auth";
  *
  * @see https://next-auth.js.org/configuration/options
  */
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   callbacks,
   events,
   adapter: PrismaAdapter(db) as Adapter,

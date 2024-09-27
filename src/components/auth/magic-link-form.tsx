@@ -28,7 +28,7 @@ export function MagicLinkForm() {
     // ✅ This will be type-safe and validated.
     setIsLoading(true);
     const { email } = values;
-    await signIn("email", {
+    await signIn("resend", {
       email,
       callbackUrl: AFTER_SIGNIN_REDIRECT_URL,
     });

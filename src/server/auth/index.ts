@@ -1,4 +1,7 @@
-import { getServerSession, type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { type Adapter } from "next-auth/adapters";
+import { db } from "@/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -21,8 +24,8 @@ declare module "next-auth" {
   }
 
   interface User {
-    email: string;
-    name: string;
+    email?: string | null | undefined;
+    name?: string | null | undefined;
     subscriptionId: string | null;
     customerId: string;
     oneTimeProductId: string | null;
@@ -36,11 +39,18 @@ import { providers } from "./providers";
 import { events } from "./events";
 import { callbacks } from "./callbacks";
 import { pages } from "./pages";
-import { authOptions } from "./options";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  callbacks,
+  events,
+  adapter: PrismaAdapter(db) as Adapter,
+  providers,
+  pages
+})
 
 
 export const getCurrentUser = async () => {
-  const userSession = await getServerSession(authOptions);
+  const userSession = await auth();
 
   return userSession?.user
 }

@@ -29,6 +29,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getBookingStatusGroupTotal } from "@/server/actions/dashboard.action";
 import { useSearchParams } from "next/navigation";
 import { parseDashboardDates } from "@/lib/utils";
+import moment from "moment";
 
 
 const chartConfig = {
@@ -81,7 +82,7 @@ export function BookingStatus({ userId, } : Params) {
       <CardHeader className="flex-row items-start space-y-0 pb-0">
         <div className="grid gap-1">
           <CardTitle>Booking Status</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardDescription>{moment(startDate).format("MMMM")} - {moment(endDate).format("MMMM YYYY")}</CardDescription>
         </div>
         <Select value={activeStatus} onValueChange={setActiveStatus}>
           <SelectTrigger
