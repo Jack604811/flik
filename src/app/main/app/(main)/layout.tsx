@@ -14,7 +14,7 @@ export default async function MainLayout({
   return (
     <div className="flex h-screen w-full flex-row relative overflow-hidden">
       <Sidebar/>
-      <div className="flex flex-col w-full overflow-y-scroll">
+      <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
         <Header />
         {children}
       </div>

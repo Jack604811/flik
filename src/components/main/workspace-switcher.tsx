@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from 'react';
 import {
   Check,
@@ -126,7 +128,7 @@ export default function WorkspaceSwitcher({ className }: { className?: string })
             role="combobox"
             aria-expanded={open}
             aria-label="Select a workspace"
-            className={cn('w-full h-12 justify-between', className)}
+            className={cn('w-full max-w-6xl h-12 justify-between', className)}
           >
             <WorkspaceIcon className="mr-2 h-4 w-4" />
             {currentWorkspace.siteName}

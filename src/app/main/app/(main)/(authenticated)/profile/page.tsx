@@ -9,26 +9,42 @@ import { getCurrentUser } from '@/server/auth';
 import PersonalInfoForm from '@/components/forms/PersonalInfoForm';
 import { User } from '@prisma/client';
 import WorkspaceSwitcher from '@/components/main/workspace-switcher';
+import ThemeToggle from '@/components/main/theme-toggle-profile';
 
 
 async function Profile() {
   const currentUser = await getCurrentUser()
   const user = await getUser(currentUser!.id);
   return (
-      <main className="flex-1 p-6">
+      <div className="flex-1 max-w-6xl pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold tracking-tight">Profile Settings</h2>
+          <p className="text-muted-foreground">
+            Manage your profile.
+          </p>
+        </div>
         <section className="space-y-6">
           <PersonalInfoForm user={user as User} />
         </section>
-        <Separator className="my-8" />
-        <section className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium">Account Settings</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Manage your account preferences.</p>
+        <Separator className="my-8 max-w-6xl" />
+        <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">
+          <div className="w-full xl:w-1/3">
+            <h3 className="text-xl font-semibold">Account Settings</h3>
+            <p className="text-sm text-muted-foreground">Manage your account preferences.</p>
           </div>
-          <div className="mx-4">
-            <WorkspaceSwitcher/>
+          <div className="w-full xl:w-2/3">
+            <div className="flex flex-col gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="workspace">Workspace</Label>
+                <WorkspaceSwitcher/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="siteName">Theme</Label>
+                <ThemeToggle/>
+              </div>
+            </div>
           </div>
-          <form className="grid gap-4">
+          {/* <form className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="password">Old Password</Label>
               <Input id="password" type="password" />
@@ -52,10 +68,10 @@ async function Profile() {
             <Button className="w-fit" type="submit">
               Update Account
             </Button>
-          </form>
-        </section>
+          </form> */}
+        </div>
        
-      </main>
+      </div>
   )
 }
 

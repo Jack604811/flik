@@ -46,11 +46,11 @@ export function Docker() {
 
   return (
     <div
-      className={`fixed bottom-2 w-full flex justify-center items-center p-4 transition-opacity duration-500 ${
+      className={`fixed bottom-2 w-full flex justify-center items-center px-4 transition-opacity duration-500 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="flex justify-between items-center w-full max-w-[300px] border bg-black text-white rounded-full p-2 backdrop-blur-lg">
+      <div className="flex justify-between items-center w-full max-w-[260px] border bg-black text-white rounded-full p-2 backdrop-blur-lg">
         <div className="flex space-x-1">
         <Link href="/dashboard">
         <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
@@ -79,7 +79,6 @@ export function Docker() {
         </div>
         <div className="h-6 border-l border-gray-600 mx-2"></div>
         <div className="flex items-center space-x-1">
-        <ModeToggle />
           <Link href="/profile">
           <Image 
             src="/assets/profile-placeholder.svg" 

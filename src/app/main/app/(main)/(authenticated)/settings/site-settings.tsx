@@ -54,9 +54,9 @@ function SiteSettings({
   return (
     <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">
       <div className="w-full xl:w-1/3">
-            <h2 className="text-xl font-semibold mb-2">Site Settings</h2>
-            <p className="text-sm text-muted-foreground">Manage your site settings</p>
-          </div>
+        <h2 className="text-xl font-semibold">Site Settings</h2>
+        <p className="text-sm text-muted-foreground">Manage your site settings</p>
+      </div>
       <div className="w-full xl:w-2/3">
         <div className="flex flex-col gap-4">
         <Label htmlFor="siteLogo">Favicon</Label>
