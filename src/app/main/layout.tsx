@@ -8,7 +8,6 @@ import { Toaster } from "sonner";
 import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
 
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -53,3 +52,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+ 

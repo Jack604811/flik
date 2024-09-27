@@ -5,17 +5,17 @@ import { getTotalCardsMetric } from "@/server/actions/dashboard.action";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 
-type Params = { userId: string };
+type Params = { userId: string, workspaceId?: string };
 
-export function TopCards({ userId }: Params) {
+export function TopCards({ userId, workspaceId }: Params) {
   const searchParams = useSearchParams();
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
   
 
   // React Query to fetch data using the validated dates
   const { data, isLoading, error } = useQuery({
-    queryKey: ["top-cards-metric", startDate.toLocaleDateString(), endDate.toLocaleDateString()],
-    queryFn: async () => getTotalCardsMetric(userId, startDate, endDate),
+    queryKey: ["top-cards-metric",userId, workspaceId, startDate.toLocaleDateString(), endDate.toLocaleDateString()],
+    queryFn: async () => getTotalCardsMetric(userId, workspaceId??null, startDate, endDate),
     enabled: !!startDate && !!endDate,
     initialData: { totalBookings: 0, totalExtraSales: 0, totalRevenue: 0, outstanding: 0 },
   });

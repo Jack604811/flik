@@ -41,7 +41,18 @@ model User {
   email                String?          @unique
   emailVerified        DateTime?
   image                String?
+  sessions             Session[]
+  workspaces           Workspace[]
+  currentWorkspaceId   String?
   createdAt            DateTime         @default(now())
+  accounts             Account[]
+  oneTimeProducts      OneTimeProduct[] @relation("OneTimeProductToUser")
+}
+
+model Workspace {
+  id                   String           @id @default(cuid())
+  ownerId              String           // Relation to User (owner)
+  owner                User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   customerId           String?          @unique
   stripeAccountId      String?
   wompiAccountId       Json?
@@ -55,16 +66,15 @@ model User {
   defaultPaymentMethod String?          @default("cash")
   subdomain            String?          @unique
   customDomain         String?          @unique
-  accounts             Account[]
   categories           Category[]
   extras               Extras[]
-  sessions             Session[]
   spots                Spot[]
-  oneTimeProducts      OneTimeProduct[] @relation("OneTimeProductToUser")
 }
 
 model Spot {
   id                   String       @id @default(cuid())
+  workspaceId          String
+  workspace            Workspace    @relation(fields: [workspaceId], references: [id])
   name                 String
   description          String
   status               SpotStatus
@@ -77,11 +87,9 @@ model Spot {
   allowAdditionalGuest Boolean      @default(false)
   additionalGuestPrice Float?
   workingHours         Json         @default("[]")
-  userId               String
   createdAt            DateTime     @default(now())
   updatedAt            DateTime?    @default(now())
   bookings             Booking[]
-  owner                User         @relation(fields: [userId], references: [id])
   images               SpotImages[]
   extras               Extras[]     @relation("ExtrasToSpot")
 }
@@ -111,6 +119,7 @@ model Booking {
   startDate     DateTime?
   endDate       DateTime?
   status        BookingStatus
+  note          String    @default("")
   customerId    String?  
   spotId        String
   createdAt     DateTime        @default(now())
@@ -139,11 +148,12 @@ model Transaction {
 
 model Extras {
   id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
   name          String
   description   String
   price         Float
   status        ExtrasStatus
-  userId        String
   categoryId    String?
   subCategoryId String?
   createdAt     DateTime        @default(now())
@@ -151,7 +161,6 @@ model Extras {
   bookingExtras BookingExtras[]
   category      Category?       @relation(fields: [categoryId], references: [id])
   subCategory   SubCategory?    @relation(fields: [subCategoryId], references: [id])
-  owner         User            @relation(fields: [userId], references: [id])
   images        ExtrasImages[]
   spots         Spot[]          @relation("ExtrasToSpot")
 }
@@ -181,10 +190,10 @@ model BookingExtras {
 
 model Category {
   id            String        @id @default(cuid())
+  workspaceId   String
+  owner         Workspace     @relation(fields: [workspaceId], references: [id])
   name          String
-  userId        String
   createdAt     DateTime      @default(now())
-  owner         User          @relation(fields: [userId], references: [id])
   extras        Extras[]
   subCategories SubCategory[]
 }

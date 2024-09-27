@@ -47,6 +47,7 @@
     "@vercel/og": "^0.6.2",
     "axios": "^1.6.8",
     "browser-image-compression": "^2.0.2",
+    "caniuse-lite": "^1.0.30001664",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",

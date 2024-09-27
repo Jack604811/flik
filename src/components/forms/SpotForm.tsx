@@ -1,7 +1,7 @@
-"use client";
-import React, { useCallback, useState } from "react";
-import MoneyInput from "src/components/ui/money-input";
-import { useFieldArray, useForm } from "react-hook-form";
+'use client';
+import React, { useCallback, useState } from 'react';
+import MoneyInput from 'src/components/ui/money-input';
+import { useFieldArray, useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -9,85 +9,40 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { AutosizeTextarea } from "../ui/autosize-textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { Switch } from "../ui/switch";
-import {
-  ChevronLeftIcon,
-  CirclePlusIcon,
-  DeleteIcon,
-  Dot,
-  MoreHorizontal,
-  MoreVertical,
-  UploadIcon,
-  X,
-} from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Badge } from "../ui/badge";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import {
-  createNewSpot,
-  deleteSpot,
-  deleteSpotImage,
-  updateSpot,
-} from "@/server/actions/spot.action";
-import { Spot, SpotStatus } from "@prisma/client";
-import { useDropzone } from "react-dropzone";
-import ConfirmModal from "../main/confirm-modal";
-import MultiSelect from "../ui/multiselect";
-import { AMENITIES } from "@/lib/constant";
-import { env } from "@/env";
-import { useQuery } from "@tanstack/react-query";
-import { getExtrasByUser } from "@/server/actions/extra.action";
+} from '../ui/form';
+import { Input } from '../ui/input';
+import { AutosizeTextarea } from '../ui/autosize-textarea';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { Switch } from '../ui/switch';
+import { ChevronLeftIcon, CirclePlusIcon, X, MoreVertical, UploadIcon } from 'lucide-react';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Label } from '../ui/label';
+import { Button } from '../ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import Link from 'next/link';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Badge } from '../ui/badge';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { createNewSpot, deleteSpot, deleteSpotImage, updateSpot } from '@/server/actions/spot.action';
+import { Spot, SpotStatus } from '@prisma/client';
+import { useDropzone } from 'react-dropzone';
+import ConfirmModal from '../main/confirm-modal';
+import MultiSelect from '../ui/multiselect';
+import { AMENITIES } from '@/lib/constant';
+import { env } from '@/env';
+import { useQuery } from '@tanstack/react-query';
+import { getExtrasByWorkspace } from '@/server/actions/extra.action';
 
+// Validation schema
 const formSchema = z
   .object({
-    name: z.string({ required_error: "Spot Name is required" }),
-    description: z.string({ required_error: "Spot Description is required" }),
-    status: z.enum([
-      SpotStatus.Disabled,
-      SpotStatus.Public,
-      SpotStatus.Private,
-    ]),
+    name: z.string({ required_error: 'Spot Name is required' }),
+    description: z.string({ required_error: 'Spot Description is required' }),
+    status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
     maxGuest: z.string().optional(),
     additionalGuestPrice: z.string().optional(),
     allowAdditionalGuest: z.boolean(),
@@ -97,78 +52,74 @@ const formSchema = z
         day: z.string(),
         openTime: z.string(),
         closeTime: z.string(),
-         price: z.string(),
+        price: z.string(),
       })
     ),
     amenities: z.array(z.string()),
     duration: z.string(),
     durationType: z.string(),
     path: z.string().optional(),
-    extras: z.array(z.string())
+    extras: z.array(z.string()),
   })
   .superRefine((data, refineContext) => {
     if (!!data.allowAdditionalGuest && !data.additionalGuestPrice) {
       refineContext.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Required",
-        path: ["additionalGuestPrice"],
+        message: 'Required',
+        path: ['additionalGuestPrice'],
       });
       refineContext.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Required",
-        path: ["maxGuest"],
+        message: 'Required',
+        path: ['maxGuest'],
       });
     }
 
     return refineContext;
   });
 
-// LR.registerBlocks(LR);
 function SpotForm({
-  userId,
+  workspaceId,
   spot,
 }: {
-  userId: string;
-  spot?: Spot & { images: Record<string, string>[], extras: Record<"id"|"name", string>[] };
+  workspaceId: string;
+  spot?: Spot & { images: Record<string, string>[]; extras: Record<'id' | 'name', string>[] };
 }) {
   const router = useRouter();
+  
+  // Fetch extras using workspaceId instead of userId
   const { data: extrasOption, isLoading } = useQuery({
-    queryKey: ["extras"],
-    queryFn: async () => getExtrasByUser({userId}),
-    initialData: []
-  })
+    queryKey: ['extras'],
+    queryFn: async () => getExtrasByWorkspace({ workspaceId }),
+    initialData: [],
+  });
+  
   const [files, setFiles] = useState<(File & { url: string })[]>([]);
-  const [spotImages, setSpotImages] = useState<Record<string, string>[]>(
-    spot?.images ?? []
-  );
-
+  const [spotImages, setSpotImages] = useState<Record<string, string>[]>(spot?.images ?? []);
   const [isDragActive, setIsDragActive] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: "Private",
+      status: 'Private',
       allowAdditionalGuest: false,
       ...(spot ?? {}),
-      maxGuest: spot?.maxGuest ? String(spot?.maxGuest) : "1",
-      units: spot?.units ? String(spot.units) : "1",
-      additionalGuestPrice: spot?.additionalGuestPrice
-        ? String(spot?.additionalGuestPrice)
-        : undefined,
-      workingHours:
-        (spot?.workingHours as Record<string, any>[])?.map((e) => ({
-          ...e,
-          price: String(e.price),
-        })) ?? [],
-      duration: spot?.duration ? String(spot.duration) : "1",
-      durationType: spot?.durationType ? String(spot.durationType) : "hours",
-      extras: spot?.extras?.map(ex => ex.id) ?? []
+      maxGuest: spot?.maxGuest ? String(spot?.maxGuest) : '1',
+      units: spot?.units ? String(spot.units) : '1',
+      additionalGuestPrice: spot?.additionalGuestPrice ? String(spot?.additionalGuestPrice) : undefined,
+      workingHours: (spot?.workingHours as Record<string, any>[])?.map((e) => ({
+        ...e,
+        price: String(e.price),
+      })) ?? [],
+      duration: spot?.duration ? String(spot.duration) : '1',
+      durationType: spot?.durationType ? String(spot.durationType) : 'hours',
+      extras: spot?.extras?.map((ex) => ex.id) ?? [],
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let obj = {
-      userId,
+      workspaceId,
       ...values,
       images: [],
       maxGuest: Number(values.maxGuest),
@@ -183,27 +134,24 @@ function SpotForm({
 
     const promise = async () => {
       const formData = new FormData();
-      files.forEach((file) => formData.append("files", file));
+      files.forEach((file) => formData.append('files', file));
       const nSpot = spot?.id
-    ? updateSpot({ ...obj, id: spot.id, files: formData })
-    : createNewSpot({ ...obj, files: formData });
+        ? updateSpot({ ...obj, id: spot.id, files: formData })
+        : createNewSpot({ ...obj, files: formData });
       return nSpot;
     };
 
-    // const promise = spot?.id
-    //   ? updateSpot({ ...obj, id: spot.id })
-    //   : createNewSpot(obj);
     toast.promise(promise, {
-      loading: "Loading...",
+      loading: 'Loading...',
       success: () => {
-        router.push("/spots");
-        return "spot created/updated successfully";
+        router.push('/spots');
+        return 'Spot created/updated successfully';
       },
-      error: "Error add/updating spot",
+      error: 'Error adding/updating spot',
     });
   };
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) =>
       Object.assign(file, {
         url: URL.createObjectURL(file),
@@ -219,15 +167,15 @@ function SpotForm({
       'image/jpeg': ['.jpeg', '.jpg'],
       'image/jpg': ['.jpg'],
     },
-    onDragEnter: () => setIsDragActive(true), // Set drag active state
-    onDragLeave: () => setIsDragActive(false), // Unset drag active state
-    onDropAccepted: () => setIsDragActive(false), // Unset drag active state after drop
-    onDropRejected: () => setIsDragActive(false), // Unset drag active state if drop rejected
+    onDragEnter: () => setIsDragActive(true),
+    onDragLeave: () => setIsDragActive(false),
+    onDropAccepted: () => setIsDragActive(false),
+    onDropRejected: () => setIsDragActive(false),
   });
 
-  const { fields, append, remove, insert } = useFieldArray({
-    control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
-    name: "workingHours", // unique name for your Field Array
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'workingHours',
   });
 
   const onDeleteImage = async (file: any, index: number) => {
@@ -235,7 +183,7 @@ function SpotForm({
       setFiles((files) => files.filter((f, ind) => f !== file));
       return;
     }
-    const deleted = await deleteSpotImage(file.id);
+    await deleteSpotImage(file.id);
     setSpotImages((prev) => prev.filter((im) => im.id !== file.id));
   };
 

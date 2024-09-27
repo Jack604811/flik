@@ -8,16 +8,16 @@ import {
 } from "./supabase.action";
 import { clearDomainCache } from "../helpers/domains";
 
-export const getSpotsByUser = async ({ userId }: { userId: string }) => {
+export const getSpotsByWorkspace = async ({ workspaceId }: { workspaceId: string }) => {
   const spots = await db.spot.findMany({
-    where: { userId },
+    where: { workspaceId },
     include: { images: true },
   });
   return spots;
 };
 
 type NEW_SPOT_PARAMS = {
-  userId: string;
+  workspaceId: string;
   name: string;
   description: string;
   status: SpotStatus;
@@ -35,7 +35,7 @@ type NEW_SPOT_PARAMS = {
 };
 
 export const createNewSpot = async ({
-  userId,
+  workspaceId,
   name,
   description,
   status,
@@ -57,7 +57,7 @@ export const createNewSpot = async ({
       description,
       status,
       maxGuest,
-      userId,
+      workspaceId,
       units,
       workingHours,
       allowAdditionalGuest,
@@ -70,7 +70,7 @@ export const createNewSpot = async ({
   });
   await updateSpot({
     id: spot.id,
-    userId,
+    workspaceId,
     name,
     description,
     status,
@@ -91,7 +91,7 @@ export const createNewSpot = async ({
 };
 
 export const updateSpot = async ({
-  userId,
+  workspaceId,
   name,
   description,
   status,
@@ -110,7 +110,7 @@ export const updateSpot = async ({
 }: NEW_SPOT_PARAMS & { id: string }) => {
   const imageFiles = files.getAll("files") as File[];
   let images = await Promise.all(
-    imageFiles.map((file) => uploadSpotImage({ file, userId, spotId: id }))
+    imageFiles.map((file) => uploadSpotImage({ file, workspaceId, spotId: id }))
   );
 
   const spot = await db.spot.update({
@@ -120,7 +120,7 @@ export const updateSpot = async ({
       description,
       status,
       maxGuest,
-      userId,
+      workspaceId,
       units,
       workingHours,
       allowAdditionalGuest,
@@ -134,17 +134,17 @@ export const updateSpot = async ({
       },
       extras: {connect: extras.map(ex => ({id: ex}))}
     },
-    include: { owner: true }
+    include: { workspace: true }
   });
 
-  clearDomainCache(spot!.owner.subdomain, spot!.owner.customDomain, spot?.id!)
+  clearDomainCache(spot!.workspace.subdomain, spot!.workspace.customDomain, spot?.id!)
 
   return spot;
 };
 export const getSpotById = async (id: string) => {
   const spot = await db.spot.findFirst({
     where: { id },
-    include: { owner: true, images: true, extras: { select: {id: true, name: true}} },
+    include: { workspace: true, images: true, extras: { select: {id: true, name: true}} },
     orderBy: { createdAt: "desc"}
   });
 
@@ -154,20 +154,20 @@ export const getSpotById = async (id: string) => {
 export const deleteSpot = async (id: string) => {
   const spot = await db.spot.findFirst({
     where: { id },
-    include: {owner: true}
+    include: {workspace: true}
   });
   await db.spot.delete({ where: { id } });
   await db.spotImages.deleteMany({where: {spotId: id}})
-  await deleteSpotImages({ userId: spot!.userId, spotId: id });
+  await deleteSpotImages({ workspaceId: spot!.workspaceId, spotId: id });
 
-  clearDomainCache(spot!.owner.subdomain, spot!.owner.customDomain, spot?.id!)
+  clearDomainCache(spot!.workspace.subdomain, spot!.workspace.customDomain, spot?.id!)
 
   return true;
 };
 
 export const deleteSpotImage = async (id: string) => {
   const sImage = await db.spotImages.delete({where: {id}, include: {spot: true}});
-  await deleteSpotImageSB({spotId: sImage.spotId, id, userId: sImage.spot.userId});
+  await deleteSpotImageSB({spotId: sImage.spotId, id, workspaceId: sImage.spot.workspaceId});
   
   return true
 }

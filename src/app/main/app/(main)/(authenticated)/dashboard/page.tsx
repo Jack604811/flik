@@ -11,9 +11,12 @@ import Income from "./_components/income";
 import { SpotsAndExtras } from "./_components/spots-extras";
 import { BookingList } from "./_components/booking-list";
 import { BookingsSource } from "./_components/bookings-source";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
 
 export default async function Dashboard() {
   const currentUser = await getCurrentUser();
+  const currentWorkspace = await getCurrentWorkspace();
+
   return (
     <div className="flex-1 p-6 pt-4 space-y-8 md:p-8 md:pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -28,16 +31,16 @@ export default async function Dashboard() {
         </div>
         <TabsContent value="overview" className="space-y-4">
           <div>
-            <TopCards userId={currentUser?.id!} />
+            <TopCards userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
             <div className="grid gap-4 xs:max-w-[300px] md:w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
-              <Sales userId={currentUser?.id!} />
-              <BookingsSource userId={currentUser?.id!} />
-              <BookingStatus userId={currentUser?.id!} />
-              <BookingList userId={currentUser?.id!} />
-              <Income userId={currentUser?.id!} />
-              <BookingsPerMonth userId={currentUser?.id!} />
-              <SpotsAndExtras userId={currentUser?.id!} />
-              <Traffic userId={currentUser?.id!}/>
+              <Sales userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <BookingsSource userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <BookingStatus userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <BookingList userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <Income userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <BookingsPerMonth userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <SpotsAndExtras userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              <Traffic userId={currentUser?.id!} workspaceId={currentWorkspace?.id}/>
             </div>
           </div>
         </TabsContent>

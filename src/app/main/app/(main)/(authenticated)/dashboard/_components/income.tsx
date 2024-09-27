@@ -25,15 +25,15 @@ const chartData = [
 ];
 
 
-type Params = {  userId: string };
+type Params = { userId: string, workspaceId?: string };
 
-export default function Income({userId} : Params) {
+export default function Income({userId, workspaceId} : Params) {
   const searchParams = useSearchParams()
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
 
   const { data } = useQuery({
-    queryKey: ["income-metrics"],
-    queryFn: () => getIncomeMetricData(userId, startDate, endDate),
+    queryKey: ["income-metrics",userId, workspaceId, startDate, endDate],
+    queryFn: () => getIncomeMetricData(userId, workspaceId??null, startDate, endDate),
   })
 
 

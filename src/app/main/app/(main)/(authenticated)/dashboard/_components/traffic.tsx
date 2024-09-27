@@ -42,10 +42,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type Params = {
-  userId: string
-}
-export function Traffic({userId} :Params) {
+type Params = { userId: string, workspaceId?: string };
+export function Traffic({userId, workspaceId} :Params) {
   const totalVisitors = chartData[0].desktop + chartData[0].mobile;
 
   return (

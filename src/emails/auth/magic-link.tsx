@@ -6,8 +6,8 @@ export const MagicLinkTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
     link,
 }) => (
     <div>
-        <h1>Workspace Invitation</h1>
-        <p>You have been invited to join a workspace. Click the link below to accept:</p>
+        <h1>Login</h1>
+        <p>You have been request to login, Click the link below:</p>
         <a href={link}>{link}</a>
     </div>
 );

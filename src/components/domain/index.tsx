@@ -11,14 +11,14 @@ import DomainConfiguration from "./domain-configuration";
 import { Input } from "../ui/input";
 
 export default function DomainForm({
-    userId,
+  workspaceId,
   title,
   description,
   helpText,
   inputAttrs,
   handleSubmit,
 }: {
-    userId: string;
+  workspaceId: string;
   title: string;
   description: string;
   helpText: string;
@@ -36,25 +36,30 @@ export default function DomainForm({
   const { update } = useSession();
   return (
     <form
-      action={async (data: FormData) => {
-        if (
-          inputAttrs.name === "customDomain" &&
-          inputAttrs.defaultValue &&
-          data.get("customDomain") !== inputAttrs.defaultValue &&
-          !confirm("Are you sure you want to change your custom domain?")
-        ) {
-          return;
+    action={async (data: FormData) => {
+      if (
+        inputAttrs.name === "customDomain" &&
+        inputAttrs.defaultValue &&
+        data.get("customDomain") !== inputAttrs.defaultValue &&
+        !confirm("Are you sure you want to change your custom domain?")
+      ) {
+        return;
+      }
+      try {
+        const res = await handleSubmit(workspaceId, data.get(inputAttrs.name));
+
+        if (res && res.error) {
+          toast.error(res.error);
+        } else {
+          await update();
+          router.refresh();
+          toast.success(`Successfully updated ${inputAttrs.name}!`);
         }
-        handleSubmit(userId, data.get(inputAttrs.name)).then(async (res: any) => {
-          if (res.error) {
-            toast.error(res.error);
-          } else {
-            await update();
-            router.refresh();
-            toast.success(`Successfully updated ${inputAttrs.name}!`);
-          }
-        });
-      }}
+      } catch (error) {
+        console.error('Error in handleSubmit:', error);
+        toast.error('An unexpected error occurred.');
+      }
+    }}
       className="rounded-lg border border-stone-200 bg-white dark:border-stone-700 dark:bg-black overflow-x-auto max-w-[600px]"
     >
       <div className="relative flex flex-col space-y-4 p-5 sm:p-10">

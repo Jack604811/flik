@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { updateStripeConnection } from "@/server/actions/user.action";
+import { updateStripeConnection } from "@/server/actions/workspace.action";
 import { getCurrentUser } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";

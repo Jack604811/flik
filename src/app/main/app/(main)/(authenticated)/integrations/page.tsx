@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { getConnectWompi, getConnectedStripe } from "@/server/actions/user.action";
+import { getConnectWompi, getConnectedStripe } from "@/server/actions/workspace.action";
 import { getCurrentUser } from "@/server/auth";
 import StripeConnectButton from "./_components/StripeConnectButton";
 import WompiConnectButton from "./_components/WompiConnectButton";

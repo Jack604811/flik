@@ -45,7 +45,7 @@ import EditBookingDate from "../booking/EditBookingDate";
 import { Textarea } from "@/components/ui/textarea";
 import { useBookingDetail } from "@/hooks/use-booking-detail";
 import { useQuery } from "@tanstack/react-query";
-import { getSpotsByUser } from "@/server/actions/spot.action";
+import { getSpotsByWorkspace } from "@/server/actions/spot.action";
 import { useSession } from "next-auth/react";
 import BookingExtras from "../booking/BookingExtras";
 
@@ -85,7 +85,7 @@ function BookingDetailSheet() {
   const { data: session } = useSession();
   const { data: spots, refetch: refectSpots } = useQuery({
     queryKey: ["spots"],
-    queryFn: () => getSpotsByUser({ userId: session?.user.id! }),
+    queryFn: () => getSpotsByWorkspace({ workspaceId: session?.user.id! }),
     initialData: [] as Spot[],
   });
   const { control, handleSubmit, reset, getValues } = useForm({
@@ -148,9 +148,9 @@ function BookingDetailSheet() {
     }
   }, [booking, reset]);
 
-  useEffect(() => {
-    if (session?.user.id) refectSpots();
-  }, [session?.user, refectSpots]);
+  // useEffect(() => {
+  //   if (session?.user.id) refectSpots();
+  // }, [session?.user, refectSpots]);
 
   if (!isOpen && !booking) return null;
 

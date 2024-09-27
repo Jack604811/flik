@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '@/server/actions/booking.action';
 import supabase from '@/server/helpers/supabase';
 
-function BookingListing({bookings, userId} : {bookings: any, userId: string}) {
+function BookingListing({bookings, workspaceId} : {bookings: any, workspaceId: string}) {
     // const {data, refetch} = useQuery({
     //     queryKey: ["bookings"],
     //     queryFn: () => getBookings(userId),

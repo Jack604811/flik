@@ -29,15 +29,13 @@ const chartConfig: ChartConfig = {
 };
 
 
-type Params = {
-  userId: string
-}
-export function Sales({userId}: Params) {
+type Params = { userId: string, workspaceId?: string };
+export function Sales({userId, workspaceId }: Params) {
   const searchParams = useSearchParams();
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
   const { data } = useQuery({
-    queryKey: ["sales-metrics"],
-    queryFn: async () => getTotalSalesByDateRange(userId, startDate, endDate),
+    queryKey: ["sales-metrics",userId, workspaceId, startDate, endDate],
+    queryFn: async () => getTotalSalesByDateRange(userId, workspaceId??null, startDate, endDate),
     initialData: []
   })
 

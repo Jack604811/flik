@@ -18,6 +18,7 @@ import {
   SpotImages,
   SubCategory,
   User,
+  Workspace,
 } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,7 @@ const formSchema = z.object({
 type Params = {
   spot: Spot & {
     bookings: BookingDates[];
-    owner: User;
+    workspace: Workspace;
     images: SpotImages[];
     extras: (Extras & {
       category: Category;
@@ -122,13 +123,13 @@ function BookingSection({ spot }: Params) {
 
   const handlePayment = async () => {
     const values = form.getValues();
-    const defaultPaymentMethod = spot.owner.defaultPaymentMethod;
+    const defaultPaymentMethod = spot.workspace.defaultPaymentMethod;
     const to = new URL(`/booking/${values.id}`, window.location.href);
 
     switch (defaultPaymentMethod) {
       case "wompi":
         if (typeof window !== "undefined" && window.WidgetCheckout) {
-          const wompiAccount = spot.owner.wompiAccountId as Record<
+          const wompiAccount = spot.workspace.wompiAccountId as Record<
             string,
             string
           >;
@@ -174,18 +175,18 @@ function BookingSection({ spot }: Params) {
         }
         break;
       case "stripe":
-        if (!spot.owner.stripeAccountId)
+        if (!spot.workspace.stripeAccountId)
           toast.error(
             "There was an error while generating payment link, kindly try again or contact to make payment manually!"
           );
         const res = await createStripePaymentLink({
           reference: values.id!,
           customerEmail: values.email,
-          account: spot.owner.stripeAccountId!,
+          account: spot.workspace.stripeAccountId!,
           amount: values.totalPrice,
           productName: spot.name,
           redirectURI: to.href,
-          currency: spot.owner.currency ?? "USD",
+          currency: spot.workspace.currency ?? "USD",
         });
         window.location.href = res.url!;
         break;
@@ -617,7 +618,7 @@ function BookingSection({ spot }: Params) {
                 Back
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {progress === "extras" && !["wompi", "stripe"].includes(spot.owner.defaultPaymentMethod!)
+                {progress === "extras" && !["wompi", "stripe"].includes(spot.workspace.defaultPaymentMethod!)
                   ? "Book now"
                   : progresses[progress].btn}
               </Button>

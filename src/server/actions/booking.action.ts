@@ -12,7 +12,7 @@ import { clearDomainCache } from "../helpers/domains";
 
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
-    where: { spot: { userId: ownerId } },
+    where: { spot: { workspaceId: ownerId } },
     include: { spot: true, customer: true },
     orderBy: { createdAt: "desc" },
   });
@@ -30,7 +30,7 @@ export const getBookingById = async (bookingId: string) => {
 
 export const getTransactions = async (ownerId: string) => {
   const transactions = await db.transaction.findMany({
-    where: { booking: { spot: { userId: ownerId } } },
+    where: { booking: { spot: { workspaceId: ownerId } } },
     include: { booking: { include: { customer: true, spot: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -103,13 +103,13 @@ export const addBooking = async (data: {
     },
     include: {
       spot: {
-        select: { owner: { select: { subdomain: true, customDomain: true } } },
+        select: { workspace: { select: { subdomain: true, customDomain: true } } },
       },
     },
   });
   const customer = await addCustomerToBooking({ ...data, bookingId: booking.id });
 
-  clearDomainCache(booking.spot.owner.subdomain, booking.spot.owner.customDomain, data.spotId)
+  clearDomainCache(booking.spot.workspace.subdomain, booking.spot.workspace.customDomain, data.spotId)
 
   return { ...booking, customer };
 };

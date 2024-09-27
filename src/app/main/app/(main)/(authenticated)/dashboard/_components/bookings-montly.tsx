@@ -34,16 +34,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type Params = {
-  userId: string
-}
-export function BookingsPerMonth({userId}: Params) {
+type Params = { userId: string, workspaceId?: string };
+export function BookingsPerMonth({userId, workspaceId}: Params) {
   const searchParams = useSearchParams();
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
 
   const { data } = useQuery({
-    queryKey: ["booking-cancellation-metrics"],
-    queryFn: async () => getBookingsGroupedByMonth(userId, startDate, endDate),
+    queryKey: ["booking-cancellation-metrics",userId, workspaceId, startDate, endDate],
+    queryFn: async () => getBookingsGroupedByMonth(userId, workspaceId??null, startDate, endDate),
     initialData: []
   })
 

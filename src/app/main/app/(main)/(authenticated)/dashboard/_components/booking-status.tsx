@@ -51,17 +51,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type Params = { userId: string}
+type Params = { userId: string, workspaceId?: string };
 
-export function BookingStatus({ userId, } : Params) {
+export function BookingStatus({ userId, workspaceId } : Params) {
   const searchParams = useSearchParams()
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
   
   const id = "pie-interactive";
   const [activeStatus, setActiveStatus] = React.useState('confirmed');
   const { data, } = useQuery({
-    queryKey: ["booking-statuses-count", startDate, endDate],
-    queryFn: () => getBookingStatusGroupTotal(userId, startDate, endDate),
+    queryKey: ["booking-statuses-count",userId, workspaceId, startDate, endDate],
+    queryFn: () => getBookingStatusGroupTotal(userId, workspaceId??null, startDate, endDate),
     select(data) {
         return data.map(s => ({...s, fill: chartConfig[s.status as keyof typeof chartConfig]?.color}))
     },

@@ -4,15 +4,15 @@ import { v4 as uuidv4 } from "uuid";
 export const uploadSpotImage = async ({
   file,
   spotId,
-  userId,
+  workspaceId,
 }: {
   file: File;
   spotId: string;
-  userId: string;
+  workspaceId: string;
 }) => {
   const { data, error } = await supabase.storage
     .from("spots")
-    .upload(`${userId}/${spotId}/${uuidv4()}_${file.name}`, file);
+    .upload(`${workspaceId}/${spotId}/${uuidv4()}_${file.name}`, file);
   if (error) return null;
   return {
     url: supabase.storage.from("spots").getPublicUrl(data!.path).data.publicUrl,
@@ -22,17 +22,17 @@ export const uploadSpotImage = async ({
 export const uploadImageToStorage = async ({
   file,
   objectId,
-  userId,
+  workspaceId,
   path
 }: {
   file: File;
   objectId: string;
-  userId: string;
+  workspaceId: string;
   path: string
 }) => {
   const { data, error } = await supabase.storage
     .from(path)
-    .upload(`${userId}/${objectId}/${uuidv4()}_${file.name}`, file);
+    .upload(`${workspaceId}/${objectId}/${uuidv4()}_${file.name}`, file);
   if (error) return null;
   return {
     url: supabase.storage.from(path).getPublicUrl(data!.path).data.publicUrl,
@@ -40,104 +40,104 @@ export const uploadImageToStorage = async ({
 };
 
 export const getImagesFromStorage = async ({
-  userId,
+  workspaceId,
   path,
   objectId,
 }: {
-  userId: string;
+  workspaceId: string;
   objectId: string;
   path: string
 }) => {
   const { data, error } = await supabase.storage
     .from(path)
-    .list(`${userId}/${objectId}`);
+    .list(`${workspaceId}/${objectId}`);
 
   const images = data
     ?.filter((f) => f.metadata.mimetype !== "application/octet-stream")
     .map((f) => {
       const pUrl = supabase.storage
         .from(path)
-        .getPublicUrl(`${userId}/${objectId}/${f.name}`);
+        .getPublicUrl(`${workspaceId}/${objectId}/${f.name}`);
       return { url: pUrl.data.publicUrl, name: f.name };
     });
   return images;
 };
 
 export const deleteImagesFromStorage = async ({
-  userId,
+  workspaceId,
   objectId,
   path
 }: {
-  userId: string;
+  workspaceId: string;
   objectId: string;
   path: string
-}) => supabase.storage.from(path).remove([`${userId}/${objectId}`]);
+}) => supabase.storage.from(path).remove([`${workspaceId}/${objectId}`]);
 
 export const deleteImageFromStorageObject = async ({
-  userId,
+  workspaceId,
   objectId,
   id,
   path
 }: {
-  userId: string;
+  workspaceId: string;
   objectId: string;
   id: string;
   path: string
-}) => supabase.storage.from(path).remove([`${userId}/${objectId}/${id}`]);
+}) => supabase.storage.from(path).remove([`${workspaceId}/${objectId}/${id}`]);
 
 
 export const getSpotImages = async ({
-  userId,
+  workspaceId,
   spotId,
 }: {
-  userId: string;
+  workspaceId: string;
   spotId: string;
 }) => {
   const { data, error } = await supabase.storage
     .from("spots")
-    .list(`${userId}/${spotId}`);
+    .list(`${workspaceId}/${spotId}`);
 
   const images = data
     ?.filter((f) => f.metadata.mimetype !== "application/octet-stream")
     .map((f) => {
       const pUrl = supabase.storage
         .from("spots")
-        .getPublicUrl(`${userId}/${spotId}/${f.name}`);
+        .getPublicUrl(`${workspaceId}/${spotId}/${f.name}`);
       return { url: pUrl.data.publicUrl, name: f.name };
     });
   return images;
 };
 
 export const deleteSpotImages = async ({
-  userId,
+  workspaceId,
   spotId,
 }: {
-  userId: string;
+  workspaceId: string;
   spotId: string;
-}) => supabase.storage.from("spots").remove([`${userId}/${spotId}`]);
+}) => supabase.storage.from("spots").remove([`${workspaceId}/${spotId}`]);
 
 export const deleteSpotImageSB = async ({
-  userId,
+  workspaceId,
   spotId,
   id,
 }: {
-  userId: string;
+  workspaceId: string;
   spotId: string;
   id: string;
-}) => supabase.storage.from("spots").remove([`${userId}/${spotId}/${id}`]);
+}) => supabase.storage.from("spots").remove([`${workspaceId}/${spotId}/${id}`]);
 
 export const uploadSiteImage = async (
-  userId: string,
+  workspaceId: string,
   fileName: string,
   file: File
 ) =>{
   const url = await supabase.storage
   .from("sites")
-  .upload(`${userId}/${fileName}`, file, { upsert: true })
+  .upload(`${workspaceId}/${fileName}`, file, { upsert: true })
   .then(({ data, error }) => {
     console.log(data, error)
     if (!data?.path) return null;
-    return supabase.storage.from("sites").getPublicUrl(`${userId}/${fileName}`)
+    return supabase.storage.from("sites").getPublicUrl(`${workspaceId}/${fileName}`)
       .data.publicUrl;
   });
 

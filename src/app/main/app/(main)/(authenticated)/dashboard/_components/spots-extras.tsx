@@ -25,16 +25,14 @@ const chartConfig = {
   },
 }
 
-type Params = {
-  userId: string
-}
-export function SpotsAndExtras({userId}: Params) {
+type Params = { userId: string, workspaceId?: string };
+export function SpotsAndExtras({userId, workspaceId}: Params) {
   const searchParams = useSearchParams()
   const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
 
   const { data, isLoading } = useQuery({
-    queryKey: ["bookings", startDate, endDate],
-    queryFn: () => getSpotsAndExtrasMetrics(userId, startDate, endDate),
+    queryKey: ["spots-extras",userId, workspaceId, startDate.toLocaleString(), endDate.toLocaleString()],
+    queryFn: () => getSpotsAndExtrasMetrics(userId, workspaceId??null, startDate, endDate),
     enabled: !!startDate && !!endDate,
     initialData: { spots: [], extras: [], total: { spots: 0, extras: 0 } }
   });
@@ -66,7 +64,7 @@ export function SpotsAndExtras({userId}: Params) {
                   {chartConfig[chart].label}
                 </span>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
-                  ${(data?.total?.[chart] ?? 0).toLocaleString()}
+                  ${(data?.total?.[chart] ?? 0).toFixed(2)}
                 </span>
               </button>
             )

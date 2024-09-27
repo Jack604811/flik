@@ -3,6 +3,7 @@ import { getBookings } from "@/server/actions/booking.action"
 import { getCurrentUser } from "@/server/auth"
 import { QueryClient } from "@tanstack/react-query"
 import BookingListing from "./BookingListing"
+import { getCurrentWorkspace } from "@/server/actions/user.action"
 
 export const metadata: Metadata = {
   title: "Bookings",
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
 
 
 export default async function Page() {
-  const currentUser = await getCurrentUser()
-  const bookings: any = await getBookings(currentUser!.id)
+  const currentWorkspace = await getCurrentWorkspace()
+  const bookings: any = await getBookings(currentWorkspace!.id)
 
   return (
     <>
@@ -25,7 +26,7 @@ export default async function Page() {
             </p>
           </div>
         </div>
-          <BookingListing bookings={bookings} userId={currentUser?.id!} />
+          <BookingListing bookings={bookings} workspaceId={currentWorkspace?.id!} />
       </div>
     </>
   )

@@ -25,9 +25,9 @@ import { parseDashboardDates } from "@/lib/utils";
 import useSWR from "swr";
 import { useEffect } from "react";
 
-type Params = { userId: string };
+type Params = { userId: string, workspaceId?: string };
 
-export function BookingList({ userId }: Params) {
+export function BookingList({ userId, workspaceId}: Params) {
   const searchParams = useSearchParams();
   const { startDate, endDate } = parseDashboardDates(
     searchParams.get("from"),
@@ -35,8 +35,8 @@ export function BookingList({ userId }: Params) {
   );
 
   const { data, isLoading } = useSWR(
-    ["bookings", startDate, endDate],
-    () => getBookingsByDates(userId, startDate, endDate),
+    ["bookings",userId, workspaceId, startDate, endDate],
+    () => getBookingsByDates(userId, workspaceId??null, startDate, endDate),
     { fallbackData: [] }
   );
 
