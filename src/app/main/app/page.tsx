@@ -28,9 +28,9 @@ export default async function Page() {
               {providers &&
                 Object.values(providers)
                   //we don't want to show the email provider as we have a separate form for that
-                  .filter((provider: Provider) => provider.id !== "resend")
+                  .filter((provider: Provider) => provider.name !== "resend")
                   .map((provider) => (
-                    <OauthProvider key={provider.id} provider={provider} />
+                    <OauthProvider key={provider.name} provider={provider} />
                   ))}
             </div>
           </div>

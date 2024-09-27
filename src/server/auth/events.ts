@@ -8,8 +8,8 @@ export const events: Partial<NextAuthConfig["events"]> = {
     if(user.customerId) return;
     // create the stripe customer
     const customer = await createStripeCustomer({
-      email: user.email,
-      name: user.name,
+      email: user.email!,
+      name: user.name??"",
     })
 
 

@@ -24,12 +24,18 @@ function SiteSettings({
   const [imagePreview, setImagePreview] = useState<string>(`${favicon ?? "/assets/placeholder.svg"}?${Date.now()}`);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const onSave = async (formData: FormData) => {
+  const onSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
     if(selectedFile){
       formData.append("favicon", selectedFile)
     }
     const subdomain = formData.get("subdomain") as string;
-    if (!subdomain.length) return toast.error("Enter valid subdomain");
+    if (!subdomain.length){
+			toast.error("Enter valid subdomain");
+      return false;
+    }
     const promise = updateSiteSetting(workspaceId, formData);
     // const promise = updateSubdomain(userId, subdomain);
     toast.promise(promise, {
@@ -37,6 +43,7 @@ function SiteSettings({
       success: "Settings Updated Successfully!",
       error: "Subdomain already taken!",
     });
+    return false
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +88,7 @@ function SiteSettings({
           </div>
           
         </div>
-        <form action={onSave}>
+        <form onSubmit={onSave}>
           <div className="flex flex-col gap-2 lg:max-w-[600px]">
             <div className="flex flex-col space-y-2">
             

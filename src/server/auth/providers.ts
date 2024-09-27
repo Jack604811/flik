@@ -10,12 +10,14 @@ const resend = new Resend(env.RESEND_API_KEY);
 
 export const providers: Provider[] = [
   GoogleProvider({
+    name: "google",
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
   }),
   
   ResendProvider({
     id: "resend",
+    name: "resend",
     async sendVerificationRequest({ identifier: email, url }) {
       await resend.emails.send({
         from: env.EMAIL_FROM,
