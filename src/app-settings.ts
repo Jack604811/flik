@@ -48,7 +48,7 @@ export const SIDEBAR_ROUTES = [
 export const AFTER_SIGNIN_REDIRECT_URL = "/dashboard";
 export const AFTER_SIGNUP_REDIRECT_URL = AFTER_SIGNIN_REDIRECT_URL; // where to redirect after the user signs up for the first time, change this if you want to redirect to a different page
 export const AFTER_SIGNOUT_REDIRECT_URL = "/";
-export const NON_AUTHENTICATED_REDIRECT_URL = "/"; // where to redirect if the user is not authenticated and tries to access a page that requires authentication
+export const NON_AUTHENTICATED_REDIRECT_URL = "/login"; // where to redirect if the user is not authenticated and tries to access a page that requires authentication
 export const NON_SUBSCRIBED_REDIRECT_URL = "/pricing"; // where to redirect if the user is authenticated but is not subscribed and 
 export const AFTER_CUSTOMER_PORTAL_REDIRECT_URL = "/dashboard"; // where to redirect after the user leaves the customer portal
 
