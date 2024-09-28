@@ -7,6 +7,9 @@ import { providers } from "@/server/auth";
 import { Provider } from "next-auth/providers";
 
 export default async function Page() {
+  const authProviders = providers.map(p => ({
+    name: p.name
+  }))
   return (
     <div className="py-8 px-2  min-h-screen flex flex-col md:justify-center gap-6 ">
       <Card className="md:max-w-md  mx-auto w-full py-4  md:px-8 md:py-12 ">
@@ -25,10 +28,10 @@ export default async function Page() {
               OR
             </div>
             <div className="space-y-2">
-              {providers &&
-                Object.values(providers)
+              {authProviders &&
+              	authProviders
                   //we don't want to show the email provider as we have a separate form for that
-                  .filter((provider: Provider) => provider.name !== "resend")
+                  .filter((provider) => provider.name !== "resend")
                   .map((provider) => (
                     <OauthProvider key={provider.name} provider={JSON.parse(JSON.stringify(provider))} />
                   ))}
