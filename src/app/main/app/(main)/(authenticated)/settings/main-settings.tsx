@@ -1,5 +1,3 @@
-// app/settings/main-settings.tsx
-
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -37,7 +35,7 @@ function MainSettings({ workspace }: { workspace: Workspace }) {
     if (selectedCountry && selectedCurrency === "") {
       setSelectedCurrency("usd");
     }
-  }, [selectedCountry]);
+  }, [selectedCountry, selectedCurrency]); // Add selectedCurrency to the dependency array
 
   const onSave = async (formData: FormData) => {
     const siteName = formData.get("siteName") as string;
