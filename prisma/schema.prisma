@@ -47,6 +47,8 @@ model User {
   createdAt            DateTime         @default(now())
   accounts             Account[]
   oneTimeProducts      OneTimeProduct[] @relation("OneTimeProductToUser")
+
+  Workspace Workspace[] @relation("MembersToWorkspace")
 }
 
 model Workspace {
@@ -69,6 +71,7 @@ model Workspace {
   categories           Category[]
   extras               Extras[]
   spots                Spot[]
+  members              User[]           @relation("MembersToWorkspace")
 }
 
 model Spot {
