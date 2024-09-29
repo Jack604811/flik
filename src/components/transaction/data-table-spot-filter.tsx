@@ -1,7 +1,7 @@
-import * as React from "react";
+
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Column } from "@tanstack/react-table";
-
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,39 +14,56 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { getSpotsByWorkspace } from "@/server/actions/spot.action";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
+import { useEffect, useState } from "react";
+
+// Define the type for the Spot object based on your data structure
+interface Spot {
+  id: string;
+  name: string;
+}
 
 interface DataTableSpotFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
-  spots: {
-    id: string;
-    name: string;
-  }[];
+  spots: Spot[];
+  reset?: boolean;
 }
 
-export function DataTableSpotFilter<TData, TValue>({
-  column,
-  title,
-  spots,
-}: DataTableSpotFilterProps<TData, TValue>) {
-  // Log spots to verify if the data is being passed correctly
-  console.log('Spots:', spots);
-  if (!spots || spots.length === 0) {
-    console.error('Spots are not loaded or empty.');
-  }
+export function DataTableSpotFilter<TData, TValue>({ column, title }: DataTableSpotFilterProps<TData, TValue>) {
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [spots, setSpots] = useState<Spot[]>([]); // Array of spots
 
-  // Log the column to verify if it is passed and properly initialized
-  console.log('Column:', column);
-  
+  // Fetch the current workspace when the component mounts
+  useEffect(() => {
+    async function fetchWorkspace() {
+      const currentWorkspace = await getCurrentWorkspace(); // Fetch the current workspace from the server
+      if (currentWorkspace) {
+        setWorkspaceId(currentWorkspace.id); // Set the workspaceId state
+      }
+    }
+
+    fetchWorkspace();
+  }, []);
+
+  // Fetch spots based on the workspaceId
+  const { data: spotsData, isSuccess } = useQuery({
+    queryKey: ["spots", workspaceId], // The query key
+    queryFn: () => getSpotsByWorkspace({ workspaceId: workspaceId as string }), // Fetch spots
+    enabled: !!workspaceId, // Only run the query when workspaceId is available
+  });
+
+  // UseEffect to update spots when data is fetched successfully
+  useEffect(() => {
+    if (isSuccess && spotsData) {
+      setSpots(spotsData);
+    }
+  }, [spotsData, isSuccess]);
+
   const facets = column?.getFacetedUniqueValues();
-  console.log('Facets:', facets); // Log the facets to check if they are being calculated correctly
-
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
   return (
@@ -58,29 +75,19 @@ export function DataTableSpotFilter<TData, TValue>({
           {selectedValues?.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge
-                variant="secondary"
-                className="rounded-sm px-1 font-normal lg:hidden"
-              >
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
                 {selectedValues.size}
               </Badge>
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-sm px-1 font-normal"
-                  >
+                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
                     {selectedValues.size} selected
                   </Badge>
                 ) : (
                   spots
-                    .filter((spot) => selectedValues.has(spot.id))
-                    .map((spot) => (
-                      <Badge
-                        variant="secondary"
-                        key={spot.id}
-                        className="rounded-sm px-1 font-normal"
-                      >
+                    .filter((spot: { id: string; }) => selectedValues.has(spot.id))
+                    .map((spot: Spot) => (
+                      <Badge key={spot.id} variant="secondary" className="rounded-sm px-1 font-normal">
                         {spot.name}
                       </Badge>
                     ))
@@ -96,7 +103,7 @@ export function DataTableSpotFilter<TData, TValue>({
           <CommandList>
             <CommandEmpty>No spots found.</CommandEmpty>
             <CommandGroup>
-              {spots.map((spot) => {
+              {spots.map((spot: Spot) => {
                 const isSelected = selectedValues.has(spot.id);
                 return (
                   <CommandItem
@@ -108,17 +115,13 @@ export function DataTableSpotFilter<TData, TValue>({
                         selectedValues.add(spot.id);
                       }
                       const filterValues = Array.from(selectedValues);
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      );
+                      column?.setFilterValue(filterValues.length ? filterValues : undefined);
                     }}
                   >
                     <div
                       className={cn(
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
+                        isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"
                       )}
                     >
                       <CheckIcon className={cn("h-4 w-4")} />
@@ -137,10 +140,7 @@ export function DataTableSpotFilter<TData, TValue>({
               <>
                 <CommandSeparator />
                 <CommandGroup>
-                  <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
-                    className="justify-center text-center"
-                  >
+                  <CommandItem onSelect={() => column?.setFilterValue(undefined)} className="justify-center text-center">
                     Clear filters
                   </CommandItem>
                 </CommandGroup>

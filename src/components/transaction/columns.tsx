@@ -56,19 +56,23 @@ export const columns: ColumnDef<Schema>[] = [
       <DataTableColumnHeader column={column} title="Spot" />
     ),
     cell: ({ row }) => {
-      const booking = row.original.booking as Booking
+      const booking = row.original.booking as Booking;
       return (
         <BookingDetailButton booking={booking}>
           <div className="flex flex-col p-0 text-left text-sky-600">
             <span>{booking?.spot.name}</span>
             <span className="text-muted-foreground">
-            Outstandig: ${new Intl.NumberFormat('de-DE').format(booking.totalPrice).replace(',', '.')}
+              Outstandig: ${new Intl.NumberFormat('de-DE').format(booking.totalPrice).replace(',', '.')}
             </span>
           </div>
         </BookingDetailButton>
       );
     },
     enableSorting: false,
+    filterFn: (row, id, filterValue) => {
+      const booking = row.original.booking as Booking;
+      return filterValue.includes(booking.spot.id); 
+    },
   },
   {
     accessorKey: "paymentMethod",

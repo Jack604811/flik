@@ -48,6 +48,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("spot")}
             title="Spot"
             spots={spots}
+            reset={resetFilters} 
           />
         )}
         {table.getColumn("status") && (
@@ -55,7 +56,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("status")}
             title="Status"
             options={statuses}
-            reset={resetFilters} // Pass reset flag here
+            reset={resetFilters} 
           />
         )}
         {isFiltered && (

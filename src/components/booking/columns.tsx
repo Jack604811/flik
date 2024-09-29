@@ -127,17 +127,25 @@ export const columns: ColumnDef<Booking>[] = [
     cell: ({ row }) => {
       return (
         <BookingDetailButton booking={row.original}>
-        <div className="flex flex-col">
-          <span className="font-medium">{row.original.spot?.name}</span>
-          <span className="text-muted-foreground">
-          Outstandig: ${new Intl.NumberFormat('de-DE').format(row.original.subtotal).replace(',', '.')}
-          </span>
-        </div>
+          <div className="flex flex-col">
+            <span className="font-medium">{row.original.spot?.name}</span>
+            <span className="text-muted-foreground">
+              Outstanding: $
+              {new Intl.NumberFormat("de-DE")
+                .format(row.original.subtotal)
+                .replace(",", ".")}
+            </span>
+          </div>
         </BookingDetailButton>
       );
     },
+    filterFn: (row, id, filterValue) => {
+      const spotId = row.original.spot?.id;
+      return filterValue.includes(spotId);
+    },
     enableSorting: false,
   },
+
   
   {
     accessorKey: "status",

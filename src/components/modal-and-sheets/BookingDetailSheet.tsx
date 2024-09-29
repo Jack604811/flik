@@ -46,6 +46,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useBookingDetail } from "@/hooks/use-booking-detail";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsByWorkspace } from "@/server/actions/spot.action";
+import { getCurrentWorkspace } from "@/server/actions/user.action"; 
 import { useSession } from "next-auth/react";
 import BookingExtras from "../booking/BookingExtras";
 
@@ -80,14 +81,27 @@ type EDITING_FIELD =
   
 function BookingDetailSheet() {
   const router = useRouter();
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const { isOpen, onOpenChange, booking, } = useBookingDetail((state) => state);
 
-  const { data: session } = useSession();
+  useEffect(() => {
+    async function fetchWorkspace() {
+      const currentWorkspace = await getCurrentWorkspace(); 
+      if (currentWorkspace) {
+        setWorkspaceId(currentWorkspace.id);
+      }
+    }
+
+    fetchWorkspace();
+  }, []);
+
   const { data: spots, refetch: refectSpots } = useQuery({
-    queryKey: ["spots"],
-    queryFn: () => getSpotsByWorkspace({ workspaceId: session?.user.id! }),
+    queryKey: ["spots", workspaceId],
+    queryFn: () => getSpotsByWorkspace({ workspaceId: workspaceId as string }),
     initialData: [] as Spot[],
+    enabled: !!workspaceId, // Only run the query if workspaceId is available
   });
+
   const { control, handleSubmit, reset, getValues } = useForm({
     resolver: zodResolver(bookingSchema),
     defaultValues: booking,
