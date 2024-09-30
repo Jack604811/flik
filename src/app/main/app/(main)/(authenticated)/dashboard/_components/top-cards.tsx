@@ -1,112 +1,75 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { parseDashboardDates } from "@/lib/utils";
 import { getTotalCardsMetric } from "@/server/actions/dashboard.action";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { useDateRange } from "./date-range-context"; // Import DateRange context
+import { DollarSign, User, CreditCard, Activity } from "lucide-react"; // Import Lucide icons
 
-type Params = { userId: string, workspaceId?: string };
+// Number formatter for currency with thousand separators
+const formatNumber = (number: number) => {
+  return new Intl.NumberFormat("de-DE").format(number);
+};
 
-export function TopCards({ userId, workspaceId }: Params) {
-  const searchParams = useSearchParams();
-  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
-  
+type Params = { workspaceId?: string };
+
+export function TopCards({ workspaceId }: Params) {
+  // Get the startDate and endDate from the date range context (like in Sales component)
+  const { startDate, endDate } = useDateRange();
 
   // React Query to fetch data using the validated dates
   const { data, isLoading, error } = useQuery({
-    queryKey: ["top-cards-metric",userId, workspaceId, startDate.toLocaleDateString(), endDate.toLocaleDateString()],
-    queryFn: async () => getTotalCardsMetric(userId, workspaceId??null, startDate, endDate),
+    queryKey: ["top-cards-metric", workspaceId, startDate, endDate],
+    queryFn: async () => getTotalCardsMetric(workspaceId ?? null, startDate, endDate),
     enabled: !!startDate && !!endDate,
     initialData: { totalBookings: 0, totalExtraSales: 0, totalRevenue: 0, outstanding: 0 },
   });
 
   return (
-    <div className="grid gap-4 min-w-[359px] md:grid-cols-2 lg:grid-cols-4 mb-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
+          <DollarSign className="h-4 w-4 text-muted-foreground" /> 
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${(data?.totalRevenue ?? 0).toFixed(2)}</div>
-          <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+          <div className="text-2xl font-bold">
+            ${formatNumber(Math.round(data?.totalRevenue ?? 0))}
+          </div>
+          {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
+          <User className="h-4 w-4 text-muted-foreground" /> {/* Lucide User Icon */}
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold"> {data?.totalBookings ? `+${data?.totalBookings}` : "0"}</div>
-          <p className="text-xs text-muted-foreground">+18.1% from last month</p>
+          <div className="text-2xl font-bold"> +{formatNumber(data?.totalBookings ?? 0)}</div>
+          {/* <p className="text-xs text-muted-foreground">+18.1% from last month</p> */}
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Extras sales</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <rect width="20" height="14" x="2" y="5" rx="2" />
-            <path d="M2 10h20" />
-          </svg>
+          <CreditCard className="h-4 w-4 text-muted-foreground" /> 
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${(data?.totalExtraSales ?? 0).toFixed(2)}</div>
-          <p className="text-xs text-muted-foreground">+19% from last month</p>
+          <div className="text-2xl font-bold">
+            ${formatNumber(Math.round(data?.totalExtraSales ?? 0))} 
+          </div>
+          {/* <p className="text-xs text-muted-foreground">+19% from last month</p> */}
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
+          <Activity className="h-4 w-4 text-muted-foreground" /> 
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${(data?.outstanding ?? 0).toFixed(2)}</div>
-          <p className="text-xs text-muted-foreground">+201 since last hour</p>
+          <div className="text-2xl font-bold">
+            ${formatNumber(Math.round(data?.outstanding ?? 0))} 
+          </div>
+          {/* <p className="text-xs text-muted-foreground">+201 since last hour</p> */}
         </CardContent>
       </Card>
     </div>

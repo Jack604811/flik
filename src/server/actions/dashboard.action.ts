@@ -3,68 +3,97 @@ import { BookingStatus, TransactionStatus, } from "@prisma/client";
 import { db } from "../db";
 
 export const getTotalCardsMetric = async (
-  userId: string,
-  workspaceId: string | null,
+  workspaceId: string | null, // Workspace ID is used instead of userId
   startDate: Date,
   endDate: Date
 ) => {
   try {
+    // Sum up all approved transactions (this should include all payments, not refunds)
     const aggregateResult = await db.transaction.aggregate({
       _sum: { amount: true },
       where: {
-        booking: { spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId } } },
+        booking: { spot: { workspace: workspaceId ? { id: workspaceId } : undefined } },
+        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+        status: "Approved", // Make sure we only include approved payments
+      },
+    });
+
+    const totalRevenue = aggregateResult?._sum?.amount || 0; // Guarding against undefined values
+
+    // Count total bookings
+    const totalBookings = await db.booking.count({
+      where: {
+        spot: { workspace: workspaceId ? { id: workspaceId } : undefined },
         AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
       },
     });
 
-    const totalRevenue = aggregateResult?._sum?.amount || 0; // Guarding against undefined
-
-    const totalBookings = await db.booking.count({
-      where: { spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId } }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
-    });
-
+    // Calculate total extra sales from booking extras
     const records = await db.bookingExtras.findMany({
-      where: { extra: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId } }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+      where: {
+        extra: { workspace: workspaceId ? { id: workspaceId } : undefined },
+        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+      },
       select: { quantity: true, price: true },
     });
 
     const totalExtraSales = records.reduce((sum, record) => {
-      return sum + (record.price * record.quantity);
+      return sum + record.price * record.quantity;
     }, 0);
 
+    // Sum up all booking subtotals (this should represent the total booking value)
     const totalBookingsAmount = await db.booking.aggregate({
       _sum: { subtotal: true },
-      where: { spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId } }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+      where: {
+        spot: { workspace: workspaceId ? { id: workspaceId } : undefined },
+        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+      },
     });
 
-    const totalBookingsAmountValue = totalBookingsAmount?._sum?.subtotal || 0; // Guarding against undefined
+    const totalBookingsAmountValue = totalBookingsAmount?._sum?.subtotal || 0;
 
+    // Adjust the outstanding calculation: totalBookingAmount - totalRevenue
     const outstanding = totalBookingsAmountValue - totalRevenue;
 
     return {
-      totalBookings, 
+      totalBookings,
       totalRevenue,
       totalExtraSales,
-      outstanding
+      outstanding,
     };
   } catch (error) {
     return {
       totalBookings: 0,
       totalRevenue: 0,
       totalExtraSales: 0,
-      outstanding: 0
+      outstanding: 0,
     };
   }
 };
 
+
+
 export const getBookingsByDates = async (
-    userId: string,
   workspaceId: string | null,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  skip: number = 0,
+  take: number = 5 // Default to 5 items per page
 ) => {
+  if (!workspaceId) {
+    throw new Error("Workspace ID is required to fetch bookings.");
+  }
+
   const bookings = await db.booking.findMany({
-    where: { spot: {workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  }, AND: [{ createdAt: {gte: startDate}}, { createdAt: {lte: endDate}}] },
+    where: {
+      spot: {
+        workspace: { id: workspaceId },
+      },
+      AND: [
+        { createdAt: { gte: startDate } },
+        { createdAt: { lte: endDate } },
+      ],
+    },
     include: {
       customer: true,
       transactions: {
@@ -73,63 +102,95 @@ export const getBookingsByDates = async (
       },
       bookingExtras: { select: { price: true, quantity: true } },
     },
-    take: 5,
+    skip,
+    take,
   });
 
   return bookings;
 };
 
+
 export const getBookingStatusGroupTotal = async (
-    userId: string,
   workspaceId: string | null,
   startDate: Date,
   endDate: Date
 ) => {
+  if (!workspaceId) {
+    return [];
+  }
   const bookingGroups = await db.booking.groupBy({
     by: ["status"],
     _count: {
       status: true,
     },
-    where: { spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  }, AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }] },
+    where: {
+      spot: { workspace: { id: workspaceId } }, // No need for userId anymore
+      AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+    },
   });
-
-  // Ensure that the data is valid before accessing _count
-  return bookingGroups.map((data, i) => ({
-    status: data.status ? data.status.toLocaleLowerCase() : 'unknown',
-    count: data._count?.status || 0, // Guarding against undefined
+  return bookingGroups.map((data) => ({
+    status: data.status ? data.status.toLocaleLowerCase() : 'unknown', // Ensure status is in lowercase
+    count: data._count?.status || 0, 
   }));
 };
 
+
 export const getIncomeMetricData = async (
-    userId: string,
-  workspaceId: string | null,
+  workspaceId: string | null, 
   startDate: Date,
   endDate: Date
 ) => {
+  // Aggregate income metrics based on `paymentDate`
   const incomeMetrics = await db.transaction.aggregate({
     _count: true,
     _avg: { amount: true },
     _sum: { amount: true },
     where: {
-      booking: { spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  } },
-      AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-      status: TransactionStatus.Approved
+      booking: {
+        spot: {
+          workspace: workspaceId ? { id: workspaceId } : undefined,
+        },
+      },
+      AND: [{ paymentDate: { gte: startDate } }, { paymentDate: { lte: endDate } }],
+      status: TransactionStatus.Approved,
     },
   });
+
   const paymentMethodMetrics = await db.transaction.groupBy({
     by: ["paymentMethod"],
     _sum: { amount: true },
     _count: true,
     where: {
-        booking: { spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  } },
-        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-        status: TransactionStatus.Approved
+      booking: {
+        spot: {
+          workspace: workspaceId ? { id: workspaceId } : undefined,
+        },
       },
+      AND: [{ paymentDate: { gte: startDate } }, { paymentDate: { lte: endDate } }],
+      status: TransactionStatus.Approved,
+    },
+  });
+  // Group by payment method and paymentDate
+  const chartsPaymentMetrics = await db.transaction.groupBy({
+    by: ["paymentMethod", "paymentDate"], 
+    _sum: { amount: true },
+    _count: true,
+    where: {
+      booking: {
+        spot: {
+          workspace: workspaceId ? { id: workspaceId } : undefined,
+        },
+      },
+      AND: [{ paymentDate: { gte: startDate } }, { paymentDate: { lte: endDate } }],
+      status: TransactionStatus.Approved,
+    },
   });
 
-
-  return { incomeMetrics, paymentMethodMetrics }
+  // Return income metrics and payment method breakdown
+  return { incomeMetrics, paymentMethodMetrics, chartsPaymentMetrics };
 };
+
+
 
 export const getTotalSalesByDateRange = async (
     userId: string,
