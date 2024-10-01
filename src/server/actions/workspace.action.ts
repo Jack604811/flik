@@ -37,6 +37,30 @@ export const createWorkspace = async (siteName: string) => {
   return newWorkspace;
 };
 
+export const getWorkspaces = async () => {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
+
+  // Fetch the workspaces owned by the current user
+  const workspaces = await db.workspace.findMany({
+    where: { ownerId: currentUser.id },
+    select: { id: true, siteName: true },
+  });
+
+  // Fetch the user's currentWorkspaceId
+  const user = await db.user.findFirst({
+    where: { id: currentUser.id },
+    select: { currentWorkspaceId: true },
+  });
+
+  return {
+    workspaces,
+    currentWorkspaceId: user?.currentWorkspaceId || null,
+  }
+}
 
 export const getWorkspace = (id: string) => {
   const workspace = db.workspace.findFirst({ where: { id } });

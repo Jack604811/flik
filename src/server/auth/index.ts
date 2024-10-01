@@ -1,6 +1,5 @@
-import NextAuth, { type DefaultSession } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { type Adapter } from "next-auth/adapters";
+import NextAuth, { NextAuthConfig, type DefaultSession } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/server/db";
 
 /**
@@ -43,7 +42,7 @@ import { pages } from "./pages";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks,
   events,
-  adapter: PrismaAdapter(db) as Adapter,
+  adapter: PrismaAdapter(db) as NextAuthConfig["adapter"],
   providers,
   pages
 })
