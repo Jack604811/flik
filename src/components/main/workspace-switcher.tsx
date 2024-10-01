@@ -27,6 +27,10 @@ import {
 } from '@/components/ui/command';
 import { useRouter } from 'next/navigation';
 import { useWorkspaceModal } from '@/hooks/use-workspace-modal';
+import useSWR from 'swr';
+import { getWorkspaces } from '@/server/actions/workspace.action';
+import { updateCurrentWorkspace } from '@/server/actions/user.action';
+import { useSession } from 'next-auth/react';
 
 interface WorkspacesData {
   workspaces: Workspace[];
@@ -34,9 +38,12 @@ interface WorkspacesData {
 }
 
 export default function WorkspaceSwitcher({ className }: { className?: string }) {
-  const workspaceModal = useWorkspaceModal(); 
+  const { data: session } = useSession()
+  const workspaceModal = useWorkspaceModal();
+  const { data, isLoading, error } = useSWR("workspaces", () => getWorkspaces());
+  const workspaces = data?.workspaces ?? [];
+
   const router = useRouter();
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 
   const defaultWorkspace = {
     id: '',
@@ -44,60 +51,18 @@ export default function WorkspaceSwitcher({ className }: { className?: string })
   } as Workspace;
 
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace>(defaultWorkspace);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
   const saveCurrentWorkspace = async (workspaceId: string) => {
     try {
-      const response = await fetch('/api/workspaces/update-current-workspace', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId }),
-      });
-      if (!response.ok) {
+      const response = await updateCurrentWorkspace(session?.user.id!,workspaceId)
+      if (!response) {
         throw new Error('Failed to update current workspace');
       }
     } catch (error) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    const fetchWorkspaces = async () => {
-      try {
-        const response = await fetch('/api/workspaces');
-        if (!response.ok) {
-          throw new Error('Failed to fetch workspaces');
-        }
-        const data: WorkspacesData = await response.json();
-        setWorkspaces(data.workspaces);
-
-        let selectedWorkspace = defaultWorkspace;
-
-        if (data.currentWorkspaceId) {
-          const foundWorkspace = data.workspaces.find(
-            (workspace) => workspace.id === data.currentWorkspaceId
-          );
-          if (foundWorkspace) {
-            selectedWorkspace = foundWorkspace;
-          }
-        } else if (data.workspaces.length > 0) {
-          selectedWorkspace = data.workspaces[0];
-        }
-
-        setCurrentWorkspace(selectedWorkspace);
-      } catch (error) {
-        console.error(error);
-        setError('Failed to load workspaces');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchWorkspaces();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 'defaultWorkspace' can safely be excluded from the dependency array
 
   const formattedItems = workspaces.map((item) => ({
     label: item.siteName,
@@ -110,11 +75,26 @@ export default function WorkspaceSwitcher({ className }: { className?: string })
       (item) => item.id === workspace.value
     );
     if (selectedWorkspace) {
-      setCurrentWorkspace(selectedWorkspace);
+      setCurrentWorkspace(selectedWorkspace as Workspace);
       await saveCurrentWorkspace(selectedWorkspace.id);
       router.refresh();
     }
   };
+
+  useEffect(() => {
+    if (data?.currentWorkspaceId) {
+      const foundWorkspace = data.workspaces.find(
+        (workspace) => workspace.id === data.currentWorkspaceId
+      );
+      if (foundWorkspace) {
+        setCurrentWorkspace(foundWorkspace as Workspace);
+      }
+    } else if (data?.workspaces?.length) {
+      setCurrentWorkspace(data.workspaces[0] as Workspace);
+    }
+
+    
+  }, [data])
 
   if (error) return <div>Error loading workspaces</div>;
 
