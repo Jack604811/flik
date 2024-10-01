@@ -178,7 +178,7 @@ export default function TeamManagement({workspaceId} : Params) {
                             {member.status === TeamMemberStatus.Pending ? 'Pending' : moment(member.createdAt).format("MMM D, YYYY")}
                           </TableCell>
                           <TableCell>
-                            {member.status === TeamMemberStatus.Pending  && (
+                            {member.role !== "OWNER"  && (
                               <Button
                                 onClick={() => handleRemove(member.id)}
                                 variant="ghost"

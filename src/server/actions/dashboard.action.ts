@@ -31,7 +31,7 @@ export const getTotalCardsMetric = async (
     });
 
     let totalBookings = 0;
-    let totalReceivedPayments = 0;
+    let totalRevenue = 0;
     let totalOutstanding = 0;
 
     // Loop through each booking to calculate totals
@@ -54,11 +54,15 @@ export const getTotalCardsMetric = async (
       // Calculate outstanding amount (total - payments made)
       const outstandingForBooking = totalForBooking - paymentsMade;
 
-      // Add to received payments and outstanding amounts
+      // Add the totals to the global totals
       totalBookings += 1;
-      totalReceivedPayments += paymentsMade; // Only add the actual payments received
+      totalRevenue += totalForBooking;  // Use the total, not just the subtotal
 
-      if (outstandingForBooking > 0) {
+      // Handle negative outstanding (overpayments)
+      if (outstandingForBooking < 0) {
+        // Add overpayment to revenue
+        totalRevenue += Math.abs(outstandingForBooking);
+      } else {
         // Only add positive outstanding amounts to the total outstanding
         totalOutstanding += outstandingForBooking;
       }
@@ -80,12 +84,9 @@ export const getTotalCardsMetric = async (
       return sum + record.price * record.quantity;
     }, 0);
 
-    // Total revenue should subtract outstanding from the received payments
-    const totalRevenue = totalReceivedPayments + totalExtraSales;
-
     return {
       totalBookings,
-      totalRevenue,  // Total revenue is based on received payments plus extra sales
+      totalRevenue,  // Now this represents the total bookings (including extras and overpayments)
       totalExtraSales,
       outstanding: totalOutstanding,  // Only positive outstanding amounts
     };
