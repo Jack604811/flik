@@ -3,61 +3,91 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { parseDashboardDates } from "@/lib/utils";
-import { getIncomeMetricData } from "@/server/actions/dashboard.action";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
-import { AreaChart, CartesianGrid, XAxis, Area, ReferenceLine, Label } from "recharts";
+import { AreaChart, CartesianGrid, XAxis, Area, Tooltip } from "recharts";
+import { useDateRange } from "./date-range-context"; // Assuming you have a date picker context
+import { getIncomeMetricData } from "@/server/actions/dashboard.action"; // Adjust import based on your file structure
+import moment from "moment";
 
+// Example chartConfig for chart styling
 const chartConfig = {
   income: {
     label: "Income",
     color: "hsl(var(--chart-2))",
   },
 };
-const chartData = [
-  { month: "January", income: 186, transactions: 80 },
-  { month: "February", income: 305, transactions: 200 },
-  { month: "March", income: 237, transactions: 120 },
-  { month: "April", income: 73, transactions: 190 },
-  { month: "May", income: 209, transactions: 130 },
-  { month: "June", income: 214, transactions: 140 },
-];
 
+// Number formatter for currency with thousand separators
+const formatNumber = (number: number) => {
+  return new Intl.NumberFormat("de-DE").format(number);
+};
 
-type Params = { userId: string, workspaceId?: string };
+type Params = { workspaceId?: string };
 
-export default function Income({userId, workspaceId} : Params) {
-  const searchParams = useSearchParams()
-  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+export default function Income({ workspaceId }: Params) {
+  // Get startDate and endDate from the date range context
+  const { startDate, endDate } = useDateRange();
 
-  const { data } = useQuery({
-    queryKey: ["income-metrics",userId, workspaceId, startDate, endDate],
-    queryFn: () => getIncomeMetricData(userId, workspaceId??null, startDate, endDate),
-  })
+  // Fetch data based on the date range and workspaceId
+  const { data = { incomeMetrics: { _sum: { amount: 0 }, _avg: { amount: 0 }, _count: 0 }, paymentMethodMetrics: [], chartsPaymentMetrics: [] }, isLoading } = useQuery({
+    queryKey: ["income-metrics", workspaceId, startDate, endDate],
+    queryFn: () => getIncomeMetricData(workspaceId ?? null, startDate, endDate),
+    enabled: !!startDate && !!endDate,
+    initialData: {
+      incomeMetrics: { _sum: { amount: 0 }, _avg: { amount: 0 }, _count: 0 },
+      paymentMethodMetrics: [],
+      chartsPaymentMetrics: [],
+    },
+  });
 
+  // Format the chartsPaymentMetrics data for the chart
+  const chartData = data?.chartsPaymentMetrics.map((item) => ({
+    date: moment(item.paymentDate).format("DD MMMM"), // Format date
+    income: item._sum.amount, // Use the summed amount as the income
+    transactions: item._count, // Use the count as transactions
+    paymentMethod: item.paymentMethod, // Payment method if needed
+  })) || [];
 
   return (
-    <Card className="min-w-[460px] gap-16">
+    <Card className="min-w-[260px] gap-8">
       <CardHeader>
         <CardTitle>Income</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardDescription>
+          {moment(startDate).format("DD MMMM YYYY")} - {moment(endDate).format("DD MMMM YYYY")}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-6">
           <ChartContainer config={chartConfig} className="h-[200px] w-full">
-            <AreaChart accessibilityLayer data={chartData} margin={{ left: 0, right: 0 }}>
+            <AreaChart data={chartData} margin={{ left: 18, right: 18 }}>
               <CartesianGrid vertical={false} horizontal={false} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              
+              {/* Customize the Tooltip */}
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const { income, transactions, date } = payload[0].payload;
+                    return (
+                      <div className="p-2 bg-white shadow rounded-md">
+                        <p className="text-xs font-bold py-1">{date}</p>
+                        <p className="text-xs font-medium">Income: ${formatNumber(income)}</p>
+                        <p className="text-xs font-medium">Transactions: {formatNumber(transactions)}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              
               <defs>
                 <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-income)" stopOpacity={0.8} />
+                  <stop offset="0%" stopColor="var(--color-income)" stopOpacity={0.8} />
                   <stop offset="95%" stopColor="var(--color-income)" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <Area
                 dataKey="income"
-                type="natural"
+                type="monotone"
                 fill="url(#fillIncome)"
                 fillOpacity={0.4}
                 stroke="var(--color-income)"
@@ -65,22 +95,32 @@ export default function Income({userId, workspaceId} : Params) {
               />
             </AreaChart>
           </ChartContainer>
-          <div className="flex flex-col justify-between min-w-[142px] mr-6 my-4">
+
+          {/* Income Stats */}
+          <div className="flex flex-col justify-between w-full md:w-auto min-w-[142px]">
             <div>
               <p className="font-bold text-sm text-muted-foreground">Total Income</p>
-              <p className="font-bold text-lg">${data?.incomeMetrics._sum.amount ?? "0.00"}</p>
+              <p className="font-bold text-lg">
+                ${formatNumber(data?.incomeMetrics._sum.amount ?? 0)}
+              </p>
             </div>
             <div>
               <p className="font-bold text-sm text-muted-foreground">Average Transaction</p>
-              <p className="font-bold text-lg">${data?.incomeMetrics._avg.amount ?? "0.00"}</p>
+              <p className="font-bold text-lg">
+                ${formatNumber(data?.incomeMetrics._avg.amount ?? 0)}
+              </p>
             </div>
             <div>
               <p className="font-bold text-sm text-muted-foreground">Total Transactions</p>
-              <p className="font-bold text-lg">{data?.incomeMetrics._count}</p>
+              <p className="font-bold text-lg">
+                {formatNumber(data?.incomeMetrics._count ?? 0)}
+              </p>
             </div>
           </div>
         </div>
-        <Table>
+
+        {/* Payment Method Table */}
+        <Table className="mt-4">
           <TableHeader>
             <TableRow>
               <TableHead>Payment Method</TableHead>
@@ -89,20 +129,21 @@ export default function Income({userId, workspaceId} : Params) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {
-              data?.paymentMethodMetrics.length ? 
-              data?.paymentMethodMetrics.map((pmm, key) => (
+            {data?.paymentMethodMetrics.length ? (
+              data.paymentMethodMetrics.map((pmm, key) => (
                 <TableRow key={key}>
                   <TableCell>{pmm.paymentMethod}</TableCell>
-                  <TableCell>{pmm._count}</TableCell>
-                  <TableCell>${pmm._sum.amount}</TableCell>
+                  <TableCell>{formatNumber(pmm._count)}</TableCell>
+                  <TableCell>${formatNumber(pmm._sum.amount ?? 0)}</TableCell>
                 </TableRow>
-              )) : (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground text-xs">No Record found.</TableCell>
-                </TableRow>
-              )
-            }
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center text-muted-foreground text-xs">
+                  No Record found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>
