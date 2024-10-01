@@ -87,7 +87,7 @@ export const columns: ColumnDef<Booking>[] = [
     },
     filterFn: (row, columnId, filterValue) => {
       if (!filterValue || filterValue.length !== 2) {
-        return true; // Don't filter if the filter value is not set or invalid
+        return true; 
       }
       const start = filterValue[0].getTime();
       const end = filterValue[1].getTime();

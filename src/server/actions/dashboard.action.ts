@@ -3,36 +3,75 @@ import { BookingStatus, TransactionStatus, } from "@prisma/client";
 import { db } from "../db";
 
 export const getTotalCardsMetric = async (
-  workspaceId: string | null, // Workspace ID is used instead of userId
+  workspaceId: string | null, 
   startDate: Date,
   endDate: Date
 ) => {
   try {
-    // Sum up all approved transactions (this should include all payments, not refunds)
-    const aggregateResult = await db.transaction.aggregate({
-      _sum: { amount: true },
+    // Fetch all bookings in the date range, including related transactions and extras
+    const bookingsWithPayments = await db.booking.findMany({
       where: {
-        booking: { spot: { workspace: workspaceId ? { id: workspaceId } : undefined } },
-        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-        status: "Approved", // Make sure we only include approved payments
+        spot: {
+          workspace: workspaceId ? { id: workspaceId } : undefined,
+        },
+        AND: [
+          { startDate: { gte: startDate } },
+          { endDate: { lte: endDate } },
+        ],
+      },
+      include: {
+        transactions: {
+          select: { amount: true },  // Select only the payment amounts
+          where: { status: "Approved" },  // Include only approved payments
+        },
+        bookingExtras: {  // Include extras to calculate the total amount
+          select: { price: true, quantity: true },
+        },
       },
     });
 
-    const totalRevenue = aggregateResult?._sum?.amount || 0; // Guarding against undefined values
+    let totalBookings = 0;
+    let totalReceivedPayments = 0;
+    let totalOutstanding = 0;
 
-    // Count total bookings
-    const totalBookings = await db.booking.count({
-      where: {
-        spot: { workspace: workspaceId ? { id: workspaceId } : undefined },
-        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-      },
+    // Loop through each booking to calculate totals
+    bookingsWithPayments.forEach((booking) => {
+      // Calculate the total for extras
+      const extrasTotal = booking.bookingExtras.reduce(
+        (total, extra) => total + extra.price * extra.quantity,
+        0
+      );
+
+      // Calculate the full total for the booking (subtotal + extras)
+      const totalForBooking = booking.subtotal + extrasTotal;
+
+      // Calculate the total payments made for this booking
+      const paymentsMade = booking.transactions.reduce(
+        (total, transaction) => total + transaction.amount,
+        0
+      );
+
+      // Calculate outstanding amount (total - payments made)
+      const outstandingForBooking = totalForBooking - paymentsMade;
+
+      // Add to received payments and outstanding amounts
+      totalBookings += 1;
+      totalReceivedPayments += paymentsMade; // Only add the actual payments received
+
+      if (outstandingForBooking > 0) {
+        // Only add positive outstanding amounts to the total outstanding
+        totalOutstanding += outstandingForBooking;
+      }
     });
 
-    // Calculate total extra sales from booking extras
+    // Now calculate total extra sales from booking extras (this remains the same)
     const records = await db.bookingExtras.findMany({
       where: {
         extra: { workspace: workspaceId ? { id: workspaceId } : undefined },
-        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+        AND: [
+          { createdAt: { gte: startDate } },
+          { createdAt: { lte: endDate } },
+        ],
       },
       select: { quantity: true, price: true },
     });
@@ -41,25 +80,14 @@ export const getTotalCardsMetric = async (
       return sum + record.price * record.quantity;
     }, 0);
 
-    // Sum up all booking subtotals (this should represent the total booking value)
-    const totalBookingsAmount = await db.booking.aggregate({
-      _sum: { subtotal: true },
-      where: {
-        spot: { workspace: workspaceId ? { id: workspaceId } : undefined },
-        AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-      },
-    });
-
-    const totalBookingsAmountValue = totalBookingsAmount?._sum?.subtotal || 0;
-
-    // Adjust the outstanding calculation: totalBookingAmount - totalRevenue
-    const outstanding = totalBookingsAmountValue - totalRevenue;
+    // Total revenue should subtract outstanding from the received payments
+    const totalRevenue = totalReceivedPayments + totalExtraSales;
 
     return {
       totalBookings,
-      totalRevenue,
+      totalRevenue,  // Total revenue is based on received payments plus extra sales
       totalExtraSales,
-      outstanding,
+      outstanding: totalOutstanding,  // Only positive outstanding amounts
     };
   } catch (error) {
     return {
@@ -70,6 +98,11 @@ export const getTotalCardsMetric = async (
     };
   }
 };
+
+
+
+
+
 
 
 
@@ -90,8 +123,8 @@ export const getBookingsByDates = async (
         workspace: { id: workspaceId },
       },
       AND: [
-        { createdAt: { gte: startDate } },
-        { createdAt: { lte: endDate } },
+        { startDate: { gte: startDate } },
+        { startDate: { lte: endDate } },
       ],
     },
     include: {
@@ -115,24 +148,29 @@ export const getBookingStatusGroupTotal = async (
   startDate: Date,
   endDate: Date
 ) => {
-  if (!workspaceId) {
-    return [];
-  }
   const bookingGroups = await db.booking.groupBy({
     by: ["status"],
     _count: {
       status: true,
     },
     where: {
-      spot: { workspace: { id: workspaceId } }, // No need for userId anymore
-      AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
+      spot: {
+        workspace: workspaceId ? { id: workspaceId } : undefined,
+      },
+      AND: [
+        { startDate: { gte: startDate } }, 
+        { startDate: { lte: endDate } },
+      ],
     },
   });
+
   return bookingGroups.map((data) => ({
-    status: data.status ? data.status.toLocaleLowerCase() : 'unknown', // Ensure status is in lowercase
+    status: data.status ? data.status.toLocaleLowerCase() : 'unknown',
     count: data._count?.status || 0, 
   }));
 };
+
+
 
 
 export const getIncomeMetricData = async (
@@ -216,55 +254,72 @@ export const getTotalSalesByDateRange = async (
   });
 
   return salesData.map(data => ({
-    date: data.createdAt.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+    date: data.createdAt.toISOString().split('T')[0], 
     sales: data._count._all,
-    income: data._sum.subtotal || 0, // Guarding against undefined
+    income: data._sum.subtotal || 0, 
   }));
 };
 
 export const getBookingsGroupedByMonth = async (
-    userId: string,
   workspaceId: string | null,
   startDate: Date,
   endDate: Date
 ) => {
   const bookingGroups = await db.booking.groupBy({
-    by: ["status", "createdAt"],
+    by: ["status", "startDate"],
     _count: {
-      _all: true,
+      _all: true, 
     },
     where: {
-      spot: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  },
-      AND: [{ createdAt: { gte: startDate } }, { createdAt: { lte: endDate } }],
-      status: { in: [BookingStatus.Cancelled, BookingStatus.Confirmed] },
+      spot: {
+        workspace: workspaceId ? { id: workspaceId } : undefined,
+      },
+      AND: [
+        { startDate: { gte: startDate } },
+        { startDate: { lte: endDate } },
+      ],
     },
     orderBy: {
-      createdAt: 'asc',
+      startDate: 'asc',
     },
   });
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "July", "August", "September", "October", "November", "December",
   ];
 
-  const chartData = monthNames.map((month, index) => ({
+  const chartData = monthNames.map((month) => ({
     month,
-    bookings: 0,
-    cancellations: 0,
+    confirmed: 0,
+    cancelled: 0,
+    waiting_for_payment: 0,
+    in_progress: 0,
   }));
 
   bookingGroups.forEach(group => {
-    const monthIndex = new Date(group.createdAt).getMonth();
-    if (group.status === BookingStatus.Confirmed) {
-      chartData[monthIndex].bookings += group._count._all;
-    } else if (group.status === BookingStatus.Cancelled) {
-      chartData[monthIndex].cancellations += group._count._all;
+    if (group.startDate) {
+      const monthIndex = new Date(group.startDate).getMonth();
+      switch (group.status.toLowerCase()) {
+        case 'confirmed':
+          chartData[monthIndex].confirmed += group._count._all;
+          break;
+        case 'cancelled':
+          chartData[monthIndex].cancelled += group._count._all;
+          break;
+        case 'waiting_for_payment':
+          chartData[monthIndex].waiting_for_payment += group._count._all;
+          break;
+        case 'in_progress':
+          chartData[monthIndex].in_progress += group._count._all;
+          break;
+      }
     }
   });
 
   return chartData;
 };
+
 
 export const getSpotsAndExtrasMetrics = async (
     userId: string,

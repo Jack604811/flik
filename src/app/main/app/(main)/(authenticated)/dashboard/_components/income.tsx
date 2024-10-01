@@ -8,6 +8,7 @@ import { AreaChart, CartesianGrid, XAxis, Area, Tooltip } from "recharts";
 import { useDateRange } from "./date-range-context"; // Assuming you have a date picker context
 import { getIncomeMetricData } from "@/server/actions/dashboard.action"; // Adjust import based on your file structure
 import moment from "moment";
+import { Separator } from "@/components/ui/separator";
 
 // Example chartConfig for chart styling
 const chartConfig = {
@@ -18,7 +19,10 @@ const chartConfig = {
 };
 
 // Number formatter for currency with thousand separators
-const formatNumber = (number: number) => {
+const formatNumber = (number: number, round = false) => {
+  if (round) {
+    return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(Math.floor(number));
+  }
   return new Intl.NumberFormat("de-DE").format(number);
 };
 
@@ -68,11 +72,34 @@ export default function Income({ workspaceId }: Params) {
                   if (active && payload && payload.length) {
                     const { income, transactions, date } = payload[0].payload;
                     return (
-                      <div className="p-2 bg-white shadow rounded-md">
-                        <p className="text-xs font-bold py-1">{date}</p>
-                        <p className="text-xs font-medium">Income: ${formatNumber(income)}</p>
-                        <p className="text-xs font-medium">Transactions: {formatNumber(transactions)}</p>
+                      <div className="p-2 bg-white border dark:bg-black shadow rounded-md w-[178px]">
+                      <p className="text-xs font-bold">{date}</p>
+                      <Separator className="my-2" />
+                      
+                      {/* Income Row */}
+                      <div className="flex justify-between items-center pb-1">
+                        <div className="flex items-center">
+                          <div
+                            className="h-2.5 w-2.5 shrink-0 rounded-[2px] mr-2"
+                            style={{ backgroundColor: chartConfig.income.color }}>
+                          </div>
+                          <p className="text-xs">Income:</p>
+                        </div>
+                        <span className="font-bold ml-2 text-xs">${formatNumber(income)}</span>
                       </div>
+                    
+                      {/* Transactions Row */}
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                          <div
+                            className="h-2.5 w-2.5 shrink-0 rounded-[2px] mr-2"
+                            style={{ backgroundColor: chartConfig.income.color }}>
+                          </div>
+                          <p className="text-xs">Transactions:</p>
+                        </div>
+                        <span className="font-bold ml-2 text-xs">{formatNumber(transactions)}</span>
+                      </div>
+                    </div>
                     );
                   }
                   return null;
@@ -107,7 +134,7 @@ export default function Income({ workspaceId }: Params) {
             <div>
               <p className="font-bold text-sm text-muted-foreground">Average Transaction</p>
               <p className="font-bold text-lg">
-                ${formatNumber(data?.incomeMetrics._avg.amount ?? 0)}
+              ${formatNumber(data?.incomeMetrics._avg.amount ?? 0, true)}
               </p>
             </div>
             <div>

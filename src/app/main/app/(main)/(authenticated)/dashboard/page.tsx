@@ -36,13 +36,14 @@ export default async function Dashboard() {
             <div className="grid gap-4 xs:max-w-[300px] md:w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 2xl:grid-cols-2">
               {/* <Sales userId={currentUser?.id!} workspaceId={currentWorkspace?.id}/> */}
               <BookingList workspaceId={currentWorkspace?.id} />
-              <BookingStatus workspaceId={currentWorkspace?.id} />
+              <BookingStatus workspaceId={currentWorkspace?.id}  />
               <Income workspaceId={currentWorkspace?.id} />
+              <BookingsPerMonth workspaceId={currentWorkspace?.id} />
              {/* <BookingsSource userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
              
               
              
-              <BookingsPerMonth userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+             
               <SpotsAndExtras userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
               <Traffic userId={currentUser?.id!} workspaceId={currentWorkspace?.id}/> */}
             </div>

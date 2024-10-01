@@ -21,9 +21,9 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getBookingsByDates } from "@/server/actions/dashboard.action";
 import moment from "moment";
-import { useDateRange } from "./date-range-context"; // Import DateRange context
+import { useDateRange } from "./date-range-context"; 
 
-// Number formatter for currency with thousand separators
+
 const formatNumber = (number: number) => {
   return new Intl.NumberFormat("de-DE").format(number);
 };
@@ -31,10 +31,8 @@ const formatNumber = (number: number) => {
 type Params = { workspaceId?: string };
 
 export function BookingList({ workspaceId }: Params) {
-  // Get the start and end dates from the DateRange context
   const { startDate, endDate } = useDateRange();
 
-  // Use React Query to fetch bookings based on the selected date range
   const { data = [], isLoading } = useQuery({
     queryKey: ["bookings", workspaceId, startDate, endDate],
     queryFn: async () => getBookingsByDates(workspaceId ?? null, startDate, endDate),
@@ -42,12 +40,11 @@ export function BookingList({ workspaceId }: Params) {
   });
 
   return (
-    <Card className="xl:col-span-2 min-w-[260px]" x-chunk="dashboard-01-chunk-4">
+    <Card className="xl:col-span-2 min-w-[260px] x-chunk='dashboard-01-chunk-4'">
       <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
         <div className="grid gap-2">
-          <CardTitle>Bookings</CardTitle>
+          <CardTitle className="">Bookings</CardTitle>
           <CardDescription>
-            {/* Displaying the selected date range */}
             {moment(startDate).format("DD MMMM")} - {moment(endDate).format("DD MMMM")}
           </CardDescription>
         </div>
@@ -63,10 +60,10 @@ export function BookingList({ workspaceId }: Params) {
           <TableHeader>
             <TableRow>
               <TableHead>Customer</TableHead>
-              <TableHead className="">Start Date</TableHead>
-              <TableHead className="">End Date</TableHead>
-              <TableHead className="">Outstanding</TableHead>
-              <TableHead className="">Total</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead>End Date</TableHead>
+              <TableHead>Outstanding</TableHead>
+              <TableHead>Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -79,13 +76,13 @@ export function BookingList({ workspaceId }: Params) {
                       {booking.customer?.email}
                     </div>
                   </TableCell>
-                  <TableCell className="">
+                  <TableCell>
                     {moment(booking.startDate).format("YYYY-MM-DD")}
                   </TableCell>
-                  <TableCell className="">
+                  <TableCell>
                     {moment(booking.endDate).format("YYYY-MM-DD")}
                   </TableCell>
-                  <TableCell className="">
+                  <TableCell>
                     $
                     {formatNumber(
                       booking.subtotal +
@@ -99,7 +96,7 @@ export function BookingList({ workspaceId }: Params) {
                       )
                     )}
                   </TableCell>
-                  <TableCell className="">
+                  <TableCell>
                     $
                     {formatNumber(
                       booking.subtotal +

@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { statuses, Schema } from "./schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
+import { DataTableDateFilter } from "./data-table-date-filter";
 import moment from "moment";
 import { BookingDetailButton } from "@/hooks/use-booking-detail";
 import AddTransactionButton from "@/components/forms/AddTransactionButton";
@@ -129,6 +130,15 @@ export const columns: ColumnDef<Schema>[] = [
           </span>
         </div>
       );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue || filterValue.length !== 2) {
+        return true; 
+      }
+      const [start, end] = filterValue;
+      const rowPaymentDate = moment(row.getValue(columnId));
+  
+      return rowPaymentDate.isBetween(moment(start), moment(end), 'day', '[]');
     },
     enableSorting: false,
   },
