@@ -15,7 +15,7 @@ export const env = createEnv({
         STRIPE_WEBHOOK_SECRET: z.string().min(1),
         EMAIL_FROM: z.string().email(),
         NEXTAUTH_SECRET: z.string().min(1),
-        NEXTAUTH_URL: z.string().url(),
+        AUTH_URL: z.string().url(),
         SUPABASE_URL: z.string().url(),
         SUPABASE_KEY: z.string(),
         AUTH_BEARER_TOKEN: z.string().min(1),
