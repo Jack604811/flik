@@ -60,7 +60,7 @@ export default async function Page() {
           />
         </TabsContent>
         <TabsContent value="team">
-          <TeamManagement />
+          <TeamManagement workspaceId={currentWorkspace.id} />
         </TabsContent>
         <TabsContent value="integrations">
           <Integrations />

@@ -7,6 +7,13 @@ import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, val
 import { getCurrentUser } from "../auth";
 import { revalidatePath } from "next/cache";
 import { updateCurrentWorkspace } from "./user.action"; 
+import { v4 as uuidv4 } from 'uuid';
+import { createHmac } from 'crypto';
+import { WorkspaceInviteMagicLinkTemplate } from "@/emails/workspace/new-invitation";
+import { Resend } from "resend";
+import { TeamMemberStatus } from "@prisma/client";
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const createWorkspace = async (siteName: string) => {
   const currentUser = await getCurrentUser();
@@ -20,6 +27,7 @@ export const createWorkspace = async (siteName: string) => {
     data: {
       siteName,
       ownerId: currentUser.id,
+      teamMembers: { create: { userId: currentUser.id, role: "OWNER", status: TeamMemberStatus.Active } },
     },
   });
 
@@ -172,3 +180,93 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
 
   return updatedSettings;
 };
+
+
+export const sendInviteToWorkspace = async (workspaceId: string, email: string, permission: string) => {
+  const currentUser = await getCurrentUser();
+  const workspace = await db.workspace.findFirst({ where: { id: workspaceId } });
+
+  if (!currentUser || !workspace) {
+    throw new Error("User not authenticated");
+  }
+
+  // Send invitation email to the user and add them to the invited list
+  const token = createHmac('sha256', env.NEXTAUTH_SECRET)
+    .update(`${uuidv4()}${email}`)
+    .digest('hex');
+
+  await db.invitation.create({
+    data: {
+      email,
+      permission,
+      token,
+      workspaceId,
+      TeamMember: {
+        create: {
+          workspaceId,
+          role: permission,
+        }
+      }
+    },
+  });
+
+  // You can add code here to send the invitation email with the token
+
+  await resend.emails.send({
+    from: env.EMAIL_FROM,
+    to: email,
+    subject: 'You have been invited to join a workspace',
+    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.NEXTAUTH_URL}/invite/${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
+    html: "",
+  });
+
+  return true;
+}
+
+export const checkIfInvitationExists = async (token: string) => {
+  const invitation = await db.invitation.findFirst({ where: { token } });
+  return invitation;
+}
+
+export const acceptWorkspaceInvite = async (token: string) => {
+  const invitation = await db.invitation.findFirst({ where: { token } });
+
+  if (!invitation) {
+    throw new Error("Invalid invitation token");
+  }
+
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
+
+  // Add the user to the workspace
+  await db.teamMember.create({
+    data: {
+      workspaceId: invitation.workspaceId,
+      userId: currentUser.id,
+      role: invitation.permission,
+    },
+  });
+
+  // Delete the invitation
+  await db.invitation.delete({ where: { token } });
+
+  return true;
+}
+
+export const getTeamMembers = async (workspaceId: string) => {
+  const currentUser = await getCurrentUser();
+  const workspace = await db.workspace.findFirst({ where: { id: workspaceId } });
+
+  if (!currentUser || !workspace) {
+    throw new Error("User not authenticated");
+  }
+  const teamMembers = await db.teamMember.findMany({
+    where: { workspaceId },
+    include: { user: true, invitation: true },
+  });
+
+  return teamMembers;
+}
