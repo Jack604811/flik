@@ -14,7 +14,7 @@ export const callbacks: NextAuthConfig["callbacks"] = {
   }),
   async redirect({ url, baseUrl }) {
     // Ensure baseUrl is using the app subdomain
-    const appBaseUrl = env.NEXTAUTH_URL;
+    const appBaseUrl = env.AUTH_URL;
     
     // Allows relative callback URLs
     if (url.startsWith("/")) return `${appBaseUrl}${url}`;

@@ -240,7 +240,7 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
     from: env.EMAIL_FROM,
     to: email,
     subject: 'You have been invited to join a workspace',
-    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.NEXTAUTH_URL}/invite/${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
+    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.AUTH_URL}/invite/${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
     html: "",
   });
 
