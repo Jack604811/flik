@@ -7,6 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Mail, Trash2, UserPlus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import useSWR from 'swr'
+import { useMutation } from '@tanstack/react-query'
+import { getTeamMembers, sendInviteToWorkspace } from '@/server/actions/workspace.action'
+import { TeamMemberStatus } from '@prisma/client'
+import moment from 'moment'
 
 type Permission = 'Owner' | 'Admin' | 'Manager' | 'Editor' | 'Read-Only'
 
@@ -16,33 +21,32 @@ type Member = {
   status: 'Active' | 'Invited'
   dateJoined: string
 }
+type Params = {
+  workspaceId: string
+}
 
-export default function Component() {
+export default function TeamManagement({workspaceId} : Params) {
+  const {data: teamMembers, isLoading, mutate } = useSWR(`workspace/${workspaceId}/team-members`, () => getTeamMembers(workspaceId), {fallbackData: []});
+
+  const inviteMutation = useMutation({
+    mutationKey: ['workspace/team-member', workspaceId],
+    mutationFn: ({ email, permission }: { email: string, permission: Permission }) => sendInviteToWorkspace(workspaceId, email, permission),
+  })
+
   const [email, setEmail] = useState('')
   const [isValidEmail, setIsValidEmail] = useState(false)
   const [permission, setPermission] = useState<Permission>('Read-Only')
   const [members, setMembers] = useState<Member[]>([])
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     setIsValidEmail(emailRegex.test(email))
   }, [email])
 
-  useEffect(() => {
-    // Simulate loading data
-    setTimeout(() => {
-      setMembers([
-        { email: 'rocketstudio.dev@gmail.com', permission: 'Owner', status: 'Active', dateJoined: 'Aug 25, 2024' },
-        { email: 'yorgio1024@gmail.com', permission: 'Editor', status: 'Invited', dateJoined: '' }
-      ])
-      setIsLoading(false)
-    }, 2000)
-  }, [])
-
   const handleInvite = () => {
     if (isValidEmail && !members.some(member => member.email === email)) {
       // Add new member to the list
+      inviteMutation.mutate({ email, permission })
       setMembers([...members, { email, permission, status: 'Invited', dateJoined: '' }])
       
       // Simulate sending an invitation email
@@ -135,17 +139,17 @@ export default function Component() {
                         </TableRow>
                       ))
                     ) : (
-                      members.map((member, index) => (
-                        <TableRow key={member.email} className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
-                          <TableCell className="font-medium">{member.email}</TableCell>
+                      teamMembers.map((member, index) => (
+                        <TableRow key={member.id} className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
+                          <TableCell className="font-medium">{member.user?.email ?? member.invitation?.email}</TableCell>
                           <TableCell>
-                            {index === 0 ? (
+                            {member.role === "OWNER" ? (
                               <span className="text-gray-600 dark:text-gray-400">Owner</span>
                             ) : (
                               <Select 
-                                value={member.permission} 
-                                onValueChange={(value: Permission) => handlePermissionChange(member.email, value)}
-                                disabled={member.permission === 'Owner'}
+                                value={member.role} 
+                                onValueChange={(value: Permission) => handlePermissionChange(member.id, value)}
+                                disabled={member.role === 'Owner'}
                               >
                                 <SelectTrigger className="w-[140px] bg-transparent border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
                                   <SelectValue placeholder="Select permission" />
@@ -160,7 +164,7 @@ export default function Component() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {member.status === 'Active' ? (
+                            {member.status === TeamMemberStatus.Active ? (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300">
                                 ● Active
                               </span>
@@ -171,12 +175,12 @@ export default function Component() {
                             )}
                           </TableCell>
                           <TableCell>
-                            {member.status === 'Invited' ? 'Pending' : member.dateJoined}
+                            {member.status === TeamMemberStatus.Pending ? 'Pending' : moment(member.createdAt).format("MMM D, YYYY")}
                           </TableCell>
                           <TableCell>
-                            {member.status === 'Invited' && (
+                            {member.status === TeamMemberStatus.Pending  && (
                               <Button
-                                onClick={() => handleRemove(member.email)}
+                                onClick={() => handleRemove(member.id)}
                                 variant="ghost"
                                 size="icon"
                                 className="hover:bg-gray-100 dark:hover:bg-gray-700"
