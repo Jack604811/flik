@@ -73,9 +73,9 @@ export default async function Page() {
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden md:table-cell">Price</TableHead>
-              <TableHead className="hidden md:table-cell">
+              {/* <TableHead className="hidden md:table-cell">
                 Total Sales
-              </TableHead>
+              </TableHead> */}
               <TableHead className="hidden md:table-cell">Created at</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>

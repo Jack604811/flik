@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Label, Pie, PieChart, Sector } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
-
 import {
   Card,
   CardContent,
@@ -27,11 +26,10 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { getBookingStatusGroupTotal } from "@/server/actions/dashboard.action";
-import { useSearchParams } from "next/navigation";
-import { parseDashboardDates } from "@/lib/utils";
+import { useDateRange } from "./date-range-context"; // Import DateRange context
 import moment from "moment";
 
-
+// Chart configuration
 const chartConfig = {
   confirmed: {
     label: "Approved",
@@ -51,52 +49,53 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-type Params = { userId: string, workspaceId?: string };
+type Params = { workspaceId?: string };
 
-export function BookingStatus({ userId, workspaceId } : Params) {
-  const searchParams = useSearchParams()
-  const {startDate, endDate} = parseDashboardDates(searchParams.get("from"), searchParams.get("to"));
+export function BookingStatus({ workspaceId }: Params) {
+  const { startDate, endDate } = useDateRange(); 
   
   const id = "pie-interactive";
   const [activeStatus, setActiveStatus] = React.useState('confirmed');
-  const { data, } = useQuery({
-    queryKey: ["booking-statuses-count",userId, workspaceId, startDate, endDate],
-    queryFn: () => getBookingStatusGroupTotal(userId, workspaceId??null, startDate, endDate),
-    select(data) {
-        return data.map(s => ({...s, fill: chartConfig[s.status as keyof typeof chartConfig]?.color}))
-    },
-    initialData: []
-  })
 
+  // Fetch data with loading and error state handling
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["booking-statuses-count", workspaceId, startDate, endDate],
+    queryFn: () => getBookingStatusGroupTotal(workspaceId ?? null, startDate, endDate),
+    select(data) {
+      return data.map(s => ({
+        ...s,
+        fill: chartConfig[s.status as keyof typeof chartConfig]?.color,
+      }));
+    },
+    initialData: [],
+  });
 
   const activeIndex = React.useMemo(
     () => data.findIndex((item) => item.status === activeStatus),
     [activeStatus, data]
   );
 
-
-
+  // Final responsive version with original visual settings retained
   return (
-    <Card data-chart={id} className="flex flex-col min-w-[350px] ">
+    <Card data-chart={id} className="flex flex-col">
       <ChartStyle id={id} config={chartConfig} />
-      <CardHeader className="flex-row items-start space-y-0 pb-0">
+      <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0 pb-4 sm:pb-0">
         <div className="grid gap-1">
           <CardTitle>Booking Status</CardTitle>
-          <CardDescription>{moment(startDate).format("MMMM")} - {moment(endDate).format("MMMM YYYY")}</CardDescription>
+          <CardDescription>
+            {moment(startDate).format("DD MMMM")} - {moment(endDate).format("DD MMMM")}
+          </CardDescription>
         </div>
         <Select value={activeStatus} onValueChange={setActiveStatus}>
           <SelectTrigger
-            className="ml-6 h-7 w-[160px] rounded-lg pl-2.5"
+            className="h-8 w-full sm:w-[160px] rounded-lg pl-2.5"
             aria-label="Select a value"
           >
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent align="center" className="rounded-lg justify-center">
-            {/* <SelectItem value="0" className="rounded-lg [&_span]:flex" disabled>
-              Select status
-            </SelectItem> */}
             {Object.entries(chartConfig).map(([key, value]) => {
-              if(data.findIndex(d => d.status === key) === -1) return null;
+              if (data.findIndex(d => d.status === key) === -1) return null;
 
               return (
                 <SelectItem
@@ -120,68 +119,66 @@ export function BookingStatus({ userId, workspaceId } : Params) {
         </Select>
       </CardHeader>
       <CardContent className="flex flex-1 justify-center pb-0">
-            <ChartContainer
-              id={id}
-              config={chartConfig}
-              className="mx-auto aspect-square w-full max-w-[300px]"
-            >
-              <PieChart>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Pie
-                  data={data}
-                  dataKey="count"
-                  nameKey="status"
-                  innerRadius={60}
-                  strokeWidth={5}
-                  activeIndex={activeIndex}
-                  activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
-                    <g>
-                      <Sector {...props} outerRadius={outerRadius + 10} />
-                      <Sector
-                        {...props}
-                        outerRadius={outerRadius + 25}
-                        innerRadius={outerRadius + 12}
-                      />
-                    </g>
-                  )}
-                >
-                  <Label
-                    content={({ viewBox }) => {
-                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                        return (
-                          <text
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                          >
-                            <tspan
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              className="fill-foreground text-3xl font-bold"
-                            >
-                              {data[activeIndex].count.toLocaleString()}
-                            </tspan>
-                            <tspan
-                              x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 24}
-                              className="fill-muted-foreground"
-                            >
-                              {chartConfig[
-                                data[activeIndex].status as keyof typeof chartConfig
-                              ]?.label}
-                            </tspan>
-                          </text>
-                        );
-                      }
-                    }}
+        <ChartContainer
+          id={id}
+          config={chartConfig}
+          className="mx-auto aspect-square w-full max-w-full sm:max-w-[300px]"
+        >
+          <PieChart>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Pie
+              data={data}
+              dataKey="count"
+              nameKey="status"
+              innerRadius={70}  
+              strokeWidth={5}   
+              activeIndex={activeIndex}
+              activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
+                <g>
+                  <Sector {...props} outerRadius={outerRadius + 0} />
+                  <Sector
+                    {...props}
+                    outerRadius={outerRadius + 0} 
+                    innerRadius={outerRadius + 12}
                   />
-                </Pie>
-              </PieChart>
-            </ChartContainer>
+                </g>
+              )}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {data[activeIndex]?.count?.toLocaleString() || 0}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          {chartConfig[
+                            data[activeIndex]?.status as keyof typeof chartConfig
+                          ]?.label || 'Unknown'}
+                        </tspan>
+                      </text>
+                    );
+                  }
+                  return null;
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );

@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Card,
   CardContent,
@@ -20,58 +21,58 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getBookingsByDates } from "@/server/actions/dashboard.action";
 import moment from "moment";
-import { useSearchParams } from "next/navigation";
-import { parseDashboardDates } from "@/lib/utils";
-import useSWR from "swr";
-import { useEffect } from "react";
+import { useDateRange } from "./date-range-context"; // Import DateRange context
 
-type Params = { userId: string, workspaceId?: string };
+// Number formatter for currency with thousand separators
+const formatNumber = (number: number) => {
+  return new Intl.NumberFormat("de-DE").format(number);
+};
 
-export function BookingList({ userId, workspaceId}: Params) {
-  const searchParams = useSearchParams();
-  const { startDate, endDate } = parseDashboardDates(
-    searchParams.get("from"),
-    searchParams.get("to")
-  );
+type Params = { workspaceId?: string };
 
-  const { data, isLoading } = useSWR(
-    ["bookings",userId, workspaceId, startDate, endDate],
-    () => getBookingsByDates(userId, workspaceId??null, startDate, endDate),
-    { fallbackData: [] }
-  );
+export function BookingList({ workspaceId }: Params) {
+  // Get the start and end dates from the DateRange context
+  const { startDate, endDate } = useDateRange();
+
+  // Use React Query to fetch bookings based on the selected date range
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["bookings", workspaceId, startDate, endDate],
+    queryFn: async () => getBookingsByDates(workspaceId ?? null, startDate, endDate),
+    initialData: [],
+  });
 
   return (
-    <Card
-      className="xl:col-span-2 min-w-[420px]"
-      x-chunk="dashboard-01-chunk-4"
-    >
-      <CardHeader className="flex flex-row items-center">
+    <Card className="xl:col-span-2 min-w-[260px]" x-chunk="dashboard-01-chunk-4">
+      <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
         <div className="grid gap-2">
           <CardTitle>Bookings</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardDescription>
+            {/* Displaying the selected date range */}
+            {moment(startDate).format("DD MMMM")} - {moment(endDate).format("DD MMMM")}
+          </CardDescription>
         </div>
-        <Button asChild size="sm" className="ml-auto gap-1">
-          <Link href="/bookings" prefetch={false}>
+        <Button asChild size="sm" className="hidden w-full sm:w-auto ml-auto sm:ml-0 gap-1">
+          <Link href="/bookings" prefetch={false} className="flex justify-center">
             View All
             <ArrowUpRightIcon className="h-4 w-4" />
           </Link>
         </Button>
       </CardHeader>
-      <CardContent>
-        <Table>
+      <CardContent className="overflow-x-auto">
+        <Table className="min-w-full">
           <TableHeader>
             <TableRow>
               <TableHead>Customer</TableHead>
               <TableHead className="">Start Date</TableHead>
               <TableHead className="">End Date</TableHead>
               <TableHead className="">Outstanding</TableHead>
-              <TableHead className="text-right">Total</TableHead>
+              <TableHead className="">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length ? (
               data.map((booking, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} className="whitespace-nowrap">
                   <TableCell>
                     <div className="font-medium">{booking.customer?.name}</div>
                     <div className="hidden text-sm text-muted-foreground md:inline">
@@ -86,7 +87,8 @@ export function BookingList({ userId, workspaceId}: Params) {
                   </TableCell>
                   <TableCell className="">
                     $
-                    {booking.subtotal +
+                    {formatNumber(
+                      booking.subtotal +
                       booking.bookingExtras.reduce(
                         (acc, ex) => acc + ex.price * ex.quantity,
                         0
@@ -94,15 +96,18 @@ export function BookingList({ userId, workspaceId}: Params) {
                       booking.transactions.reduce(
                         (acc, tr) => acc + tr.amount,
                         0
-                      )}
+                      )
+                    )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="">
                     $
-                    {booking.subtotal +
+                    {formatNumber(
+                      booking.subtotal +
                       booking.bookingExtras.reduce(
                         (acc, ex) => acc + ex.price * ex.quantity,
                         0
-                      )}
+                      )
+                    )}
                   </TableCell>
                 </TableRow>
               ))
