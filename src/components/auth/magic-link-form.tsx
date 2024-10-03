@@ -30,7 +30,7 @@ export function MagicLinkForm() {
     const { email } = values;
     await signIn("resend", {
       email,
-      callbackUrl: AFTER_SIGNIN_REDIRECT_URL,
+      redirectTo: AFTER_SIGNIN_REDIRECT_URL,
     });
     setIsLoading(false);
   }

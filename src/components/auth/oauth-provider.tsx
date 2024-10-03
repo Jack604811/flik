@@ -11,7 +11,7 @@ export const OauthProvider = ({
 }) => {
   return (
     <Button
-      onClick={() => signIn(provider.name, { callbackUrl: AFTER_SIGNIN_REDIRECT_URL })}
+      onClick={() => signIn(provider.name, { redirectTo: AFTER_SIGNIN_REDIRECT_URL })}
       className="flex gap-2 items-center justify-center w-full "
       variant={"secondary"}
     >
