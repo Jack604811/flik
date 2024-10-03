@@ -215,7 +215,7 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
   }
 
   // Send invitation email to the user and add them to the invited list
-  const token = createHmac('sha256', env.NEXTAUTH_SECRET)
+  const token = createHmac('sha256', env.AUTH_SECRET)
     .update(`${uuidv4()}${email}`)
     .digest('hex');
 
