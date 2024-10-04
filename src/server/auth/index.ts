@@ -43,7 +43,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks,
   events,
   adapter: PrismaAdapter(db) as NextAuthConfig["adapter"],
-  session: { strategy: "database" },
   providers,
   pages,
 })

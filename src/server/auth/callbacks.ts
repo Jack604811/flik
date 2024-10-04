@@ -1,8 +1,9 @@
 import { env } from "@/env";
-import type { Account, NextAuthConfig, Profile } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
 export const callbacks: NextAuthConfig["callbacks"] = {
-  session: ({ session, user }) => ({
+  session: ({ session, user, token }) => {
+    return ({
     ...session,
     user: {
       ...session.user,
@@ -11,7 +12,7 @@ export const callbacks: NextAuthConfig["callbacks"] = {
       subscriptionId: user.subscriptionId,
       oneTimeProductId: user.oneTimeProductId,
     },
-  }),
+  })},
   async redirect({ url, baseUrl }) {
     // Ensure baseUrl is using the app subdomain
     const appBaseUrl = env.AUTH_URL;
