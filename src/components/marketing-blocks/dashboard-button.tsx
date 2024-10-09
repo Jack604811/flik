@@ -19,7 +19,7 @@ export default function ShimmerButtonWithSession() {
           </ShimmerButton>
         </Link>
       ) : (
-        <Link href={`//app.${APP_DOMAIN}`}>
+        <Link href={`//app.${APP_DOMAIN}/signup`}>
           <ShimmerButton>
             <span className="text-sm text-background dark:text-primary">
               Get started

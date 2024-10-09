@@ -215,7 +215,7 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
   }
 
   // Send invitation email to the user and add them to the invited list
-  const token = createHmac('sha256', env.AUTH_SECRET)
+  const token = createHmac('sha256', env.NEXTAUTH_SECRET)
     .update(`${uuidv4()}${email}`)
     .digest('hex');
 
@@ -240,7 +240,7 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
     from: env.EMAIL_FROM,
     to: email,
     subject: 'You have been invited to join a workspace',
-    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.AUTH_URL}/invite/${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
+    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.NEXTAUTH_URL}/invite/${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
     html: "",
   });
 

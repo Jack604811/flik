@@ -1,4 +1,4 @@
-import { APP_NAME, AFTER_SIGNIN_REDIRECT_URL } from "@/app-settings";
+import { APP_NAME, AFTER_SIGNIN_REDIRECT_URL, AFTER_SIGNUP_REDIRECT_URL } from "@/app-settings";
 import { User } from "lucide-react";
 import { OauthProvider } from "@/components/auth/oauth-provider";
 import { MagicLinkForm } from "@/components/auth/magic-link-form";
@@ -6,10 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { auth, providers } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
+import { SignupForm } from "@/components/auth/signup-form";
 import Link from "next/link";
 
 export default async function Page() {
   const session = await auth();
+
   
   const authProviders = providers.map(p => ({
     name: p.id
@@ -27,10 +29,10 @@ export default async function Page() {
               <div className=" p-2 rounded-full w-auto inline-block bg-primary ">
                 <User className="mx-auto text-primary-foreground" size={30} />
               </div>
-              <h1 className="font-bold text-xl">Sign In to {APP_NAME} </h1>
+              <h1 className="font-bold text-xl">Get Started with {APP_NAME} </h1>
             </div>
             <div className="mt-3">
-              <LoginForm />
+              <SignupForm />
             </div>
             <div className="py-3 flex items-center text-sm before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6">
               OR
@@ -39,11 +41,11 @@ export default async function Page() {
               {authProviders &&
               	authProviders
                   .map((provider) => (
-                    <OauthProvider key={provider.name} provider={JSON.parse(JSON.stringify(provider))} prefix="Sign in" callbackUrl={AFTER_SIGNIN_REDIRECT_URL} />
+                    <OauthProvider key={provider.name} provider={JSON.parse(JSON.stringify(provider))} prefix="Get started" callbackUrl={AFTER_SIGNUP_REDIRECT_URL} />
                   ))}
             </div>
           </div>
-          <p className="text-muted-foreground text-center text-sm mt-5">Don&apos;t have an account? <Link href={"/signup"} className="text-primary">Sign up</Link> </p>
+          <p className="text-muted-foreground text-center text-sm mt-5">Already have an account? <Link href={"/"} className="text-primary">Sign in</Link> </p>
         </CardContent>
       </Card>
 
