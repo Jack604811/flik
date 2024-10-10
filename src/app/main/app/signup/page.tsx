@@ -9,7 +9,11 @@ import { LoginForm } from "@/components/auth/login-form";
 import { SignupForm } from "@/components/auth/signup-form";
 import Link from "next/link";
 
-export default async function Page() {
+type Params = { 
+  searchParams: { invite?: string };
+};
+
+export default async function Page({ searchParams }: Params) {
   const session = await auth();
 
   
@@ -41,11 +45,11 @@ export default async function Page() {
               {authProviders &&
               	authProviders
                   .map((provider) => (
-                    <OauthProvider key={provider.name} provider={JSON.parse(JSON.stringify(provider))} prefix="Get started" callbackUrl={AFTER_SIGNUP_REDIRECT_URL} />
+                    <OauthProvider key={provider.name} provider={JSON.parse(JSON.stringify(provider))} prefix="Get started" callbackUrl={`${AFTER_SIGNUP_REDIRECT_URL}${searchParams.invite ? `?invite=${searchParams.invite}`:''}`} />
                   ))}
             </div>
           </div>
-          <p className="text-muted-foreground text-center text-sm mt-5">Already have an account? <Link href={"/"} className="text-primary">Sign in</Link> </p>
+          <p className="text-muted-foreground text-center text-sm mt-5">Already have an account? <Link href={`/${searchParams.invite ? `?invite=${searchParams.invite}`:''}`} className="text-primary">Sign in</Link> </p>
         </CardContent>
       </Card>
 

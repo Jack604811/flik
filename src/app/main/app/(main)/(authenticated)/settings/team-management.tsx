@@ -9,9 +9,11 @@ import { Mail, Trash2, UserPlus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import useSWR from 'swr'
 import { useMutation } from '@tanstack/react-query'
-import { getTeamMembers, sendInviteToWorkspace } from '@/server/actions/workspace.action'
+import { deleteTeamMember, getTeamMembers, sendInviteToWorkspace, updateTeamMember } from '@/server/actions/workspace.action'
 import { TeamMemberStatus } from '@prisma/client'
 import moment from 'moment'
+import useConfirm from '@/hooks/use-confirm'
+import { toast } from 'sonner'
 
 type Permission = 'Owner' | 'Admin' | 'Manager' | 'Editor' | 'Read-Only'
 
@@ -26,16 +28,23 @@ type Params = {
 }
 
 export default function TeamManagement({workspaceId} : Params) {
+  const [DeleteConfirmDialog, deleteConfirm] = useConfirm('Are you sure?', 'This action is irrevesible.');
+  const [UpdateConfirmDialog, updateConfirm] = useConfirm('Are you sure?', 'Are you sure you want to update the status of the team member?');
+
   const {data: teamMembers, isLoading, mutate } = useSWR(`workspace/${workspaceId}/team-members`, () => getTeamMembers(workspaceId), {fallbackData: []});
 
   const inviteMutation = useMutation({
     mutationKey: ['workspace/team-member', workspaceId],
     mutationFn: ({ email, permission }: { email: string, permission: Permission }) => sendInviteToWorkspace(workspaceId, email, permission),
+    onSuccess: () => {
+      toast.success("Invitation sent successfully");
+      mutate();
+    }
   })
 
   const [email, setEmail] = useState('')
   const [isValidEmail, setIsValidEmail] = useState(false)
-  const [permission, setPermission] = useState<Permission>('Read-Only')
+  const [permission, setPermission] = useState<Permission>('Manager')
   const [members, setMembers] = useState<Member[]>([])
 
   useEffect(() => {
@@ -44,32 +53,42 @@ export default function TeamManagement({workspaceId} : Params) {
   }, [email])
 
   const handleInvite = () => {
-    if (isValidEmail && !members.some(member => member.email === email)) {
-      // Add new member to the list
-      inviteMutation.mutate({ email, permission })
-      setMembers([...members, { email, permission, status: 'Invited', dateJoined: '' }])
-      
-      // Simulate sending an invitation email
-      console.log(`Sending invitation email to ${email} with ${permission} permissions`)
-      
+    if (isValidEmail && !teamMembers.some(member => member.user?.email=== email || member.invitation?.email === email)) {
+      // Send an invite to the email
+      inviteMutation.mutate({ email, permission });
+
       // Reset form
       setEmail('')
-      setPermission('Read-Only')
+      setPermission('Manager')
     }
   }
 
-  const handleRemove = (email: string) => {
-    setMembers(members.filter(member => member.email !== email))
+  const handleRemove = async (id: string) => {
+    const confirm = await deleteConfirm();
+
+    if (confirm) {
+      // Remove member from the list
+      await deleteTeamMember(id).then(() => {
+        mutate();
+        toast.success("Team member removed successfully");
+      });
+    }
   }
 
-  const handlePermissionChange = (email: string, newPermission: Permission) => {
-    setMembers(members.map(member => 
-      member.email === email ? { ...member, permission: newPermission } : member
-    ))
+  const handlePermissionChange = async (id: string, role: Permission) => {
+    const confirm = await updateConfirm();
+    if(confirm){
+      await updateTeamMember(id, {role}).then(() => {
+        mutate();
+        toast.success("Team member updated successfully");
+      })
+    }
   }
 
   return (
     <div className="py-6 min-h-screen">
+      <DeleteConfirmDialog />
+      <UpdateConfirmDialog />
       <div className="max-w-6xl space-y-12">
         <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
           <div className="w-full xl:w-1/3">
@@ -93,8 +112,6 @@ export default function TeamManagement({workspaceId} : Params) {
                 <SelectContent className="">
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Manager">Manager</SelectItem>
-                  <SelectItem value="Editor">Editor</SelectItem>
-                  <SelectItem value="Read-Only">Read-Only</SelectItem>
                 </SelectContent>
               </Select>
               <Button 
@@ -141,7 +158,14 @@ export default function TeamManagement({workspaceId} : Params) {
                     ) : (
                       teamMembers.map((member, index) => (
                         <TableRow key={member.id} className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
-                          <TableCell className="font-medium">{member.user?.email ?? member.invitation?.email}</TableCell>
+                          <TableCell className="font-medium"> {
+                              member.user?.name ? (<div className="flex flex-col">
+                                <span className="font-medium">{member.user.name}</span>
+                                <span className="text-muted-foreground">
+                                  {member.user.email}
+                                </span>
+                              </div>) : member.invitation?.email
+                            }</TableCell>
                           <TableCell>
                             {member.role === "OWNER" ? (
                               <span className="text-gray-600 dark:text-gray-400">Owner</span>
@@ -157,8 +181,6 @@ export default function TeamManagement({workspaceId} : Params) {
                                 <SelectContent className="">
                                   <SelectItem value="Admin">Admin</SelectItem>
                                   <SelectItem value="Manager">Manager</SelectItem>
-                                  <SelectItem value="Editor">Editor</SelectItem>
-                                  <SelectItem value="Read-Only">Read-Only</SelectItem>
                                 </SelectContent>
                               </Select>
                             )}

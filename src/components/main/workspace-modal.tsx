@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { useWorkspaceModal } from '@/hooks/use-workspace-modal';
 import { useState } from 'react';
 import { createWorkspace } from '@/server/actions/workspace.action'; 
+import { toast } from 'sonner';
 
-export default function WorkspaceModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+export default function WorkspaceModal({ isOpen, onClose, onCreate }: { isOpen: boolean, onClose: () => void, onCreate: () => void }) {
   const [workspaceName, setWorkspaceName] = useState('');
 
   const handleCreateWorkspace = async () => {
@@ -13,7 +14,10 @@ export default function WorkspaceModal({ isOpen, onClose }: { isOpen: boolean, o
     onClose();
 
     try {
-      await createWorkspace(workspaceName);
+      await createWorkspace(workspaceName).then(() => {
+        toast('Workspace created successfully');
+        onCreate();
+      });
     } catch (error) {
       console.error("Error creating workspace:", error);
     }

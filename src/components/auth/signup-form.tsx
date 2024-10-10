@@ -1,6 +1,4 @@
 "use client";
-import { signIn } from "next-auth/react";
-import { AFTER_SIGNIN_REDIRECT_URL, APP_DOMAIN } from "@/app-settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { z } from "zod";
@@ -11,6 +9,7 @@ import { BaseInputField } from "@/components/base/base-input-field";
 import { LoadingButton } from "@/components/base/loading-button";
 import { registerUser } from "@/server/actions/auth.action";
 import FormMessageAlert from "../base/form-message-alert";
+import { useSearchParams } from "next/navigation";
 const formSchema = z.object({
     name: z.string({ message: "Full name is required" }),
     email: z.string().email({ message: "Invalid email address" }),
@@ -18,6 +17,8 @@ const formSchema = z.object({
 });
 
 export function SignupForm() {
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
   const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined | null>();
   const [success, setSuccess] = useState<string | undefined | null>();
@@ -37,7 +38,7 @@ export function SignupForm() {
     setSuccess(null);
 
     startTransition(() => {
-      registerUser(values.email, values.password, values.name)
+      registerUser(values.email, values.password, values.name, inviteToken)
       .then((res) => {
         setError(res?.error ?? null)
         setSuccess(res?.success ?? null);

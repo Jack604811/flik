@@ -72,33 +72,28 @@ model Workspace {
   extras               Extras[]
   spots                Spot[]
   teamMembers          TeamMember[]
-  teamInvitations      Invitation[]
 }
 model TeamMember {
-  id          String          @id @default(cuid())
-  userId      String?
-  user        User?           @relation(fields: [userId], references: [id])
-  workspaceId String
-  workspace   Workspace       @relation(fields: [workspaceId], references: [id])
-  role        String
-  status      TeamMemberStatus @default(Pending)
-  invitation  Invitation?     @relation(fields: [invitationId], references: [id])
-  invitationId String?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime?       @updatedAt
+  id           String           @id @default(cuid())
+  userId       String?
+  user         User?            @relation(fields: [userId], references: [id])
+  workspaceId  String
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id])
+  role         String
+  status       TeamMemberStatus @default(Pending)
+  invitation   Invitation?      @relation("InvitationToTeamMember") 
+  joinedAt   DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime?        @updatedAt
 }
 
 model Invitation {
-  id          String          @id @default(cuid())
-  email       String
-  permission  String
-  token       String          @unique
-  workspaceId String
-  workspace   Workspace       @relation(fields: [workspaceId], references: [id])
-  createdAt   DateTime        @default(now())
-  acceptedAt  DateTime?
-
-  TeamMember TeamMember[]
+  id           String       @id @default(cuid())
+  email        String
+  token        String       @unique
+  createdAt    DateTime     @default(now())
+  teamMemberId String       @unique
+  teamMember   TeamMember  @relation("InvitationToTeamMember", fields: [teamMemberId], references: [id], onDelete: Cascade)
 }
 
 model Spot {

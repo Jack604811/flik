@@ -40,7 +40,7 @@ interface WorkspacesData {
 export default function WorkspaceSwitcher({ className }: { className?: string }) {
   const { data: session } = useSession()
   const workspaceModal = useWorkspaceModal();
-  const { data, isLoading, error } = useSWR("workspaces", () => getWorkspaces());
+  const { data, isLoading, error, mutate } = useSWR("workspaces", () => getWorkspaces());
   const workspaces = data?.workspaces ?? [];
 
   const router = useRouter();
@@ -171,7 +171,8 @@ export default function WorkspaceSwitcher({ className }: { className?: string })
       </Popover>
       <WorkspaceModal 
         isOpen={workspaceModal.isOpen} 
-        onClose={workspaceModal.onClose} 
+        onClose={workspaceModal.onClose}
+        onCreate={() => mutate()}
       />
     </>
   );

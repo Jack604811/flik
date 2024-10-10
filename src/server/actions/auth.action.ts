@@ -8,6 +8,7 @@ import { env } from "@/env";
 import { EmailVerificationLinkTemplate } from "@/emails/auth/email-verification-link";
 import { APP_NAME } from "@/app-settings";
 import { PasswordResetLinkTemplate } from "@/emails/auth/password-reset-link";
+import { acceptWorkspaceInvite } from "./workspace.action";
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const getUserByEmail = async (email: string) => {
@@ -64,20 +65,26 @@ export const generatePasswordResetToken = async (email: string) => {
     return passwordResetToken;
 }
 
-export const registerUser = async (email: string, password: string, name: string) => {
+export const registerUser = async (email: string, password: string, name: string, inviteToken?:string|null) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     // Check if user already exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
         return {error: "User already exists"};
     }
-    await db.user.create({
+    const user = await db.user.create({
         data: {
             name,
             email,
             password: hashedPassword,
         },
     });
+
+    if(inviteToken){
+        try {
+            await acceptWorkspaceInvite(inviteToken, user.id);
+        } catch (error) {  }
+    }
     
     const verificationToken = await generateVerificationToken(email);
 
