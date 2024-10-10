@@ -323,13 +323,12 @@ export const getBookingsGroupedByMonth = async (
 
 
 export const getSpotsAndExtrasMetrics = async (
-    userId: string,
   workspaceId: string | null,
   startDate: Date,
   endDate: Date
 ) => {
   const spots = await db.spot.findMany({
-    where: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  },
+    where: { workspace: workspaceId ? { id: workspaceId } : undefined },
     include: {
       bookings: {
         where: { createdAt: { gte: startDate, lte: endDate } },
@@ -349,7 +348,7 @@ export const getSpotsAndExtrasMetrics = async (
   });
 
   const extras = await db.extras.findMany({
-    where: { workspace: workspaceId ? { id: workspaceId } : { ownerId: userId }  },
+    where: { workspace: workspaceId ? { id: workspaceId } : undefined },
     include: {
       bookingExtras: {
         where: { createdAt: { gte: startDate, lte: endDate } },
@@ -396,7 +395,7 @@ export const getSpotsAndExtrasMetrics = async (
       totalSales: totalSales.toString(),
       revenue: revenue.toFixed(2),
       clickThroughRate,
-      image: extra.images[0]?.url || null, // Guarding against undefined
+      image: extra.images[0]?.url || null, 
     };
   });
 

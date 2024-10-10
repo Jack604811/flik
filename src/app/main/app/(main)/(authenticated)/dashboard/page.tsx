@@ -39,12 +39,13 @@ export default async function Dashboard() {
               <BookingStatus workspaceId={currentWorkspace?.id}  />
               <Income workspaceId={currentWorkspace?.id} />
               <BookingsPerMonth workspaceId={currentWorkspace?.id} />
+              <SpotsAndExtras workspaceId={currentWorkspace?.id} />
              {/* <BookingsSource userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
              
               
              
              
-              <SpotsAndExtras userId={currentUser?.id!} workspaceId={currentWorkspace?.id} />
+              
               <Traffic userId={currentUser?.id!} workspaceId={currentWorkspace?.id}/> */}
             </div>
           </div>

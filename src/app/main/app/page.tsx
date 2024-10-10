@@ -37,7 +37,6 @@ export default async function Page() {
             <div className="space-y-2">
               {authProviders &&
               	authProviders
-                  //we don't want to show the email provider as we have a separate form for that
                   .filter((provider) => provider.name !== "Resend")
                   .map((provider) => (
                     <OauthProvider key={provider.name} provider={JSON.parse(JSON.stringify(provider))} />

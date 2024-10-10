@@ -10,6 +10,7 @@ import { updateCurrentWorkspace } from "./user.action";
 import { v4 as uuidv4 } from 'uuid';
 import { createHmac } from 'crypto';
 import { WorkspaceInviteMagicLinkTemplate } from "@/emails/workspace/new-invitation";
+import { WorkspaceRemovalNotificationTemplate } from "@/emails/workspace/delete-user";
 import { Resend } from "resend";
 import { TeamMemberStatus } from "@prisma/client";
 
@@ -234,8 +235,6 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
     },
   });
 
-  // You can add code here to send the invitation email with the token
-
   await resend.emails.send({
     from: env.EMAIL_FROM,
     to: email,
@@ -272,9 +271,10 @@ export const acceptWorkspaceInvite = async (token: string) => {
       userId: currentUser.id,
       role: invitation.permission,
     },
+    
   });
 
-  // Delete the invitation
+  // Delete the user
   await db.invitation.delete({ where: { token } });
 
   return true;
@@ -294,3 +294,56 @@ export const getTeamMembers = async (workspaceId: string) => {
 
   return teamMembers;
 }
+
+
+
+export const removeUserFromWorkspace = async (workspaceId: string, email: string) => {
+  const currentUser = await getCurrentUser();
+  const workspace = await db.workspace.findFirst({ where: { id: workspaceId } });
+
+  if (!currentUser || !workspace) {
+    throw new Error("User not authenticated or workspace not found");
+  }
+
+  // Fetch the team member to ensure they exist and to get their userId
+  const teamMember = await db.teamMember.findFirst({
+    where: {
+      workspaceId,
+      user: { email },
+    },
+    include: { user: true },
+  });
+
+  if (!teamMember) {
+    throw new Error("Team member not found");
+  }
+
+  // Authorization: Only Owners or Admins can remove members
+  if (teamMember.role === "OWNER" && currentUser.id !== teamMember.userId) {
+    throw new Error("Cannot remove the owner of the workspace");
+  }
+
+  // Remove the user from the workspace
+  const deletionResult = await db.teamMember.delete({
+    where: {
+      id: teamMember.id,
+    },
+  });
+
+  // Send removal email only if deletion was successful
+  if (deletionResult) {
+    await resend.emails.send({
+      from: env.EMAIL_FROM,
+      to: email,
+      subject: 'You have been removed from the workspace',
+      react: WorkspaceRemovalNotificationTemplate({
+        removedBy: currentUser.name ?? "Admin",
+        workspaceName: workspace.siteName!,
+      }),
+      html: "",
+    });
+  }
+
+  return true;
+};
+

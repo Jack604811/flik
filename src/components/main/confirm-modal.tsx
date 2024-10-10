@@ -1,50 +1,59 @@
-import React, { Ref } from 'react'
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "../ui/alert-dialog";
-  
+  Credenza,
+  CredenzaBody,
+  CredenzaClose,
+  CredenzaContent,
+  CredenzaDescription,
+  CredenzaFooter,
+  CredenzaHeader,
+  CredenzaTitle,
+  CredenzaTrigger,
+} from "@/components/ui/credenza";
+import { Button } from "../ui/button";
+
 interface ConfirmModalProps {
-children: React.ReactNode;
-warningText: string;
-onConfirm: () => void;
+  children: React.ReactNode;
+  warningText: string;
+  onConfirm: () => void;
 }
+
 function ConfirmModal({ children, onConfirm, warningText }: ConfirmModalProps) {
-  const handlerConfirm = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+  const handleConfirm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
-    onConfirm();
+    if (onConfirm) {
+      onConfirm();
+      // Close the modal after confirming
+      const closeButton = document.querySelector('[data-close]') as HTMLElement;
+      if (closeButton) closeButton.click();
+    }
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            {warningText}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={handlerConfirm}>
-            Delete forever
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <Credenza>
+      <CredenzaTrigger asChild>{children}</CredenzaTrigger>
+      <CredenzaContent>
+        <CredenzaHeader>
+          <CredenzaTitle>Are you sure?</CredenzaTitle>
+        </CredenzaHeader>
+        <CredenzaBody>
+          <CredenzaDescription>{warningText}</CredenzaDescription>
+        </CredenzaBody>
+        <CredenzaFooter className="flex md:ml-auto gap-2 md:flex-row-reverse justify-end">
+          
+          <Button
+            className="btn btn-secondary"
+            onClick={handleConfirm}
+          >
+            Delete Forever
+          </Button>
+
+          <CredenzaClose asChild>
+            <Button className="" variant={"outline"} data-close>Cancel</Button>
+          </CredenzaClose>
+        </CredenzaFooter>
+      </CredenzaContent>
+    </Credenza>
   );
 }
 
-export default ConfirmModal
+export default ConfirmModal;
