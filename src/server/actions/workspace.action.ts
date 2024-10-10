@@ -12,7 +12,8 @@ import { createHmac } from 'crypto';
 import { WorkspaceInviteMagicLinkTemplate } from "@/emails/workspace/new-invitation";
 import { WorkspaceRemovalNotificationTemplate } from "@/emails/workspace/delete-user";
 import { Resend } from "resend";
-import { TeamMemberStatus } from "@prisma/client";
+import { TeamMember, TeamMemberStatus } from "@prisma/client";
+import { getUserById } from "./auth.action";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -47,7 +48,7 @@ export const getWorkspaces = async () => {
 
   // Fetch the workspaces owned by the current user
   const workspaces = await db.workspace.findMany({
-    where: { ownerId: currentUser.id },
+    where: { OR: [{ teamMembers: { some: { userId: currentUser.id } } }, {ownerId: currentUser.id}] },
     select: { id: true, siteName: true },
   });
 
@@ -216,20 +217,19 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
   }
 
   // Send invitation email to the user and add them to the invited list
-  const token = createHmac('sha256', env.AUTH_SECRET)
+  const token = createHmac('sha256', env.NEXTAUTH_SECRET)
     .update(`${uuidv4()}${email}`)
     .digest('hex');
 
   await db.invitation.create({
     data: {
       email,
-      permission,
       token,
-      workspaceId,
-      TeamMember: {
+      teamMember: {
         create: {
           workspaceId,
           role: permission,
+          status: TeamMemberStatus.Pending,
         }
       }
     },
@@ -239,11 +239,31 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
     from: env.EMAIL_FROM,
     to: email,
     subject: 'You have been invited to join a workspace',
-    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.AUTH_URL}/invite/${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
+    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.NEXTAUTH_URL}/invite?token=${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
     html: "",
   });
 
   return true;
+}
+
+export const deleteTeamMember = async (id: string) => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
+  await db.teamMember.delete({ where: { id } });
+}
+
+export const updateTeamMember = async (id: string, data: Partial<TeamMember>) => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
+  const updatedTeamMember = await db.teamMember.update({
+    where: { id },
+    data,
+  });
+  return updatedTeamMember;
 }
 
 export const checkIfInvitationExists = async (token: string) => {
@@ -251,25 +271,27 @@ export const checkIfInvitationExists = async (token: string) => {
   return invitation;
 }
 
-export const acceptWorkspaceInvite = async (token: string) => {
-  const invitation = await db.invitation.findFirst({ where: { token } });
-
+export const acceptWorkspaceInvite = async (token: string, userId: string) => {
+  const invitation = await db.invitation.findFirst({ where: { token }});
+  const user = await getUserById(userId);
   if (!invitation) {
     throw new Error("Invalid invitation token");
   }
+  if (!user) {
+    throw new Error("User not found");
+  }
 
-  const currentUser = await getCurrentUser();
-
-  if (!currentUser) {
-    throw new Error("User not authenticated");
+  if(invitation.email !== user.email){
+    throw new Error("Email does not match the invitation");
   }
 
   // Add the user to the workspace
-  await db.teamMember.create({
+  await db.teamMember.update({
+    where:  { id: invitation.teamMemberId },
     data: {
-      workspaceId: invitation.workspaceId,
-      userId: currentUser.id,
-      role: invitation.permission,
+      userId: user.id,
+      status: TeamMemberStatus.Active,
+      joinedAt: new Date(),
     },
     
   });

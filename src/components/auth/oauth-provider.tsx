@@ -1,17 +1,21 @@
 "use client";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { AFTER_SIGNIN_REDIRECT_URL, APP_DOMAIN } from "@/app-settings";
 import { Button } from "@/components/ui/button";
-import { Provider } from "next-auth/providers";
+import { Provider } from "next-auth/providers/index";
+
 export const OauthProvider = ({
   provider,
+  callbackUrl,
+  prefix
 }: {
+  prefix: string;
+  callbackUrl: string;
   provider: Provider;
 }) => {
   return (
     <Button
-      onClick={() => signIn(provider.name, { callbackUrl: AFTER_SIGNIN_REDIRECT_URL })}
+      onClick={() => signIn(provider.name, { callbackUrl })}
       className="flex gap-2 items-center justify-center w-full "
       variant={"secondary"}
     >
@@ -22,7 +26,7 @@ export const OauthProvider = ({
         height={20}
       />
       <span>
-        Sign in with <span className="capitalize">{provider.name}</span>
+        {prefix} with <span className="capitalize">{provider.name}</span>
       </span>
     </Button>
   );

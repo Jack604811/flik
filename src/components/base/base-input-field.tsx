@@ -12,14 +12,16 @@ import { Control } from "react-hook-form";
 interface Props {
   control: Control<any>;
   name: string;
+  type?: string;
   label?: string;
   placeholder?: string;
-  description?: string;
+  description?: string|React.ReactNode;
 }
 
 export function BaseInputField({
   control,
   name,
+  type,
   label,
   placeholder,
   description,
@@ -27,12 +29,12 @@ export function BaseInputField({
   return (
     <FormField
       control={control}
-      name="email"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormLabel className="capitalize">{label ?? name}</FormLabel>
           <FormControl>
-            <Input placeholder={placeholder} {...field} />
+            <Input placeholder={placeholder} {...field} type={type ?? "text"} />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />

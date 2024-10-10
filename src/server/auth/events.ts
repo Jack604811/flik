@@ -1,11 +1,11 @@
 
 import { createStripeCustomer } from "@/server/helpers/stripe/create-stripe-customer";
 import { db } from "@/server/db";
-import { NextAuthConfig } from "next-auth";
-export const events: NextAuthConfig["events"] = {
+import { EventCallbacks } from "next-auth";
+export const events: Partial<EventCallbacks> = {
   //add customer id to the new user
   createUser: async ({ user }) => {
-    if(user.customerId) return;
+    if(user?.customerId) return;
     // create the stripe customer
     const customer = await createStripeCustomer({
       email: user.email!,

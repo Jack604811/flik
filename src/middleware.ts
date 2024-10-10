@@ -12,9 +12,9 @@ export const config = {
     {
       source: "/((?!api/|_next/|_static/|_vercel|[\\w-]+\\.\\w+|assets/|sites/).*)",
       missing: [
-        { type: "header", key: "next-router-prefetch" },
+        // { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "next-action" },
-        { type: "header", key: "purpose", value: "prefetch" },
+        // { type: "header", key: "purpose", value: "prefetch" },
       ],
     }
 

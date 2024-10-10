@@ -1,20 +1,42 @@
 import { env } from "@/env";
-import type { Account, NextAuthConfig, Profile } from "next-auth";
+import type { CallbacksOptions } from "next-auth";
+import { getUserById } from "../actions/auth.action";
 
-export const callbacks: NextAuthConfig["callbacks"] = {
-  session: ({ session, user }) => ({
+export const callbacks: Partial<CallbacksOptions> = {
+  async signIn({ user, account }) {
+    if(account?.type !== "credentials") return true;
+    const existingUser = await getUserById(user.id);
+    if(!existingUser?.emailVerified)  return false;
+
+    // db.session.create({
+    //   data: {
+    //     userId: user.id,
+    //     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    //     sessionToken: 
+    //   }
+    // })
+    return true;
+  },
+  jwt: async ({ token, user }) => {
+    if(user){
+      token.id = user.id;
+    }
+    return token;
+  },
+  session: ({ session, user, token }) => {
+    return ({
     ...session,
     user: {
       ...session.user,
-      id: user.id,
-      customerId: user.customerId,
-      subscriptionId: user.subscriptionId,
-      oneTimeProductId: user.oneTimeProductId,
+      id: user?.id ?? token.id,
+      // customerId: user.customerId,
+      // subscriptionId: user.subscriptionId,
+      // oneTimeProductId: user.oneTimeProductId,
     },
-  }),
+  })},
   async redirect({ url, baseUrl }) {
     // Ensure baseUrl is using the app subdomain
-    const appBaseUrl = env.AUTH_URL;
+    const appBaseUrl = env.NEXTAUTH_URL;
     
     // Allows relative callback URLs
     if (url.startsWith("/")) return `${appBaseUrl}${url}`;

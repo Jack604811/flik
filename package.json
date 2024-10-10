@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.5.0",
+    "@auth/prisma-adapter": "^2.6.0",
     "@hookform/resolvers": "^3.3.4",
     "@libsql/client": "^0.6.0",
     "@prisma/adapter-libsql": "^5.12.1",
@@ -46,6 +46,7 @@
     "@uploadcare/blocks": "0.39.0",
     "@vercel/og": "^0.6.2",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
     "browser-image-compression": "^2.0.2",
     "caniuse-lite": "^1.0.30001664",
     "class-variance-authority": "^0.7.0",
@@ -60,7 +61,7 @@
     "lucide-react": "^0.428.0",
     "moment": "^2.30.1",
     "next": "^14.2.14",
-    "next-auth": "^5.0.0-beta.21",
+    "next-auth": "^4.24.8",
     "next-mdx-remote": "^0.0.0-canary-20240321205249",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^1.6.11",
@@ -92,6 +93,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.12",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.7.1",
     "@types/pg": "^8.11.6",
     "@types/react": "^18",

@@ -1,4 +1,5 @@
-import NextAuth, { NextAuthConfig, type DefaultSession } from "next-auth";
+import NextAuth, { getServerSession, type DefaultSession, type NextAuthOptions } from "next-auth";
+import { Adapter } from "next-auth/adapters"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/server/db";
 
@@ -12,23 +13,21 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
-      subscriptionId: string | null;
-      customerId: string;
-      oneTimeProductId: string | null;
-      country: string;
-      
-      // ...other properties
-      // role: UserRole;
+      customerId?: string | null | undefined;
+      stripeCustomerId?: string | null | undefined;
+      subscriptionId?: string | null | undefined;
+      oneTimeProductId?: string | null | undefined;
     };
   }
 
   interface User {
+    id: string;
     email?: string | null | undefined;
     name?: string | null | undefined;
-    subscriptionId: string | null;
-    customerId: string;
-    oneTimeProductId: string | null;
-    country: string;
+    customerId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    subscriptionId?: string | null | undefined;
+    oneTimeProductId?: string | null | undefined;
   }
 }
 
@@ -39,19 +38,27 @@ import { events } from "./events";
 import { callbacks } from "./callbacks";
 import { pages } from "./pages";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const authOptions: NextAuthOptions = {
   callbacks,
   events,
-  adapter: PrismaAdapter(db) as NextAuthConfig["adapter"],
+  adapter: PrismaAdapter(db) as Adapter,
+  session: { strategy: "jwt" },
   providers,
-  pages
-})
+  pages,
+}
+
+export const handlers = NextAuth(authOptions);
+
+export const auth = async () => {
+  const session = await getServerSession(authOptions);
+  return session;
+}
 
 
 export const getCurrentUser = async () => {
   const userSession = await auth();
 
-  return userSession?.user
+  return userSession?.user;
 }
 
 export { providers, events, callbacks, pages };
