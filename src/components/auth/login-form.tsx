@@ -54,7 +54,7 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <FormMessageAlert error={error} success={success} />
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <BaseInputField control={form.control} name="email" type="email" />
         <BaseInputField control={form.control} name="password" type="password" description={
             <p className="text-muted-foreground text-right text-xs"><Link href={"/forgot-password"} className="text-primary">Forgotten Password?</Link> </p>

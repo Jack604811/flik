@@ -15,7 +15,7 @@ import moment from 'moment'
 import useConfirm from '@/hooks/use-confirm'
 import { toast } from 'sonner'
 
-type Permission = 'Owner' | 'Admin' | 'Manager' | 'Editor' | 'Read-Only'
+type Permission = 'Owner' | 'Admin' | 'Editor' | 'Read-Only'
 
 type Member = {
   email: string
@@ -36,15 +36,24 @@ export default function TeamManagement({workspaceId} : Params) {
   const inviteMutation = useMutation({
     mutationKey: ['workspace/team-member', workspaceId],
     mutationFn: ({ email, permission }: { email: string, permission: Permission }) => sendInviteToWorkspace(workspaceId, email, permission),
+    onMutate: () => {
+      toast.loading("Sending invitation...");
+    },
     onSuccess: () => {
+      toast.dismiss(); 
       toast.success("Invitation sent successfully");
       mutate();
-    }
-  })
+    },
+    onError: (error) => {
+      toast.dismiss(); 
+      toast.error("Failed to send the invitation. Please try again.");
+    },
+  });
+  
 
   const [email, setEmail] = useState('')
   const [isValidEmail, setIsValidEmail] = useState(false)
-  const [permission, setPermission] = useState<Permission>('Manager')
+  const [permission, setPermission] = useState<Permission>('Admin')
   const [members, setMembers] = useState<Member[]>([])
 
   useEffect(() => {
@@ -54,36 +63,48 @@ export default function TeamManagement({workspaceId} : Params) {
 
   const handleInvite = () => {
     if (isValidEmail && !teamMembers.some(member => member.user?.email=== email || member.invitation?.email === email)) {
-      // Send an invite to the email
       inviteMutation.mutate({ email, permission });
 
       // Reset form
       setEmail('')
-      setPermission('Manager')
+      setPermission('Editor')
     }
   }
 
   const handleRemove = async (id: string) => {
     const confirm = await deleteConfirm();
-
+  
     if (confirm) {
-      // Remove member from the list
-      await deleteTeamMember(id).then(() => {
+      const toastId = toast.loading("Removing team member...");
+      try {
+        await deleteTeamMember(id);
         mutate();
         toast.success("Team member removed successfully");
-      });
+      } catch (error) {
+        toast.error("Failed to remove team member. Please try again.");
+      } finally {
+        toast.dismiss(toastId);
+      }
     }
   }
+  
 
   const handlePermissionChange = async (id: string, role: Permission) => {
     const confirm = await updateConfirm();
-    if(confirm){
-      await updateTeamMember(id, {role}).then(() => {
+    if (confirm) {
+      const toastId = toast.loading("Updating team member role...");
+      try {
+        await updateTeamMember(id, { role });
         mutate();
         toast.success("Team member updated successfully");
-      })
+      } catch (error) {
+        toast.error("Failed to update team member role. Please try again.");
+      } finally {
+        toast.dismiss(toastId);
+      }
     }
   }
+  
 
   return (
     <div className="py-6 min-h-screen">
@@ -105,13 +126,14 @@ export default function TeamManagement({workspaceId} : Params) {
                 onChange={(e) => setEmail(e.target.value)}
                 className=""
               />
-              <Select value={permission} onValueChange={(value: Permission) => setPermission(value)}>
+              <Select value={permission} onValueChange={(value: Permission)  => setPermission(value)}>
                 <SelectTrigger className="w-[200px] bg-transparent border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
                   <SelectValue placeholder="Select permission" />
                 </SelectTrigger>
                 <SelectContent className="">
                   <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Manager">Manager</SelectItem>
+                  <SelectItem value="Manager">Editor</SelectItem>
+                  <SelectItem value="Read-Only">Read-Only</SelectItem>
                 </SelectContent>
               </Select>
               <Button 
@@ -180,7 +202,8 @@ export default function TeamManagement({workspaceId} : Params) {
                                 </SelectTrigger>
                                 <SelectContent className="">
                                   <SelectItem value="Admin">Admin</SelectItem>
-                                  <SelectItem value="Manager">Manager</SelectItem>
+                                  <SelectItem value="Manager">Editor</SelectItem>
+                                  <SelectItem value="Read-Only">Read-Only</SelectItem>
                                 </SelectContent>
                               </Select>
                             )}

@@ -6,10 +6,12 @@ import { Separator } from "@/components/ui/separator"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { getUser } from '@/server/actions/user.action';
 import { getCurrentUser } from '@/server/auth';
-import PersonalInfoForm from '@/components/forms/PersonalInfoForm';
+import PersonalInfoForm from '@/components/forms/personal-info';
 import { User } from '@prisma/client';
 import WorkspaceSwitcher from '@/components/main/workspace-switcher';
 import ThemeToggle from '@/components/main/theme-toggle-profile';
+import { LogoutButton } from '@/components/auth/logout-button';
+
 
 
 async function Profile() {
@@ -19,7 +21,6 @@ async function Profile() {
       <div className="flex-1 max-w-6xl pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
         <div className="mb-8">
           <h2 className="text-2xl font-bold tracking-tight">Profile Settings</h2>
-          
         </div>
         <section className="space-y-6">
           <PersonalInfoForm user={user as User} />
@@ -39,6 +40,15 @@ async function Profile() {
               <div className="space-y-2">
                 <Label htmlFor="siteName">Theme</Label>
                 <ThemeToggle/>
+              </div>
+              <div className="my-2 border-t">
+            <Button 
+              className="w-full h-8 px-2 py-2 flex items-center justify-start text-left whitespace-nowrap"
+              variant="ghost"
+            >
+              <LogoutButton />
+            </Button>
+            
               </div>
             </div>
           </div>
@@ -68,6 +78,7 @@ async function Profile() {
             </Button>
           </form> */}
         </div>
+        
        
       </div>
   )

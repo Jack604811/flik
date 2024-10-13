@@ -50,7 +50,7 @@ export function SignupForm() {
   return (
     <Form {...form}>
       <FormMessageAlert error={error} success={success} />
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <BaseInputField control={form.control} name="name" />
         <BaseInputField control={form.control} name="email" type="email" />
         <BaseInputField control={form.control} name="password" type="password" />

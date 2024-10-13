@@ -79,7 +79,9 @@ function PersonalInfoForm({user}: {user: User}) {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="Add a valid email" {...field} />
+                          <Input 
+                          placeholder="Add a valid email" {...field} 
+                          disabled/>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
