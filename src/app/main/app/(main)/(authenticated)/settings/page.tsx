@@ -39,7 +39,7 @@ export default async function Page() {
           Setup your business like a boss.
         </p>
       </div>
-      <Tabs defaultValue="main">
+      <Tabs defaultValue="site">
         <div className="overflow-x-auto space-y-8">
           <TabsList className="min-w-full md:min-w-[300px]">
             <TabsTrigger value="main">Main</TabsTrigger>
@@ -52,6 +52,8 @@ export default async function Page() {
         </div>
         <TabsContent value="main">
           <MainSettings workspace={currentWorkspace} />
+        </TabsContent>
+        <TabsContent value="site">
           <SiteSettings
             subdomain={currentWorkspace.subdomain ?? ""}
             customDomain={currentWorkspace.customDomain ?? ""}

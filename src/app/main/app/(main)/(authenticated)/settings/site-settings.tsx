@@ -100,22 +100,23 @@ function SiteSettings({
                   className="rounded-e-none"
                   maxLength={32}
                   defaultValue={subdomain!}
+                  disabled
                 />
                 <Input
                   placeholder="process.env.NEXT_PUBLIC_ROOT_DOMAIN"
                   disabled
                   readOnly
                   value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-                  className="rounded-s-none w-4/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                  className="rounded-s-none w-2/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
                 />
               </div>
               {/* <p className="text-xs text-muted-foreground font-semibold">
                 Please use 32 characters maximum.
               </p> */}
             </div>
-            <div className="flex justify-end">
+            {/* <div className="flex justify-end">
               <Button type="submit">Save Changes</Button>
-            </div>
+            </div> */}
           </div>
         </form>
         <div className="my-3">

@@ -20,8 +20,12 @@ import { Workspace } from "@prisma/client";
 
 function MainSettings({ workspace }: { workspace: Workspace }) {
   const [imagePreview, setImagePreview] = useState<string>(
-    `${workspace.logo ?? "/assets/placeholder.svg"}?${Date.now()}`
+    workspace.logo ?? "/assets/placeholder.svg"
   );
+  useEffect(() => {
+    setImagePreview(`${workspace.logo ?? "/assets/placeholder.svg"}?${Date.now()}`);
+  }, []);
+  
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>(
     workspace.country ?? ""

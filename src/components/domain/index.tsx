@@ -1,23 +1,27 @@
 "use client";
 
-import LoadingDots from "@/components/icons/loading-dots";
-import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
+import { useState, useEffect } from "react";
+import { Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import DomainStatus from "./domain-status";
 import DomainConfiguration from "./domain-configuration";
-import { Input } from "../ui/input";
+import { deleteCustomDomain } from "@/server/actions/domain.action"; // Import the delete action
 
-export default function DomainForm({
-  workspaceId,
-  title,
-  description,
-  helpText,
-  inputAttrs,
-  handleSubmit,
-}: {
+interface DomainFormProps {
   workspaceId: string;
   title: string;
   description: string;
@@ -30,105 +34,160 @@ export default function DomainForm({
     maxLength?: number;
     pattern?: string;
   };
-  handleSubmit: any;
-}) {
-  const router = useRouter();
-  const { update } = useSession();
-  return (
-    <form
-    action={async (data: FormData) => {
-      if (
-        inputAttrs.name === "customDomain" &&
-        inputAttrs.defaultValue &&
-        data.get("customDomain") !== inputAttrs.defaultValue &&
-        !confirm("Are you sure you want to change your custom domain?")
-      ) {
-        return;
-      }
-      try {
-        const res = await handleSubmit(workspaceId, data.get(inputAttrs.name));
-
-        if (res && res.error) {
-          toast.error(res.error);
-        } else {
-          await update();
-          router.refresh();
-          toast.success(`Successfully updated ${inputAttrs.name}!`);
-        }
-      } catch (error) {
-        console.error('Error in handleSubmit:', error);
-        toast.error('An unexpected error occurred.');
-      }
-    }}
-      className="rounded-lg border border-stone-200 bg-white dark:border-stone-700 dark:bg-black overflow-x-auto max-w-[600px]"
-    >
-      <div className="relative flex flex-col space-y-4 p-5 sm:p-10">
-        <h2 className="font-cal text-xl dark:text-white">{title}</h2>
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          {description}
-        </p>
-        {inputAttrs.name === "subdomain" ? (
-          <div className="flex w-full">
-            <Input
-              {...inputAttrs}
-              required
-              className="z-10 flex-1 rounded-l-md border border-stone-300 text-sm text-stone-900 placeholder-stone-300 focus:border-stone-500 focus:outline-none focus:ring-stone-500 dark:border-stone-600 dark:bg-black dark:text-white dark:placeholder-stone-700"
-            />
-            <div className="flex items-center rounded-r-md border border-l-0 border-stone-300 bg-stone-100 px-3 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400">
-              {process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-            </div>
-          </div>
-        ) : inputAttrs.name === "customDomain" ? (
-          <div className="relative flex w-full max-w-md">
-            <Input
-              {...inputAttrs}
-              className="z-10 flex-1 rounded-md border border-stone-300 text-sm text-stone-900 placeholder-stone-300 focus:border-stone-500 focus:outline-none focus:ring-stone-500 dark:border-stone-600 dark:bg-black dark:text-white dark:placeholder-stone-700"
-            />
-            {inputAttrs.defaultValue && (
-              <div className="absolute right-3 z-10 flex h-full items-center">
-                <DomainStatus domain={inputAttrs.defaultValue} />
-              </div>
-            )}
-          </div>
-        ) : inputAttrs.name === "description" ? (
-          <textarea
-            {...inputAttrs}
-            rows={3}
-            required
-            className="w-full max-w-xl rounded-md border border-stone-300 text-sm text-stone-900 placeholder-stone-300 focus:border-stone-500 focus:outline-none focus:ring-stone-500 dark:border-stone-600 dark:bg-black dark:text-white dark:placeholder-stone-700"
-          />
-        ) : (
-          <Input
-            {...inputAttrs}
-            required
-            className="w-full max-w-md rounded-md border border-stone-300 text-sm text-stone-900 placeholder-stone-300 focus:border-stone-500 focus:outline-none focus:ring-stone-500 dark:border-stone-600 dark:bg-black dark:text-white dark:placeholder-stone-700"
-          />
-        )}
-      </div>
-      {inputAttrs.name === "customDomain" && inputAttrs.defaultValue && (
-        <DomainConfiguration domain={inputAttrs.defaultValue} />
-      )}
-      <div className="flex flex-col items-center justify-center space-y-2 rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 sm:flex-row sm:justify-between sm:space-y-0 sm:px-10">
-        <p className="text-sm text-stone-500 dark:text-stone-400">{helpText}</p>
-        <FormButton />
-      </div>
-    </form>
-  );
+  handleSubmit: (workspaceId: string, value: string) => Promise<any>;
 }
 
-function FormButton() {
+export default function DomainForm({
+  workspaceId,
+  title,
+  description,
+  helpText,
+  inputAttrs,
+  handleSubmit,
+}: DomainFormProps) {
+  const router = useRouter();
+  const { update } = useSession();
   const { pending } = useFormStatus();
+  const [domain, setDomain] = useState<string>(inputAttrs.defaultValue || "");
+  const [isDomainValid, setIsDomainValid] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [domainAdded, setDomainAdded] = useState<boolean>(!!domain);
+
+  useEffect(() => {
+    // Improved domain validation
+    const domainRegex = /^(?!-)[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+    setIsDomainValid(domainRegex.test(domain));
+  }, [domain]);
+
+  const handleFormSubmit = async () => {
+    if (!isDomainValid) {
+      toast.error("Please enter a valid domain");
+      return;
+    }
+
+    setIsLoading(true);
+    toast.loading("Adding domain...");
+    try {
+      const res = await handleSubmit(workspaceId, domain);
+
+      if (res && res.error) {
+        toast.error(res.error);
+      } else {
+        await update();
+        router.refresh();
+        toast.success("Successfully added Custom Domain!");
+        setDomainAdded(true);
+      }
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+      toast.dismiss();
+    }
+  };
+
+  const handleRemoveDomain = async () => {
+    setIsDialogOpen(false);
+
+    setIsLoading(true);
+    toast.loading("Removing domain...");
+
+    try {
+      const res = await deleteCustomDomain(workspaceId);
+
+      if (res && res.error) {
+        toast.error(res.error);
+      } else {
+        setDomain("");
+        setDomainAdded(false);
+        setIsDomainValid(false);
+        toast.success("Successfully removed the Custom Domain.");
+      }
+    } catch (error) {
+      console.error("Error in deleting custom domain:", error);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+      toast.dismiss();
+    }
+  };
+
   return (
-    <button
-      className={cn(
-        "flex h-8 w-32 items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none sm:h-10",
-        pending
-          ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
-          : "border-black bg-black text-white hover:bg-white hover:text-black dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800",
-      )}
-      disabled={pending}
-    >
-      {pending ? <LoadingDots color="#808080" /> : <p>Save Changes</p>}
-    </button>
+    <form className="max-w-[600px]">
+      <div className="flex flex-col w-full space-y-4">
+        <h2 className="text-xl">{title}</h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
+
+        {inputAttrs.name === "customDomain" ? (
+          <div className="flex w-full items-center space-x-2">
+            <div className="relative flex w-full">
+              <Input
+                placeholder="https://"
+                disabled
+                readOnly
+                value="https://"
+                className="rounded-none w-[72px] inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+              />
+              <Input
+                {...inputAttrs}
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+                disabled={domainAdded}
+                className="rounded-l-none"
+              />
+              {domainAdded && (
+                <div className="absolute right-3 flex h-full items-center">
+                  <DomainStatus domain={domain} />
+                </div>
+              )}
+            </div>
+
+            {/* Submit or Remove Button */}
+            {domainAdded ? (
+              <>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="whitespace-nowrap">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm Deletion</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to remove this domain? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="default" onClick={() => setIsDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button variant="destructive" onClick={handleRemoveDomain}>
+                        Remove
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </>
+            ) : (
+              <Button
+                variant="default"
+                className="whitespace-nowrap"
+                onClick={handleFormSubmit}
+                disabled={!isDomainValid || isLoading}
+              >
+                {isLoading ? "Adding..." : "+ Add domain"}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Input {...inputAttrs} required className="w-full" />
+        )}
+      </div>
+
+      {domainAdded && <DomainConfiguration domain={domain} />}
+    </form>
   );
 }

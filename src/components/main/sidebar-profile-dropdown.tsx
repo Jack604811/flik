@@ -17,7 +17,6 @@ export default function SidebarProfileDropdown() {
   const userEmail = session?.user?.email || "user@example.com";
   const userImage = session?.user?.image || "/assets/profile-placeholder.svg";
 
-
   if (status === "loading") {
     return <div></div>;
   }
@@ -34,7 +33,7 @@ export default function SidebarProfileDropdown() {
       >
         <div className="flex items-center gap-2 py-2">
           <Image 
-            src="/assets/profile-placeholder.svg" 
+            src={userImage} 
             alt="Profile Placeholder" 
             width={32} 
             height={32} 
@@ -48,7 +47,7 @@ export default function SidebarProfileDropdown() {
         <ChevronRight className="hidden lg:block w-5 h-5 text-gray-400" />
       </div>
       {isOpen && (
-        <div className="absolute right-0 lg:bottom-0 lg:left-full mt-2 lg:ml-4 w-48 border-6 border-white/10 rounded-xl shadow-lg">
+        <div className="absolute z-50 right-0 lg:bottom-0 lg:left-full mt-2 lg:ml-4 w-48 border-6 border-white/10 rounded-xl shadow-lg">
           <div className="p-2 gap-2 border rounded-xl bg-white dark:bg-black">
             <Link href="/profile">
               <Button
@@ -77,13 +76,7 @@ export default function SidebarProfileDropdown() {
               Docs
             </Button>
             <div className="my-2 border-t"></div>
-            <Button 
-              className="w-full h-8 px-2 py-2 flex items-center justify-start text-left whitespace-nowrap"
-              variant="ghost"
-              onClick={handleButtonClick} 
-            >
-              <LogoutButton />
-            </Button>
+            <LogoutButton />
           </div>
         </div>
       )}

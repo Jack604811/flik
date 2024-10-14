@@ -130,7 +130,7 @@ export function SocialProofTestimonials() {
     <section id="testimonials">
       <div className="py-14">
         <div className="container mx-auto px-4 md:px-8">
-        <div className="mx-auto text-center">
+          <div className="mx-auto text-center">
             <h5 className="text-xl font-bold tracking-tight text-gray-500">
               What our clients are saying
             </h5>
@@ -138,7 +138,9 @@ export function SocialProofTestimonials() {
               Testimonials
             </h2>
             <p className="text-balance text-lg tracking-tight text-gray-400 md:text-xl py-4">
-            See how our platform have helped businesses like yours manage spaces effortlessly, attract more traffic, and maximize their bookings.
+              See how our platform has helped businesses like yours manage
+              spaces effortlessly, attract more traffic, and maximize their
+              bookings.
             </p>
           </div>
           <div className="relative mt-6 max-h-[650px] overflow-hidden">
@@ -147,8 +149,8 @@ export function SocialProofTestimonials() {
                 .fill(0)
                 .map((_, i) => (
                   <Marquee
-                    horizontal
                     key={i}
+                    reverse={i % 2 === 0} // For a reverse effect on alternate rows
                     className={cn({
                       "[--duration:60s]": i === 1,
                       "[--duration:30s]": i === 2,
@@ -163,10 +165,10 @@ export function SocialProofTestimonials() {
             </div>
             <div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/3 bg-gradient-to-r from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
             <div className="pointer-events-none absolute inset-y-0 right-0 h-full w-1/3 bg-gradient-to-l from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
-          
           </div>
         </div>
       </div>
     </section>
   );
 }
+

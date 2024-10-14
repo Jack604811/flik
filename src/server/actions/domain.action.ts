@@ -62,6 +62,21 @@ export const getSiteSpotData = async (domain: string, spotId: string) => {
   return await fetcher();
 };
 
+
+export const deleteCustomDomain = async (workspaceId: string) => {
+  try {
+    const workspace = await db.workspace.update({
+      where: { id: workspaceId },
+      data: { customDomain: null },
+    });
+    return { success: true, workspace };
+  } catch (error) {
+    console.error("Error deleting custom domain:", error);
+    return { success: false, error: "Failed to delete custom domain." };
+  }
+};
+
+
 export const getSpotBooking = async (domain: string, bookingId: string) => {
   domain = decodeURIComponent(domain);
   const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)

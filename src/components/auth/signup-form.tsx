@@ -11,7 +11,7 @@ import { registerUser } from "@/server/actions/auth.action";
 import FormMessageAlert from "../base/form-message-alert";
 import { useSearchParams } from "next/navigation";
 const formSchema = z.object({
-    name: z.string({ message: "Full name is required" }),
+    name: z.string().min(5, { message:"Full name is required" }),
     email: z.string().email({ message: "Invalid email address" }),
     password: z.string().min(6, { message: "Minimum of 6 characters is required" }),
 });
