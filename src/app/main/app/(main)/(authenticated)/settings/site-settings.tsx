@@ -89,11 +89,11 @@ function SiteSettings({
           
         </div>
         <form onSubmit={onSave}>
-          <div className="flex flex-col gap-2 lg:max-w-[600px]">
+          <div className="flex flex-col gap-4 lg:max-w-[600px]">
             <div className="flex flex-col space-y-2">
             
               <Label htmlFor="subdomain" className="gap-8">Subdomain</Label>
-              <div className="flex columns-2 items-center justify-center mt-4">
+              <div className="flex flex-row items-center justify-center mt-4">
                 <Input
                   placeholder="subdomain"
                   name="subdomain"
@@ -107,19 +107,19 @@ function SiteSettings({
                   disabled
                   readOnly
                   value={process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-                  className="rounded-s-none w-2/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                  className="rounded-s-none w-2/6 inline-flex items-center px-3 rounded-l-md border border-l-0 border-background-300 bg-background-50 text-gray-500 dark:text-gray-300 text-sm"
                 />
               </div>
               {/* <p className="text-xs text-muted-foreground font-semibold">
                 Please use 32 characters maximum.
               </p> */}
             </div>
-            {/* <div className="flex justify-end">
+            <div className="flex justify-end">
               <Button type="submit">Save Changes</Button>
-            </div> */}
+            </div>
           </div>
         </form>
-        <div className="my-3">
+        <div className="my-4">
           <DomainForm
               title="Custom Domain"
               description="The custom domain for your site."

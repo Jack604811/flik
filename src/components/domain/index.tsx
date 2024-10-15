@@ -20,6 +20,7 @@ import {
 import DomainStatus from "./domain-status";
 import DomainConfiguration from "./domain-configuration";
 import { deleteCustomDomain } from "@/server/actions/domain.action"; // Import the delete action
+import { Label } from "../ui/label";
 
 interface DomainFormProps {
   workspaceId: string;
@@ -116,9 +117,10 @@ export default function DomainForm({
 
   return (
     <form className="max-w-[600px]">
-      <div className="flex flex-col w-full space-y-4">
-        <h2 className="text-xl">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
+      
+      <div className="space-y-2">
+      <Label htmlFor="siteName">Custom Domain</Label>
+       
 
         {inputAttrs.name === "customDomain" ? (
           <div className="flex w-full items-center space-x-2">
@@ -128,7 +130,7 @@ export default function DomainForm({
                 disabled
                 readOnly
                 value="https://"
-                className="rounded-none w-[72px] inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                className="rounded-none w-[72px] inline-flex items-center px-3 rounded-l-md border border-r-0 border-background-300 bg-background-50 text-gray-500 dark:text-gray-300 text-sm"
               />
               <Input
                 {...inputAttrs}
@@ -149,7 +151,7 @@ export default function DomainForm({
               <>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="whitespace-nowrap">
+                    <Button variant="outline" className="whitespace-nowrap px-3">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
@@ -174,7 +176,7 @@ export default function DomainForm({
             ) : (
               <Button
                 variant="default"
-                className="whitespace-nowrap"
+                className="whitespace-nowrap "
                 onClick={handleFormSubmit}
                 disabled={!isDomainValid || isLoading}
               >

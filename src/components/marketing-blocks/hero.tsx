@@ -21,6 +21,10 @@ export function Hero() {
       opacity: 0,
       y: 24,
     },
+    initialShiny: {
+      opacity: 0,
+      y: 1,
+    },
     animate: {
       opacity: 1,
       y: 0,
@@ -33,20 +37,19 @@ export function Hero() {
         <Particles className="absolute inset-0"
         quantity={100}
         ease={80}
-      
         refresh
         />
-        <div className="container z-10 flex flex-col">
+        <div className="container z-10 flex flex-col items-center text-center">
           <div className="mt-20 grid grid-cols-1">
-            <div className="flex flex-col items-center gap-4 pb-0 text-center">
-            <div className="z-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4 pb-8">
+              <div className="z-0 flex items-center justify-center">
               <motion.div
-                  animate={fadeInInView ? "animate" : "initial"}
+                  animate={fadeInInView ? "animate" : "initialShiny"}
                   variants={fadeUpVariants}
                   className="group rounded-full border border-black/5 bg-neutral-100 text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
                   initial={false}
                   transition={{
-                    duration: 0.6,
+                    duration: 0.8,
                     delay: 0.3,
                     ease: [0.21, 0.47, 0.32, 0.98],
                     type: "spring",
@@ -58,45 +61,46 @@ export function Hero() {
                   </AnimatedShinyText>
                 </motion.div>
               </div>
-              <div className="gap-2 mb-4">
+            
               <motion.h1
                 ref={fadeInRef}
-                className="text-balance bg-gradient-to-br from-black from-30% to-black/60 bg-clip-text p-2 text-5xl font-medium leading-none tracking-tighter text-transparent dark:from-white dark:to-white/40 sm:text-6xl md:text-7xl lg:text-8xl"
+                className="max-w-7xl text-balance bg-gradient-to-br from-black from-30% to-black/60 bg-clip-text p-2 text-4xl font-bold leading-none tracking-tighter text-transparent dark:from-white dark:to-white/40 sm:text-5xl md:text-6xl lg:text-7xl"
                 animate={fadeInInView ? "animate" : "initial"}
                 variants={fadeUpVariants}
                 initial={false}
                 transition={{
-                  duration: 0.6,
+                  duration: 2.5,
                   delay: 0.1,
                   ease: [0.21, 0.47, 0.32, 0.98],
                   type: "spring",
                 }}
               >
-                Turn visitors <br /> Into Bookings<br />
+                Transform Your Business with All-in-One Booking Software
               </motion.h1>
               <motion.p
-                className="text-balance text-lg tracking-tight text-gray-400 md:text-xl"
+                className="max-w-xl text-center text-base tracking-tight text-gray-400 sm:text-lg md:text-xl lg:text-2xl"
                 animate={fadeInInView ? "animate" : "initial"}
                 variants={fadeUpVariants}
                 initial={false}
                 transition={{
-                  duration: 0.6,
-                  delay: 0.2,
+                  duration: 2.8,
+                  delay: 0.4,
                   ease: [0.21, 0.47, 0.32, 0.98],
                   type: "spring",
                 }}
               >
-                Create your website in minutes and start to get bookings easy
+                Booking, AI Chat, Website Builder, E-Commerce 
+                Tailored for Hotels, Spa, Barbershops & More
               </motion.p>
               </div>
               <motion.div
                 animate={fadeInInView ? "animate" : "initial"}
                 variants={fadeUpVariants}
-                className="flex flex-col gap-4 lg:flex-row"
+                className="flex flex-col justify-center space-y-4 lg:flex-row"
                 initial={false}
                 transition={{
-                  duration: 0.6,
-                  delay: 0.3,
+                  duration: 2.9,
+                  delay: 0.6,
                   ease: [0.21, 0.47, 0.32, 0.98],
                   type: "spring",
                 }}
@@ -119,7 +123,7 @@ export function Hero() {
               </motion.div>
             </div>
            
-          </div>
+        
           
           <motion.div
             animate={fadeInInView ? "animate" : "initial"}

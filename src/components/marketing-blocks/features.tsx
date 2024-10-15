@@ -73,102 +73,78 @@ const Notification = ({ name, description, icon, color, time }: any) => (
 
 const features = [
   {
-    name: "Dynamic Booking Flexibility",
+    name: "Website builder",
     description:
-      "Set up your booking durations and time slots with complete flexibility. Tailor your availability down to the hour, day, or week – whatever suits your business needs.",
+      "Set up your booking durations and time slots with complete flexibility",
     className: "col-span-3 lg:col-span-1",
     href: "#",
     cta: "Learn more 👉",
     background: (
-      <Calendar
-        mode="single"
-        selected={new Date(2022, 4, 11, 0, 0, 0)}
-        className="absolute right-0 top-10 origin-top rounded-md border transition-all duration-300 ease-out [mask-image:linear-gradient(to_top,transparent_40%,#000_100%)] group-hover:scale-105"
-      />
+      <div></div>
     ),
   },
   {
-    name: "Instant Website Creation",
+    name: "24/7 Online Bookings",
     description:
-      "Automatically generate a professional, SEO-friendly website based on your spaces. Customize it with your logo, favicon, and domain to match your brand perfectly. Drive traffic with paid ads or organic searches to boost your bookings.",
+      "Automatically generate a professional, SEO-friendly website based on your spaces. Customize it with your logo, favicon, and domain to match your brand perfectly",
     href: "#",
     cta: "Learn more 👉",
     className: "col-span-3 lg:col-span-2",
     background: (
       <div className="absolute right-2 top-10 h-[300px] w-full max-w-[600px] mx-4 transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
-        <SleekBrowserFrame />
-      </div>
-    ),
-  },
-  {
-    name: "Integrated Payment Solutions",
-    description:
-      "Connect with leading payment platforms or manually track transactions for cash, bank transfers, and more. Our system supports multiple payment methods, ensuring you never miss a payment.",
-    href: "#",
-    cta: "Learn more 👉",
-    className: "col-span-3 lg:col-span-2",
-    background: (
-      <div className="flex absolute right-2 top-10 h-[200px] max-w-[600px] justify-center transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
-      <AnimatedList>
-        {notifications.map((item, idx) => (
-          <Notification key={idx} {...item} />
-        ))}
-      </AnimatedList>
+       
       </div>
     ),
   },
   {
     name: "Insightful Analytics",
     description:
-      "Dive into detailed analytics to track your bookings, transactions, and revenues. Understand your performance at a glance with metrics like occupancy rates, total visits, and upsell effectiveness.",
+      "Connect with leading payment platforms or manually track transactions for cash, bank transfers, and more. Our system supports multiple payment methods.",
+    href: "#",
+    cta: "Learn more 👉",
+    className: "col-span-3 lg:col-span-2",
+    background: (
+      <div className="flex absolute right-2 top-10 h-[200px] max-w-[600px] justify-center transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
+      {/* <AnimatedList>
+        {notifications.map((item, idx) => (
+          <Notification key={idx} {...item} />
+        ))}
+      </AnimatedList> */}
+      </div>
+    ),
+  },
+  {
+    name: "Integrated Payment System",
+    description:
+      "Detailed analytics to track your bookings, transactions and revenue",
     href: "#",
     cta: "Learn more",
     className: "col-span-3 lg:col-span-1",
     background: (
-      <Marquee
-        pauseOnHover
-        className="absolute top-10 [--duration:20s] [mask-image:linear-gradient(to_top,transparent_40%,#000_100%)]"
-      >
-        {files.map((f, idx) => (
-          <figure
-            key={idx}
-            className={cn(
-              "relative w-32 cursor-pointer overflow-hidden rounded-xl border p-4",
-              "border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]",
-              "dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]",
-              "transform-gpu blur-[1px] transition-all duration-300 ease-out hover:blur-none"
-            )}
-          >
-            <div className="flex flex-row items-center gap-2">
-              <div className="flex flex-col">
-                <figcaption className="text-sm font-medium dark:text-white">
-                  {f.name}
-                </figcaption>
-              </div>
-            </div>
-            <blockquote className="mt-2 text-xs">{f.body}</blockquote>
-          </figure>
-        ))}
-      </Marquee>
+      <div></div>
     ),
   },
 ];
 
 export function Features() {
   return (
-    <section id="features">
+    <section id="features" className="relative">
+      {/* Glow Effect */}
+      <div className="absolute inset-0 z-0 flex justify-center items-center">
+        {/* <div className="h-[1000px] w-[1000px] bg-[radial-gradient(ellipse_at_center,_#ffffff,_transparent)] opacity-5 blur-3xl rounded-full"></div> */}
+      </div>
+
       <div className="py-24">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="mx-auto text-center">
-            <h5 className="text-xl font-bold tracking-tight text-gray-500">
+        <div className="container max-w-5xl mx-auto px-4 md:px-8">
+          <div className="mx-auto text-center max-w-2xl">
+            <h5 className="text-xl font-semibold tracking-tight text-gray-500">
               Explore
             </h5>
-            <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
-              Features
+            <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
+              Flik is All You Need to Run Your Business Efficiently
             </h2>
             <p className="text-balance text-lg tracking-tight text-gray-400 md:text-xl py-4">
-              Discover Our Tools and Flexibility You Need to Manage Your Spaces,
-              Drive Traffic, and Maximize Bookings.
+              Manage your day-to-day operations, freeing up time to focus on growth.
             </p>
           </div>
           <div className="container mx-auto my-12 max-w-[1200px] space-y-12">
@@ -183,3 +159,4 @@ export function Features() {
     </section>
   );
 }
+
