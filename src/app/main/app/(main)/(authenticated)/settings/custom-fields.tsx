@@ -14,14 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 interface CustomField {
   id: string
   name: string
-  conditional: "Applied" | "Not Applied"
+  createdBy: string
   dateCreated: string
 }
 
 const customFields: CustomField[] = [
-  { id: "1", name: "Customer Type", conditional: "Applied", dateCreated: "2023-06-01"},
-  { id: "2", name: "Purchase Frequency", conditional: "Not Applied", dateCreated: "2023-06-15" },
-  { id: "3", name: "Loyalty Score", conditional: "Applied", dateCreated: "2023-07-01" },
+  { id: "1", name: "Customer Type", createdBy: "email@gmail.com", dateCreated: "2023-06-01"},
+  { id: "2", name: "Purchase Frequency", createdBy: "email@gmail.com", dateCreated: "2023-06-15" },
+  { id: "3", name: "Loyalty Score", createdBy: "email@gmail.com", dateCreated: "2023-07-01" },
 ]
 
 export default function CustomFields() {
@@ -99,7 +99,7 @@ export default function CustomFields() {
                 <TableHeader>
                   <TableRow className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
                     <TableHead className="text-gray-900 dark:text-white">Field Name</TableHead>
-                    <TableHead className="text-gray-900 dark:text-white">Conditionals</TableHead>
+                    <TableHead className="text-gray-900 dark:text-white">Create By</TableHead>
                     <TableHead className="text-gray-900 dark:text-white">Date Created</TableHead>
                     <TableHead className="text-gray-900 dark:text-white sr-only">Actions</TableHead>
                   </TableRow>
@@ -121,15 +121,7 @@ export default function CustomFields() {
                         onClick={() => handleOpenDialog(field)}
                       >
                         <TableCell className="font-medium">{field.name}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            field.conditional === "Applied"
-                              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300"
-                              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
-                          }`}>
-                            {field.conditional}
-                          </span>
-                        </TableCell>
+                        <TableCell>{field.createdBy}</TableCell>
                         <TableCell>{field.dateCreated}</TableCell>
                         <TableCell>
                           <DropdownMenu>

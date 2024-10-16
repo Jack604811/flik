@@ -98,10 +98,10 @@ function PricingTier({
     <div
       className={cn(
         "outline-focus transition-transform-background relative box-border grid h-full w-full grid-rows-[150px_1fr_auto] overflow-hidden rounded-xl bg-background/60 p-3 text-foreground outline-2 outline-offset-2 backdrop-saturate-150 motion-reduce:transition-none dark:border dark:border-neutral-400/15 dark:bg-background/50",
-        "shadow-[0px_0px_5px_0px_rgba(0,0,0,0.03),0px_2px_30px_0px_rgba(0,0,0,0.08),0px_0px_1px_0px_rgba(0,0,0,0.3)] dark:shadow-[0px_0px_5px_0px_rgba(255,255,255,0.015),0px_2px_30px_0px_rgba(255,255,255,0.02),0px_0px_1px_0px_rgba(255,255,255,0.3)]",
+        "shadow-[0px_0px_5px_0px_rgba(0,0,0,0.03),0px_2px_30px_0px_rgba(0,0,0,0.08),0px_0px_1px_0px_rgba(0,0,0,0.3)] dark:shadow-[0px_0px_5px_0px_rgba(255,255,255,0.015),0px_2px_30px_0px_rgba(255,255,255,0.02),0px_0px_1px_0px_rgba(255,255,255,0.3)] bg-[radial-gradient(60%_128px_at_20%_0%,theme(backgroundColor.white/8%),transparent)]",
       )}
     >
-       {tier.popular && <BorderBeam borderWidth={2} className="dark:bg-black" colorFrom="#FFFFFF" colorTo="#000000"/>} 
+       
       <CardHeader className="h-full border-b p-4">
         <CardTitle className="flex items-center justify-between">
           {tier.name}
@@ -153,10 +153,10 @@ function PricingTier({
       <Button
         size="lg"
         className={cn(
-          "mt-4 w-full rounded-lg shadow-none",
+          "my-4 w-full rounded-lg shadow-none border border-neutral-900 dark:border-neutral-700 bg-[radial-gradient(40%_128px_at_20%_0%,theme(backgroundColor.white/20%),transparent)]",
           tier.popular
-            ? "bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200"
-            : "bg-neutral-100 text-neutral-900 hover:bg-neutral-200 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+            ? "bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+            : "bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
         )}
       >
         Start Free Trial
@@ -179,11 +179,11 @@ export function Pricing() {
     <section id="pricing">
       <div className="mx-auto max-w-6xl p-6 py-20">
         <div className="text-center">
-          <h2 className="text-5xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
+          <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
             Simple pricing for everyone.
           </h2>
 
-          <p className="mt-6 text-balance text-lg leading-8 text-gray-400 dark:text-white">
+          <p className="text-lg tracking-tight text-gray-500 my-4">
             Choose an <strong>affordable plan</strong> that&apos;s packed with
             the best features for engaging your audience, creating customer
             loyalty, and driving sales.

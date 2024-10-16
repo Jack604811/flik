@@ -87,13 +87,13 @@ export function FAQ() {
       <div className="py-24">
         <div className="container mx-auto px-4 md:px-8">
           <div className="mx-auto text-center">
-            <h5 className="text-xl font-bold tracking-tight text-black dark:text-white text-muted-foreground">
+            <h5 className="text-lg tracking-tight text-gray-500">
               FAQs
             </h5>
-            <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
+            <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
               Frequently Asked Questions
             </h2>
-            <p className="text-balance text-lg tracking-tight text-gray-400 md:text-xl py-4">
+            <p className="text-lg tracking-tight text-gray-500 py-4">
               Need help with something? Here are some of the most common
               questions we get.
             </p>
@@ -116,7 +116,7 @@ export function FAQ() {
                       className="w-full max-w-[600px]"
                     >
                       <AccordionTrigger>{faq.question}</AccordionTrigger>
-                      <AccordionContent>{faq.answer}</AccordionContent>
+                      <AccordionContent className=" bg-neutral-900 rounded-xl p-4 border-none">{faq.answer}</AccordionContent>
                     </AccordionItem>
                   ))}
                 </Accordion>

@@ -100,7 +100,6 @@ function SiteSettings({
                   className="rounded-e-none"
                   maxLength={32}
                   defaultValue={subdomain!}
-                  disabled
                 />
                 <Input
                   placeholder="process.env.NEXT_PUBLIC_ROOT_DOMAIN"

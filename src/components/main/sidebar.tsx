@@ -17,7 +17,7 @@ export const Sidebar = () => {
     <div>
      
       <div className="hidden lg:flex flex-col min-w-[248px] h-screen p-0 gap-12 border-r sticky top-0">
-        <Link href={APP_DOMAIN || ""} className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
+        <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
           <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
             {APP_NAME}
           </strong>

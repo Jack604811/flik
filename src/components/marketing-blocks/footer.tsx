@@ -16,10 +16,11 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-base-200 border-t ">
-      <div className="max-w-7xl mx-auto px-8 py-24">
+    <footer className="bg-base-200 flex flex-col relative items-center justify-center border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)]">
+      <div className="absolute top-0 left-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-1.5 bg-foreground rounded-full"></div>
+      <div className="max-w-7xl px-0 md:px-8 py-24">
         <div className=" flex lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
-          <div className="w-80 max-w-full flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
+          <div className="w-80 max-w-full flex-shrink-0 justify-center md:mx-0 mx-auto text-center md:text-left">
             <a
               aria-current="page"
               className="flex gap-2 justify-center md:justify-start items-center"

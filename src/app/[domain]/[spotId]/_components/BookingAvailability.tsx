@@ -319,8 +319,8 @@ function BookingAvailability({
               {getSelectedDayTimeslots(
                 moment(selectedDate as Date).format("dddd")
               ).length > 0
-                ? "Select a Time Slot"
-                : "No time slots available, please select another date"}
+                ? "Select a Time"
+                : "No slots available, please select another date"}
             </div>
             <div className="grid grid-cols-3 gap-2">
               {getSelectedDayTimeslots(
@@ -333,7 +333,7 @@ function BookingAvailability({
                       type="button"
                       className={`text-sm bg-gray-100 rounded-md py-1 px-2 transition-colors relative ${
                         isTimeslotDisabled(selectedDate as Date, timeslot)
-                          ? "bg-red-500 cursor-not-allowed relative"
+                          ? "bg-red-500 cursor-not-allowed relative dark:bg-red-300"
                           : moment(selectedDate as Date).format("hh:mm A") ===
                             timeslot
                           ? "bg-slate-600 hover:bg-slate-800 text-white"
@@ -380,7 +380,7 @@ function BookingAvailability({
                   <div className="text-xs text-muted-foreground font-medium mb-0">
                     CHECK-IN
                   </div>
-                  <div className="text-sm font-medium rounded-md">
+                  <div className="text-sm font-medium rounded-md dark:text-black">
                     {moment((selectedDate as DateRange).from).format("hh:mm A")}
                   </div>
                 </div>
@@ -388,7 +388,7 @@ function BookingAvailability({
                   <div className="text-xs text-muted-foreground font-medium mb-0">
                     CHECK-OUT
                   </div>
-                  <div className="text-sm font-medium rounded-md">
+                  <div className="text-sm font-medium rounded-md dark:text-black">
                     {(selectedDate as DateRange).to
                       ? moment((selectedDate as DateRange).to).format("hh:mm A")
                       : ""}

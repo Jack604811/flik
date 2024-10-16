@@ -131,13 +131,13 @@ export function SocialProofTestimonials() {
       <div className="py-14">
         <div className="container mx-auto px-4 md:px-8">
           <div className="mx-auto text-center">
-            <h5 className="text-xl font-bold tracking-tight text-gray-500">
+            <h5 className="text-lg tracking-tight text-gray-500">
               What our clients are saying
             </h5>
-            <h2 className="text-4xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
+            <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
               Testimonials
             </h2>
-            <p className="text-balance text-lg tracking-tight text-gray-400 md:text-xl py-4">
+            <p className="text-lg tracking-tight text-gray-500 py-4">
               See how our platform has helped businesses like yours manage
               spaces effortlessly, attract more traffic, and maximize their
               bookings.

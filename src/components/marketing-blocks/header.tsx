@@ -16,14 +16,19 @@ export default function Header() {
   const pathname = usePathname(); // Get the current path using Next.js usePathname hook
   const [activePath, setActivePath] = useState("");
   const [activeHash, setActiveHash] = useState("");
+  
+  // NEW: State to ensure client-side rendering of icons
+  const [isClient, setIsClient] = useState(false);
 
   // Update the current path and hash when the route changes
   useEffect(() => {
     setActivePath(pathname);
     setActiveHash(window.location.hash);
+
+    // NEW: Ensure this is only run on the client after hydration
+    setIsClient(true);
   }, [pathname]);
 
-  // Check if the current path and hash match the link's path and hash
   const isActive = (path: string) => {
     const [linkPath, linkHash] = path.split("#");
     const currentHash = activeHash || "#"; // Handle case where there is no hash
@@ -35,7 +40,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 border-b w-full z-10 backdrop-blur-lg">
-      <div className="flex h-16 items-center gap-4 px-4 md:px-4 w-full mx-auto justify-start">
+      <div className="flex h-14 md:h-16 items-center gap-4 px-4 md:px-4 w-full mx-auto justify-start">
         <nav className="relative md:flex md:flex-1 justify-between gap-6 text-lg font-medium md:items-center md:text-sm lg:gap-6">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
             <strong className="font-bold tracking-tight text-xl md:text-2xl">
@@ -58,7 +63,7 @@ export default function Header() {
               ))}
           </div>
           <div className="hidden lg:flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <ModeToggle />
+            {isClient && <ModeToggle />} 
             <Link href={`//app.${APP_DOMAIN}/`}>
               <span>Login</span>
             </Link>
@@ -70,9 +75,9 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="fixed top-3 right-2 z-50 p-3"
+                  className="fixed mb-[27px] md:mb-[1px] right-2 z-50 p-3"
                 >
-                  <AlignRight className="h-5 w-5" />
+                  {isClient && <AlignRight className="h-5 w-5" />} 
                   <span className="sr-only">Toggle navigation menu</span>
                 </Button>
               </SheetTrigger>

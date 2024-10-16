@@ -64,7 +64,7 @@ export function Hero() {
             
               <motion.h1
                 ref={fadeInRef}
-                className="max-w-7xl text-balance bg-gradient-to-br from-black from-30% to-black/60 bg-clip-text p-2 text-4xl font-bold leading-none tracking-tighter text-transparent dark:from-white dark:to-white/40 sm:text-5xl md:text-6xl lg:text-7xl"
+                className="max-w-7xl text-balance bg-gradient-to-br from-black from-30% to-black/60 bg-clip-text p-2 text-4xl font-semibold leading-none tracking-tighter text-transparent dark:from-white dark:to-white/40 sm:text-5xl md:text-6xl lg:text-7xl"
                 animate={fadeInInView ? "animate" : "initial"}
                 variants={fadeUpVariants}
                 initial={false}
@@ -96,7 +96,7 @@ export function Hero() {
               <motion.div
                 animate={fadeInInView ? "animate" : "initial"}
                 variants={fadeUpVariants}
-                className="flex flex-col justify-center space-y-4 lg:flex-row"
+                className="flex flex-row justify-center space-y-4"
                 initial={false}
                 transition={{
                   duration: 2.9,

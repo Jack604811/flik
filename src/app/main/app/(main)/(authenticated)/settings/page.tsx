@@ -39,7 +39,7 @@ export default async function Page() {
           Setup your business like a boss.
         </p>
       </div>
-      <Tabs defaultValue="site">
+      <Tabs defaultValue="main">
         <div className="overflow-x-auto space-y-8">
           <TabsList className="min-w-full md:min-w-[300px]">
             <TabsTrigger value="main">Main</TabsTrigger>

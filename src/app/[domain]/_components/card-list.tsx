@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 interface CarouselProps {
   siteData: any; 
@@ -54,12 +55,12 @@ const CarouselSpots: React.FC<CarouselProps> = ({
                     <h3 className="text-xl font-bold">{spot.name}</h3>
                     <p className="mt-2 line-clamp-3">{spot.description}</p>
                     <div className="mt-4">
-                      <button
-                        style={{ backgroundColor: "var(--primary-color)" }}
-                        className="hover:scale-105 py-2 px-4 rounded"
+                      <Button
+                       variant={"outline"}
+                        className="hover:scale-105 py-2 px-4 rounded-sm"
                       >
                         Explore
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </Link>
