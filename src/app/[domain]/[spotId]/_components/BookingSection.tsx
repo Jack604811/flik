@@ -295,8 +295,8 @@ function BookingSection({ spot }: Params) {
   const bookingData = getBookingData();
   const availableExtras = categorizeExtras(spot?.extras);
   const { fields, append, remove, update } = useFieldArray({
-    control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
-    name: "extras", // unique name for your Field Array
+    control: form.control, 
+    name: "extras", 
   });
 
   return (

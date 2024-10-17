@@ -12,6 +12,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import CardList from "./_components/card-list";
+import { Button } from "@/components/ui/button";
 
 export default async function Page({ params }: { params: { domain: string } }) {
   const domain = decodeURIComponent(params.domain);
@@ -109,12 +110,12 @@ export default async function Page({ params }: { params: { domain: string } }) {
                      <h3 className="text-xl font-bold">{spot.name}</h3>
                      <p className="mt-2 line-clamp-3">{spot.description}</p>
                      <div className="mt-4">
-                       <button
-                         style={{ backgroundColor: "var(--primary-color)" }}
-                         className="hover:scale-105 py-2 px-4 rounded"
-                       >
-                         Explore
-                       </button>
+                     <Button
+                       variant={"outline"}
+                        className="hover:scale-105 py-2 px-4 rounded-sm"
+                      >
+                        Explore
+                      </Button>
                      </div>
                    </div>
                  </Link>
