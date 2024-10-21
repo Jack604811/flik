@@ -28,7 +28,6 @@ import { CustomField } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import useConfirm from "@/hooks/use-confirm";
 import { toast } from "sonner";
-import { set } from "lodash";
 
 export default function CustomFields({ workspaceId }: { workspaceId: string }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -38,6 +37,7 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
     "Delete Custom Field",
     "Are you sure you want to delete this custom field? This action cannot be undone."
   );
+  
   const {
     data: customFields,
     isLoading,
@@ -47,6 +47,7 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
     queryFn: () => getCustomFields(workspaceId),
     refetchOnMount: false,
   });
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleEdit = (field: CustomField) => {
@@ -57,7 +58,6 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
   const handleDelete = async (id: string) => {
     const confirm = await confirmDelete();
     if (confirm) {
-      // delete the custom field
       const promise = deleteCustomField(id);
       toast.promise(promise, {
         loading: "Deleting custom field...",
@@ -70,7 +70,7 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
     }
   };
 
-  const filteredFields = customFields?.filter((field) =>
+  const filteredFields = customFields?.filter((field: { fieldName: string; }) =>
     field.fieldName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -92,7 +92,6 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pr-4 py-2 w-64"
           />
-          {/* The CustomFieldForm already has the button to trigger */}
           <Button
             onClick={() => {
               setEditingField(undefined);
@@ -134,84 +133,98 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {isLoading
-                    ? Array.from({ length: 3 }).map((_, index) => (
-                        <TableRow
-                          key={index}
-                          className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700"
-                        >
-                          <TableCell>
-                            <Skeleton className="h-6 w-24" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-24" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-24" />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    : filteredFields?.map((field) => (
-                        <TableRow
-                          key={field.id}
-                          className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                        >
-                          <TableCell className="font-medium">
-                            {field.fieldName}
-                          </TableCell>
-                          <TableCell>{field.fieldType}</TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {field.createdBy.name}
-                              </span>
-                              <span className="text-muted-foreground">
-                                {field.createdBy.email}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {field.createdAt.toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEdit(field);
-                                  }}
-                                >
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  <span>Edit</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(field.id);
-                                  }}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  <span>Delete</span>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                  {isLoading ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <TableRow
+                        key={index}
+                        className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700"
+                      >
+                        <TableCell>
+                          <Skeleton className="h-6 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-6 w-20" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-6 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-6 w-24" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : filteredFields && filteredFields.length > 0 ? (
+                    filteredFields.map((field) => (
+                      <TableRow
+                        key={field.id}
+                        className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <TableCell className="font-medium">
+                          {field.fieldName}
+                        </TableCell>
+                        <TableCell>{field.fieldType}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {field.createdBy.name}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {field.createdBy.email}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {field.createdAt.toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(field);
+                                }}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>Edit</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(field.id);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-12 gap-24">
+                        <p className="text-muted-foreground mb-6">
+                          No custom fields found. Create your first custom field to get started.
+                        </p>
+                        <Button onClick={() => setDialogOpen(true)}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create New Field
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>

@@ -1,4 +1,5 @@
 "use client";
+
 import { CardTitle, CardContent, CardFooter, Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -51,12 +52,12 @@ import BookingExtras from "../booking/BookingExtras";
 import { getCustomFields } from "@/server/actions/custom-field.action";
 
 const bookingSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1, { message: "ID is required" }),
   status: z.nativeEnum(BookingStatus).optional(),
   spotId: z.string().optional(),
   customer: z
     .object({
-      id: z.string(),
+      id: z.string().min(1, { message: "Customer ID is required" }),
       name: z.string().optional(),
       email: z.string().email().optional(),
       phone: z.string().optional(),
@@ -118,7 +119,7 @@ function BookingDetailSheet() {
     queryKey: ["spots", workspaceId],
     queryFn: () => getSpotsByWorkspace({ workspaceId: workspaceId as string }),
     initialData: [] as Spot[],
-    enabled: !!workspaceId && !!isOpen, // Only run the query if workspaceId is available
+    enabled: !!workspaceId && !!isOpen,
   });
 
 
@@ -171,17 +172,18 @@ function BookingDetailSheet() {
     const fieldLabel = editingField?.startsWith("customFields")
       ? data.customFields?.[parseInt(editingField.split(".")[1])].label
       : editingField;
-
+  
     toast.promise(updated, {
       loading: `Updating ${fieldLabel}...`,
       success() {
-      router.refresh();
-      setEditingField(null);
-      return `${fieldLabel} updated successfully!`;
+        router.refresh();
+        setEditingField(null);
+        return `${fieldLabel} updated successfully!`;
       },
       error: `Failed to update ${fieldLabel}`,
     });
   };
+  
 
   const startEditing = (field: EDITING_FIELD) => {
     setEditingField(field);
@@ -201,7 +203,7 @@ function BookingDetailSheet() {
     if (customFields.length > 0 && booking) {
       reset({
         ...booking,
-        customFields: customFields.map((field) => {
+        customFields: customFields.map((field: { id: string; fieldName: any; }) => {
           const existingField = booking.customFields?.find(
             (cf) => cf.customFieldId === field.id
           );
@@ -408,156 +410,141 @@ console.log(formState.errors)
                         ))}
 
                         {getValues("customFields")?.map((field, index) => {
-                          return (
-                          <div
-                            key={field.customFieldId}
-                            className="flex items-start justify-between"
-                          >
-                            <dt className="text-muted-foreground">
-                            {
-                              field.label
-                            }
-                            </dt>
-                            <dd>
-                            {editingField ===
-                            `customFields.${index}.value` ? (
-                              <>
-                              <FormField
-                                control={control}
-                                name={`customFields.${index}.value`}
-                                render={({ field: formField }) => {
-                                  const customField = customFields.find(fd => fd.id === field.customFieldId);
-                                let inputElement;
-                                switch (customField?.fieldType) {
-                                  case "Number":
-                                  inputElement = (
-                                    <Input
-                                    type="number"
-                                    id={field.customFieldId}
-                                    value={formField.value}
-                                    onChange={(e) => formField.onChange(e.target.value)}
-                                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                                    placeholder={customField.placeholder ?? customField.fieldName}
-                                    />
-                                  );
-                                  break;
-                                  case "Date":
-                                  inputElement = (
-                                    <Input
-                                    type="date"
-                                    id={field.customFieldId}
-                                    value={formField.value}
-                                    onChange={(e) => formField.onChange(e.target.value)}
-                                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                                    placeholder={customField.placeholder ?? customField.fieldName}
-                                    />
-                                  );
-                                  break;
-                                  case 'Time':
-                                  inputElement = (
-                                    <Input
-                                    type="time"
-                                    id={field.customFieldId}
-                                    value={formField.value}
-                                    onChange={(e) => formField.onChange(e.target.value)}
-                                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                                    placeholder={customField.placeholder ?? customField.fieldName}
-                                    />
-                                  );
-                                  break;
-                                  case "Dropdown":
-                                  inputElement = (
-                                    <Select
-                                    value={formField.value}
-                                    onValueChange={formField.onChange}
-                                    >
-                                    <SelectTrigger>
-                                    <SelectValue placeholder={customField.placeholder ?? customField.fieldName} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    {JSON.parse(customField.options??"[]").map((option: string, key: number) => (
-                                      <SelectItem key={key} value={option}>
-                                      {option}
-                                      </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                    </Select>
-                                    );
-                                  break;
-                                  case "File":
-                                  inputElement = (
-                                    <Input
-                                    type="file"
-                                    id={field.customFieldId}
-                                    value={formField.value}
-                                    onChange={(e) => formField.onChange(e.target.value)}
-                                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                                    placeholder={customField.placeholder ?? customField.fieldName}
-                                    />
-                                  );
-                                  default:
-                                  inputElement = (
-                                    <Input
-                                    id={field.customFieldId}
-                                    value={formField.value}
-                                    onChange={(e) => formField.onChange(e.target.value)}
-                                    ref={inputRef as React.RefObject<HTMLInputElement>}
-                                    placeholder={customField?.placeholder ?? customField?.fieldName}
-                                    />
-                                  );
-                                }
+                          const customField = customFields.find((fd: { id: string; }) => fd.id === field.customFieldId);
 
-                                return inputElement;
-                                }}
-                              />
-                              <div className="flex justify-end items-center space-x-2 mt-2">
-                                <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                                onClick={cancelEditing}
-                                >
-                                Cancel
-                                </Button>
-                                <Button
-                                size="sm"
-                                type="submit"
-                                className="text-xs"
-                                >
-                                Save
-                                </Button>
-                              </div>
-                              </>
-                            ) : (
-                              <>
-                              <div className="flex justify-between items-center relative gap-2">
-                                <span
-                                className="text-right text-sm"
-                                onClick={() =>
-                                  startEditing(
-                                  `customFields.${index}.value`
-                                  )
-                                }
-                                >
-                                {field.value}
-                                </span>
-                                <span
-                                className="cursor-pointer"
-                                onClick={() =>
-                                  startEditing(
-                                  `customFields.${index}.value`
-                                  )
-                                }
-                                >
-                                <Edit size={13} />
-                                </span>
-                              </div>
-                              </>
-                            )}
-                            </dd>
-                          </div>
+                          return (
+                            <div key={field.customFieldId} className="flex items-start justify-between">
+                              <dt className="text-muted-foreground">{field.label}</dt>
+                              <dd>
+                                {editingField === `customFields.${index}.value` ? (
+                                  <>
+                                    <FormField
+                                      control={control}
+                                      name={`customFields.${index}.value`}
+                                      render={({ field: formField }) => {
+                                        let inputElement;
+
+                                        switch (customField?.fieldType) {
+                                          case "Number":
+                                            inputElement = (
+                                              <Input
+                                                type="number"
+                                                id={field.customFieldId}
+                                                value={formField.value}
+                                                onChange={(e) => formField.onChange(e.target.value)}
+                                                ref={inputRef as React.RefObject<HTMLInputElement>}
+                                                placeholder={customField?.placeholder ?? customField?.fieldName}
+                                              />
+                                            );
+                                            break;
+                                          case "Date":
+                                            inputElement = (
+                                              <Input
+                                                type="date"
+                                                id={field.customFieldId}
+                                                value={formField.value}
+                                                onChange={(e) => formField.onChange(e.target.value)}
+                                                ref={inputRef as React.RefObject<HTMLInputElement>}
+                                                placeholder={customField?.placeholder ?? customField?.fieldName}
+                                              />
+                                            );
+                                            break;
+                                          case "Time":
+                                            inputElement = (
+                                              <Input
+                                                type="time"
+                                                id={field.customFieldId}
+                                                value={formField.value}
+                                                onChange={(e) => formField.onChange(e.target.value)}
+                                                ref={inputRef as React.RefObject<HTMLInputElement>}
+                                                placeholder={customField?.placeholder ?? customField?.fieldName}
+                                              />
+                                            );
+                                            break;
+                                          case "Dropdown":
+                                            inputElement = (
+                                              <Select
+                                                value={formField.value}
+                                                onValueChange={formField.onChange}
+                                              >
+                                                <SelectTrigger>
+                                                  <SelectValue
+                                                    placeholder={customField?.placeholder ?? customField?.fieldName}
+                                                  />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  {JSON.parse(customField?.options ?? "[]").map(
+                                                    (option: string, key: number) => (
+                                                      <SelectItem key={key} value={option}>
+                                                        {option}
+                                                      </SelectItem>
+                                                    )
+                                                  )}
+                                                </SelectContent>
+                                              </Select>
+                                            );
+                                            break;
+                                          case "File":
+                                            inputElement = (
+                                              <Input
+                                                type="file"
+                                                id={field.customFieldId}
+                                                value={formField.value}
+                                                onChange={(e) => formField.onChange(e.target.value)}
+                                                ref={inputRef as React.RefObject<HTMLInputElement>}
+                                                placeholder={customField?.placeholder ?? customField?.fieldName}
+                                              />
+                                            );
+                                            break;
+                                          default:
+                                            inputElement = (
+                                              <Input
+                                                id={field.customFieldId}
+                                                value={formField.value}
+                                                onChange={(e) => formField.onChange(e.target.value)}
+                                                ref={inputRef as React.RefObject<HTMLInputElement>}
+                                                placeholder={customField?.placeholder ?? customField?.fieldName}
+                                              />
+                                            );
+                                        }
+
+                                        return inputElement;
+                                      }}
+                                    />
+                                    <div className="flex justify-end items-center space-x-2 mt-2">
+                                      <Button variant="outline" size="sm" onClick={cancelEditing}>
+                                        Cancel
+                                      </Button>
+                                      <Button size="sm" type="submit">
+                                        Save
+                                      </Button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex justify-between items-center relative gap-2">
+                                      <span
+                                        className={`text-right text-sm ${
+                                          !field.value ? "text-muted-foreground" : ""
+                                        }`}
+                                        onClick={() => startEditing(`customFields.${index}.value`)}
+                                      >
+                                        {field.value || customField?.placeholder || customField?.fieldName}
+                                      </span>
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={() => startEditing(`customFields.${index}.value`)}
+                                      >
+                                        <Edit size={13} />
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                              </dd>
+                            </div>
                           );
                         })}
+
                       </dl>
                     </form>
                   </div>

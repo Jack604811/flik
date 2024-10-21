@@ -104,8 +104,16 @@ export default function CustomFieldForm({ workspaceId, onOpenChange, open, editi
 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    mutate(values)
-  };
+    mutate(values, {
+      onSuccess: () => {
+        form.reset({
+          fieldType: CustomFieldType.String, 
+          isRequired: false,
+          placeholder: "",
+        });
+      },
+    });
+  };  
 
   return (
     <>
