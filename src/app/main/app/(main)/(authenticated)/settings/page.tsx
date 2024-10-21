@@ -68,7 +68,7 @@ export default async function Page() {
           <Integrations />
         </TabsContent>
         <TabsContent value="fields">
-          <CustomFields />
+          <CustomFields workspaceId={currentWorkspace.id} />
         </TabsContent>
         <TabsContent value="billing">
           <Billing />

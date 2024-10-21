@@ -10,7 +10,7 @@ import {
   SelectContent,
   Select,
 } from "@/components/ui/select";
-import { Copy, Edit,  MoreVerticalIcon } from "lucide-react";
+import { Copy, Edit, MoreVerticalIcon } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Booking } from "@/schemas/booking.schema";
 import moment from "moment";
@@ -18,7 +18,7 @@ import { BookingStatus, Spot } from "@prisma/client";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { statuses } from "@/schemas/booking.schema";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {  z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useRef, useEffect, memo } from "react";
 import { updateBooking } from "@/server/actions/booking.action";
@@ -46,9 +46,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useBookingDetail } from "@/hooks/use-booking-detail";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsByWorkspace } from "@/server/actions/spot.action";
-import { getCurrentWorkspace } from "@/server/actions/user.action"; 
-import { useSession } from "next-auth/react";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
 import BookingExtras from "../booking/BookingExtras";
+import { getCustomFields } from "@/server/actions/custom-field.action";
 
 const bookingSchema = z.object({
   id: z.string(),
@@ -65,7 +65,17 @@ const bookingSchema = z.object({
       note: z.string().optional(),
     })
     .optional(),
-    updatedAt: z.date().optional(),
+  customFields: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        value: z.string(),
+        customFieldId: z.string(),
+        label: z.string().optional()
+      })
+    )
+    .optional(),
+  updatedAt: z.date().optional(),
 });
 
 type EDITING_FIELD =
@@ -77,16 +87,25 @@ type EDITING_FIELD =
   | "status"
   | "note"
   | "spotId"
+  | string
   | null;
-  
+
 function BookingDetailSheet() {
   const router = useRouter();
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  const { isOpen, onOpenChange, booking, } = useBookingDetail((state) => state);
+  const { isOpen, onOpenChange, booking } = useBookingDetail((state) => state);
+
+  const { data: customFields, isLoading } = useQuery({
+    queryKey: ["customFields-on-boooking", workspaceId],
+    queryFn: () => getCustomFields(workspaceId!),
+    refetchOnMount: false,
+    initialData: [],
+    enabled: !!workspaceId,
+  });
 
   useEffect(() => {
     async function fetchWorkspace() {
-      const currentWorkspace = await getCurrentWorkspace(); 
+      const currentWorkspace = await getCurrentWorkspace();
       if (currentWorkspace) {
         setWorkspaceId(currentWorkspace.id);
       }
@@ -95,19 +114,28 @@ function BookingDetailSheet() {
     fetchWorkspace();
   }, []);
 
-  const { data: spots, refetch: refectSpots } = useQuery({
+  const { data: spots } = useQuery({
     queryKey: ["spots", workspaceId],
     queryFn: () => getSpotsByWorkspace({ workspaceId: workspaceId as string }),
     initialData: [] as Spot[],
-    enabled: !!workspaceId, // Only run the query if workspaceId is available
+    enabled: !!workspaceId && !!isOpen, // Only run the query if workspaceId is available
   });
 
-  const { control, handleSubmit, reset, getValues } = useForm({
+
+  const { control, handleSubmit, reset, getValues, formState } = useForm({
     resolver: zodResolver(bookingSchema),
-    defaultValues: booking,
+    defaultValues: {
+      ...booking,
+      customFields: booking?.customFields?.map((cf) => ({
+        id: cf.id,
+        value: cf.value,
+        customFieldId: cf.customFieldId,
+        label: cf.CustomField.fieldName
+      }))??[],
+    },
     progressive: true,
   });
-
+  
   const [editingField, setEditingField] = useState<EDITING_FIELD>(null);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
@@ -118,35 +146,42 @@ function BookingDetailSheet() {
   }, [editingField]);
 
   const onSubmit = async (data: z.infer<typeof bookingSchema>) => {
-  const updatedData: z.infer<typeof bookingSchema> = {
-    id: data.id,
-    updatedAt: new Date(),
-  };
-
-  if (editingField === "status") {
-    updatedData.status = data.status;
-  } else if (editingField === "spotId") {
-    updatedData.spotId = data.spotId;
-  } else if (editingField && data.customer) {
-    updatedData.customer = {
-      id: data.customer.id,
-      [editingField as keyof typeof data.customer]: data.customer[editingField as keyof typeof data.customer],
+    const updatedData: z.infer<typeof bookingSchema> = {
+      id: data.id,
+      updatedAt: new Date(),
     };
-  }
 
-  const updated = updateBooking(updatedData);
+    if (editingField === "status") {
+      updatedData.status = data.status;
+    } else if (editingField === "spotId") {
+      updatedData.spotId = data.spotId;
+    } else if(editingField?.startsWith("customFields") && data.customFields) {
+      updatedData.customFields = data.customFields ?? [];
+    } else if (editingField && data.customer) {
+      updatedData.customer = {
+        id: data.customer.id,
+        [editingField as keyof typeof data.customer]:
+          data.customer[editingField as keyof typeof data.customer],
+      };
+    }
 
-  toast.promise(updated, {
-    loading: `Updating ${editingField}...`,
-    success() {
+    const updated = updateBooking(updatedData);
+
+    
+    const fieldLabel = editingField?.startsWith("customFields")
+      ? data.customFields?.[parseInt(editingField.split(".")[1])].label
+      : editingField;
+
+    toast.promise(updated, {
+      loading: `Updating ${fieldLabel}...`,
+      success() {
       router.refresh();
       setEditingField(null);
-      return `${editingField} updated successfully!`;
-    },
-    error: `Failed to update ${editingField}`,
-  });
-};
-
+      return `${fieldLabel} updated successfully!`;
+      },
+      error: `Failed to update ${fieldLabel}`,
+    });
+  };
 
   const startEditing = (field: EDITING_FIELD) => {
     setEditingField(field);
@@ -162,12 +197,28 @@ function BookingDetailSheet() {
     }
   }, [booking, reset]);
 
-  // useEffect(() => {
-  //   if (session?.user.id) refectSpots();
-  // }, [session?.user, refectSpots]);
+  useEffect(() => {
+    if (customFields.length > 0 && booking) {
+      reset({
+        ...booking,
+        customFields: customFields.map((field) => {
+          const existingField = booking.customFields?.find(
+            (cf) => cf.customFieldId === field.id
+          );
+          return {
+            id: existingField?.id || undefined,
+            value: existingField?.value || "",
+            customFieldId: field.id,
+            label: field.fieldName
+          };
+        }),
+      });
+    }
+  }, [customFields, booking, reset]);
+
 
   if (!isOpen && !booking) return null;
-
+console.log(formState.errors)
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
@@ -290,7 +341,11 @@ function BookingDetailSheet() {
                                   ) : (
                                     <FormField
                                       control={control}
-                                      name={field !== "spotId" ? `customer.${field}`: field}
+                                      name={
+                                        field !== "spotId"
+                                          ? `customer.${field}`
+                                          : field
+                                      }
                                       render={({ field: formField }) => (
                                         <Input
                                           {...formField}
@@ -351,6 +406,158 @@ function BookingDetailSheet() {
                             </dd>
                           </div>
                         ))}
+
+                        {getValues("customFields")?.map((field, index) => {
+                          return (
+                          <div
+                            key={field.customFieldId}
+                            className="flex items-start justify-between"
+                          >
+                            <dt className="text-muted-foreground">
+                            {
+                              field.label
+                            }
+                            </dt>
+                            <dd>
+                            {editingField ===
+                            `customFields.${index}.value` ? (
+                              <>
+                              <FormField
+                                control={control}
+                                name={`customFields.${index}.value`}
+                                render={({ field: formField }) => {
+                                  const customField = customFields.find(fd => fd.id === field.customFieldId);
+                                let inputElement;
+                                switch (customField?.fieldType) {
+                                  case "Number":
+                                  inputElement = (
+                                    <Input
+                                    type="number"
+                                    id={field.customFieldId}
+                                    value={formField.value}
+                                    onChange={(e) => formField.onChange(e.target.value)}
+                                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                                    placeholder={customField.placeholder ?? customField.fieldName}
+                                    />
+                                  );
+                                  break;
+                                  case "Date":
+                                  inputElement = (
+                                    <Input
+                                    type="date"
+                                    id={field.customFieldId}
+                                    value={formField.value}
+                                    onChange={(e) => formField.onChange(e.target.value)}
+                                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                                    placeholder={customField.placeholder ?? customField.fieldName}
+                                    />
+                                  );
+                                  break;
+                                  case 'Time':
+                                  inputElement = (
+                                    <Input
+                                    type="time"
+                                    id={field.customFieldId}
+                                    value={formField.value}
+                                    onChange={(e) => formField.onChange(e.target.value)}
+                                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                                    placeholder={customField.placeholder ?? customField.fieldName}
+                                    />
+                                  );
+                                  break;
+                                  case "Dropdown":
+                                  inputElement = (
+                                    <Select
+                                    value={formField.value}
+                                    onValueChange={formField.onChange}
+                                    >
+                                    <SelectTrigger>
+                                    <SelectValue placeholder={customField.placeholder ?? customField.fieldName} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    {JSON.parse(customField.options??"[]").map((option: string, key: number) => (
+                                      <SelectItem key={key} value={option}>
+                                      {option}
+                                      </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                    </Select>
+                                    );
+                                  break;
+                                  case "File":
+                                  inputElement = (
+                                    <Input
+                                    type="file"
+                                    id={field.customFieldId}
+                                    value={formField.value}
+                                    onChange={(e) => formField.onChange(e.target.value)}
+                                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                                    placeholder={customField.placeholder ?? customField.fieldName}
+                                    />
+                                  );
+                                  default:
+                                  inputElement = (
+                                    <Input
+                                    id={field.customFieldId}
+                                    value={formField.value}
+                                    onChange={(e) => formField.onChange(e.target.value)}
+                                    ref={inputRef as React.RefObject<HTMLInputElement>}
+                                    placeholder={customField?.placeholder ?? customField?.fieldName}
+                                    />
+                                  );
+                                }
+
+                                return inputElement;
+                                }}
+                              />
+                              <div className="flex justify-end items-center space-x-2 mt-2">
+                                <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                                onClick={cancelEditing}
+                                >
+                                Cancel
+                                </Button>
+                                <Button
+                                size="sm"
+                                type="submit"
+                                className="text-xs"
+                                >
+                                Save
+                                </Button>
+                              </div>
+                              </>
+                            ) : (
+                              <>
+                              <div className="flex justify-between items-center relative gap-2">
+                                <span
+                                className="text-right text-sm"
+                                onClick={() =>
+                                  startEditing(
+                                  `customFields.${index}.value`
+                                  )
+                                }
+                                >
+                                {field.value}
+                                </span>
+                                <span
+                                className="cursor-pointer"
+                                onClick={() =>
+                                  startEditing(
+                                  `customFields.${index}.value`
+                                  )
+                                }
+                                >
+                                <Edit size={13} />
+                                </span>
+                              </div>
+                              </>
+                            )}
+                            </dd>
+                          </div>
+                          );
+                        })}
                       </dl>
                     </form>
                   </div>
@@ -556,7 +763,10 @@ function BookingDetailSheet() {
                   </div>
                 </TabsContent>
                 <TabsContent className="p-6" value="extras">
-                  <BookingExtras bookingId={booking?.id!} spotId={booking?.spotId!} />
+                  <BookingExtras
+                    bookingId={booking?.id!}
+                    spotId={booking?.spotId!}
+                  />
                 </TabsContent>
                 <TabsContent className="p-6" value="payments">
                   <BookingPayments
@@ -570,7 +780,7 @@ function BookingDetailSheet() {
           <CardFooter className="h-[56px] border-t bg-muted/95 px-0 py-4 relative">
             <Carousel className="max-w-[540px] p-2" opts={{ loop: true }}>
               <CarouselContent>
-              <CarouselItem>
+                <CarouselItem>
                   <div className="flex flex-row items-center text-xs text-muted-foreground gap-1">
                     Booking
                     <div className="text-xs text-sky-600">{booking?.id}</div>

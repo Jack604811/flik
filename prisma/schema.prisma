@@ -49,6 +49,8 @@ model User {
   createdAt            DateTime         @default(now())
   accounts             Account[]
   oneTimeProducts      OneTimeProduct[] @relation("OneTimeProductToUser")
+
+  CustomField CustomField[]
 }
 
 model Workspace {
@@ -72,6 +74,7 @@ model Workspace {
   extras               Extras[]
   spots                Spot[]
   teamMembers          TeamMember[]
+  customFields         CustomField[]
 }
 model TeamMember {
   id           String           @id @default(cuid())
@@ -154,7 +157,35 @@ model Booking {
   spot          Spot            @relation(fields: [spotId], references: [id])
   bookingExtras BookingExtras[]
   transactions  Transaction[]
+  customFields BookingCustomField[]
 }
+
+model CustomField {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  fieldName     String   // Name of the field
+  fieldType     CustomFieldType   // Type of field (e.g., String, Integer, Select)
+  placeholder   String  @default("")// Placeholder for the field
+  isRequired    Boolean  @default(false) // Whether it's required
+  visibility    Boolean  @default(false) // Whether it's visible on the booking page
+  options       String?  // Options for select-type fields (stored as a JSON array)
+  createdById   String   // User who created the field
+  createdBy     User     @relation(fields: [createdById], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?       @default(now())
+  BookingCustomField BookingCustomField[]
+}
+
+model BookingCustomField {
+  id            String          @id @default(cuid())
+  bookingId     String      // Reference to the booking
+  customFieldId String      // Reference to the custom field
+  value         Json     // Value of the custom field (stored as JSON to handle any type)
+  CustomField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+  Booking       Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
 
 model Transaction {
   id            String            @id @default(cuid())
@@ -286,4 +317,12 @@ enum TeamMemberStatus {
   Pending
   Active
   Inactive
+}
+enum CustomFieldType {
+  String
+  Number
+  Dropdown
+  Date
+  Time
+  File
 }

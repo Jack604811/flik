@@ -2,7 +2,6 @@
 
 import { BookingStatus, TransactionStatus } from "@prisma/client";
 import { db } from "../db";
-import { revalidateTag } from "next/cache";
 import StripeServer from "stripe";
 import { env } from "@/env";
 import { headers } from "next/headers";
@@ -13,7 +12,18 @@ import { clearDomainCache } from "../helpers/domains";
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
     where: { spot: { workspaceId: ownerId } },
-    include: { spot: true, customer: true },
+    include: {
+      spot: true,
+      customer: true,
+      customFields: {
+        select: {
+          id: true,
+          customFieldId: true,
+          value: true,
+          CustomField: { select: { fieldName: true } },
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -23,7 +33,18 @@ export const getBookings = async (ownerId: string) => {
 export const getBookingById = async (bookingId: string) => {
   const booking = await db.booking.findFirst({
     where: { id: bookingId },
-    include: { customer: true, spot: true },
+    include: {
+      customer: true,
+      spot: true,
+      customFields: {
+        select: {
+          id: true,
+          customFieldId: true,
+          value: true,
+          CustomField: { select: { fieldName: true } },
+        },
+      },
+    },
   });
   return booking;
 };
@@ -103,13 +124,22 @@ export const addBooking = async (data: {
     },
     include: {
       spot: {
-        select: { workspace: { select: { subdomain: true, customDomain: true } } },
+        select: {
+          workspace: { select: { subdomain: true, customDomain: true } },
+        },
       },
     },
   });
-  const customer = await addCustomerToBooking({ ...data, bookingId: booking.id });
+  const customer = await addCustomerToBooking({
+    ...data,
+    bookingId: booking.id,
+  });
 
-  clearDomainCache(booking.spot.workspace.subdomain, booking.spot.workspace.customDomain, data.spotId)
+  clearDomainCache(
+    booking.spot.workspace.subdomain,
+    booking.spot.workspace.customDomain,
+    data.spotId
+  );
 
   return { ...booking, customer };
 };
@@ -219,8 +249,10 @@ export const updateBooking = async (data: {
     address?: string;
     note?: string;
   };
+  customFields?: { id?: string | null; value: string; customFieldId: string }[];
   spotId?: string;
 }) => {
+
   const booking = await db.booking.update({
     where: { id: data.id },
     data: {
@@ -231,6 +263,20 @@ export const updateBooking = async (data: {
       updatedAt: new Date(),
       ...(data.spotId ? { spot: { connect: { id: data.spotId } } } : {}),
       ...(data.customer ? { customer: { update: { ...data.customer } } } : {}),
+      ...(data.customFields
+        ? {
+            customFields: {
+              upsert: data.customFields.map((field) => ({
+                where: { id: field.id ?? "" },
+                create: {
+                  customFieldId: field.customFieldId,
+                  value: field.value,
+                },
+                update: { value: field.value },
+              })),
+            },
+          }
+        : {}),
     },
   });
 

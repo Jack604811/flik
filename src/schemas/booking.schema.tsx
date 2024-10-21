@@ -59,6 +59,12 @@ export const bookingSchema = z.object({
     dni: z.string(),
     note: z.string().optional()
   }),
+  customFields: z.array(z.object({
+    id: z.string(),
+    value: z.string(),
+    customFieldId: z.string(),
+    CustomField: z.object({ fieldName: z.string() })
+  })).optional(),
 })
 
 export type Booking = z.infer<typeof bookingSchema>
