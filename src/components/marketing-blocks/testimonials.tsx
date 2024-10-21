@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Marquee from "@/components/magicui/marquee";
 import { StarFilledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import{ AnimationContainer } from "./animations/animation-container";
 
 export const Highlight = ({
   children,
@@ -127,48 +128,61 @@ const testimonials = [
 
 export function SocialProofTestimonials() {
   return (
-    <section id="testimonials">
-      <div className="py-14">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="mx-auto text-center">
-            <h5 className="text-lg tracking-tight text-gray-500">
-              What our clients are saying
-            </h5>
-            <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
-              Testimonials
-            </h2>
-            <p className="text-lg tracking-tight text-gray-500 py-4">
-              See how our platform has helped businesses like yours manage
-              spaces effortlessly, attract more traffic, and maximize their
-              bookings.
-            </p>
-          </div>
-          <div className="relative mt-6 max-h-[650px] overflow-hidden">
-            <div className="gap-4">
-              {Array(Math.ceil(testimonials.length / 3))
-                .fill(0)
-                .map((_, i) => (
-                  <Marquee
-                    key={i}
-                    reverse={i % 2 === 0} // For a reverse effect on alternate rows
-                    className={cn({
-                      "[--duration:60s]": i === 1,
-                      "[--duration:30s]": i === 2,
-                      "[--duration:70s]": i === 3,
-                    })}
-                  >
-                    {testimonials.slice(i * 3, (i + 1) * 3).map((card, idx) => (
-                      <TestimonialCard {...card} key={idx} />
-                    ))}
-                  </Marquee>
-                ))}
+    
+      <section id="testimonials">
+        <div className="py-14">
+          <div className="container mx-auto px-4 md:px-8">
+          
+            <div className="mx-auto text-center">
+            <AnimationContainer delay={0.2} duration={1.6}>
+              <h5 className="text-lg tracking-tight text-gray-500">
+                What our clients are saying
+              </h5>
+              </AnimationContainer>
+              <AnimationContainer delay={0.4} duration={1.6}>
+              <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
+                Testimonials
+              </h2>
+              </AnimationContainer>
+              <AnimationContainer delay={0.6} duration={1.6}>
+              <p className="text-lg tracking-tight text-muted-foreground py-4">
+                See how our platform has helped businesses like yours manage
+                spaces effortlessly, attract more traffic, and maximize their
+                bookings.
+              </p>
+              </AnimationContainer>
             </div>
-            <div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/3 bg-gradient-to-r from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 h-full w-1/3 bg-gradient-to-l from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
+            
+            <div className="relative mt-6 max-h-[650px] overflow-hidden">
+              <div className="gap-4">
+                {Array(Math.ceil(testimonials.length / 3))
+                  .fill(0)
+                  .map((_, i) => (
+                    <AnimationContainer delay={0.8} duration={1.8}>
+                    <Marquee
+                      key={i}
+                      reverse={i % 2 === 0} 
+                      className={cn({
+                        "[--duration:60s]": i === 1,
+                        "[--duration:30s]": i === 2,
+                        "[--duration:70s]": i === 3,
+                      })}
+                    >
+                      {testimonials.slice(i * 3, (i + 1) * 3).map((card, idx) => (
+                        <TestimonialCard {...card} key={idx} />
+                      ))}
+                    </Marquee>
+                    </AnimationContainer>
+                  ))}
+              </div>
+              <div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/3 bg-gradient-to-r from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
+              <div className="pointer-events-none absolute inset-y-0 right-0 h-full w-1/3 bg-gradient-to-l from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
+            </div>
+            
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    
   );
 }
 

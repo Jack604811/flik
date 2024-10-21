@@ -28,7 +28,7 @@ export function ComparePlans() {
             </thead>
             <tbody>
               {features.map((feature, index) => (
-                <tr key={feature} className="border-t border-gray-100">
+                <tr key={feature} className="border-t border-neutral-200 dark:border-neutral-900">
                   <td className="py-4 px-4 flex items-center">
                     <span className="font-medium">{feature}</span>
                     <HelpCircle

@@ -6,6 +6,8 @@ import { Hero } from "@/components/marketing-blocks/hero";
 import { SocialProofTestimonials } from "@/components/marketing-blocks/testimonials";
 import { Pricing } from "@/components/marketing-blocks/pricing/pricing-table";
 import { Button } from "@/components/ui/button";
+import { Industries } from "@/components/marketing-blocks/industries";
+import { CTA } from "@/components/marketing-blocks/cta";
 
 
 
@@ -18,6 +20,7 @@ export default function Home() {
     <section id="features">
     <Features />
     </section>
+    <Industries />
     <SocialProofTestimonials />
     <Pricing />
     <div className="flex justify-center">
@@ -26,6 +29,7 @@ export default function Home() {
     </Link>
     </div>
     <FAQ />
+    <CTA />
     </>
   );
 }

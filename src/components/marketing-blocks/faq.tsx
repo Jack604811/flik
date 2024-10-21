@@ -1,12 +1,10 @@
-"use client";
-
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { BookOpen } from "lucide-react";
+import { AnimationContainer } from "@/components/marketing-blocks/animations/animation-container";
 
 const faqs = [
   {
@@ -87,16 +85,22 @@ export function FAQ() {
       <div className="py-24">
         <div className="container mx-auto px-4 md:px-8">
           <div className="mx-auto text-center">
-            <h5 className="text-lg tracking-tight text-gray-500">
-              FAQs
-            </h5>
-            <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-lg tracking-tight text-gray-500 py-4">
-              Need help with something? Here are some of the most common
-              questions we get.
-            </p>
+            <AnimationContainer delay={0.1} duration={0.8}>
+              <h5 className="text-lg tracking-tight text-gray-500">
+                FAQs
+              </h5>
+            </AnimationContainer>
+            <AnimationContainer delay={0.2} duration={0.8}>
+              <h2 className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl">
+                Frequently Asked Questions
+              </h2>
+            </AnimationContainer>
+            <AnimationContainer delay={0.3} duration={0.8}>
+              <p className="text-lg tracking-tight text-gray-500 py-4">
+                Need help with something? Here are some of the most common
+                questions we get.
+              </p>
+            </AnimationContainer>
           </div>
           <div className="container mx-auto my-12 max-w-[1200px] space-y-12">
             {faqs.map((faq, idx) => (
@@ -110,25 +114,30 @@ export function FAQ() {
                   className="flex w-full flex-col items-center justify-center"
                 >
                   {faq.qa.map((faq, idx) => (
-                    <AccordionItem
-                      key={idx}
-                      value={faq.question}
-                      className="w-full max-w-[600px]"
-                    >
-                      <AccordionTrigger>{faq.question}</AccordionTrigger>
-                      <AccordionContent className=" bg-neutral-900 rounded-xl p-4 border-none">{faq.answer}</AccordionContent>
-                    </AccordionItem>
+                    <AnimationContainer key={idx} delay={0.2 * idx} duration={0.8}>
+                      <AccordionItem
+                        value={faq.question}
+                        className="w-full max-w-[600px]"
+                      >
+                        <AccordionTrigger>{faq.question}</AccordionTrigger>
+                        <AccordionContent className=" bg-neutral-900 rounded-xl p-4 border-none">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </AnimationContainer>
                   ))}
                 </Accordion>
               </section>
             ))}
           </div>
-          <h4 className="mb-12 text-center text-sm font-medium tracking-tight text-foreground/80">
-            Still have questions? Email us at{" "}
-            <a href="mailto:support@flik.com" className="underline">
-              support@flik.com
-            </a>
-          </h4>
+          <AnimationContainer delay={0.5} duration={0.8}>
+            <h4 className="mb-12 text-center text-sm font-medium tracking-tight text-foreground/80">
+              Still have questions? Email us at{" "}
+              <a href="mailto:support@flik.com" className="underline">
+                support@flik.com
+              </a>
+            </h4>
+          </AnimationContainer>
         </div>
       </div>
     </section>
