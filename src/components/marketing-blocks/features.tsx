@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import Image from "next/image";
 import { motion } from "framer-motion"; 
+import { AnimationContainer } from "./animations/animation-container";
+import { Badge } from "../ui/badge";
 
 
 const fadeUpVariants = {
@@ -99,82 +101,41 @@ const features = [
 export function Features() {
   return (
     <section id="features" className="relative">
-      <div className="py-24">
-        <div className="container max-w-5xl mx-auto px-4 md:px-8">
+      <div className="py-24 gap-2">
+        <div className="flex flex-col justify-center items-center container max-w-5xl mx-auto px-4 md:px-8 gap-2">
       
-          <motion.div
-            className="mx-auto text-center max-w-2xl"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: false, amount: 0.3 }} 
-            variants={fadeUpVariants}
-            custom={0}
-          >
-            <motion.h5
-              className="text-lg tracking-tight text-gray-500"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: false, amount: 0.8 }}
-              variants={fadeUpVariants}
-              custom={0.4}
-            >
-              Explore
-            </motion.h5>
-          </motion.div>
+          <AnimationContainer delay={0.1} duration={1.2}>
+            <div className="flex justify-center">
+             <Badge variant={"outline"} className="text-muted-foreground">Features</Badge>
+            </div>
+          </AnimationContainer>
 
-          <motion.div
-            className="mx-auto text-center max-w-2xl"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: false, amount: 0.8 }} 
-            variants={fadeUpVariants}
-            custom={0.8}
-          >
-            <motion.h2
-              className="text-4xl font-medium tracking-tight text-black dark:text-white sm:text-5xl"
-              variants={fadeUpVariants}
-              whileInView="visible"
-              viewport={{ once: false, amount: 0.3 }}
-              custom={0.6}
-            >
+          <AnimationContainer delay={0.2} duration={1.4}>
+            <h2
+              className="text-4xl max-w-xl font-medium tracking-tight text-black dark:text-white sm:text-5xl text-center" >
               Flik is All You Need to Run Your Business Efficiently
-            </motion.h2>
-          </motion.div>
+            </h2>
+          </AnimationContainer>
 
-          <motion.div
-            className="mx-auto text-center max-w-2xl"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: false, amount: 0.3 }}
-            variants={fadeUpVariants}
-            custom={0.8}
-          >
-            <motion.p
-              className="text-balance text-lg tracking-tight text-gray-400 md:text-xl py-4"
-              variants={fadeUpVariants}
-              whileInView="visible"
-              viewport={{ once: false, amount: 0.8 }}
-              custom={1.8}
-            >
+          <AnimationContainer delay={0.4} duration={1.6}>
+            <p className="text-lg text-muted-foreground text-balance text-center">
               Manage your day-to-day operations, freeing up time to focus on growth.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            className="container mx-auto my-12 max-w-[1200px] space-y-12"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: false, amount: 0.3 }}
-            variants={fadeUpVariants}
-            custom={1.2}
-          >
+            </p>
+          </AnimationContainer>
+          <AnimationContainer delay={0.6} duration={1.8}>
+          <div className="container mx-auto my-12 max-w-[1200px] space-y-12">
             <BentoGrid>
               {features.map((feature, idx) => (
                 <BentoCard key={idx} {...feature} index={idx} />
               ))}
             </BentoGrid>
-          </motion.div>
+          <div>
+          
         </div>
+        
+      </div>
+      </AnimationContainer>
+      </div>
       </div>
     </section>
   );
