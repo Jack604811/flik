@@ -80,15 +80,15 @@ const bookingSchema = z.object({
 });
 
 type EDITING_FIELD =
-  | "name"
-  | "dni"
-  | "email"
-  | "phone"
-  | "address"
+  | "customer.name"
+  | "customer.dni"
+  | "customer.email"
+  | "customer.phone"
+  | "customer.address"
   | "status"
-  | "note"
+  | "customer.note"
   | "spotId"
-  | string
+  | `customFields.${number}.value`
   | null;
 
 function BookingDetailSheet() {
@@ -126,13 +126,14 @@ function BookingDetailSheet() {
   const { control, handleSubmit, reset, getValues, formState } = useForm({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
+      id: booking?.id || "",
       ...booking,
       customFields: booking?.customFields?.map((cf) => ({
         id: cf.id,
         value: cf.value,
         customFieldId: cf.customFieldId,
         label: cf.CustomField.fieldName
-      }))??[],
+      })) ?? [],
     },
     progressive: true,
   });
@@ -220,7 +221,7 @@ function BookingDetailSheet() {
 
 
   if (!isOpen && !booking) return null;
-console.log(formState.errors)
+ 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
@@ -282,27 +283,30 @@ console.log(formState.errors)
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <dl className="grid gap-3">
                         {[
-                          "name",
-                          "dni",
-                          "email",
-                          "phone",
-                          "address",
+                          "customer.name",
+                          "customer.email",
+                          "customer.phone",
+                          "customer.dni",
+                          "customer.address",
                           "status",
-                        ].map((field) => (
+                        ].map((field) =>{ 
+                          let fieldName = field.includes(".") ? field.split(".")[1] : field;
+                          fieldName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+                          return (
                           <div
                             key={field}
                             className="flex items-start justify-between"
                           >
                             <dt className="text-muted-foreground">
-                              {field.charAt(0).toUpperCase() + field.slice(1)}
+                              {fieldName}
                             </dt>
                             <dd>
                               {editingField === field ? (
                                 <>
-                                  {field === "phone" ? (
+                                  {field === "customer.phone" ? (
                                     <FormField
                                       control={control}
-                                      name={`customer.${field}`}
+                                      name={field}
                                       render={({
                                         field: { onChange, value },
                                       }) => (
@@ -343,11 +347,7 @@ console.log(formState.errors)
                                   ) : (
                                     <FormField
                                       control={control}
-                                      name={
-                                        field !== "spotId"
-                                          ? `customer.${field}`
-                                          : field
-                                      }
+                                      name={field}
                                       render={({ field: formField }) => (
                                         <Input
                                           {...formField}
@@ -387,13 +387,10 @@ console.log(formState.errors)
                                       {field === "status"
                                         ? statuses.find(
                                             (s) =>
-                                              s.value === getValues()?.status
+                                              s.value === getValues("status")
                                           )?.label
-                                        : getValues()!.customer?.[
-                                            field as keyof Booking["customer"]
-                                          ] ??
-                                          String(
-                                            getValues()![field as keyof Booking]
+                                        :String(
+                                            getValues(field as any)
                                           )}
                                     </span>
                                     <span
@@ -407,7 +404,7 @@ console.log(formState.errors)
                               )}
                             </dd>
                           </div>
-                        ))}
+                        )})}
 
                         {getValues("customFields")?.map((field, index) => {
                           const customField = customFields.find((fd: { id: string; }) => fd.id === field.customFieldId);

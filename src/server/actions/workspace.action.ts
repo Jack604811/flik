@@ -114,7 +114,7 @@ export const updateCustomDomain = async (id: string, customDomain: string) => {
     data: { customDomain: customDomain ?? null },
   });
 
-  clearDomainCache(response.subdomain, workspace?.customDomain!, "");
+  clearDomainCache(workspace?.subdomain!, workspace?.customDomain!, "");
   revalidatePath("");
 
   return response;
