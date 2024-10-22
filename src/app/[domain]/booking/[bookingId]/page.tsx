@@ -13,7 +13,7 @@ export default async function Page({
   return (
     <>
       {!booking?.customerId ? (
-        <section className="w-full h-screen bg-gray-100 dark:bg-gray-800">
+        <section className="w-full h-[80vh] bg-gray-100 dark:bg-gray-800">
           <div className="flex items-center justify-center flex-col h-screen space-y-4">
             <h1 className="text-8xl font-bold text-red-600">404</h1>
             <h1 className="text-4xl font-bold">Booking not found</h1>
@@ -21,7 +21,7 @@ export default async function Page({
           </div>
         </section>
       ) : (
-        <div>
+        <div className="h-[90vh]">
           <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
             <div className="container px-4 md:px-6 text-center">
               <div className="space-y-4">
@@ -64,12 +64,7 @@ export default async function Page({
                       </span>
                       <span className="text-right">{booking.spot.name}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Guests:
-                      </span>
-                      <span>2</span>
-                    </div>
+                   
                   </div>
                 </div>
                 <div className="bg-white rounded-lg shadow-sm dark:bg-gray-950 p-6 space-y-4">
@@ -85,7 +80,7 @@ export default async function Page({
                       <span className="text-gray-500 dark:text-gray-400">
                         Method:
                       </span>
-                      <span>{booking.status}</span>
+                      <span>{booking.subtotal}</span>
                     </div>
                     <div className="flex justify-between gap-2">
                       <span className="text-gray-500 dark:text-gray-400">
@@ -118,14 +113,7 @@ export default async function Page({
                       </span>
                       <span>{booking.customer?.phone}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Address:
-                      </span>
-                      <span className="text-right">
-                        {booking.customer?.address}
-                      </span>
-                    </div>
+                    
                   </div>
                 </div>
               </div>

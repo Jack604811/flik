@@ -415,9 +415,9 @@ function BookingAvailability({
               
             </Button>
           </div>
-          <div className="text-sm text-gray-500 text-center dark:text-gray-400 my-2">
+          {/* <div className="text-sm text-gray-500 text-center dark:text-gray-400 my-2">
             You won't be charged yet
-          </div>
+          </div> */}
           <Separator />
           <div className="flex justify-between items-center mt-4">
             <div className="font-semibold">

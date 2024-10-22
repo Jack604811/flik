@@ -10,11 +10,10 @@ interface FooterProps {
 }
 
 export default function Footer({ siteData }: FooterProps): JSX.Element {
-  // Get the current year dynamically
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="sticky z-50 bottom-0 mt-auto py-4 bg-inherit">
+    <footer className="z-50 bottom-0 mt-auto py-4 bg-inherit">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between md:flex-row">
           <div className="mb-4 md:mb-0">
@@ -24,10 +23,10 @@ export default function Footer({ siteData }: FooterProps): JSX.Element {
                   <Image
                     width={100}
                     height={100}
-                    src={`${siteData.logo}?${Date.now()}`} // Adding cache busting parameter
+                    src={`${siteData.logo}?${Date.now()}`} 
                     alt={siteData.siteName || "Site Logo"}
                     className="max-w-[90px]"
-                    unoptimized // Disabling optimization for external URLs
+                    unoptimized 
                   />
                 </>
               ) : (

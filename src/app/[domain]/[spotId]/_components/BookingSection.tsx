@@ -17,7 +17,6 @@ import {
   Spot,
   SpotImages,
   SubCategory,
-  User,
   Workspace,
 } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -37,9 +36,14 @@ import {
 } from "lucide-react";
 import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import Image from "next/image";
-import { WORKING_HOUR_TYPE, calculateSubtotal, categorizeExtras } from "@/lib/utils"
+import {
+  WORKING_HOUR_TYPE,
+  calculateSubtotal,
+  categorizeExtras,
+} from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import _ from "lodash";
+
+const FORM_DATA_KEY = "bookingFormData";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -57,16 +61,18 @@ const formSchema = z.object({
   note: z.string().optional(),
   countryCode: z.string().optional().nullable(),
   id: z.string().optional().nullable(),
-  extras: z.array(
-    z.object({
-      extraId: z.string(),
-      name: z.string(),
-      description: z.string(),
-      price: z.number(),
-      quantity: z.number(),
-      image: z.string().optional().nullable(),
-    })
-  ),
+  extras: z
+    .array(
+      z.object({
+        extraId: z.string(),
+        name: z.string(),
+        description: z.string(),
+        price: z.number(),
+        quantity: z.number(),
+        image: z.string().optional().nullable(),
+      })
+    )
+    .optional(),
 });
 
 type Params = {
@@ -98,7 +104,7 @@ const progresses: Record<
     value: 33,
     title: "Extras",
     description: "Select available booking spots below to continue",
-    btn: "Proceded to checkout",
+    btn: "Proceed to checkout",
   },
   payment: {
     value: 90,
@@ -111,15 +117,62 @@ function BookingSection({ spot }: Params) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { countryCode: "+57", totalPrice: 0 },
   });
 
   const [progress, setProgress] = useState<ProgressKey>("personal_info");
-  
 
-  
+  // Load data from localStorage when the component mounts
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedData = localStorage.getItem(FORM_DATA_KEY);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        // Convert date strings back to Date objects
+        if (parsedData.startDate) {
+          parsedData.startDate = new Date(parsedData.startDate);
+        }
+        if (parsedData.endDate) {
+          parsedData.endDate = new Date(parsedData.endDate);
+        }
+        form.reset(parsedData);
+      }
+    }
+  }, [form]);
+
+  // Store form data in localStorage whenever it changes
+  const [formData, setFormData] = useState(form.getValues());
+
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      setFormData(value);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handler = setTimeout(() => {
+        if (formData) {
+          const dataToStore = {
+            ...formData,
+            startDate: formData.startDate
+              ? formData.startDate.toISOString()
+              : null,
+            endDate: formData.endDate ? formData.endDate.toISOString() : null,
+          };
+          localStorage.setItem(FORM_DATA_KEY, JSON.stringify(dataToStore));
+        }
+      }, 500);
+
+      return () => {
+        clearTimeout(handler);
+      };
+    }
+  }, [formData]);
 
   const handlePayment = async () => {
     const values = form.getValues();
@@ -225,57 +278,63 @@ function BookingSection({ spot }: Params) {
     }
   }
 
-  const getBookingData = () => {
-    const startDate = moment(searchParams.get("check-in")).toDate();
-    const endDate = moment(searchParams.get("check-out")).toDate();
+  // Initialize booking data in useEffect
+  useEffect(() => {
+    if (searchParams.get("check-in") && searchParams.get("check-out")) {
+      const startDate = moment(searchParams.get("check-in")).toDate();
+      const endDate = moment(searchParams.get("check-out")).toDate();
 
-    const selectedDate: DateRange | Date | undefined = !searchParams.get(
-      "check-in"
-    )
-      ? undefined
-      : spot.durationType === "hours"
-      ? startDate
-      : {
-          from: startDate,
-          to: searchParams.get("check-out") ? endDate : undefined,
-        };
-    const subtotal = calculateSubtotal(
-      selectedDate,
-      spot.workingHours as WORKING_HOUR_TYPE[]
-    );
+      const selectedDate: DateRange | Date | undefined = !searchParams.get(
+        "check-in"
+      )
+        ? undefined
+        : spot.durationType === "hours"
+        ? startDate
+        : {
+            from: startDate,
+            to: searchParams.get("check-out") ? endDate : undefined,
+          };
+      const subtotal = calculateSubtotal(
+        selectedDate,
+        spot.workingHours as WORKING_HOUR_TYPE[]
+      );
 
-    form.setValue("subtotal", subtotal);
-    form.setValue("startDate", startDate);
-    form.setValue("endDate", endDate);
-
-    return {
-      selectedDate,
-      subtotal,
-    };
-  };
+      form.setValue("subtotal", subtotal);
+      form.setValue("startDate", startDate);
+      form.setValue("endDate", endDate);
+    }
+  }, [searchParams, spot.durationType, spot.workingHours, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (progress === "personal_info") {
         const booking = await addBooking({ ...values, spotId: spot.id });
         form.setValue("id", booking.id);
-        if(!spot.extras.length) return handlePayment();
+        // Clear the stored data
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(FORM_DATA_KEY);
+        }
+        if (!spot.extras.length) return handlePayment();
         setProgress("extras");
         return;
       } else if (progress === "extras") {
-        // TODO: Add Extras to the database
-        const bookingData = getBookingData();
+        // Add Extras to the database
+        const subtotal = form.getValues("subtotal");
         form.setValue(
           "totalPrice",
-          values.extras.reduce(
+          values.extras?.reduce(
             (t, f) => f.price * f.quantity + t,
-            bookingData.subtotal
-          )
+            subtotal ?? 0
+          ) ?? subtotal
         );
         await addExtrasToBooking({
           bookingId: values.id!,
-          extras: values.extras,
+          extras: values.extras ?? [],
         });
+        // Clear the stored data
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(FORM_DATA_KEY);
+        }
         handlePayment();
       }
     } catch (error: any) {
@@ -285,22 +344,22 @@ function BookingSection({ spot }: Params) {
     }
   };
 
-
-
   useEffect(() => {
     if (!searchParams.get("check-in") || !searchParams.get("check-out"))
       onGoBack();
   }, [searchParams, onGoBack]);
 
-  const bookingData = getBookingData();
+  const bookingData = {
+    subtotal: form.getValues("subtotal") ?? 0,
+  };
   const availableExtras = categorizeExtras(spot?.extras);
   const { fields, append, remove, update } = useFieldArray({
-    control: form.control, 
-    name: "extras", 
+    control: form.control,
+    name: "extras",
   });
 
   return (
-    <div key="1" className="container mx-auto px-0 py-4 md:px-6 md:py-8">
+    <div key="1" className="container mx-auto px-0 py-0 md:px-6 md:py-0 min-h-screen">
       <Form {...form}>
         <form
           className="flex flex-col gap-2 space-y-4"
@@ -338,16 +397,10 @@ function BookingSection({ spot }: Params) {
                       src={spot.images[0]?.url || "/assets/placeholder.svg"}
                       style={{ aspectRatio: "120/80", objectFit: "cover" }}
                       width={120}
-                     />
+                    />
                     <div className="flex flex-col">
                       <div className="flex w-full justify-between">
                         <div className="font-bold">{spot.name}</div>
-                        {/*<div className="font-bold text-lg">
-                          $
-                          {new Intl.NumberFormat("de-DE")
-                            .format(bookingData.subtotal)
-                            .replace(",", ".")}
-                        </div>*/}
                       </div>
                       <div className="flex flex-row items-center gap-1 text-gray-500 dark:text-gray-400 text-sm">
                         <div className="font-bold text-md">
@@ -411,9 +464,7 @@ function BookingSection({ spot }: Params) {
                               <p className="font-regular text-gray-500 line-clamp-2">
                                 {field.description}
                               </p>
-                              <p className="font-bold text-sm">
-                                ${field.price}
-                              </p>
+                              <p className="font-bold text-sm">${field.price}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -461,115 +512,114 @@ function BookingSection({ spot }: Params) {
                         </div>
                       ))}
                     </div>
-                      <Tabs
-                        defaultValue={Object.keys(
-                          availableExtras
-                        )[0]?.toLowerCase()}
-                        className="w-full"
-                      >
-                        <div className="overflow-x-auto">
-                          <TabsList className="flex w-max md:w-full">
-                            {Object.keys(availableExtras).map((c) => (
-                              <TabsTrigger
-                                key={c.toLowerCase()}
-                                value={c.toLowerCase()}
-                                className="px-4 py-2 whitespace-nowrap"
-                              >
-                                {c}
-                              </TabsTrigger>
-                            ))}
-                          </TabsList>
-                        </div>
-                        {Object.entries(availableExtras).map(([c, subs]) => (
-                          <TabsContent
-                            value={c.toLowerCase()}
-                            key={c.toLowerCase()}
-                          >
-                            {Object.entries(subs).map(([sub, extras]) => (
-                              <div
-                                className="flex flex-col my-4 gap-4"
-                                key={sub.toLowerCase()}
-                              >
-                                <p className="text-black/50 font-semibold">
-                                  {sub}
-                                </p>
-                                {extras.map((extra) => {
-                                  const idx = fields.findIndex(
-                                    (f) => f.extraId == extra.id
-                                  );
-                                  if (idx !== -1) return null;
-                                  return (
-                                    <div
-                                      className="flex justify-between items-center"
-                                      key={extra.id}
-                                    >
-                                      <div className="flex items-center gap-4">
-                                        <div className="flex-2">
-                                          <Image
-                                            alt="Image"
-                                            className="w-25 h-16 object-cover rounded-lg"
-                                            height="60"
-                                            src={
-                                              extra.images[0].url ??
-                                              "/placeholder.svg"
-                                            }
-                                            style={{
-                                              aspectRatio: "60/60",
-                                              objectFit: "cover",
-                                            }}
-                                            width="60"
-                                          />
-                                        </div>
-                                        <div className="flex-1">
-                                          <p className="font-semibold">
-                                            {extra.name}
-                                          </p>
-                                          <p className="font-regular text-gray-500 line-clamp-2">
-                                            {extra.description}
-                                          </p>
-                                          <p className="font-bold text-sm">
-                                            ${extra.price}
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center">
-                                        <Button
-                                          className="text-white"
-                                          variant="default"
-                                          type="button"
-                                          onClick={() => {
-                                            const idx = fields.findIndex(
-                                              (f) => f.extraId == extra.id
-                                            );
-                                            if (idx != -1)
-                                              update(idx, {
-                                                ...fields[idx],
-                                                quantity:
-                                                  fields[idx].quantity + 1,
-                                              });
-                                            else
-                                              append({
-                                                extraId: extra.id,
-                                                price: extra.price,
-                                                quantity: 1,
-                                                image: extra.images[0].url,
-                                                name: extra.name,
-                                                description: extra.description,
-                                              });
+                    <Tabs
+                      defaultValue={Object.keys(
+                        availableExtras
+                      )[0]?.toLowerCase()}
+                      className="w-full"
+                    >
+                      <div className="overflow-x-auto">
+                        <TabsList className="flex w-max md:w-full">
+                          {Object.keys(availableExtras).map((c) => (
+                            <TabsTrigger
+                              key={c.toLowerCase()}
+                              value={c.toLowerCase()}
+                              className="px-4 py-2 whitespace-nowrap"
+                            >
+                              {c}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </div>
+                      {Object.entries(availableExtras).map(([c, subs]) => (
+                        <TabsContent
+                          value={c.toLowerCase()}
+                          key={c.toLowerCase()}
+                        >
+                          {Object.entries(subs).map(([sub, extras]) => (
+                            <div
+                              className="flex flex-col my-4 gap-4"
+                              key={sub.toLowerCase()}
+                            >
+                              <p className="text-black/50 font-semibold">
+                                {sub}
+                              </p>
+                              {extras.map((extra) => {
+                                const idx = fields.findIndex(
+                                  (f) => f.extraId == extra.id
+                                );
+                                if (idx !== -1) return null;
+                                return (
+                                  <div
+                                    className="flex justify-between items-center"
+                                    key={extra.id}
+                                  >
+                                    <div className="flex items-center gap-4">
+                                      <div className="flex-2">
+                                        <Image
+                                          alt="Image"
+                                          className="w-25 h-16 object-cover rounded-lg"
+                                          height="60"
+                                          src={
+                                            extra.images[0]?.url ??
+                                            "/placeholder.svg"
+                                          }
+                                          style={{
+                                            aspectRatio: "60/60",
+                                            objectFit: "cover",
                                           }}
-                                        >
-                                          Add
-                                        </Button>
+                                          width="60"
+                                        />
+                                      </div>
+                                      <div className="flex-1">
+                                        <p className="font-semibold">
+                                          {extra.name}
+                                        </p>
+                                        <p className="font-regular text-gray-500 line-clamp-2">
+                                          {extra.description}
+                                        </p>
+                                        <p className="font-bold text-sm">
+                                          ${extra.price}
+                                        </p>
                                       </div>
                                     </div>
-                                  );
-                                })}
-                              </div>
-                            ))}
-                          </TabsContent>
-                        ))}
-                      </Tabs>
-                    
+                                    <div className="flex items-center">
+                                      <Button
+                                        className="text-white"
+                                        variant="default"
+                                        type="button"
+                                        onClick={() => {
+                                          const idx = fields.findIndex(
+                                            (f) => f.extraId == extra.id
+                                          );
+                                          if (idx != -1)
+                                            update(idx, {
+                                              ...fields[idx],
+                                              quantity:
+                                                fields[idx].quantity + 1,
+                                            });
+                                          else
+                                            append({
+                                              extraId: extra.id,
+                                              price: extra.price,
+                                              quantity: 1,
+                                              image: extra.images[0]?.url,
+                                              name: extra.name,
+                                              description: extra.description,
+                                            });
+                                        }}
+                                      >
+                                        Add
+                                      </Button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </TabsContent>
+                      ))}
+                    </Tabs>
                   </div>
                 )}
               </div>
@@ -618,7 +668,10 @@ function BookingSection({ spot }: Params) {
                 Back
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {progress === "extras" && !["wompi", "stripe"].includes(spot.workspace.defaultPaymentMethod!)
+                {progress === "extras" &&
+                !["wompi", "stripe"].includes(
+                  spot.workspace.defaultPaymentMethod!
+                )
                   ? "Book now"
                   : progresses[progress].btn}
               </Button>
