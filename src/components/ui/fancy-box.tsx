@@ -186,6 +186,7 @@ export function FancyBox({
                     "justify-start px-2 w-full h-[32px] cursor-pointer",
                     isActive ? "bg-blue-100 dark:bg-blue-900" : "hover:bg-gray-100 dark:hover:bg-gray-800"
                   )}
+                  key={option.value}
                 >
                   <CommandItem
                   key={option.value}
