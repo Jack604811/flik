@@ -15,7 +15,7 @@ export default async function Layout({
   const header = headers()
   const session = await auth();
   if (!session?.user) {
-    return redirect(`${NON_AUTHENTICATED_REDIRECT_URL}${searchParams.invite ? `?invite=${searchParams.invite}`:''}`);
+    return redirect(`${NON_AUTHENTICATED_REDIRECT_URL}${searchParams?.invite ? `?invite=${searchParams.invite}`:''}`);
   }
 
   // if(searchParams?.invite) {

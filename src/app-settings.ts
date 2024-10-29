@@ -85,6 +85,9 @@ export const BLOG_DESCRIPTION = "This is my blog description";
 
 // ****** Store Settings ******
 
+// Fordibben subdomains for the workspace
+export const FORBIDDEN_SUBDOMAINS = ["app", "api", "staging", "developer", "developers", "docs", "doc", "admin", "support", "help", "test", "beta"];
+
 // Redirect for one-time purchases
 export const AFTER_PURCHASE_REDIRECT_URL = "/dashboard";
 // Redirect for subscriptions

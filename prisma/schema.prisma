@@ -70,6 +70,7 @@ model Workspace {
   defaultPaymentMethod String?          @default("cash")
   subdomain            String?          @unique
   customDomain         String?          @unique
+  apiKey               String?          @unique
   categories           Category[]
   extras               Extras[]
   spots                Spot[]
