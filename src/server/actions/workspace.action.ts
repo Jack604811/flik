@@ -14,6 +14,7 @@ import { WorkspaceRemovalNotificationTemplate } from "@/emails/workspace/delete-
 import { Resend } from "resend";
 import { TeamMember, TeamMemberStatus } from "@prisma/client";
 import { getUserById } from "./auth.action";
+import { FORBIDDEN_SUBDOMAINS } from "@/app-settings";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -24,11 +25,13 @@ export const createWorkspace = async (siteName: string) => {
     throw new Error("User not authenticated");
   }
 
+  const apiKey = uuidv4();
   // Create the workspace
   const newWorkspace = await db.workspace.create({
     data: {
       siteName,
       ownerId: currentUser.id,
+      apiKey,
       teamMembers: { create: { userId: currentUser.id, role: "OWNER", status: TeamMemberStatus.Active } },
     },
   });
@@ -82,6 +85,10 @@ export const updateWorkspace = async (
 };
 
 export const updateSubdomain = async (id: string, subdomain: string) => {
+  if (FORBIDDEN_SUBDOMAINS.includes(subdomain.toLowerCase())) {
+    throw new Error("The chosen subdomain is not allowed. Please choose a different subdomain.");
+  }
+
   await db.workspace.update({
     where: { id },
     data: { subdomain },
@@ -92,6 +99,9 @@ export const updateSubdomain = async (id: string, subdomain: string) => {
 
 export const updateCustomDomain = async (id: string, customDomain: string) => {
   const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
   const workspace = await db.workspace.findFirst({ where: { id } });
   let response;
 
@@ -163,6 +173,15 @@ export const getConnectWompi = async (id: string) => {
   return workspace?.wompiAccountId;
 };
 
+export const getWorkspaceAPIKey = async (id: string) => {
+  const workspace = await db.workspace.findFirst({
+    where: { id },
+    select: { apiKey: true },
+  });
+
+  return workspace?.apiKey;
+}
+
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
   const subdomain = formData.get("subdomain") as string;
@@ -184,7 +203,12 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     subdomain?: string;
   } = {};
 
-  if(subdomain) data.subdomain = subdomain;
+  if(subdomain) {
+    if (FORBIDDEN_SUBDOMAINS.includes(subdomain.toLowerCase())) {
+      throw new Error("The chosen subdomain is not allowed. Please choose a different subdomain.");
+    }
+    data.subdomain = subdomain;
+  }
   if(siteName) data.siteName = siteName;
   if(aboutUs) data.aboutUs = aboutUs;
   if(country) data.country = country;
