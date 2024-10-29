@@ -158,7 +158,7 @@ export function SocialProofTestimonials() {
                 {Array(Math.ceil(testimonials.length / 3))
                   .fill(0)
                   .map((_, i) => (
-                    <AnimationContainer delay={0.8} duration={1.8}>
+                    <AnimationContainer delay={0.8} duration={1.8} key={i}>
                     <Marquee
                       key={i}
                       reverse={i % 2 === 0} 

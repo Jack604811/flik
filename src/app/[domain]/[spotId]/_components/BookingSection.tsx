@@ -166,7 +166,7 @@ function BookingSection({ spot }: Params) {
   // Subscribe to form changes and update formData state
   useEffect(() => {
     const subscription = form.watch((value) => {
-      setFormData(value);
+      setFormData(value as Partial<z.infer<typeof formSchema>>);
     });
     return () => subscription.unsubscribe();
   }, [form]);
