@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Edit2, CirclePlus, MoreVertical } from "lucide-react";
+import { Check, ChevronsUpDown, Edit2, CirclePlus, MoreVertical, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Accordion,
@@ -85,27 +85,27 @@ export function FancyBox({
   const [openDialog, setOpenDialog] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
   const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
-  const [editingItem, setEditingItem] = React.useState<string | null>(null); // Track the item being edited
-  const [editingValue, setEditingValue] = React.useState<string>(""); // Track the input value for editing
+  const [editingItem, setEditingItem] = React.useState<string | null>(null); 
+  const [editingValue, setEditingValue] = React.useState<string>(""); 
 
   const onComboboxOpenChange = (value: boolean) => {
     setOpenCombobox(value);
   };
 
   const handleSelect = (value: string) => {
-    handleCommandItemSelect(); // Unfocus inputs
+    handleCommandItemSelect(); 
     onSelect(value);
-    setOpenCombobox(false); // Close dropdown when item is selected
-    setEditingItem(null); // Reset any editing state
+    setOpenCombobox(false); 
+    setEditingItem(null); 
   };
 
   const handleCreate = (newValue: string) => {
     if (newValue.trim() === "") return;
     onCreate?.(newValue);
     setInputValue("");
-    setOpenCombobox(false);
-    onSelect(newValue);
-    setEditingItem(null); 
+    setOpenCombobox(true);
+    onSelect(newValue); 
+    setEditingItem(null);
   };
 
   const handleDelete = (value: string) => {
@@ -124,9 +124,9 @@ export function FancyBox({
 
   const handleRename = (value: string) => {
     setEditingItem(value);
-    setEditingValue(options.find(option => option.value === value)?.label || ''); // Set initial value for editing
-    setOpenCombobox(true); // Keep the combobox open
-    // Focus the input directly after setting the state
+    setEditingValue(options.find(option => option.value === value)?.label || ''); 
+    setOpenCombobox(true); 
+    
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
@@ -135,150 +135,151 @@ export function FancyBox({
   const handleEditSubmit = () => {
     if (editingItem) {
       onEdit?.({ value: editingItem, label: editingValue });
-      setEditingItem(null); // Exit editing mode
+      setEditingItem(null); 
     }
   };
 
   const handleCommandItemSelect = () => {
-    setEditingItem(null); // Unfocus inputs when a CommandItem is selected
+    setEditingItem(null); 
   };
 
   return (
-    <div className="max-w-full">
+    <div className="w-full">
       <Popover open={openCombobox} onOpenChange={onComboboxOpenChange}>
-        <PopoverTrigger asChild disabled={isDisabled}>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={openCombobox}
-            className="w-full justify-between text-foreground"
-          >
-            <span className="truncate">
-              {values.length === 0 && `Select ${label}`}
-              {values.length === 1 && options.find(opt => opt.value === values[0])?.label }
-            </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="min-w-[570px] mt-1 p-0">
-          <Command loop>
-            <CommandInput
-              ref={inputRef}
-              placeholder={`Search or Create new ${label}...`}
-              value={inputValue}
-              onValueChange={setInputValue}
-            />
-            <CommandList>
-              {options.length === 0 && inputValue === "" ? (
-                <div className="flex justify-center p-4 text-muted-foreground">
-                  Write something to create your first {label}.
-                </div>
-              ) : (
-                <>
-                  <CommandGroup className="max-h-[145px] overflow-auto">
-                    {options.map((option) => {
-                      const isActive = values.includes(option.value);
-                      return (
-                        <CommandItem
-                          key={option.value}
-                          className="h-10"
-                          onSelect={() => {
-                            // Prevent selection if editing mode is active
-                            if (editingItem !== option.value) {
-                              handleCommandItemSelect(); // Unfocus inputs
-                              handleSelect(option.value);
+  <PopoverTrigger asChild disabled={isDisabled}>
+    <Button
+      variant="outline"
+      role="combobox"
+      aria-expanded={openCombobox}
+      className="w-full justify-between text-foreground"
+    >
+      <span className="truncate">
+        {values.length === 0 && `Select ${label}`}
+        {values.length === 1 && options.find((opt) => opt.value === values[0])?.label}
+      </span>
+      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent className="p-0 hover:bg-inherit">
+    <Command loop>
+      <CommandInput
+        ref={inputRef}
+        placeholder={`Search or Create new ${label}...`}
+        value={inputValue}
+        onValueChange={setInputValue}
+      />
+      <CommandList>
+        {options.length === 0 && inputValue === "" ? (
+          <div className="flex justify-center px-8 py-8 text-muted-foreground">
+            Write something to create your first {label}.
+          </div>
+        ) : (
+          <>
+            <CommandGroup className="max-h-[145px] overflow-auto w-full">
+              {options.map((option) => {
+                const isActive = values.includes(option.value);
+                return (
+                  <Button
+                  asChild
+                  variant="ghost"
+                  className={cn(
+                    "justify-start px-2 w-full h-[32px] cursor-pointer",
+                    isActive ? "bg-blue-100 dark:bg-blue-900" : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                  )}
+                >
+                  <CommandItem
+                  key={option.value}
+                  className={cn(
+                    "h-10 cursor-pointer",
+                  
+                  )}
+                  onSelect={() => {
+                    if (editingItem !== option.value) {
+                      handleCommandItemSelect();
+                      handleSelect(option.value);
+                    }
+                  }}
+                >
+                   {/* <Circle
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        isActive ? "opacity-100" : "opacity-0"
+                      )}
+                    />  */}
+                    <div className="flex-1 w-full">
+                      {editingItem === option.value ? (
+                        <Input
+                          ref={inputRef}
+                          value={editingValue}
+                          onChange={(e) => setEditingValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleEditSubmit();
                             }
                           }}
+                          className={`border ${
+                            editingItem === option.value ? "border-2" : "border-transparent"
+                          } h-8`}
+                        />
+                      ) : (
+                        <span>{option.label}</span>
+                      )}
+                    </div>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            handleRename(option.value);
+                          }}
                         >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              isActive ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <div className="flex-1">
-                            {editingItem === option.value ? (
-                              <Input
-                                ref={inputRef} // Ensure input is focused
-                                value={editingValue}
-                                onChange={(e) => setEditingValue(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    handleEditSubmit();
-                                  }
-                                }}
-                                className={`border ${editingItem === option.value ? 'border-2' : 'border-transparent'} h-8`}
-                              />
-                            ) : (
-                              <span>{option.label}</span>
-                            )}
-                          </div>
-                          
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button aria-haspopup="true" size="icon" variant="ghost">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem
-                                onSelect={(e) => {
-                                  e.preventDefault(); // Prevent default selection
-                                  handleRename(option.value);
-                                }}
-                              >
-                                Rename
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onSelect={(e) => {
-                                  e.preventDefault(); // Prevent default selection
-                                  handleDelete(option.value);
-                                }}
-                              >
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </CommandItem>
-                      );
-                    })}
-                    {onCreate && (
-                      <CommandItemCreate
-                        label={label}
-                        onSelect={() => handleCreate(inputValue)}
-                        {...{ inputValue, options }}
-                      />
-                    )}
-                  </CommandGroup>
-                  {editingItem && inputValue === "" && (
-                    <>
-                      <CommandSeparator/>
-                      <div className="p-2 text-xs text-muted-foreground">
-                        Press Enter to save
-                      </div>
-                      {/*<CommandGroup>
-                        <CommandItem
-                          value={`:${inputValue}:`} // HACK: that way, the edit button will always be shown
-                          className="text-xs text-muted-foreground"
-                          onSelect={() => setOpenDialog(true)}
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            handleDelete(option.value);
+                          }}
                         >
-                          <Edit2 className="mr-2 h-3 w-3" />
-                          Edit {label}s
-                        </CommandItem>
-                      </CommandGroup>*/}
-                    </>
-                  )}
-                </>
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </CommandItem>
+                  </Button>
+                );
+              })}
+              {onCreate && (
+                <CommandItemCreate
+                label={label}
+                onSelect={() => handleCreate(inputValue)}
+                {...{ inputValue, options }}
+              />
               )}
-              
-               
-              
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+            </CommandGroup>
+            {editingItem && inputValue === "" && (
+              <>
+                <CommandSeparator />
+                <div className="p-2 text-xs text-muted-foreground">
+                  Press Enter to save
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </CommandList>
+    </Command>
+  </PopoverContent>
+</Popover>
+
       <Dialog
         open={openDialog}
         onOpenChange={(open) => {

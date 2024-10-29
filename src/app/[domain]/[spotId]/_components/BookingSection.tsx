@@ -166,7 +166,20 @@ function BookingSection({ spot }: Params) {
   // Subscribe to form changes and update formData state
   useEffect(() => {
     const subscription = form.watch((value) => {
-      setFormData(value);
+      // Ensure each extra item has a complete structure or default values
+      const validatedExtras = value.extras?.map((extra) => ({
+        name: extra?.name ?? "",
+        description: extra?.description ?? "",
+        extraId: extra?.extraId ?? "",
+        price: extra?.price ?? 0,
+        quantity: extra?.quantity ?? 1,
+        image: extra?.image ?? null,
+      }));
+  
+      setFormData({
+        ...value,
+        extras: validatedExtras,
+      });
     });
     return () => subscription.unsubscribe();
   }, [form]);

@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import React, { Suspense } from 'react';
 
-// Dynamically import Header using named export
+
 const Header = dynamic(() =>
   import('@/components/main/header').then((mod) => mod.Header), { ssr: false }
 );

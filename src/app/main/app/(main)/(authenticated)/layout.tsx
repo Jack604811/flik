@@ -1,4 +1,5 @@
 import { NON_AUTHENTICATED_REDIRECT_URL } from "@/app-settings";
+import { TailwindScreen } from "@/components/main/tailwind-screen";
 import ModalAndSheetProvider from "@/components/providers/ModalAndSheetProvider";
 import { acceptWorkspaceInvite } from "@/server/actions/workspace.action";
 import { auth } from "@/server/auth";
@@ -26,6 +27,7 @@ export default async function Layout({
     <>
       <ModalAndSheetProvider />
       {children}
+      {process.env.NODE_ENV === 'development' && <TailwindScreen />}
     </>
   );
 }
