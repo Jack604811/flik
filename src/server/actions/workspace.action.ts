@@ -92,26 +92,24 @@ export const updateSubdomain = async (id: string, subdomain: string) => {
 
 export const updateCustomDomain = async (id: string, customDomain: string) => {
   const currentUser = await getCurrentUser();
-  const workspace = await db.workspace.findFirst({ where: { ownerId: currentUser?.id! } });
+  const workspace = await db.workspace.findFirst({ where: { id } });
   let response;
 
-  if(customDomain.includes(env.NEXT_PUBLIC_ROOT_DOMAIN!)){
+  if (customDomain && customDomain.includes(env.NEXT_PUBLIC_ROOT_DOMAIN!)) {
     return {
       error: `Cannot use ${env.NEXT_PUBLIC_ROOT_DOMAIN} subdomain as your custom domain`,
     };
-  } else if(validDomainRegex.test(customDomain)){
-    await Promise.all([
-      addDomainToVercel(customDomain),
-    ]);
+  } else if (customDomain && validDomainRegex.test(customDomain)) {
+    await addDomainToVercel(customDomain);
   }
 
-  if(workspace?.customDomain && workspace.customDomain !== customDomain){
-    response = await removeDomainFromVercelProject(workspace.customDomain);
+  if (workspace?.customDomain && workspace.customDomain !== customDomain) {
+    await removeDomainFromVercelProject(workspace.customDomain);
   }
 
   response = await db.workspace.update({
     where: { id },
-    data: { customDomain: customDomain ?? null },
+    data: { customDomain: customDomain || null },
   });
 
   clearDomainCache(workspace?.subdomain!, workspace?.customDomain!, "");

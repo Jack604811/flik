@@ -89,11 +89,11 @@ function SiteSettings({
           
         </div>
         <form onSubmit={onSave}>
-          <div className="flex flex-col gap-4 lg:max-w-[600px]">
+          <div className="flex flex-col gap-4 max-w-[600px]">
             <div className="flex flex-col space-y-2">
             
               <Label htmlFor="subdomain" className="gap-8">Subdomain</Label>
-              <div className="flex flex-row items-center justify-center mt-4">
+              <div className="flex flex-row items-center justify-center mt-4 ">
                 <Input
                   placeholder="subdomain"
                   name="subdomain"
@@ -119,7 +119,7 @@ function SiteSettings({
           </div>
         </form>
         <div className="my-4">
-          <DomainForm
+        <DomainForm
               title="Custom Domain"
               description="The custom domain for your site."
               helpText="Please enter a valid domain."

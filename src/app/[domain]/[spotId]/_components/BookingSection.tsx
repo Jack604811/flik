@@ -1,5 +1,7 @@
 "use client";
 /* eslint-disable react/no-unescaped-entities */
+
+// Import necessary modules and components
 import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import BookingInfo from "../../booking/[bookingId]/info";
@@ -41,10 +43,16 @@ import {
   calculateSubtotal,
   categorizeExtras,
 } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
-const FORM_DATA_KEY = "bookingFormData";
+const FORM_DATA_KEY = "bookingFormData"; // Key for storing form data in localStorage
 
+// Define the form schema using Zod for validation
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z
@@ -75,6 +83,7 @@ const formSchema = z.object({
     .optional(),
 });
 
+// Define types for component props
 type Params = {
   spot: Spot & {
     bookings: BookingDates[];
@@ -88,6 +97,7 @@ type Params = {
   };
 };
 
+// Define the steps in the booking process with progress information
 type ProgressKey = "personal_info" | "extras" | "payment";
 
 const progresses: Record<
@@ -114,18 +124,21 @@ const progresses: Record<
 };
 
 function BookingSection({ spot }: Params) {
+  // React Router hooks for navigation and getting query parameters
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
+  // Initialize the form using React Hook Form and Zod for validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { countryCode: "+57", totalPrice: 0 },
   });
 
+  // State to keep track of the current progress step
   const [progress, setProgress] = useState<ProgressKey>("personal_info");
 
-  // Load data from localStorage when the component mounts
+  // Load form data from localStorage if it exists, and reset the form with that data
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedData = localStorage.getItem(FORM_DATA_KEY);
@@ -138,14 +151,19 @@ function BookingSection({ spot }: Params) {
         if (parsedData.endDate) {
           parsedData.endDate = new Date(parsedData.endDate);
         }
+        // Exclude extras from the restored data
+        delete parsedData.extras;
         form.reset(parsedData);
       }
     }
   }, [form]);
 
-  // Store form data in localStorage whenever it changes
-  const [formData, setFormData] = useState(form.getValues());
+  // State to keep track of form data
+  const [formData, setFormData] = useState<Partial<z.infer<typeof formSchema>>>(
+    form.getValues()
+  );
 
+  // Subscribe to form changes and update formData state
   useEffect(() => {
     const subscription = form.watch((value) => {
       setFormData(value);
@@ -153,16 +171,20 @@ function BookingSection({ spot }: Params) {
     return () => subscription.unsubscribe();
   }, [form]);
 
+  // Debounce storing form data to localStorage, excluding extras
   useEffect(() => {
     if (typeof window !== "undefined") {
       const handler = setTimeout(() => {
         if (formData) {
+          const { extras, ...restFormData } = formData; // Exclude extras
           const dataToStore = {
-            ...formData,
-            startDate: formData.startDate
-              ? formData.startDate.toISOString()
+            ...restFormData,
+            startDate: restFormData.startDate
+              ? restFormData.startDate.toISOString()
               : null,
-            endDate: formData.endDate ? formData.endDate.toISOString() : null,
+            endDate: restFormData.endDate
+              ? restFormData.endDate.toISOString()
+              : null,
           };
           localStorage.setItem(FORM_DATA_KEY, JSON.stringify(dataToStore));
         }
@@ -174,6 +196,7 @@ function BookingSection({ spot }: Params) {
     }
   }, [formData]);
 
+  // Function to handle payment based on selected payment method
   const handlePayment = async () => {
     const values = form.getValues();
     const defaultPaymentMethod = spot.workspace.defaultPaymentMethod;
@@ -181,6 +204,7 @@ function BookingSection({ spot }: Params) {
 
     switch (defaultPaymentMethod) {
       case "wompi":
+        // Handle Wompi payment method
         if (typeof window !== "undefined" && window.WidgetCheckout) {
           const wompiAccount = spot.workspace.wompiAccountId as Record<
             string,
@@ -228,6 +252,7 @@ function BookingSection({ spot }: Params) {
         }
         break;
       case "stripe":
+        // Handle Stripe payment method
         if (!spot.workspace.stripeAccountId)
           toast.error(
             "There was an error while generating payment link, kindly try again or contact to make payment manually!"
@@ -244,6 +269,7 @@ function BookingSection({ spot }: Params) {
         window.location.href = res.url!;
         break;
       case "cash":
+        // Handle cash payment
         router.replace(`/booking/${values.id}`);
         break;
       default:
@@ -252,6 +278,7 @@ function BookingSection({ spot }: Params) {
     }
   };
 
+  // Function to navigate back to the previous page
   const onGoBack = useCallback(() => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     const search = current.toString();
@@ -259,6 +286,7 @@ function BookingSection({ spot }: Params) {
     router.push(`${pathname.replace("/book", "")}${query}`, { scroll: true });
   }, [pathname, searchParams, router]);
 
+  // Function to calculate the difference between check-in and check-out dates
   function getCheckinDifference(checkIn: string, checkOut: string) {
     const checkInDate = moment(checkIn);
     const checkOutDate = moment(checkOut);
@@ -278,7 +306,7 @@ function BookingSection({ spot }: Params) {
     }
   }
 
-  // Initialize booking data in useEffect
+  // Initialize booking data based on URL parameters
   useEffect(() => {
     if (searchParams.get("check-in") && searchParams.get("check-out")) {
       const startDate = moment(searchParams.get("check-in")).toDate();
@@ -305,20 +333,23 @@ function BookingSection({ spot }: Params) {
     }
   }, [searchParams, spot.durationType, spot.workingHours, form]);
 
+  // Function to handle form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (progress === "personal_info") {
+        // Create a new booking
         const booking = await addBooking({ ...values, spotId: spot.id });
         form.setValue("id", booking.id);
         // Clear the stored data
         if (typeof window !== "undefined") {
           localStorage.removeItem(FORM_DATA_KEY);
         }
+        // If no extras, proceed to payment
         if (!spot.extras.length) return handlePayment();
         setProgress("extras");
         return;
       } else if (progress === "extras") {
-        // Add Extras to the database
+        // Add extras to the booking
         const subtotal = form.getValues("subtotal");
         form.setValue(
           "totalPrice",
@@ -344,22 +375,38 @@ function BookingSection({ spot }: Params) {
     }
   };
 
+  // If check-in or check-out parameters are missing, navigate back
   useEffect(() => {
     if (!searchParams.get("check-in") || !searchParams.get("check-out"))
       onGoBack();
   }, [searchParams, onGoBack]);
 
+  // Prepare booking data and categorize available extras
   const bookingData = {
     subtotal: form.getValues("subtotal") ?? 0,
   };
   const availableExtras = categorizeExtras(spot?.extras);
+
+  // Extract category and subcategory keys to determine if labels should be displayed
+  const categoryKeys = Object.keys(availableExtras);
+
+  // Count total subcategories
+  const totalSubcategories = categoryKeys.reduce(
+    (total, category) => total + Object.keys(availableExtras[category]).length,
+    0
+  );
+
+  // Use useFieldArray to manage extras in the form
   const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: "extras",
   });
 
   return (
-    <div key="1" className="container mx-auto px-0 py-0 md:px-6 md:py-0 min-h-screen">
+    <div
+      key="1"
+      className="container mx-auto px-0 py-0 md:px-6 md:py-0 min-h-screen"
+    >
       <Form {...form}>
         <form
           className="flex flex-col gap-2 space-y-4"
@@ -367,6 +414,7 @@ function BookingSection({ spot }: Params) {
         >
           <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 p-6">
             <div>
+              {/* Header Section */}
               <div className="flex gap-2 items-start">
                 <Button
                   type="button"
@@ -384,12 +432,14 @@ function BookingSection({ spot }: Params) {
                   </p>
                 </div>
               </div>
+              {/* Items Section */}
               <div className="grid grid-2 justify-between items-center mt-8 mb-4">
                 <h2 className="text-lg font-semibold ">Items</h2>
               </div>
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-2">
                   <div className="grid grid-cols-[120px_1fr] w-full items-center gap-4">
+                    {/* Booking Image */}
                     <Image
                       alt="Booking Image"
                       className="rounded-md object-cover"
@@ -402,6 +452,7 @@ function BookingSection({ spot }: Params) {
                       <div className="flex w-full justify-between">
                         <div className="font-bold">{spot.name}</div>
                       </div>
+                      {/* Pricing and Duration */}
                       <div className="flex flex-row items-center gap-1 text-gray-500 dark:text-gray-400 text-sm">
                         <div className="font-bold text-md">
                           $
@@ -415,6 +466,7 @@ function BookingSection({ spot }: Params) {
                           searchParams.get("check-out")!
                         )}
                       </div>
+                      {/* Date and Time */}
                       <div className="flex items-center font-semibold text-sm mt-4">
                         <CalendarIcon className="w-4 h-4 mr-1" />
                         {moment(searchParams.get("check-in")).format(
@@ -430,16 +482,20 @@ function BookingSection({ spot }: Params) {
                   </div>
                 </div>
               </div>
+              {/* Progress Section */}
               <div className="border-t border-b py-4 my-4">
                 <div className="flex justify-between">
-                  <h2 className="text-lg font-semibold mb-6">
+                  <h2 className="text-lg font-semibold">
                     {progresses[progress].title}
                   </h2>
                 </div>
+                {/* Personal Info Form */}
                 {progress === "personal_info" && <BookingInfo />}
+                {/* Extras Selection */}
                 {progress === "extras" && (
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col mb-4 gap-4">
+                  <div className="flex flex-col">
+                    {/* Selected Extras List */}
+                    <div className="flex flex-col my-4 gap-4">
                       {fields.map((field, index) => (
                         <div
                           key={field.id}
@@ -467,6 +523,7 @@ function BookingSection({ spot }: Params) {
                               <p className="font-bold text-sm">${field.price}</p>
                             </div>
                           </div>
+                          {/* Quantity Controls */}
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-2 border-2 h-[32px] rounded-md">
                               <Button
@@ -512,38 +569,133 @@ function BookingSection({ spot }: Params) {
                         </div>
                       ))}
                     </div>
-                    <Tabs
-                      defaultValue={Object.keys(
-                        availableExtras
-                      )[0]?.toLowerCase()}
-                      className="w-full"
-                    >
-                      <div className="overflow-x-auto">
-                        <TabsList className="flex w-max md:w-full">
-                          {Object.keys(availableExtras).map((c) => (
-                            <TabsTrigger
-                              key={c.toLowerCase()}
-                              value={c.toLowerCase()}
-                              className="px-4 py-2 whitespace-nowrap"
-                            >
-                              {c}
-                            </TabsTrigger>
-                          ))}
-                        </TabsList>
-                      </div>
-                      {Object.entries(availableExtras).map(([c, subs]) => (
-                        <TabsContent
-                          value={c.toLowerCase()}
-                          key={c.toLowerCase()}
-                        >
-                          {Object.entries(subs).map(([sub, extras]) => (
+                    {/* Extras Categories */}
+                    {categoryKeys.length > 1 ? (
+                      // Render Tabs if more than one category
+                      <Tabs
+                        defaultValue={categoryKeys[0]?.toLowerCase()}
+                        className=""
+                      >
+                        <div className="overflow-x-auto">
+                          <TabsList className="flex">
+                            {categoryKeys.map((c) => (
+                              <TabsTrigger
+                                key={c.toLowerCase()}
+                                value={c.toLowerCase()}
+                                className="px-4 py-2 whitespace-nowrap"
+                              >
+                                {c}
+                              </TabsTrigger>
+                            ))}
+                          </TabsList>
+                        </div>
+                        {Object.entries(availableExtras).map(([c, subs]) => (
+                          <TabsContent
+                            value={c.toLowerCase()}
+                            key={c.toLowerCase()}
+                          >
+                            {Object.entries(subs).map(([sub, extras]) => (
+                              <div
+                                className="flex flex-col my-4 gap-4"
+                                key={sub.toLowerCase()}
+                              >
+                                {/* Hide subcategory label if only one subcategory and no subcategory in current extras */}
+                                {totalSubcategories > 1 && sub && (
+                                  <p className="text-muted-foreground font-semibold">
+                                    {sub}
+                                  </p>
+                                )}
+                                {extras.map((extra) => {
+                                  const idx = fields.findIndex(
+                                    (f) => f.extraId == extra.id
+                                  );
+                                  if (idx !== -1) return null;
+                                  return (
+                                    <div
+                                      className="flex justify-between items-center"
+                                      key={extra.id}
+                                    >
+                                      <div className="flex items-center gap-4">
+                                        <div className="flex-2">
+                                          <Image
+                                            alt="Image"
+                                            className="w-25 h-16 object-cover rounded-lg"
+                                            height="60"
+                                            src={
+                                              extra.images[0]?.url ??
+                                              "/placeholder.svg"
+                                            }
+                                            style={{
+                                              aspectRatio: "60/60",
+                                              objectFit: "cover",
+                                            }}
+                                            width="60"
+                                          />
+                                        </div>
+                                        <div className="flex-1">
+                                          <p className="font-semibold">
+                                            {extra.name}
+                                          </p>
+                                          <p className="font-regular text-gray-500 line-clamp-2">
+                                            {extra.description}
+                                          </p>
+                                          <p className="font-bold text-sm">
+                                            ${extra.price}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <Button
+                                          className="text-white dark:text-black"
+                                          variant="default"
+                                          type="button"
+                                          onClick={() => {
+                                            const idx = fields.findIndex(
+                                              (f) => f.extraId == extra.id
+                                            );
+                                            if (idx != -1)
+                                              update(idx, {
+                                                ...fields[idx],
+                                                quantity:
+                                                  fields[idx].quantity + 1,
+                                              });
+                                            else
+                                              append({
+                                                extraId: extra.id,
+                                                price: extra.price,
+                                                quantity: 1,
+                                                image: extra.images[0]?.url,
+                                                name: extra.name,
+                                                description: extra.description,
+                                              });
+                                          }}
+                                        >
+                                          Add
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                          </TabsContent>
+                        ))}
+                      </Tabs>
+                    ) : (
+                      // Render content directly if one or no categories
+                      categoryKeys.map((c) =>
+                        Object.entries(availableExtras[c]).map(
+                          ([sub, extras]) => (
                             <div
-                              className="flex flex-col my-4 gap-4"
+                              className="flex flex-col my-0 gap-4"
                               key={sub.toLowerCase()}
                             >
-                              <p className="text-black/50 font-semibold">
-                                {sub}
-                              </p>
+                              {/* Hide subcategory label if only one subcategory and no subcategory in current extras */}
+                              {totalSubcategories > 1 && sub && (
+                                <p className="text-muted-foreground font-semibold">
+                                  {sub}
+                                </p>
+                              )}
                               {extras.map((extra) => {
                                 const idx = fields.findIndex(
                                   (f) => f.extraId == extra.id
@@ -616,14 +768,15 @@ function BookingSection({ spot }: Params) {
                                 );
                               })}
                             </div>
-                          ))}
-                        </TabsContent>
-                      ))}
-                    </Tabs>
+                          )
+                        )
+                      )
+                    )}
                   </div>
                 )}
               </div>
             </div>
+            {/* Order Summary Sidebar */}
             <div>
               <div className="flex-col bg-gray-100 dark:bg-gray-800 rounded-lg p-6 grid sticky top-6 gap-8">
                 <div className="grid gap-4">
@@ -645,7 +798,7 @@ function BookingSection({ spot }: Params) {
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Taxes</span>
-                    <span className="font-medium">$0.00</span>
+                    <span className="font-medium">$0</span>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex items-center justify-between">
@@ -663,18 +816,18 @@ function BookingSection({ spot }: Params) {
                 </div>
               </div>
             </div>
+            {/* Action Buttons */}
             <div className="flex gap-2 justify-between">
-              <Button variant="outline" className="invisible">
-                Back
-              </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {progress === "extras" &&
-                !["wompi", "stripe"].includes(
-                  spot.workspace.defaultPaymentMethod!
-                )
-                  ? "Book now"
-                  : progresses[progress].btn}
-              </Button>
+            <Button variant="outline" className="invisible">
+  Back
+</Button>
+<Button type="submit" disabled={form.formState.isSubmitting}>
+  {progress === "personal_info" &&
+  spot.extras.length === 0 &&
+  spot.workspace.defaultPaymentMethod === "cash"
+    ? "Book now"
+    : progresses[progress].btn}
+</Button>
             </div>
           </div>
         </form>

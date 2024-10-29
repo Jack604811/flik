@@ -33,7 +33,7 @@ export default async function Page({
                   you with an exceptional experience.
                 </p>
                 <Link href="/">
-                  <Button>Go to home</Button>
+                  <Button>Manage Booking</Button>
                 </Link>
               </div>
             </div>

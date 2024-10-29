@@ -16,7 +16,7 @@ interface HeaderProps {
 
   return (
     <header className="sticky top-0 z-50 bg-inherit">
-      <div className="flex justify-between items-center w-full h-16 px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-center w-full h-16 px-4 sm:px-6 lg:px-8 bg-current">
         <Link className="" href="/">
           {siteData?.logo ? (
             <Image
@@ -25,7 +25,7 @@ interface HeaderProps {
               src={`${siteData.logo}?${Date.now()}`} 
               alt={siteData.siteName || "Site Logo"}
               unoptimized
-              className="max-w-[90px]"
+              className="max-h-[50px]"
             />
           ) : (
             <span className="ml-2 text-lg font-bold">
