@@ -160,7 +160,6 @@ export function SocialProofTestimonials() {
                   .map((_, i) => (
                     <AnimationContainer delay={0.8} duration={1.8} key={i}>
                     <Marquee
-                      key={i}
                       reverse={i % 2 === 0} 
                       className={cn({
                         "[--duration:60s]": i === 1,
@@ -169,16 +168,15 @@ export function SocialProofTestimonials() {
                       })}
                     >
                       {testimonials.slice(i * 3, (i + 1) * 3).map((card, idx) => (
-                        <TestimonialCard {...card} key={idx} />
+                        <TestimonialCard {...card} key={`testimonial-card-${i}-${idx}`} />
                       ))}
                     </Marquee>
-                    </AnimationContainer>
-                  ))}
+                  </AnimationContainer>
+                ))}
               </div>
               <div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/3 bg-gradient-to-r from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
               <div className="pointer-events-none absolute inset-y-0 right-0 h-full w-1/3 bg-gradient-to-l from-[hsl(var(--background))] to-transparent dark:from-[hsl(var(--background))]"></div>
             </div>
-            
           </div>
         </div>
       </section>

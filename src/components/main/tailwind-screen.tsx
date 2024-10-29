@@ -22,7 +22,7 @@ export function TailwindScreen() {
   const { width, height } = dimensions;
 
   return (
-    <div className="fixed bottom-5 left-5 z-50 flex items-center space-x-2 rounded-full bg-black px-2.5 py-1 font-mono text-xs font-medium text-white">
+    <div className="hidden fixed bottom-5 right-5 z-50 md:flex items-center space-x-2 rounded-full bg-black px-2.5 py-1 font-mono text-xs font-medium text-white">
       <span>
         {width.toLocaleString()} x {height.toLocaleString()}
       </span>
