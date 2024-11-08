@@ -14,17 +14,17 @@ import {
 } from "@/components/ui/popover";
 import { Column } from "@tanstack/react-table";
 
-interface DataTableDateFilterProps<TData, TValue> {
+interface DateFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
   className?: string;
 }
 
-export function DataTableDateFilter<TData, TValue>({
+export function DateFilter<TData, TValue>({
   column,
   title,
   className,
-}: DataTableDateFilterProps<TData, TValue>) {
+}: DateFilterProps<TData, TValue>) {
   const selectedValue = column?.getFilterValue() as [Date, Date] | null;
 
   const handleSelect = (val: DateRange | undefined) => {
@@ -47,7 +47,7 @@ export function DataTableDateFilter<TData, TValue>({
     const monthYear = date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
     return (
-      <div className="flex items-center space-x-2">
+      <div className="flex justify center items-center space-x-2">
         <div className={cn("text-5xl font-bold", isPlaceholder ? "text-gray-500" : "text-current")}>
           {day}
         </div>

@@ -78,9 +78,9 @@ export function DataTable<TData, TValue>({
       <DataTableToolbar table={table} />
       <div>
         <div className="max-w-50">
-          <div className="overflow-x-auto rounded-md border">
+          <div className="overflow-x-auto">
             <Table className="min-w-full">
-              <TableHeader>
+              {/* <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
@@ -97,17 +97,22 @@ export function DataTable<TData, TValue>({
                     })}
                   </TableRow>
                 ))}
-              </TableHeader>
+              </TableHeader> */}
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
-                    <TableRow
+                      <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
                       onClick={() => handleRowClick(row.original)}
+                      className="border-none hover:bg-transparent"
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        
+                        <TableCell 
+                        key={cell.id}
+                        className=""
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -115,6 +120,7 @@ export function DataTable<TData, TValue>({
                         </TableCell>
                       ))}
                     </TableRow>
+                   
                   ))
                 ) : (
                   <TableRow>
@@ -129,7 +135,7 @@ export function DataTable<TData, TValue>({
               </TableBody>
             </Table>
           </div>
-          <DataTablePagination table={table} />
+          {/* <DataTablePagination table={table} /> */}
         </div>
         </div>
     </div>

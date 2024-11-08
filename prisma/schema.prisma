@@ -76,6 +76,7 @@ model Workspace {
   spots                Spot[]
   teamMembers          TeamMember[]
   customFields         CustomField[]
+  createdAt            DateTime         @default(now())
 }
 model TeamMember {
   id           String           @id @default(cuid())

@@ -17,7 +17,7 @@ export const Sidebar = () => {
     <div>
      
       <div className="hidden lg:flex flex-col min-w-[248px] h-screen p-0 gap-12 border-r sticky top-0">
-        <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
+        <Link href="/workspaces" className="flex items-center gap-2 text-lg font-semibold md:text-base mt-4 ml-4">
           <strong className="font-extrabold tracking-tight text-xl md:text-2xl">
             {APP_NAME}
           </strong>
@@ -48,19 +48,19 @@ export const Sidebar = () => {
               <CommandItem className="h-[32px]">
                 <Button
                   asChild
-                  variant={pathname.includes("/bookings") ? "secondary" : "ghost"}
+                  variant={pathname.includes("/calendar") ? "secondary" : "ghost"}
                   className="justify-start px-2 w-full h-[32px]"
                 >
-                  <Link href="/bookings" prefetch={true}>
+                  <Link href="/calendar" prefetch={true}>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 mr-0" />
-                      <span>Bookings</span>
+                      <span>Calendar</span>
                     </div>
                   </Link>
                 </Button>
               </CommandItem>
 
-              <CommandItem className="h-[32px]">
+              {/* <CommandItem className="h-[32px]">
                 <Button
                   asChild
                   variant={pathname.includes("/transactions") ? "secondary" : "ghost"}
@@ -73,9 +73,9 @@ export const Sidebar = () => {
                     </div>
                   </Link>
                 </Button>
-              </CommandItem>
+              </CommandItem> */}
 
-              <CommandItem className="h-[32px]">
+              {/* <CommandItem className="h-[32px]">
                 <Button
                   asChild
                   variant={pathname.includes("/extras") ? "secondary" : "ghost"}
@@ -88,7 +88,7 @@ export const Sidebar = () => {
                     </div>
                   </Link>
                 </Button>
-              </CommandItem>
+              </CommandItem> */}
 
               <CommandItem className="h-[32px]">
                 <Button
