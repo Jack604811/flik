@@ -283,7 +283,7 @@ function SpotForm({
                         <TableHead>Day</TableHead>
                         <TableHead>{form.watch("durationType") === "days" ? "Check-in" : "Open"}</TableHead>
                         <TableHead>{form.watch("durationType") === "days" ? "Check-out" : "Close"}</TableHead>
-                        <TableHead>Price</TableHead>
+                        {/* <TableHead>Price</TableHead> */}
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -344,7 +344,7 @@ function SpotForm({
                               type="time"
                             />
                           </TableCell>
-                          <TableCell>
+                          {/* <TableCell>
                             <Label className="sr-only" htmlFor={`price-${index}`}>
                               Price
                             </Label>
@@ -356,7 +356,7 @@ function SpotForm({
                               defaultValue={form.getValues(`workingHours.${index}.price`)}
                             
                             />
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

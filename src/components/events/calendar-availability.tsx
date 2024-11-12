@@ -25,7 +25,7 @@ type Params = {
   btnText?: string;
 };
 
-function BookingAvailability({
+function CalendarAvailability({
   spot,
   bookings,
   selectedDate,
@@ -490,4 +490,4 @@ function BookingAvailability({
   );
 }
 
-export default BookingAvailability;
+export default CalendarAvailability;

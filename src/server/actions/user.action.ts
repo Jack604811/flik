@@ -34,14 +34,17 @@ export const updateCurrentWorkspace = async (userId: string, workspaceId: string
 };
 
 // Fetch the current workspace of the user
-export const getCurrentWorkspace = async () => {
-  const currentUser = await getCurrentUser();
+export const getCurrentWorkspace = async (workspaceId?: string) => {
+  if (workspaceId) {
+    return db.workspace.findFirst({ where: { id: workspaceId } });
+  }
 
+  // Logic to get the current user's workspace if no workspaceId is provided
+  const currentUser = await getCurrentUser();
   if (!currentUser) {
     return null;
   }
-
-  // Fetch the user's profile, including the currentWorkspaceId
+  
   const user = await db.user.findFirst({
     where: { id: currentUser.id },
     select: { currentWorkspaceId: true },
@@ -51,12 +54,8 @@ export const getCurrentWorkspace = async () => {
     return null;
   }
 
-  // Fetch the workspace associated with currentWorkspaceId
-  const currentWorkspace = await db.workspace.findFirst({
+  return db.workspace.findFirst({
     where: { id: user.currentWorkspaceId },
   });
-
-  return currentWorkspace;
 };
-
 

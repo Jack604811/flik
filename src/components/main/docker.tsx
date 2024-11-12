@@ -1,17 +1,16 @@
 "use client";
-import { Moon, Sun, Settings, Home, Search, Bell, Calendar, Landmark } from "lucide-react";
+
+import { Settings, Home, Calendar, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useState } from "react";
 import Link from "next/link";
-import { ModeToggle } from "./theme-toggle";
+import { usePathname } from "next/navigation"; // Import usePathname
 
 export function Docker() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const pathname = usePathname(); // Get the current path
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+  // Function to determine if a tab is active
+  const isActive = (path: string) => pathname === path;
 
   return (
     <div
@@ -20,27 +19,51 @@ export function Docker() {
       <div className="flex justify-between items-center w-full max-w-[260px] border bg-black text-white rounded-full p-2 backdrop-blur-lg">
         <div className="flex space-x-1">
           <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`text-white bg-transparent hover:bg-transparent ${
+                isActive("/dashboard") ? "bg-neutral-800" : ""
+              }`}
+            >
               <Home className="h-5 w-5 text-white" />
               <span className="sr-only">Home</span>
             </Button>
           </Link>
-          <Link href="/bookings">
-            <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
+          <Link href="/calendar">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`text-white bg-transparent hover:bg-transparent ${
+                isActive("/calendar") ? "bg-neutral-800" : ""
+              }`}
+            >
               <Calendar className="h-5 w-5 text-white" />
-              <span className="sr-only">Bookings</span>
+              <span className="sr-only">Calendar</span>
             </Button>
           </Link>
           <Link href="/transactions">
-            <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`text-white bg-transparent hover:bg-transparent ${
+                isActive("/transactions") ? "bg-neutral-800" : ""
+              }`}
+            >
               <Landmark className="h-5 w-5 text-white" />
               <span className="sr-only">Transactions</span>
             </Button>
           </Link>
           <Link href="/settings">
-            <Button variant="ghost" size="icon" className="text-white bg-transparent hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`text-white bg-transparent hover:bg-transparent ${
+                isActive("/settings") ? "bg-neutral-800" : ""
+              }`}
+            >
               <Settings className="h-5 w-5 text-white" />
-              <span className="sr-only">Open settings</span>
+              <span className="sr-only">Settings</span>
             </Button>
           </Link>
         </div>
