@@ -1,5 +1,6 @@
 //@ts-check
 import { PrismaClient } from '@prisma/client';
+import { handleWebhook } from './actions/webhook.action';
 
 let prisma: PrismaClient;
 declare global {
@@ -18,4 +19,18 @@ if (process.env.NODE_ENV === 'production') {
   }
   prisma = (global as any).prisma;
 }
-export const db = prisma
+export const db = prisma.$extends(
+  {
+    name: "webhook",
+    query: {
+      booking: {
+        async create({args, model, operation, query}) {
+          const booking = await query(args);
+          // Send webhook
+          handleWebhook("booking.create", booking.spot?.workspaceId!, null, booking);
+          return booking;
+        }
+      }
+    }
+  }
+);

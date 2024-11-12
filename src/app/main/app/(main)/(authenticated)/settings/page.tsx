@@ -9,6 +9,7 @@ import TeamManagement from "./team-management";
 import Billing from "./billing";
 import CustomFields from "./custom-fields";
 import Integrations from "./integrations/page";
+import APIKeys from "./api-keys";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -47,6 +48,8 @@ export default async function Page() {
             <TabsTrigger value="team">Team</TabsTrigger>
             <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="fields">Custom Fields</TabsTrigger>
+            <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+            {/* <TabsTrigger value="webhooks">Webhooks</TabsTrigger> */}
             <TabsTrigger value="billing">Billing</TabsTrigger>
           </TabsList>
         </div>
@@ -68,6 +71,12 @@ export default async function Page() {
           <Integrations />
         </TabsContent>
         <TabsContent value="fields">
+          <CustomFields workspaceId={currentWorkspace.id} />
+        </TabsContent>
+        <TabsContent value="api-keys">
+          <APIKeys workspaceId={currentWorkspace.id} />
+        </TabsContent>
+        <TabsContent value="webhooks">
           <CustomFields workspaceId={currentWorkspace.id} />
         </TabsContent>
         <TabsContent value="billing">

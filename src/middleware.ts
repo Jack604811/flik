@@ -47,7 +47,6 @@ export default async function middleware(req: NextRequest) {
   
   if (hostname == `api.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
     const headers = new Headers(req.headers);
-    console.log(path)
 
     return NextResponse.rewrite(
       new URL(`/api/partners${path === "/" ? "" : path}`, req.url), {headers}

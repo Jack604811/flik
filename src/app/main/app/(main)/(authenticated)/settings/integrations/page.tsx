@@ -4,32 +4,16 @@ import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import {
   getConnectWompi,
   getConnectedStripe,
-  getWorkspaceAPIKey,
 } from "@/server/actions/workspace.action";
-import { getCurrentUser } from "@/server/auth";
 import StripeConnectButton from "./_components/StripeConnectButton";
 import WompiConnectButton from "./_components/WompiConnectButton";
-import { User } from "@prisma/client";
-import { Metadata } from "next";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
-import { APP_NAME } from "@/app-settings";
-import APIKeyCopyButton from "./_components/APIKeyCopyButton";
 
-interface IntegrationCardProps {
-  imageSrc: string;
-  title: string;
-  description: string;
-  connection: string;
-}
 
 export default async function Integrations() {
   const currentWorkspace = await getCurrentWorkspace();
   const stripeConnection = await getConnectedStripe(currentWorkspace!.id);
   const wompiConnection = await getConnectWompi(currentWorkspace!.id);
-  const apiKey = await getWorkspaceAPIKey(currentWorkspace!.id);
 
   return (
     <div>
@@ -73,23 +57,6 @@ export default async function Integrations() {
                 Wompi is the fastest and easiest way to integrate payments and
                 financial services into your software platform or marketplace.
               </CardDescription>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <div className="flex flex-col xl:flex-row max-w-6xl py-6 gap-6 xl:gap-8">
-        <div className="w-full xl:w-1/3">
-        </div>
-        <div className="grid grid-cols-1  gap-4 w-full max-w-5xl justify-start items-start xl:w-2/3">
-          <Card className="flex flex-col pt-6">
-            <CardContent className="flex flex-col gap-2 items-center">
-              <div className="w-full justify-between items-start">
-                <div className="mb-3">
-                  <h2 className="font-bold capitalize text-xl mt-4">API Key</h2>
-                </div>
-                <APIKeyCopyButton apiKey={apiKey??""} />
-              </div>
             </CardContent>
           </Card>
         </div>

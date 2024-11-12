@@ -40,7 +40,7 @@ model User {
   name                 String?
   email                String?          @unique
   emailVerified        DateTime?
-  password             String?          
+  password             String?
   image                String?
   sessions             Session[]
   workspaces           Workspace[]
@@ -54,10 +54,10 @@ model User {
 }
 
 model Workspace {
-  id                   String           @id @default(cuid())
-  ownerId              String           // Relation to User (owner)
-  owner                User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  customerId           String?          @unique
+  id                   String        @id @default(cuid())
+  ownerId              String // Relation to User (owner)
+  owner                User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  customerId           String?       @unique
   stripeAccountId      String?
   wompiAccountId       Json?
   subscriptionId       String?
@@ -66,38 +66,40 @@ model Workspace {
   logo                 String?
   favicon              String?
   country              String?
-  currency             String?          @default("🇺🇸 USD")
-  defaultPaymentMethod String?          @default("cash")
-  subdomain            String?          @unique
-  customDomain         String?          @unique
-  apiKey               String?          @unique
+  currency             String?       @default("🇺🇸 USD")
+  defaultPaymentMethod String?       @default("cash")
+  subdomain            String?       @unique
+  customDomain         String?       @unique
+  APIKeys              ApiKey[]
   categories           Category[]
   extras               Extras[]
   spots                Spot[]
   teamMembers          TeamMember[]
   customFields         CustomField[]
+  webhooks             Webhook[]
 }
+
 model TeamMember {
-  id           String           @id @default(cuid())
-  userId       String?
-  user         User?            @relation(fields: [userId], references: [id])
-  workspaceId  String
-  workspace    Workspace        @relation(fields: [workspaceId], references: [id])
-  role         String
-  status       TeamMemberStatus @default(Pending)
-  invitation   Invitation?      @relation("InvitationToTeamMember") 
-  joinedAt   DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime?        @updatedAt
+  id          String           @id @default(cuid())
+  userId      String?
+  user        User?            @relation(fields: [userId], references: [id])
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  role        String
+  status      TeamMemberStatus @default(Pending)
+  invitation  Invitation?      @relation("InvitationToTeamMember")
+  joinedAt    DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime?        @updatedAt
 }
 
 model Invitation {
-  id           String       @id @default(cuid())
+  id           String     @id @default(cuid())
   email        String
-  token        String       @unique
-  createdAt    DateTime     @default(now())
-  teamMemberId String       @unique
-  teamMember   TeamMember  @relation("InvitationToTeamMember", fields: [teamMemberId], references: [id], onDelete: Cascade)
+  token        String     @unique
+  createdAt    DateTime   @default(now())
+  teamMemberId String     @unique
+  teamMember   TeamMember @relation("InvitationToTeamMember", fields: [teamMemberId], references: [id], onDelete: Cascade)
 }
 
 model Spot {
@@ -140,7 +142,7 @@ model ExtrasImages {
 }
 
 model Booking {
-  id            String          @id @default(cuid())
+  id            String               @id @default(cuid())
   subtotal      Float
   extras        Float?
   tax           Float?
@@ -148,45 +150,44 @@ model Booking {
   startDate     DateTime?
   endDate       DateTime?
   status        BookingStatus
-  note          String          @default("")
-  customerId    String?  
+  note          String               @default("")
+  customerId    String?
   spotId        String
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime?       @default(now())
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime?            @default(now())
   deletedAt     DateTime?
-  customer      Customer?       @relation(fields: [customerId], references: [id])
-  spot          Spot            @relation(fields: [spotId], references: [id])
+  customer      Customer?            @relation(fields: [customerId], references: [id])
+  spot          Spot                 @relation(fields: [spotId], references: [id])
   bookingExtras BookingExtras[]
   transactions  Transaction[]
-  customFields BookingCustomField[]
+  customFields  BookingCustomField[]
 }
 
 model CustomField {
-  id            String            @id @default(cuid())
-  workspaceId   String
-  workspace     Workspace         @relation(fields: [workspaceId], references: [id])
-  fieldName     String            // Name of the field
-  fieldType     CustomFieldType   // Type of field (e.g., String, Integer, Select)
-  placeholder   String            @default("")// Placeholder for the field
-  isRequired    Boolean           @default(false) // Whether it's required
-  visibility    Boolean           @default(false) // Whether it's visible on the booking page
-  options       String?           // Options for select-type fields (stored as a JSON array)
-  createdById   String            // User who created the field
-  createdBy     User              @relation(fields: [createdById], references: [id])
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime?         @default(now())
-  BookingCustomField              BookingCustomField[]
+  id                 String               @id @default(cuid())
+  workspaceId        String
+  workspace          Workspace            @relation(fields: [workspaceId], references: [id])
+  fieldName          String // Name of the field
+  fieldType          CustomFieldType // Type of field (e.g., String, Integer, Select)
+  placeholder        String               @default("") // Placeholder for the field
+  isRequired         Boolean              @default(false) // Whether it's required
+  visibility         Boolean              @default(false) // Whether it's visible on the booking page
+  options            String? // Options for select-type fields (stored as a JSON array)
+  createdById        String // User who created the field
+  createdBy          User                 @relation(fields: [createdById], references: [id])
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime?            @default(now())
+  BookingCustomField BookingCustomField[]
 }
 
 model BookingCustomField {
-  id            String            @id @default(cuid())
-  bookingId     String            // Reference to the booking
-  customFieldId String            // Reference to the custom field
-  value         Json              // Value of the custom field (stored as JSON to handle any type)
-  CustomField   CustomField       @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
-  Booking       Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  id            String      @id @default(cuid())
+  bookingId     String // Reference to the booking
+  customFieldId String // Reference to the custom field
+  value         Json // Value of the custom field (stored as JSON to handle any type)
+  CustomField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+  Booking       Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
-
 
 model Transaction {
   id            String            @id @default(cuid())
@@ -287,6 +288,30 @@ model PasswordResetToken {
   @@unique([identifier, token])
 }
 
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  key         String    @unique
+  permission  Permission
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  updatedAt   DateTime? @updatedAt
+}
+
+model Webhook {
+  id          String    @id @default(cuid())
+  provider    String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  url         String
+  secret      String?
+  disabledAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
 enum BookingStatus {
   In_progress
   Confirmed
@@ -319,6 +344,7 @@ enum TeamMemberStatus {
   Active
   Inactive
 }
+
 enum CustomFieldType {
   String
   Number
@@ -326,4 +352,10 @@ enum CustomFieldType {
   Date
   Time
   File
+}
+
+enum Permission {
+  FULL_ACCESS // Full access to the workspace
+  READ_ONLY   // Read-only access to the workspace
+  SEND_ONLY   // Send-only access to the workspace
 }

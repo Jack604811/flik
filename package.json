@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.6.0",
+    "@hono/swagger-ui": "^0.4.1",
+    "@hono/zod-openapi": "^0.17.0",
+    "@hono/zod-validator": "^0.4.1",
     "@hookform/resolvers": "^3.3.4",
     "@libsql/client": "^0.6.0",
     "@prisma/adapter-libsql": "^5.12.1",
@@ -57,6 +60,7 @@
     "embla-carousel-react": "^8.1.3",
     "framer-motion": "^11.3.30",
     "hono": "^4.6.8",
+    "hono-rate-limiter": "^0.4.0",
     "jiti": "^1.21.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.428.0",

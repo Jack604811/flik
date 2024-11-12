@@ -25,13 +25,11 @@ export const createWorkspace = async (siteName: string) => {
     throw new Error("User not authenticated");
   }
 
-  const apiKey = uuidv4();
   // Create the workspace
   const newWorkspace = await db.workspace.create({
     data: {
       siteName,
       ownerId: currentUser.id,
-      apiKey,
       teamMembers: { create: { userId: currentUser.id, role: "OWNER", status: TeamMemberStatus.Active } },
     },
   });
@@ -172,15 +170,6 @@ export const getConnectWompi = async (id: string) => {
 
   return workspace?.wompiAccountId;
 };
-
-export const getWorkspaceAPIKey = async (id: string) => {
-  const workspace = await db.workspace.findFirst({
-    where: { id },
-    select: { apiKey: true },
-  });
-
-  return workspace?.apiKey;
-}
 
 export const updateSiteSetting = async (id: string, formData: FormData) => {
   const siteName = formData.get("siteName") as string;
