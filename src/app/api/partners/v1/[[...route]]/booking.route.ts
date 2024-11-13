@@ -5,6 +5,8 @@ import { API_APP_TYPE } from "@/types/api";
 import { createRoute, z } from '@hono/zod-openapi';
 import { validateAPIKey } from "./api.key.validate";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { bookingSchema } from "@/schemas/booking.schema";
+import { BookingStatus } from "@prisma/client";
 
 const bookingRoutes = new OpenAPIHono<API_APP_TYPE>();
 bookingRoutes.use("*", validateAPIKey);
@@ -22,6 +24,25 @@ const addBookingSchema = z.object({
     }),
     note: z.string().optional(),
 });
+
+
+const addBookingResponseSchema = z.object({
+    id: z.string(),
+    startDate: z.date(),
+    endDate: z.date(),
+    totalPrice: z.number(),
+    spotId: z.string(),
+    status: z.nativeEnum(BookingStatus),
+    customer: z.object({
+        id: z.string(),
+        name: z.string(),
+        email: z.string(),
+        phone: z.string(),
+        address: z.string(),
+        dni: z.string(),
+        note: z.string().optional()
+    })
+})
 
 const addBookingRoute = createRoute({
     method: "post",
@@ -43,20 +64,7 @@ const addBookingRoute = createRoute({
                     schema: z.object({
                         status: z.literal("success"),
                         type: z.literal("booking.create"),
-                        data: z.object({
-                            id: z.string(),
-                            spotId: z.string(),
-                            startDate: z.date(),
-                            endDate: z.date(),
-                            name: z.string(),
-                            email: z.string().email(),
-                            phone: z.string(),
-                            address: z.string(),
-                            dni: z.string(),
-                            note: z.string().optional(),
-                            subtotal: z.number(),
-                            totalPrice: z.number(),
-                        })
+                        data: addBookingResponseSchema
                     })
                 }
             }
@@ -103,9 +111,10 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
             totalPrice,
         });
 
-        return c.json({ status: "success", type: "booking.create", data: booking }, 200);
+
+        return c.json({ status: "success" as const, type: "booking.create" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
     } catch (e) {
-        return c.json({ status: "error", error: "Invalid request!" }, 400);
+        return c.json({ status: "error" as const, error: "Invalid request!" }, 400);
     }
 });
 
@@ -120,34 +129,7 @@ const getBookingsRoute = createRoute({
                     schema: z.object({
                         status: z.literal("success"),
                         type: z.literal("bookings"),
-                        data: z.array(z.object({
-                            customer: z.object({
-                                name: z.string(),
-                                email: z.string().email(),
-                                phone: z.string(),
-                                address: z.string().nullable(),
-                                dni: z.string().nullable(),
-                            }).nullable(),
-                            startDate: z.string().nullable(),
-                            endDate: z.string().nullable(),
-                            totalPrice: z.number(),
-                            spot: z.object({
-                                id: z.string(),
-                                name: z.string(),
-                                description: z.string(),
-                                status: z.string(),
-                                units: z.number(),
-                                duration: z.number(),
-                                durationType: z.string(),
-                                workingHours: z.array(z.any()),
-                            }),
-                            customFields: z.array(z.object({
-                                id: z.string(),
-                                value: z.string(),
-                                customFieldId: z.string()
-                            })),
-
-                        }))
+                        data: z.array(bookingSchema)
                     })
                 }
             }
@@ -161,7 +143,7 @@ const getBookingsRoute = createRoute({
 });
 
 bookingRoutes.openapi(getBookingsRoute, async (c) => {
-    const data = await getBookings(c.get("workspace").id);
+    const data = await getBookings(c.get("workspace").id) as z.infer<typeof bookingSchema>[];
     return c.json({ status: "success" as const, type: "bookings" as const, data }, 200);
 });
 
@@ -179,20 +161,7 @@ const getBookingByIdRoute = createRoute({
                     schema: z.object({
                         status: z.literal("success"),
                         type: z.literal("booking"),
-                        data: z.object({
-                            id: z.string(),
-                            spotId: z.string(),
-                            startDate: z.date(),
-                            endDate: z.date(),
-                            name: z.string(),
-                            email: z.string().email(),
-                            phone: z.string(),
-                            address: z.string(),
-                            dni: z.string(),
-                            note: z.string().optional(),
-                            subtotal: z.number(),
-                            totalPrice: z.number(),
-                        })
+                        data: bookingSchema
                     })
                 }
             }
@@ -219,10 +188,10 @@ const getBookingByIdRoute = createRoute({
 bookingRoutes.openapi(getBookingByIdRoute, async (c) => {
     const id = c.req.valid("param").id;
     try {
-        const data = await getBookingById(id);
-        return c.json({ status: "success", type: "booking", data }, 200);
+        const data = await getBookingById(id) as z.infer<typeof bookingSchema>;
+        return c.json({ status: "success" as const, type: "booking" as const, data }, 200);
     } catch (e) {
-        return c.json({ status: "error", error: "Booking not found!" }, 404);
+        return c.json({ status: "error" as const, error: "Booking not found!" }, 404);
     }
 });
 
@@ -267,9 +236,9 @@ bookingRoutes.openapi(deleteBookingRoute, async (c) => {
     const id = c.req.valid("param").id;
     try {
         await deleteBooking(id);
-        return c.json({ status: "success", type: "booking.delete" }, 200);
+        return c.json({ status: "success" as const, type: "booking.delete" as const }, 200);
     } catch (e) {
-        return c.json({ status: "error", error: "Booking not found!" }, 404);
+        return c.json({ status: "error" as const, error: "Booking not found!" }, 404);
     }
 });
 
