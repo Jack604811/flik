@@ -1,5 +1,5 @@
 import { calculateSubtotal, WORKING_HOUR_TYPE } from "@/lib/utils";
-import { addBooking, deleteBooking, getBookingById, getBookings } from "@/server/actions/booking.action";
+import { addBooking, deleteBooking, getBookingById, getBookings, updateBooking } from "@/server/actions/booking.action";
 import { getSpotById } from "@/server/actions/spot.action";
 import { API_APP_TYPE } from "@/types/api";
 import { createRoute, z } from '@hono/zod-openapi';
@@ -41,7 +41,14 @@ const addBookingResponseSchema = z.object({
         address: z.string(),
         dni: z.string(),
         note: z.string().optional()
-    })
+    }),
+    customFields: z.array(z.object({
+        value: z.string(),
+        customFieldId: z.string(),
+        CustomField: z.object({
+            fieldName: z.string(),
+        })
+    })),
 })
 
 const addBookingRoute = createRoute({
@@ -117,6 +124,82 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
         return c.json({ status: "error" as const, error: "Invalid request!" }, 400);
     }
 });
+
+const updateBookingSchema = z.object({
+    id: z.string(),
+    spotId: z.string().optional(),
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+    customer: z.object({
+        name: z.string().optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        address: z.string().optional(),
+        dni: z.string().optional(),
+    }).optional(),
+    note: z.string().optional(),
+    status: z.nativeEnum(BookingStatus).optional(),
+    customFields: z.array(z.object({
+        customFieldId: z.string().openapi({description: "The ID of the Custom Field that you want to add value to."}),
+        value: z.string()
+    }))
+});
+
+
+const updateBookingRoute = createRoute({
+    method: "put",
+    path: "/",
+    request: {
+        body: {
+            content: {
+                "application/json": {
+                    schema: updateBookingSchema
+                }
+            }
+        }
+    },
+    responses: {
+        200: {
+            description: "Booking updated",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("success"),
+                        type: z.literal("booking.update"),
+                        data: addBookingResponseSchema
+                    })
+                }
+            }
+        },
+        400: {
+            description: "Invalid request",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("error"),
+                        error: z.string()
+                    })
+                }
+            }
+        }
+    },
+    security: [
+        {
+            "X-TOKEN": []
+        }
+    ]
+});
+
+bookingRoutes.openapi(updateBookingRoute, async (c) => {
+    const body = c.req.valid("json");
+    try {
+        const booking = await updateBooking(body);
+        return c.json({ status: "success" as const, type: "booking.update" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
+    } catch (e) {
+        return c.json({ status: "error" as const, error: "Invalid request!" }, 400);
+    }
+});
+
 
 const getBookingsRoute = createRoute({
     method: "get",

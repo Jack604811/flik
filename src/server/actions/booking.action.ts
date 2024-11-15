@@ -59,6 +59,15 @@ export const getTransactions = async (ownerId: string) => {
   return transactions;
 };
 
+export const getTransactionById = async (transactionId: string) => {
+  const transaction = await db.transaction.findFirst({
+    where: { id: transactionId },
+    include: { booking: { include: { customer: true, spot: true } } },
+  });
+
+  return transaction;
+}
+
 export const getTransactionsByBooking = async (bookingId: string) => {
   const transactions = await db.transaction.findMany({
     where: { booking: { id: bookingId } },
@@ -123,9 +132,17 @@ export const addBooking = async (data: {
       spotId: data.spotId,
     },
     include: {
+      customFields: {
+        select: {
+          customFieldId: true,
+          value: true,
+          CustomField: { select: { fieldName: true } },
+        },
+      },
       spot: {
         select: {
           workspace: { select: { subdomain: true, customDomain: true } },
+          workspaceId: true,
         },
       },
     },
@@ -194,7 +211,7 @@ export const addOrUpdateTransaction = async (data: {
     booking: { connect: { id: data.bookingId } },
   };
   const transaction = await db.transaction.upsert({
-    where: { id: data.id ?? "0" },
+    where: { id: data.id ?? "" },
     update: transactionData,
     create: transactionData,
   });
@@ -241,7 +258,7 @@ export const updateBooking = async (data: {
   startDate?: Date;
   endDate?: Date;
   customer?: {
-    id: string;
+    id?: string;
     name?: string;
     email?: string;
     phone?: string;
@@ -267,7 +284,7 @@ export const updateBooking = async (data: {
         ? {
             customFields: {
               upsert: data.customFields.map((field) => ({
-                where: { id: field.id ?? "" },
+                where: { bookingId_customFieldId: { bookingId: data.id, customFieldId: field.customFieldId } },
                 create: {
                   customFieldId: field.customFieldId,
                   value: field.value,
@@ -278,6 +295,16 @@ export const updateBooking = async (data: {
           }
         : {}),
     },
+    include: {
+      customer: true,
+      customFields: {
+        select: {
+          customFieldId: true,
+          value: true,
+          CustomField: { select: { fieldName: true } },
+        },
+      },
+    }
   });
 
   return booking;

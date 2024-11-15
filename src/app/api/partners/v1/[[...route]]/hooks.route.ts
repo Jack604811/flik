@@ -12,6 +12,7 @@ const createWebhookSchema = z.object({
     url: z.string().url().openapi({ description: "The URL to send the webhook to"}),
     secret: z.string().optional().openapi({ description: "The secret to sign the webhook"}),
     provider: z.string().optional().openapi({ description: "The provider of the webhook"}),
+    events: z.array(z.string()).openapi({ description: "The events to listen to"})
 });
 
 const createWebhookRoute = createRoute({

@@ -35,7 +35,8 @@ export const validateAPIKey = async (c: Context, next: Next) => {
     // Pass workspace.id to the context state
     c.set("workspace", {
       id: workspace.id,
-      name: workspace.siteName
+      name: workspace.siteName,
+      ownerId: workspace.ownerId
     });
   
     await next();

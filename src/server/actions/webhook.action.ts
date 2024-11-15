@@ -7,7 +7,7 @@ export const getWebhooks = async (workspaceId: string) => {
     return webhooks;
 };
 
-export const createWebhook = async (data: { provider?: string, workspaceId: string, url: string, secret?:string }) => {
+export const createWebhook = async (data: { provider?: string, workspaceId: string, url: string, secret?:string, events: string[] }) => {
     const webhook = await db.webhook.create({ data });
     return webhook;
 }
@@ -19,12 +19,12 @@ export const deleteWebhook = async (id: string) => {
 }
 
 
-export const handleWebhook = async (workspaceId: string, type: string, previous: any, current: any) => {
-    const webhooks = await getWebhooks(workspaceId);
+export const handleWebhook = async (type: string, workspaceId: string, previous: any, current: any) => {
+    const webhooks = await db.webhook.findMany({ where: { workspaceId, events: {has: type} } });
+    console.log(`Found ${webhooks.length} webhooks for workspace ${workspaceId} and event ${type}`);
 
     for (const webhook of webhooks) {
         // Send webhook
-        console.log(`Sending webhook to ${webhook.url}`);
         const response = await fetch(webhook.url, {
             method: "POST",
             headers: {
@@ -37,6 +37,8 @@ export const handleWebhook = async (workspaceId: string, type: string, previous:
                 current
             })
         });
+        // TODO: Handle response and update webhook status so that we can retry if it fails 
+        // and also disable the webhook if it fails too many times
         console.log(`Webhook response: ${response.status}`);
     }
 }

@@ -7,6 +7,8 @@ import spotRoutes from "./spot.route";
 import { validateAPIKey } from "./api.key.validate";
 import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono } from '@hono/zod-openapi'
+import transactionRoutes from "./transaction.route";
+import customFieldRoutes from "./custom-field.route";
 
 
 const app = new OpenAPIHono<API_APP_TYPE>().basePath("/v1")
@@ -21,7 +23,9 @@ app.post("/auth", validateAPIKey, (c) => {
 
 
 app.route("/bookings", bookingRoutes);
+app.route("/custom-fields", customFieldRoutes);
 app.route("/spots", spotRoutes);
+app.route("/transactions", transactionRoutes);
 app.route("/hooks", hookRoutes);
 
 app.notFound((c) => {
@@ -54,5 +58,6 @@ app.doc31('/doc', {
 })
 
 export const GET = handle(app);
-export const DELETE = handle(app);
 export const POST = handle(app);
+export const PUT = handle(app);
+export const DELETE = handle(app);

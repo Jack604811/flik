@@ -184,10 +184,12 @@ model CustomField {
 model BookingCustomField {
   id            String      @id @default(cuid())
   bookingId     String // Reference to the booking
-  customFieldId String // Reference to the custom field
+  customFieldId String    // Reference to the custom field
   value         Json // Value of the custom field (stored as JSON to handle any type)
   CustomField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
   Booking       Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, customFieldId])
 }
 
 model Transaction {
@@ -308,6 +310,7 @@ model Webhook {
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   url         String
   secret      String?
+  events      String[]
   disabledAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
