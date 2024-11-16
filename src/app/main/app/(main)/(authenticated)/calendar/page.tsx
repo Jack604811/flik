@@ -11,11 +11,14 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const currentWorkspace = await getCurrentWorkspace();
-  const bookings = await getBookings(currentWorkspace!.id);
+  const events = await getBookings(currentWorkspace!.id);
 
   return (
     <div className="flex-1">
-      <CalendarView bookings={bookings} workspaceId={currentWorkspace!.id} />
+      <CalendarView 
+      events={events} 
+      workspaceId={currentWorkspace!.id} 
+      />
     </div>
   );
 }

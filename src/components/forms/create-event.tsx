@@ -173,6 +173,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
               value={form.watch("phone")}
               onChange={(value) => form.setValue("phone", value ?? "")}
               required
+              defaultCountry="US"
             />
           </div>
           <div className="space-y-2">
