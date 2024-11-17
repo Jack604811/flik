@@ -29,7 +29,6 @@ export const handleWebhook = async (type: string, workspaceId: string, previous:
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-TOKEN": webhook.secret || ""
             },
             body: JSON.stringify({
                 type,
@@ -39,6 +38,10 @@ export const handleWebhook = async (type: string, workspaceId: string, previous:
         });
         // TODO: Handle response and update webhook status so that we can retry if it fails 
         // and also disable the webhook if it fails too many times
-        console.log(`Webhook response: ${response.status}`);
+        console.log(`Webhook response: ${response.status} - ${webhook.url}`, JSON.stringify({
+            type,
+            previous,
+            current
+        }));
     }
 }

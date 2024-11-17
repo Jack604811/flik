@@ -19,20 +19,28 @@ if (process.env.NODE_ENV === 'production') {
   }
   prisma = (global as any).prisma;
 }
+
 export const db = prisma.$extends(
   {
     name: "webhook",
     query: {
       booking: {
-        async create({args, model, operation, query}) {
+        async create({args, query}) {
           const booking = await query(args);
           // Send webhook
           handleWebhook("booking.created", booking.spot?.workspaceId!, null, booking);
           return booking;
+        },
+        async update({args, query}) {
+          const previous = await db.booking.findUnique({ where: { id: args.where.id } });
+          const booking = await query(args);
+          // Send webhook
+          handleWebhook("booking.updated", booking.spot?.workspaceId!, previous, booking);
+          return booking;
         }
       },
       transaction: {
-        async upsert({args, model, operation, query}) {
+        async upsert({args, query}) {
           let previous = null;
           if (!!args.where.id) {
             previous = await db.transaction.findUnique({ where: { id: args.where.id } });
@@ -64,8 +72,14 @@ export const db = prisma.$extends(
             // Send webhook
             handleWebhook(type, workspaceId, previous, transaction);
             return transaction;
+        },
+        async create({args, query}) {
+          const transaction = await query(args);
+          // Send webhook
+          handleWebhook("transaction.created", transaction.booking?.spot?.workspaceId!, null, transaction);
+          return transaction;
         }
-      }
+      },
     }
   }
 );

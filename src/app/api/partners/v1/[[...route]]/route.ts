@@ -1,61 +1,121 @@
-import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import bookingRoutes from "./booking.route";
 import hookRoutes from "./hooks.route";
 import { API_APP_TYPE } from "@/types/api";
 import spotRoutes from "./spot.route";
 import { validateAPIKey } from "./api.key.validate";
-import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono } from '@hono/zod-openapi'
+import { swaggerUI } from "@hono/swagger-ui";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import transactionRoutes from "./transaction.route";
 import customFieldRoutes from "./custom-field.route";
+import { getWorkspace } from "@/server/actions/workspace.action";
 
+const app = new OpenAPIHono<API_APP_TYPE>().basePath("/v1");
 
-const app = new OpenAPIHono<API_APP_TYPE>().basePath("/v1")
-
-
-app.get('/', swaggerUI({ url: '/v1/doc', syntaxHighlight: true, }))
-
+app.get("/", swaggerUI({ url: "/v1/doc", syntaxHighlight: true }));
 
 app.post("/auth", validateAPIKey, (c) => {
-    return c.json({ status: "success", workspace: c.get("workspace").name, workspaceId: c.get("workspace").id }, 200);
+  return c.json(
+    {
+      status: "success",
+      workspace: c.get("workspace").name,
+      workspaceId: c.get("workspace").id,
+    },
+    200
+  );
 });
 
-
+const getWorkspaceRoute = createRoute({
+  method: "get",
+  path: "/me",
+  responses: {
+    200: {
+      description: "Workspace",
+      content: {
+        "application/json": {
+          schema: z.object({
+            status: z.literal("success"),
+            data: z.object({
+              id: z.string(),
+              ownerId: z.string(),
+              customDomain: z.string().nullable().optional(),
+              siteName: z.string().nullable().optional(),
+              aboutUs: z.string().nullable().optional(),
+              country: z.string().nullable().optional(),
+              currency: z.string().nullable().optional(),
+              defaultPaymentMethod: z.string().nullable().optional(),
+              subdomain: z.string().nullable().optional(),
+              createdAt: z.date(),
+            }),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "Invalid request",
+      content: {
+        "application/json": {
+          schema: z.object({
+            status: z.literal("error"),
+            error: z.string(),
+          }),
+        },
+      },
+    },
+  },
+});
+app.openapi(getWorkspaceRoute, async (c) => {
+  try {
+    const workspace = await getWorkspace(c.get("workspace").id);
+    if (!workspace) {
+      return c.json(
+        { status: "error" as const, error: "Invalid request" },
+        400
+      );
+    }
+    return c.json({ status: "success" as const, data: workspace }, 200);
+  } catch (e) {
+    return c.json({ status: "error" as const, error: "Invalid request" }, 400);
+  }
+});
 app.route("/bookings", bookingRoutes);
 app.route("/custom-fields", customFieldRoutes);
 app.route("/spots", spotRoutes);
 app.route("/transactions", transactionRoutes);
 app.route("/hooks", hookRoutes);
 
+
+
 app.notFound((c) => {
-  return c.json({
-    status: "error",
-    message: "Not Found!",
-  }, 404);
+  return c.json(
+    {
+      status: "error",
+      error: "Not Found!",
+    },
+    404
+  );
 });
 
-
-app.openAPIRegistry.registerComponent("securitySchemes","X-TOKEN", {
+app.openAPIRegistry.registerComponent("securitySchemes", "X-TOKEN", {
   type: "apiKey",
   name: "X-TOKEN",
   in: "header",
   description: "API Key for the workspace",
-})
+});
 
-app.doc31('/doc', {
+app.doc31("/doc", {
   openapi: "3.1.0",
   info: {
-    version: 'v1',
-    title: 'Flik API',
-    description: 'Flik API Documentation',
+    version: "v1",
+    title: "Flik API",
+    description: "Flik API Documentation",
   },
   security: [
     {
-      apiKey: []
-    }
-  ]
-})
+      apiKey: [],
+    },
+  ],
+});
 
 export const GET = handle(app);
 export const POST = handle(app);

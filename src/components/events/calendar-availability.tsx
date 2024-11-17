@@ -10,6 +10,7 @@ import { DateRange, isDateRange } from "react-day-picker";
 import { date, z } from "zod";
 import { WORKING_HOUR_TYPE, calculateSubtotal } from "@/lib/utils";
 import { endOfDay, startOfDay } from "date-fns";
+import { m } from "framer-motion";
 
 type Params = {
   spot: z.infer<typeof bookingSchema>["spot"];
@@ -143,15 +144,20 @@ function CalendarAvailability({
         "to" in selectedDate
       ) {
         // For day duration type, do not add a full day to endDate
-        if (spot.durationType === "day") {
-          return { startDate: selectedDate.from, endDate: selectedDate.to };
+        if (spot.durationType === "days") {
+          const startDateOpenTime = workingHours.find(workingHour => workingHour.day === moment(selectedDate.from).format("dddd"))?.openTime;
+          const endDateCloseTime = workingHours.find(workingHour => workingHour.day === moment(selectedDate.to).format("dddd"))?.closeTime;
+
+          const startDate = selectedDate.from ? moment(selectedDate.from).startOf("day").add(moment(startDateOpenTime, "hh:mm A").hours(), "hours").add(moment(startDateOpenTime, "hh:mm A").minutes(), "minutes").toDate(): selectedDate.from;
+          const endDate = selectedDate.to ? moment(selectedDate.to).startOf("day").add(moment(endDateCloseTime, "hh:mm A").hours(), "hours").add(moment(endDateCloseTime, "hh:mm A").minutes(), "minutes").toDate(): selectedDate.to;
+          return { startDate, endDate };
         }
         return { startDate: selectedDate.from, endDate: selectedDate.to };
       }
 
       const startDate = selectedDate as Date;
       const endDate =
-        spot.durationType === "day"
+        spot.durationType === "days"
           ? moment(startDate).add(1, "day").toDate()
           : moment(startDate).add(spot.duration, "hours").toDate();
 
@@ -160,7 +166,7 @@ function CalendarAvailability({
         endDate,
       };
     },
-    [spot.duration, spot.durationType]
+    [spot.duration, spot.durationType, workingHours]
   );
 
   const isDateDisabled = useCallback(
@@ -350,7 +356,7 @@ function CalendarAvailability({
           }}
           selected={selectedDate as any}
           disabled={(date) => isDateDisabled(date)}
-          
+          min={spot.durationType === "days" ? spot.duration + 1 : undefined}
         />
       </div>
       {spot.durationType === "hours" && selectedDate && (

@@ -1,5 +1,5 @@
 
-import { createWebhook, deleteWebhook } from "@/server/actions/webhook.action";
+import { createWebhook, deleteWebhook, getWebhooks } from "@/server/actions/webhook.action";
 import { API_APP_TYPE } from "@/types/api";
 import { createRoute, z } from '@hono/zod-openapi'
 import { validateAPIKey } from "./api.key.validate";
@@ -7,6 +7,41 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 
 const hookRoutes = new OpenAPIHono<API_APP_TYPE>()
 hookRoutes.use("*", validateAPIKey);
+
+
+const getWebhooksRoute = createRoute({
+    method: "get",
+    path: "/",
+    responses: {
+        200: {
+            description: "Webhooks",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("success"),
+                        data: z.array(z.object({
+                            id: z.string(),
+                            url: z.string(),
+                            secret: z.string().nullable(),
+                            provider: z.string().nullable(),
+                            events: z.array(z.string())
+                        }))
+                    })
+                }
+            }
+        }
+    },
+    security: [
+        {
+            "X-TOKEN": []
+        }
+    ]
+});
+
+hookRoutes.openapi(getWebhooksRoute, async (c) => {
+    const webhooks = await getWebhooks(c.get("workspace").id);
+    return c.json({ status: "success" as const, data: webhooks }, 200);
+});
 
 const createWebhookSchema = z.object({
     url: z.string().url().openapi({ description: "The URL to send the webhook to"}),
@@ -60,7 +95,7 @@ const createWebhookRoute = createRoute({
         {
             "X-TOKEN": []
         }
-    ]
+    ],
 })
 
 hookRoutes.openapi(createWebhookRoute, async (c) => {
