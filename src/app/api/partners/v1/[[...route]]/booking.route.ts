@@ -90,7 +90,7 @@ const addBookingRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -185,7 +185,7 @@ const updateBookingRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -220,7 +220,7 @@ const getBookingsRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -263,7 +263,7 @@ const getBookingByIdRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -310,7 +310,7 @@ const deleteBookingRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });

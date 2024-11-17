@@ -33,7 +33,7 @@ const getCustomFieldsRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -96,7 +96,7 @@ const createCustomFieldRoute = createRoute({
     },
     security:[
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 })
@@ -171,7 +171,7 @@ const updateCustomFieldRoute = createRoute({
     },
     security:[
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 })
@@ -226,7 +226,7 @@ const deleteCustomFieldRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });

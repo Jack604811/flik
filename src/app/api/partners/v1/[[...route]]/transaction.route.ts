@@ -70,7 +70,7 @@ const addTransactionRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -127,7 +127,7 @@ const updateTransactionRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -167,7 +167,7 @@ const getTransactionsRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -210,7 +210,7 @@ const getTransactionByIdRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -257,7 +257,7 @@ const deleteTransactionRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });

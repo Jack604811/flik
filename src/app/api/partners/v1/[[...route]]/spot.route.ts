@@ -61,7 +61,7 @@ const addSpotRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -92,7 +92,7 @@ const getSpotsRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -137,7 +137,7 @@ const getSpotByIdRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -187,7 +187,7 @@ const deleteSpotRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });

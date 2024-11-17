@@ -27,7 +27,7 @@ app.post("/auth", validateAPIKey, (c) => {
 
 const getWorkspaceRoute = createRoute({
   method: "get",
-  path: "/me",
+  path: "/whoami",
   responses: {
     200: {
       description: "Workspace",
@@ -63,6 +63,11 @@ const getWorkspaceRoute = createRoute({
       },
     },
   },
+  security: [
+    {
+      "x-token": [],
+    },
+  ],
 });
 app.openapi(getWorkspaceRoute, async (c) => {
   try {
@@ -96,9 +101,9 @@ app.notFound((c) => {
   );
 });
 
-app.openAPIRegistry.registerComponent("securitySchemes", "X-TOKEN", {
+app.openAPIRegistry.registerComponent("securitySchemes", "x-token", {
   type: "apiKey",
-  name: "X-TOKEN",
+  name: "x-token",
   in: "header",
   description: "API Key for the workspace",
 });

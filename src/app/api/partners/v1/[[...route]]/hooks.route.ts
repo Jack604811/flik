@@ -33,7 +33,7 @@ const getWebhooksRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });
@@ -93,7 +93,7 @@ const createWebhookRoute = createRoute({
     },
     security:[
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ],
 })
@@ -141,7 +141,7 @@ const deleteWebhookRoute = createRoute({
     },
     security: [
         {
-            "X-TOKEN": []
+            "x-token": []
         }
     ]
 });

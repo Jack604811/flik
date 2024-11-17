@@ -3,7 +3,7 @@ import { Permission } from "@prisma/client";
 import { Context, Next } from "hono";
 
 export const validateAPIKey = async (c: Context, next: Next) => {
-    const token = c.req.header("X-TOKEN");
+    const token = c.req.header("x-token");
     if (!token) {
       return c.json({
         status: "error",
