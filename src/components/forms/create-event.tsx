@@ -17,10 +17,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { addBooking } from "@/server/actions/booking.action";
-import SpotSelector from "@/components/events/spot-selector";
+import SpotSelector from "@/components/calendar/spot-selector";
 import { Calendar, Plus, X } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import CalendarAvailability from "@/components/events/calendar-availability";
+import CalendarAvailability from "@/components/calendar/calendar-availability";
 import { DateRange } from "react-day-picker";
 
 type Spot = {

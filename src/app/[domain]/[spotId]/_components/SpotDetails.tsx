@@ -19,7 +19,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { BookingDates } from "@/lib/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import CalendarAvailability from "@/components/events/calendar-availability";
+import CalendarAvailability from "@/components/calendar/calendar-availability";
 import moment from "moment";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";

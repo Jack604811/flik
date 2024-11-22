@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { startOfDay, endOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, ArrowRight } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -44,19 +44,25 @@ export function DateFilter<TData, TValue>({
   const formatDateDisplay = (date: Date, isPlaceholder = false) => {
     const day = date.toLocaleDateString("en-GB", { day: "2-digit" });
     const weekday = date.toLocaleDateString("en-GB", { weekday: "long" });
-    const monthYear = date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+    const month = date.toLocaleDateString("en-GB", { month: "long" });
 
     return (
-      <div className="flex justify center items-center space-x-2">
-        <div className={cn("text-5xl font-bold", isPlaceholder ? "text-gray-500" : "text-current")}>
+      <div className="flex justify-center items-center space-x-2">
+        <div
+          className={cn("text-4xl font-bold", isPlaceholder ? "text-gray-500" : "text-current")}
+        >
           {day}
         </div>
         <div className="flex flex-col">
-          <div className={cn("text-md font-semibold", isPlaceholder ? "text-gray-500" : "text-current")}>
+          <div
+            className={cn("text-md font-bold", isPlaceholder ? "text-gray-500" : "text-current")}
+          >
             {weekday}
           </div>
-          <div className={cn("text-md", isPlaceholder ? "text-gray-500" : "text-current")}>
-            {monthYear}
+          <div
+            className={cn("text-sm", isPlaceholder ? "text-gray-500" : "text-current")}
+          >
+            {month}
           </div>
         </div>
       </div>
@@ -81,15 +87,14 @@ export function DateFilter<TData, TValue>({
         <Popover>
           <PopoverTrigger asChild>
             <div className="cursor-pointer">
-              <div className="flex items-center space-x-2">
-                
+              <div className="flex items-center justify-start space-x-4">
                 {selectedValue ? (
                   selectedValue[0].toDateString() === selectedValue[1].toDateString() ? (
                     formatDateDisplay(selectedValue[0])
                   ) : (
-                    <div className="flex space-x-2">
+                    <div className="flex items-center justify-center space-x-2">
                       {formatDateDisplay(selectedValue[0])}
-                      <span className="text-sm font-semibold">-</span>
+                      <ArrowRight className="text-sm text-muted-foreground" />
                       {formatDateDisplay(selectedValue[1])}
                     </div>
                   )

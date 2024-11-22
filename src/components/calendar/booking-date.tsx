@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { z } from "zod";
 import { bookingSchema } from "@/schemas/booking.schema";
-import CalendarAvailability from "@/components/events/calendar-availability";
+import CalendarAvailability from "@/components/calendar/calendar-availability";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
