@@ -18,6 +18,7 @@ export default async function Page() {
       <CalendarView 
       events={events} 
       workspaceId={currentWorkspace!.id} 
+
       />
     </div>
   );

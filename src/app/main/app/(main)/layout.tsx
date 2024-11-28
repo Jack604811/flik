@@ -37,9 +37,9 @@ export default function MainLayout({
     <div className="flex h-screen w-full flex-row relative overflow-hidden">
       {!isWorkspacesPath && (
         <div>
-          <Suspense fallback={<Loader />}>
+        
             <Sidebar />
-          </Suspense>
+        
         </div>
       )}
       <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
