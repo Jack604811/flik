@@ -13,15 +13,17 @@ bookingRoutes.use("*", validateAPIKey);
 
 const addBookingSchema = z.object({
     spotId: z.string(),
-    startDate: z.date(),
-    endDate: z.date(),
+    startDate: z.string().transform(z.date().parse).openapi({description: "The start date of the booking", example: "2022-01-01 10:00:00"}),
+    endDate: z.string().transform(z.date().parse).openapi({description: "The end date of the booking", example: "2022-01-01 12:00:00"}),
     customer: z.object({
         name: z.string(),
         email: z.string().email(),
-        phone: z.string(),
-        address: z.string(),
-        dni: z.string(),
+        phone: z.string()
     }),
+    customFields: z.array(z.object({
+        customFieldId: z.string().openapi({description: "The ID of the Custom Field that you want to add value to."}),
+        value: z.string()
+    })).optional(),
     note: z.string().optional(),
 });
 
@@ -38,8 +40,6 @@ const addBookingResponseSchema = z.object({
         name: z.string(),
         email: z.string(),
         phone: z.string(),
-        address: z.string(),
-        dni: z.string(),
         note: z.string().optional()
     }),
     customFields: z.array(z.object({
@@ -111,11 +111,10 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
             name: body.customer.name,
             email: body.customer.email,
             phone: body.customer.phone,
-            address: body.customer.address,
-            dni: body.customer.dni,
             note: body.note,
             subtotal,
             totalPrice,
+            customFields: body.customFields
         });
 
 
@@ -134,8 +133,6 @@ const updateBookingSchema = z.object({
         name: z.string().optional(),
         email: z.string().email().optional(),
         phone: z.string().optional(),
-        address: z.string().optional(),
-        dni: z.string().optional(),
     }).optional(),
     note: z.string().optional(),
     status: z.nativeEnum(BookingStatus).optional(),

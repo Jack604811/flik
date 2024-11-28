@@ -55,8 +55,8 @@ export const bookingSchema = z.object({
     name: z.string(),
     email: z.string(),
     phone: z.string(),
-    address: z.string(),
-    dni: z.string(),
+    address: z.string().optional(),
+    dni: z.string().optional(),
     note: z.string().optional()
   }),
   customFields: z.array(z.object({

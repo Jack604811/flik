@@ -117,7 +117,7 @@ app.doc31("/doc", {
   },
   security: [
     {
-      apiKey: [],
+      "x-token": [],
     },
   ],
 });
