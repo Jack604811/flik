@@ -282,7 +282,6 @@ function BookingDetailSheet() {
                           "customer.name",
                           "customer.email",
                           "customer.phone",
-                          "customer.address",
                           "status",
                         ].map((field) =>{ 
                           let fieldName = field.includes(".") ? field.split(".")[1] : field;

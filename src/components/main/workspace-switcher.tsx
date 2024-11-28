@@ -133,11 +133,19 @@ export default function WorkspaceSwitcher({
     mutate(); // Refetch workspaces
   };
 
+  // Trigger fetching workspaces when popover opens
+  const handlePopoverOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      mutate(); // Refetch workspaces when the popover is opened
+    }
+  };
+
   if (error) return <div>Error loading workspaces</div>;
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handlePopoverOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
