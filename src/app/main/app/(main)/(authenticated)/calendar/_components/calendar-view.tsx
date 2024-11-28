@@ -52,6 +52,7 @@ export default function CalendarView({
     isNewEvent:
       new Date(event.createdAt) >= todayStart &&
       new Date(event.createdAt) < todayEnd,
+      totalPrice: event.totalPrice,
   }));
 
   const goToPrevious = () => {
@@ -166,7 +167,11 @@ export default function CalendarView({
           </ResizablePanel>
           <ResizableHandle className="hidden md:flex" />
           <ResizablePanel className="overflow-auto px-4 min-w-[328px] md:max-w-[328px]">
-            <ListView events={enrichedEvents} />
+          <ListView
+              workspaceId={workspaceId}
+              bookings={enrichedEvents}
+              refreshEvents={fetchBookings}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

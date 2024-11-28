@@ -1,5 +1,7 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { getTransactionsByBooking } from "@/server/actions/booking.action";
 import { Clock, MapPin, ArrowRight, Calendar, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +10,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { Transaction, TransactionStatus } from "@prisma/client";
 
 type PreviewContentProps = {
   Id: string;
@@ -16,10 +19,10 @@ type PreviewContentProps = {
   eventDateRange: string;
   eventTimeRange: string;
   spot: string;
-  amountDue: string;
+  totalPrice: number; 
   startDate: string;
   endDate: string;
-  isNewEvent?: boolean; // Added isNewEvent flag
+  isNewEvent?: boolean;
 };
 
 export function PreviewContent({
@@ -29,18 +32,29 @@ export function PreviewContent({
   eventDateRange,
   eventTimeRange,
   spot,
-  amountDue,
+  totalPrice,
   startDate,
   endDate,
-  isNewEvent, // Destructure isNewEvent
+  isNewEvent,
 }: PreviewContentProps) {
-  // Compute date range
+  const { data: transactions = [] } = useQuery<Transaction[]>({
+    queryKey: ["transactionsByBooking", Id],
+    queryFn: () => getTransactionsByBooking(Id),
+    initialData: [],
+  });
+
+  const totalPayments = transactions
+    .filter((transaction) => transaction.status === TransactionStatus.Approved)
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+  const amountDue = totalPrice - totalPayments;
+
   const isSameDay =
     new Date(startDate).toDateString() === new Date(endDate).toDateString();
   const displayDateRange = isSameDay
-    ? new Date(startDate).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
+    ? new Date(startDate).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
       })
     : eventDateRange;
 
@@ -48,7 +62,7 @@ export function PreviewContent({
     <TooltipProvider>
       <div className="grid gap-4">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 ">
+          <div className="flex items-center gap-2">
             <h4 className="font-medium leading-none text-xl">{customerName}</h4>
             {isNewEvent && (
               <Tooltip>
@@ -87,7 +101,7 @@ export function PreviewContent({
           </div>
           <div className="grid grid-cols-[20px_1fr] items-center gap-2">
             <Receipt className="h-4 w-4" />
-            <div className="text-sm">Amount Due: {amountDue}</div>
+            <div className="text-sm">Amount Due: ${amountDue.toFixed(2)}</div>
           </div>
         </div>
         <Link href={`/calendar/${Id}`}>

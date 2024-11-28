@@ -28,8 +28,8 @@ type Event = {
     name: string;
     phone: string;
   };
-  amountDue: string;
-  isNewEvent?: boolean; // Added isNewEvent flag
+  totalPrice: number;
+  isNewEvent?: boolean;
 };
 
 export default function MonthView({
@@ -115,7 +115,7 @@ export default function MonthView({
                         return (
                           <Tooltip key={event.id}>
                             <TooltipTrigger asChild>
-                              <Link href={`/calendar/${event.id}`}>
+                              <div>
                                 <div
                                   className="truncate bg-violet-500 text-white rounded px-1 py-0.5 mb-1 cursor-pointer flex items-center justify-between gap-2"
                                   onClick={(e) => e.stopPropagation()}
@@ -132,7 +132,7 @@ export default function MonthView({
                                     </Tooltip>
                                   )}
                                 </div>
-                              </Link>
+                              </div>
                             </TooltipTrigger>
                             <TooltipContent
                               side="bottom"
@@ -148,9 +148,8 @@ export default function MonthView({
                                 startDate={eventStartDate}
                                 endDate={eventEndDate}
                                 spot={event.spot.name}
-                                amountDue={event.amountDue}
-                                isNewEvent={event.isNewEvent}
-                              />
+                                totalPrice={event.totalPrice} 
+                                isNewEvent={event.isNewEvent}                              />
                             </TooltipContent>
                           </Tooltip>
                         );
@@ -168,10 +167,10 @@ export default function MonthView({
 
                   {eventsForDate.length === 0 && (
                     <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity dark:bg-neutral-900/90 flex items-center justify-center p-2">
-                      <CreateEvent
+                      {/* <CreateEvent
                         workspaceId={workspaceId}
-                        onEventCreated={onEventCreated}
-                      />
+                        onEventCreated={onEventCreated} 
+                      /> */}
                     </div>
                   )}
                 </div>

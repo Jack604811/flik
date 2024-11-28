@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -16,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { addBooking } from "@/server/actions/booking.action";
+import { addBooking, getBookingsBySpot } from "@/server/actions/booking.action";
 import SpotSelector from "@/components/calendar/spot-selector";
 import { Calendar, Plus, X } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -51,6 +53,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
   const [loading, setLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [selectedDate, setSelectedDate] = useState<DateRange | undefined>();
+  const [spotBookings, setSpotBookings] = useState<any[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,9 +64,24 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
     form.reset();
     setSelectedSpot(null);
     setSelectedDate(undefined);
+    setSpotBookings([]);
   }, [form]);
 
-  const handleDateSelect = (data: { startDate: Date | null | undefined; endDate: Date | null | undefined; subTotal: number }) => {
+  const fetchBookingsForSpot = async (spotId: string) => {
+    try {
+      const bookings = await getBookingsBySpot(spotId);
+      setSpotBookings(bookings);
+    } catch (error) {
+      console.error("Failed to fetch bookings for spot:", error);
+      toast.error("Failed to load availability.");
+    }
+  };
+
+  const handleDateSelect = (data: {
+    startDate: Date | null | undefined;
+    endDate: Date | null | undefined;
+    subTotal: number;
+  }) => {
     setSelectedDate({
       from: data.startDate ?? undefined,
       to: data.endDate ?? undefined,
@@ -73,6 +91,11 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
   const handleSpotSelect = (spot: Spot | null) => {
     setSelectedSpot(spot);
     setSelectedDate(undefined);
+    if (spot) {
+      fetchBookingsForSpot(spot.id);
+    } else {
+      setSpotBookings([]);
+    }
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -93,8 +116,8 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
         note: values.note,
         subtotal: selectedSpot.price,
         totalPrice: selectedSpot.price + 20,
-        dni: "1234567890",
-        address: "123 Sample Street, Sample City",
+     
+        
       });
       toast.success("Event created successfully");
       onEventCreated(); // Refresh the booking list
@@ -116,7 +139,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
       <CredenzaTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          New Event
+          New Booking
         </Button>
       </CredenzaTrigger>
       <CredenzaContent>
@@ -124,7 +147,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
           <CredenzaTitle>
             <div className="flex items-center space-x-2">
               <Calendar />
-              <span>Create New Event</span>
+              <span>Create New Booking</span>
             </div>
           </CredenzaTitle>
           <CredenzaClose>
@@ -133,12 +156,16 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
         </CredenzaHeader>
         <form className="p-0 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-2 pb-0">
-            <label htmlFor="spot" className="block text-sm font-medium text-gray-700">Spot</label>
+            <label htmlFor="spot" className="block text-sm font-medium text-gray-700">
+              Spot
+            </label>
             <SpotSelector workspaceId={workspaceId} onSelect={handleSpotSelect} />
           </div>
           {selectedSpot && (
             <div className="space-y-2">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date</label>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+                Date
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
@@ -152,7 +179,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
                 <PopoverContent className="bg-background">
                   <CalendarAvailability
                     spot={selectedSpot}
-                    bookings={[]}
+                    bookings={spotBookings} // Pass fetched bookings
                     selectedDate={selectedDate}
                     callback={() => {}}
                     onDateSelected={handleDateSelect}
@@ -163,11 +190,15 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
             </div>
           )}
           <div className="space-y-2">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
             <Input {...form.register("name")} placeholder="Enter name" />
           </div>
           <div className="space-y-2">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              Phone
+            </label>
             <PhoneInput
               placeholder="Enter phone number"
               value={form.watch("phone")}
@@ -177,11 +208,15 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <Input {...form.register("email")} placeholder="Enter email" type="email" />
           </div>
           <div className="space-y-2">
-            <label htmlFor="note" className="block text-sm font-medium text-gray-700">Note</label>
+            <label htmlFor="note" className="block text-sm font-medium text-gray-700">
+              Note
+            </label>
             <Textarea {...form.register("note")} placeholder="Add any additional notes here..." />
           </div>
           <CredenzaFooter className="flex justify-between">
@@ -189,7 +224,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
               Close
             </Button>
             <Button type="submit" disabled={loading || form.formState.isSubmitting}>
-              {loading ? "Creating..." : "Create Event"}
+              {loading ? "Creating..." : "Create Booking"}
             </Button>
           </CredenzaFooter>
         </form>

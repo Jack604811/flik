@@ -26,7 +26,7 @@ type Event = {
     name: string;
     phone: string;
   };
-  amountDue: string;
+  totalPrice: number;
   isNewEvent?: boolean;
 };
 
@@ -262,7 +262,7 @@ export function WeekView({
                 startDate={new Date(hoveredEvent.startDate).toISOString()}
                 endDate={new Date(hoveredEvent.endDate).toISOString()}
                 spot={hoveredEvent.spot.name}
-                amountDue={hoveredEvent.amountDue}
+                totalPrice={hoveredEvent.totalPrice}
                 isNewEvent={hoveredEvent.isNewEvent}
               />
             </div>

@@ -93,7 +93,7 @@ export function DataTableToolbar<TData>({
           <Link href="/bookings">
             <Button size="sm" className="h-10 gap-1 xs:rounded-full lg:rounded-md">
               <Plus className="h-5 w-5 md:h-3.5 md:w-3.5" />
-              <span className="hidden md:inline">New Event</span>
+              <span className="hidden md:inline">New Booking</span>
             </Button>
           </Link>
         </div> */}
