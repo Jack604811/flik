@@ -60,8 +60,6 @@ const formSchema = z.object({
     .min(1, "Email is required")
     .email("Enter a valid email address"),
   phone: z.string().min(1, "Phone is required"),
-  dni: z.string().min(1, "DNI is required"),
-  address: z.string().min(1, "Address is required"),
   startDate: z.date().nullable().refine(Boolean, "Start Date is required"),
   endDate: z.date().nullable().refine(Boolean, "End Date is required"),
   subtotal: z.number().min(0, "Subtotal is required"),

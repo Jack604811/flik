@@ -61,8 +61,6 @@ const bookingSchema = z.object({
       name: z.string().optional(),
       email: z.string().email().optional(),
       phone: z.string().optional(),
-      dni: z.string().optional(),
-      address: z.string().optional(),
       note: z.string().optional(),
     })
     .optional(),
@@ -81,10 +79,8 @@ const bookingSchema = z.object({
 
 type EDITING_FIELD =
   | "customer.name"
-  | "customer.dni"
   | "customer.email"
   | "customer.phone"
-  | "customer.address"
   | "status"
   | "customer.note"
   | "spotId"
@@ -286,7 +282,6 @@ function BookingDetailSheet() {
                           "customer.name",
                           "customer.email",
                           "customer.phone",
-                          "customer.dni",
                           "customer.address",
                           "status",
                         ].map((field) =>{ 

@@ -267,8 +267,6 @@ export const updateBooking = async (data: {
     name?: string;
     email?: string;
     phone?: string;
-    dni?: string;
-    address?: string;
     note?: string;
   };
   customFields?: { id?: string | null; value: string; customFieldId: string }[];

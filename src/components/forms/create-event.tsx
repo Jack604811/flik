@@ -92,9 +92,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
         endDate: selectedDate.to!,
         note: values.note,
         subtotal: selectedSpot.price,
-        totalPrice: selectedSpot.price + 20,
-        dni: "1234567890",
-        address: "123 Sample Street, Sample City",
+        totalPrice: selectedSpot.price + 20
       });
       toast.success("Event created successfully");
       onEventCreated(); // Refresh the booking list
