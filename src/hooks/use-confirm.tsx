@@ -17,8 +17,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ title, description, onCon
                 <DialogDescription>{description}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-                <Button onClick={onConfirm}>Confirm</Button>
                 <Button variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button onClick={onConfirm}>Confirm</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

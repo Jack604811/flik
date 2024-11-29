@@ -13,7 +13,7 @@ import {
 } from "date-fns";
 import Link from "next/link";
 import { PreviewContent } from "./preview-content";
-import { CreateEvent } from "@/components/forms/create-event";
+import { CreateBooking } from "@/components/forms/create-booking";
 
 type Event = {
   id: string;

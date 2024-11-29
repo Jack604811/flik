@@ -13,11 +13,23 @@ import { Button } from "../ui/button";
 
 interface ConfirmModalProps {
   children: React.ReactNode;
-  warningText: string;
+  warningText: React.ReactNode;
   onConfirm: () => void;
+  confirmButtonText?: string; // Customizable button text
+  confirmButtonClassName?: string; // Customizable button className
+  cancelButtonText?: string; // Customizable cancel button text
+  cancelButtonClassName?: string; // Customizable cancel button className
 }
 
-function ConfirmModal({ children, onConfirm, warningText }: ConfirmModalProps) {
+function ConfirmModal({
+  children,
+  onConfirm,
+  warningText,
+  confirmButtonText = "Delete Forever", // Default text
+  confirmButtonClassName = "btn btn-secondary", // Default className
+  cancelButtonText = "Cancel", // Default text for cancel
+  cancelButtonClassName = "", // Default className for cancel
+}: ConfirmModalProps) {
   const handleConfirm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
     if (onConfirm) {
@@ -39,16 +51,19 @@ function ConfirmModal({ children, onConfirm, warningText }: ConfirmModalProps) {
           <CredenzaDescription>{warningText}</CredenzaDescription>
         </CredenzaBody>
         <CredenzaFooter className="flex md:ml-auto gap-2 md:flex-row-reverse justify-end">
-          
+          {/* Confirm Button */}
           <Button
-            className="btn btn-secondary"
+            className={confirmButtonClassName}
             onClick={handleConfirm}
           >
-            Delete Forever
+            {confirmButtonText}
           </Button>
 
+          {/* Cancel Button */}
           <CredenzaClose asChild>
-            <Button className="" variant={"outline"} data-close>Cancel</Button>
+            <Button className={cancelButtonClassName} variant={"outline"} data-close>
+              {cancelButtonText}
+            </Button>
           </CredenzaClose>
         </CredenzaFooter>
       </CredenzaContent>

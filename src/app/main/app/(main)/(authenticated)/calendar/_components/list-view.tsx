@@ -17,8 +17,8 @@ import {
   HoverCardContent,
 } from '@/components/ui/hover-card';
 import { BookingDetailButton } from "@/hooks/use-booking-detail";
+import { RowActions } from '@/components/calendar/row-actions';
 import { Booking as BaseBooking } from "@/schemas/booking.schema";
-
 
 interface Booking extends BaseBooking {
   isNewEvent?: boolean; 
@@ -59,8 +59,12 @@ export default function ListView({
     return matchesSearch && matchesDateRange;
   });
 
+  const newBookingsCount = bookings.filter((booking) => booking.isNewEvent).length;
+
   const bookingsCount =
-    dateRange || searchTerm ? `Result ${filteredBookings.length}` : `Last bookings`;
+    dateRange || searchTerm
+      ? `Result ${filteredBookings.length}`
+      : `Last bookings ${newBookingsCount > 0 ? `+${newBookingsCount}` : ''}`;
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -139,10 +143,8 @@ export default function ListView({
                             >
                               <div className="flex w-full">
                                 <div className="flex min-w-[60px] flex-col items-center justify-center rounded-lg border-none p-0 text-primary">
+                                  <span className="text-sm font-semibold tracking-wider">{month}</span>
                                   <span className="text-2xl font-bold">{day}</span>
-                                  <span className="text-sm font-semibold tracking-wider">
-                                    {month}
-                                  </span>
                                 </div>
                                 <div className="flex flex-col justify-center flex-grow">
                                   <div className="flex items-center gap-2">
@@ -168,7 +170,14 @@ export default function ListView({
                                   </div>
                                 </div>
                               </div>
+                              <div className="">
+                              <RowActions
+                                booking={booking}
+                                refreshEvents={refreshEvents} 
+                               />
+                            </div>
                             </motion.div>
+                            
                           </BookingDetailButton>
                         </HoverCardTrigger>
                         <HoverCardContent

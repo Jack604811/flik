@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/resizable";
 import { format, addDays, addMonths, startOfWeek, endOfWeek } from "date-fns";
 import ListView from "./list-view";
-import { CreateEvent } from "@/components/forms/create-event";
+import { CreateBooking } from "@/components/forms/create-booking";
 import { getBookings } from "@/server/actions/booking.action";
 import { DayView } from "@/components/calendar/day-view";
 import { WeekView } from "@/components/calendar/week-view";
@@ -127,7 +127,7 @@ export default function CalendarView({
             <TabsTrigger value="month">Month</TabsTrigger>
           </TabsList>
         </Tabs>
-        <CreateEvent workspaceId={workspaceId} onEventCreated={fetchBookings} />
+        <CreateBooking workspaceId={workspaceId} refreshBookings={fetchBookings}/>
       </header>
 
       <div className="flex flex-col h-[95vh] md:flex-row flex-1 overflow-y-hidden">
@@ -166,7 +166,7 @@ export default function CalendarView({
             </div>
           </ResizablePanel>
           <ResizableHandle className="hidden md:flex" />
-          <ResizablePanel className="overflow-auto px-4 min-w-[328px] md:max-w-[328px]">
+          <ResizablePanel className="overflow-auto px-4 min-w-[348px] md:max-w-[348px]">
           <ListView
               workspaceId={workspaceId}
               bookings={enrichedEvents}

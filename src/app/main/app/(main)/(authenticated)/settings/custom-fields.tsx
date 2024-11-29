@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Edit, Trash2, Plus } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Plus, Copy } from "lucide-react";
 import CustomFieldForm from "@/components/forms/custom-field-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import {
   deleteCustomField,
   getCustomFields,
+  duplicateCustomField,
 } from "@/server/actions/custom-field.action";
 import { CustomField } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
@@ -54,6 +55,17 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
     setEditingField(field);
     setDialogOpen(true);
   };
+
+  const handleDuplicate = async (id: string) => {
+    try {
+      await duplicateCustomField(id); // Call the server action
+      toast.success("Custom field duplicated successfully!");
+      refetch(); // Refresh the list of custom fields
+    } catch (error) {
+      toast.error("Failed to duplicate custom field");
+    }
+  };
+
 
   const handleDelete = async (id: string) => {
     const confirm = await confirmDelete();
@@ -194,6 +206,7 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
                                   e.stopPropagation();
                                   handleEdit(field);
                                 }}
+                                className="cursor-pointer"
                               >
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>Edit</span>
@@ -201,11 +214,24 @@ export default function CustomFields({ workspaceId }: { workspaceId: string }) {
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  handleDuplicate(field.id);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <Copy className="mr-2 h-4 w-4" />
+                                <span>Duplicate</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   handleDelete(field.id);
                                 }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Delete</span>
+                                className="cursor-pointer bg-transparent hover:bg-red-100 focus:bg-red-50 active:bg-red-50 hover:text-red-500 transition-all"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Trash2  className="h-4 w-4 text-red-500" /> 
+                                    <span className="text-red-500">Delete</span>
+                                  </div>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

@@ -191,9 +191,12 @@ export default function APIKeys({ workspaceId }: { workspaceId: string }) {
                                   e.stopPropagation();
                                   handleDelete(apiKey.id);
                                 }}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Delete</span>
+                                className="cursor-pointer bg-transparent hover:bg-red-100 focus:bg-red-50 active:bg-red-50 hover:text-red-500 transition-all"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Trash2  className="h-4 w-4 text-red-500" /> 
+                                    <span className="text-red-500">Delete</span>
+                                  </div>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

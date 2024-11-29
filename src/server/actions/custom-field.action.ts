@@ -41,6 +41,36 @@ const updatedCustomField = {...data, options: data.options ? JSON.stringify(data
   return customField;
 };
 
+export const duplicateCustomField = async (id: string) => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
+
+  // Fetch the original custom field
+  const originalField = await db.customField.findUnique({
+    where: { id },
+  });
+
+  if (!originalField) {
+    throw new Error("Custom field not found");
+  }
+
+  // Duplicate the original field data
+  const duplicatedField = await db.customField.create({
+    data: {
+      workspaceId: originalField.workspaceId,
+      fieldName: `${originalField.fieldName} (Copy)`,
+      fieldType: originalField.fieldType as CustomFieldType,
+      isRequired: originalField.isRequired,
+      options: originalField.options, // Keep options as is
+      createdById: currentUser.id,
+    },
+  });
+
+  return duplicatedField;
+};
+
 export const deleteCustomField = async (id: string) => {
   const customField = await db.customField.delete({
     where: { id },

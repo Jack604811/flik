@@ -43,12 +43,12 @@ const formSchema = z.object({
   note: z.string().optional(),
 });
 
-interface CreateEventProps {
+interface CreateBookingProps {
   workspaceId: string;
-  onEventCreated: () => void;
+  refreshBookings: () => Promise<void>; 
 }
 
-export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
+export function CreateBooking({ workspaceId, refreshBookings }: CreateBookingProps) {
   const [isCredenzaOpen, setIsCredenzaOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
@@ -115,14 +115,14 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
         endDate: selectedDate.to!,
         note: values.note,
         subtotal: selectedSpot.price,
-        totalPrice: selectedSpot.price + 20   
+        totalPrice: selectedSpot.price + 20, 
       });
-      toast.success("Event created successfully");
-      onEventCreated(); // Refresh the booking list
+      toast.success("Booking created successfully");
       setIsCredenzaOpen(false); // Close the credenza
+      await refreshBookings(); // Refresh bookings list
       resetForm(); // Reset the form after closing
     } catch (error) {
-      toast.error("Failed to create event");
+      toast.error("Failed to create booking");
     } finally {
       setLoading(false);
     }
@@ -177,7 +177,7 @@ export function CreateEvent({ workspaceId, onEventCreated }: CreateEventProps) {
                 <PopoverContent className="bg-background">
                   <CalendarAvailability
                     spot={selectedSpot}
-                    bookings={spotBookings} // Pass fetched bookings
+                    bookings={spotBookings}
                     selectedDate={selectedDate}
                     callback={() => {}}
                     onDateSelected={handleDateSelect}

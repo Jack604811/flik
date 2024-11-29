@@ -7,7 +7,7 @@ import {
   isSameDay,
   isSameMonth,
 } from 'date-fns';
-import { CreateEvent } from '@/components/forms/create-event';
+import { CreateBooking } from '@/components/forms/create-booking';
 import { PreviewContent } from './preview-content';
 import {
   TooltipProvider,
@@ -55,7 +55,7 @@ export default function MonthView({
     <TooltipProvider>
       <div className="flex justify-center w-full">
         <div className="max-w-7xl w-full">
-          <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium mb-2">
+          <div className="grid grid-cols-7 text-center text-sm font-medium mb-2">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div key={day} className="py-2">
                 {day}
