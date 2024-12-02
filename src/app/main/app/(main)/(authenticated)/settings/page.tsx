@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
 import SiteSettings from "./site-settings";
 import MainSettings from "./main-settings";
+import { DeleteWorkspace } from "./delete-workspace";
 import { Metadata } from "next";
 import TeamManagement from "./team-management";
 import Billing from "./billing";
@@ -55,6 +56,7 @@ export default async function Page() {
         </div>
         <TabsContent value="main">
           <MainSettings workspace={currentWorkspace} />
+          <DeleteWorkspace workspace={currentWorkspace}/>
         </TabsContent>
         <TabsContent value="site">
           <SiteSettings

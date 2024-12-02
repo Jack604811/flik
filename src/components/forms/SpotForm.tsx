@@ -193,7 +193,7 @@ function SpotForm({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/spots">
+            <Link href="/services">
               <Button
                 type="button"
                 className="h-7 w-7"
@@ -205,7 +205,7 @@ function SpotForm({
               </Button>
             </Link>
             <h1 className="whitespace-nowrap text-xl font-semibold tracking-tight ">
-              {spot?.id ? "Edit" : "New"} Spot
+              {spot?.id ? "Edit" : "New"} Service
             </h1>
             <Badge className="ml-0" variant="outline">
               {form.getValues().status}
@@ -225,7 +225,7 @@ function SpotForm({
                 <CardHeader>
                   <CardTitle>Details</CardTitle>
                   <CardDescription>
-                    Lipsum dolor sit amet, consectetur adipiscing elit
+                    Provide details about the service, such as its purpose and key features.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -238,7 +238,7 @@ function SpotForm({
                           <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Add a name" {...field} />
+                              <Input placeholder="Enter the name of your service" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -254,7 +254,7 @@ function SpotForm({
                             <FormLabel>Description</FormLabel>
                             <FormControl>
                               <AutosizeTextarea
-                                placeholder="Add a description"
+                                placeholder="Provide a brief description of this service"
                                 {...field}
                               />
                             </FormControl>
@@ -271,9 +271,7 @@ function SpotForm({
                 <CardHeader>
                   <CardTitle>Working Hours</CardTitle>
                   <CardDescription>
-                    Choose the hours and days of the week you would like the
-                    service to be active in. You can choose a default strategy
-                    or customise one yourself.
+                    Set the days and times when this service will be available for bookings.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -478,14 +476,14 @@ function SpotForm({
                                   <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value={SpotStatus.Disabled}>
-                                    Disabled
-                                  </SelectItem>
                                   <SelectItem value={SpotStatus.Public}>
                                     Public
                                   </SelectItem>
                                   <SelectItem value={SpotStatus.Private}>
                                     Private
+                                  </SelectItem>
+                                  <SelectItem value={SpotStatus.Disabled}>
+                                    Disabled
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
@@ -516,7 +514,7 @@ function SpotForm({
                           <FormControl>
                             <Input
                               className="flex-1 block w-full rounded-none rounded-r-md"
-                              placeholder="spot-url"
+                              placeholder="service-url"
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
@@ -538,7 +536,7 @@ function SpotForm({
                 <CardHeader>
                   <CardTitle>Images</CardTitle>
                   <CardDescription>
-                    Lipsum dolor sit amet, consectetur adipiscing elit
+                  Upload relevant images for the service, such as promotional banners or sample photos.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -558,7 +556,7 @@ function SpotForm({
                           </Button>
                         </div>
                         <Image
-                          alt={"Spot Image"}
+                          alt={"Service Image"}
                           className="aspect-square rounded-md object-cover"
                           height="300"
                           src={[...spotImages, ...files][0].url}
@@ -586,7 +584,7 @@ function SpotForm({
                               className="aspect-square w-full rounded-md object-cover"
                               height="84"
                               src={file.url}
-                              alt={"Spot Image"}
+                              alt={"Service Image"}
                               width="84"
                             />
                           </div>

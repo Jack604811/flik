@@ -1,11 +1,7 @@
 "use server";
 
-import { env } from "@/env";
 import { db } from "../db";
-import { uploadSiteImage } from "./supabase.action";
-import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
 import { getCurrentUser } from "../auth";
-import { revalidatePath } from "next/cache";
 
 // Fetch the user
 export const getUser = (id: string) => {
@@ -26,7 +22,7 @@ export const updateUser = async (
 };
 
 // Update the current workspace for the user
-export const updateCurrentWorkspace = async (userId: string, workspaceId: string) => {
+export const updateCurrentWorkspace = async (userId: string, workspaceId: string | null) => {
   return await db.user.update({
     where: { id: userId },
     data: { currentWorkspaceId: workspaceId },

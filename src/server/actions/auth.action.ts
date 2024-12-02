@@ -147,3 +147,17 @@ export const validatePasswordResetToken = async (token: string) => {
     return { success: true }
 }
 
+
+export const validatePassword = async (userId: string, password: string) => {
+    const user = await getUserById(userId);
+    if (!user || !user.password) {
+      throw new Error("Invalid user or password not set.");
+    }
+  
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid password.");
+    }
+  
+    return true; 
+  };

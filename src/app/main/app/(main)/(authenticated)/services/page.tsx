@@ -2,14 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getSpotsByWorkspace } from "@/server/actions/spot.action";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
-import { PlusCircle } from "lucide-react";
+import { Plus, PlusCircle } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Spots",
-  description: "A list of spots of your place",
+  title: "Services",
+  description: "A list of services of your place",
 }
 
 export default async function Page() {
@@ -20,17 +20,17 @@ export default async function Page() {
     <>
       <div className="flex-1 p-6 -pt-16 space-y-8 md:p-8 md:-pt-24">
         <div className="flex items-center justify-between space-y-2">
-          <div className="mt-8 mx-8">
-            <h2 className="text-2xl font-bold tracking-tight">Spots</h2>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Services</h2>
             <p className="text-muted-foreground">
-              Available spots show here, and you can edit them
+              Available services show here, and you can edit them
             </p>
           </div>
-          <Link href="/spots/new">
+          <Link href="/services/new">
             <Button size="sm" className="h-10 gap-1 xs:rounded-full lg:rounded-md">
-              <PlusCircle className="h-5 w-5 md:h-3.5 md:w-3.5" />
+              <Plus className="h-5 w-5 md:h-3.5 md:w-3.5" />
               <span className="sr-only md:not-sr-only md:whitespace-nowrap">
-                Add a new spot
+                Add service
               </span>
             </Button>
           </Link>
@@ -42,7 +42,7 @@ export default async function Page() {
                 className="group relative overflow-hidden rounded-xl border-solid border-1 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-2"
                 key={spot.id}
               >
-                <Link href={`/spots/${spot.id}`}>
+                <Link href={`/services/${spot.id}`}>
                   <Image
                     alt={spot.name}
                     className="transition-all duration-300 group-hover:scale-110"
@@ -80,13 +80,13 @@ export default async function Page() {
           <div className="flex h-screen w-full items-center justify-center">
             <div className="flex flex-col items-center gap-1 text-center">
               <h3 className="text-2xl font-bold tracking-tight">
-                You have no spots
+                You have no services
               </h3>
               <p className="text-sm text-muted-foreground">
-                You can start selling as soon as you add a spot.
+                You can start selling as soon as you add a service.
               </p>
               <Link href="/spots/new">
-                <Button className="mt-4">Add your first spot</Button>
+                <Button className="mt-4">Add your first service</Button>
               </Link>
             </div>
           </div>

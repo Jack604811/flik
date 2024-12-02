@@ -93,13 +93,13 @@ export const Sidebar = () => {
               <CommandItem className="h-[32px]">
                 <Button
                   asChild
-                  variant={pathname.includes("/spots") ? "secondary" : "ghost"}
+                  variant={pathname.includes("/services") ? "secondary" : "ghost"}
                   className="justify-start px-2 w-full h-[32px]"
                 >
-                  <Link href="/spots" prefetch={true}>
+                  <Link href="/services" prefetch={true}>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 mr-0" />
-                      <span>Spots</span>
+                      <span>Services</span>
                     </div>
                   </Link>
                 </Button>

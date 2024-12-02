@@ -20,11 +20,9 @@ import {
   CredenzaFooter,
   CredenzaHeader,
   CredenzaTitle,
-  CredenzaTrigger,
 } from "@/components/ui/credenza";
-import { Plus } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CustomFieldType, CustomField } from "@prisma/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,32 +54,50 @@ const formSchema = z.object({
         return true;
       },
       { message: "Each option must be a non-empty string" }
-    ).transform((val) => val?.split(",").map((option) => option.trim())),
+    )
+    .transform((val) => val?.split(",").map((option) => option.trim())),
 });
 
-export default function CustomFieldForm({ workspaceId, onOpenChange, open, editingField  }: { workspaceId: string; open: boolean; onOpenChange: (open: boolean) => void; editingField?: CustomField }) {
+export default function CustomFieldForm({
+  workspaceId,
+  onOpenChange,
+  open,
+  editingField,
+}: {
+  workspaceId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  editingField?: CustomField;
+}) {
   const queryClient = useQueryClient();
 
-  const {mutate, isPending} = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      if(editingField?.id){
-        return await updateCustomField({id: editingField.id, ...data});
+      if (editingField?.id) {
+        return await updateCustomField({ id: editingField.id, ...data });
       }
-      await createCustomField({workspaceId, ...data});
+      await createCustomField({ workspaceId, ...data });
     },
-    onSuccess: () => { 
-      const message = editingField ? "Custom field updated successfully" : "Custom field added successfully";
+    onSuccess: () => {
+      const message = editingField
+        ? "Custom field updated successfully"
+        : "Custom field added successfully";
       toast.success(message);
       form.reset();
       onOpenChange(false);
-      queryClient.invalidateQueries({ queryKey: ["customFields",workspaceId] });
-      queryClient.invalidateQueries({ queryKey: ["customFields-on-booking",workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ["customFields", workspaceId] });
+      queryClient.invalidateQueries({
+        queryKey: ["customFields-on-booking", workspaceId],
+      });
     },
     onError: (error) => {
-      const message = editingField ? "Error updating custom field" : "Error adding custom field";
+      const message = editingField
+        ? "Error updating custom field"
+        : "Error adding custom field";
       toast.error(message);
-    }
+    },
   });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -94,146 +110,173 @@ export default function CustomFieldForm({ workspaceId, onOpenChange, open, editi
   });
 
   useEffect(() => {
-    if (editingField) {
+    if (open && editingField) {
       form.reset({
         ...editingField,
-        options: editingField?.options ? JSON.parse(editingField.options).join(",") : undefined,
+        options: editingField.options
+          ? JSON.parse(editingField.options).join(",")
+          : undefined,
+      });
+    } else if (open && !editingField) {
+      form.reset({
+        fieldType: CustomFieldType.String,
+        isRequired: false,
+        placeholder: "",
       });
     }
-  }, [editingField, form]);
-
+  }, [open, editingField, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     mutate(values, {
       onSuccess: () => {
         form.reset({
-          fieldType: CustomFieldType.String, 
+          fieldType: CustomFieldType.String,
           isRequired: false,
           placeholder: "",
         });
       },
     });
-  };  
+  };
 
   return (
-    <>
-      <Credenza onOpenChange={onOpenChange} open={open}>
-        <CredenzaContent>
-          <CredenzaHeader>
-            <CredenzaTitle>Add Custom Field</CredenzaTitle>
-            <CredenzaDescription>
-              Use this form to add a new custom field to your form.
-            </CredenzaDescription>
-          </CredenzaHeader>
-          <CredenzaBody className="space-y-4">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="fieldName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Field Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter field name"
-                            required
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Label htmlFor="fieldName"></Label>
-                </div>
-                <div className="space-y-2">
-                  <FormField
-                    control={form.control}
-                    name="fieldType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Field Type</FormLabel>
-                        <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={(value: CustomFieldType) => field.onChange(value)}
-                          disabled={isPending}
-                        >
-                          <SelectTrigger id="fieldType">
-                            <SelectValue placeholder="Select field type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={CustomFieldType.String}>Input</SelectItem>
-                            <SelectItem value={CustomFieldType.Number}>Number</SelectItem>
-                            <SelectItem value={CustomFieldType.Date}>Date</SelectItem>
-                            <SelectItem value={CustomFieldType.Dropdown}>Dropdown</SelectItem>
-                            <SelectItem value={CustomFieldType.Time}>Time</SelectItem>
-                            <SelectItem value={CustomFieldType.File}>File</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                <FormField
-                    control={form.control}
-                    name="placeholder"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Placeholder</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter placeholder text"
-                            required
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {form.getValues().fieldType === CustomFieldType.Dropdown && (
-                  <div className="space-y-2">
-                    <FormField
-                      control={form.control}
-                      name="options"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Dropdown Options</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Enter options separated by commas"
-                              required
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+    <Credenza
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          form.reset({
+            fieldType: CustomFieldType.String,
+            isRequired: false,
+            placeholder: "",
+          
+          });
+        }
+        onOpenChange(isOpen);
+      }}
+      open={open}
+    >
+      <CredenzaContent>
+        <CredenzaHeader>
+          <CredenzaTitle>
+            {editingField ? "Edit Custom Field" : "Add Custom Field"}
+          </CredenzaTitle>
+          <CredenzaDescription>
+            {editingField
+              ? "Modify the details of this custom field."
+              : "Use this form to add a new custom field to your form."}
+          </CredenzaDescription>
+        </CredenzaHeader>
+        <CredenzaBody className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="fieldName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Field Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter field name"
+                        required
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <CredenzaFooter>
-                  <CredenzaClose asChild>
-                    <Button variant="outline" disabled={isPending}>Cancel</Button>
-                  </CredenzaClose>
-                  <Button type="submit" disabled={isPending}>{isPending ? (<LoadingDots />) : (editingField?.id ? "Update Field":"Add Field")}</Button>
-                </CredenzaFooter>
-              </form>
-            </Form>
-          </CredenzaBody>
-        </CredenzaContent>
-      </Credenza>
-    </>
+              />
+              <FormField
+                control={form.control}
+                name="fieldType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Field Type</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value: CustomFieldType) =>
+                          field.onChange(value)
+                        }
+                        disabled={isPending}
+                      >
+                        <SelectTrigger id="fieldType">
+                          <SelectValue placeholder="Select field type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={CustomFieldType.String}>
+                            Input
+                          </SelectItem>
+                          <SelectItem value={CustomFieldType.Number}>
+                            Number
+                          </SelectItem>
+                          <SelectItem value={CustomFieldType.Date}>
+                            Date
+                          </SelectItem>
+                          <SelectItem value={CustomFieldType.Dropdown}>
+                            Dropdown
+                          </SelectItem>
+                          <SelectItem value={CustomFieldType.Time}>
+                            Time
+                          </SelectItem>
+                          <SelectItem value={CustomFieldType.File}>
+                            File
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="placeholder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Placeholder</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter placeholder text"
+                        required
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {form.getValues().fieldType === CustomFieldType.Dropdown && (
+                <FormField
+                  control={form.control}
+                  name="options"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dropdown Options</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Enter options separated by commas"
+                          required
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              <CredenzaFooter>
+                <CredenzaClose asChild>
+                  <Button variant="outline" disabled={isPending}>
+                    Cancel
+                  </Button>
+                </CredenzaClose>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? <LoadingDots /> : editingField ? "Update Field" : "Add Field"}
+                </Button>
+              </CredenzaFooter>
+            </form>
+          </Form>
+        </CredenzaBody>
+      </CredenzaContent>
+    </Credenza>
   );
 }

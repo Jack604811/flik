@@ -5,7 +5,7 @@ import {
   Check,
   ChevronsUpDown,
   PlusCircle,
-  Briefcase as WorkspaceIcon,
+  Image as LogoIcon,
 } from "lucide-react";
 import {
   Popover,
@@ -27,13 +27,16 @@ import {
 import { useRouter } from "next/navigation";
 import { useWorkspaceModal } from "@/hooks/use-workspace-modal";
 import useSWR from "swr";
+import { mutate } from "swr";
 import { getWorkspaces } from "@/server/actions/workspace.action";
 import { updateCurrentWorkspace } from "@/server/actions/user.action";
 import { useSession } from "next-auth/react";
+import { Skeleton } from "../ui/skeleton";
 
 interface WorkspaceData {
   id: string;
   siteName: string | null;
+  logo: string | null; 
 }
 
 interface WorkspacesData {
@@ -66,7 +69,17 @@ export default function WorkspaceSwitcher({
 
   const { data, isLoading, error, mutate } = useSWR<WorkspacesData>(
     cachedWorkspaces ? null : "workspaces",
-    async () => await getWorkspaces(),
+    async () => {
+      const fetchedData = await getWorkspaces();
+      return {
+        ...fetchedData,
+        workspaces: fetchedData.workspaces.map((workspace) => ({
+          id: workspace.id,
+          siteName: workspace.siteName,
+          logo: workspace.logo || null, 
+        })),
+      };
+    },
     {
       onSuccess: (fetchedData) => {
         if (fetchedData) {
@@ -105,9 +118,14 @@ export default function WorkspaceSwitcher({
     cachedWorkspaces?.workspaces.map((item) => ({
       label: item.siteName || "Untitled Workspace",
       value: item.id,
+      logo: item.logo, 
     })) || [];
 
-  const onWorkspaceSelect = async (workspace: { value: string; label: string }) => {
+  const onWorkspaceSelect = async (workspace: {
+    value: string;
+    label: string;
+    logo: string | null;
+  }) => {
     setOpen(false);
     const selectedWorkspace = cachedWorkspaces?.workspaces.find(
       (item) => item.id === workspace.value
@@ -128,20 +146,32 @@ export default function WorkspaceSwitcher({
     }
   };
 
-  const handleWorkspaceCreation = () => {
+  const handleCache = () => {
     setCachedWorkspaces(null); // Clear cache on creation
     mutate(); // Refetch workspaces
   };
 
-  // Trigger fetching workspaces when popover opens
   const handlePopoverOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen) {
+      setCachedWorkspaces(null);
       mutate(); // Refetch workspaces when the popover is opened
     }
   };
 
   if (error) return <div>Error loading workspaces</div>;
+
+
+  const renderSkeletons = () => (
+    <CommandGroup heading="Workspaces">
+      {[...Array(5)].map((_, index) => (
+        <CommandItem key={index} className="flex items-center space-x-2">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-4 w-32" />
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
 
   return (
     <>
@@ -153,19 +183,32 @@ export default function WorkspaceSwitcher({
             role="combobox"
             aria-expanded={open}
             aria-label="Select a workspace"
+            onClick={handleCache}
             className={cn("w-full max-w-6xl h-12 justify-between", className)}
           >
-            <WorkspaceIcon className="mr-2 h-4 w-4" />
+            {currentWorkspace?.logo ? (
+              <img
+                src={currentWorkspace.logo}
+                alt="Workspace Logo"
+                className="mr-2 h-6 w-6 rounded-full object-cover"
+              />
+            ) : (
+              <img
+                src="/assets/placeholder.svg" 
+                alt="Placeholder Logo"
+                className="mr-2 h-8 w-8 rounded-full object-cover"
+              />
+            )}
             {currentWorkspace?.siteName || "Select a workspace"}
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-1">
+        <PopoverContent className="w-full p-1 bg-background `">
           <Command>
             <CommandList>
-              <CommandInput placeholder="Search workspace..." />
+            <CommandInput placeholder="Search workspace..." />
               {isLoading ? (
-                <CommandEmpty>Loading...</CommandEmpty>
+                renderSkeletons()
               ) : formattedItems.length === 0 ? (
                 <CommandEmpty>No workspace found.</CommandEmpty>
               ) : (
@@ -178,10 +221,23 @@ export default function WorkspaceSwitcher({
                         onWorkspaceSelect({
                           value: workspace.value,
                           label: workspace.label || "",
+                          logo: workspace.logo,
                         })
                       }
                     >
-                      <WorkspaceIcon className="mr-2 h-4 w-4" />
+                      {workspace.logo ? (
+                        <img
+                          src={workspace.logo}
+                          alt="Workspace Logo"
+                          className="mr-2 h-6 w-6 rounded-full"
+                        />
+                      ) : (
+                        <img
+                        src="/assets/placeholder.svg" 
+                        alt="Placeholder Logo"
+                        className="mr-2 h-8 w-8 rounded-full object-cover"
+                        />
+                      )}
                       {workspace.label}
                       <Check
                         className={cn(
@@ -217,7 +273,7 @@ export default function WorkspaceSwitcher({
       <WorkspaceModal
         isOpen={workspaceModal.isOpen}
         onClose={workspaceModal.onClose}
-        onCreate={handleWorkspaceCreation}
+        onCreate={handleCache}
       />
     </>
   );

@@ -183,7 +183,7 @@ export default function WorkspaceView() {
                     alt={`${workspace.name} logo`}
                     width={40}
                     height={40}
-                    className="rounded-full"
+                    className="rounded-full w-16 h-16"
                   />
                   <div>
                     <CardTitle>{workspace.name}</CardTitle>

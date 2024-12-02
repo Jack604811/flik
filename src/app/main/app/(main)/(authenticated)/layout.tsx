@@ -17,7 +17,10 @@ export default async function Layout({
 
   // Redirect if the user is not authenticated
   if (!session?.user) {
-    return redirect(`${NON_AUTHENTICATED_REDIRECT_URL}${searchParams?.invite ? `?invite=${searchParams.invite}` : ''}`);
+    const redirectUrl = `${NON_AUTHENTICATED_REDIRECT_URL}${
+      searchParams?.invite ? `?invite=${searchParams.invite}` : ""
+    }`;
+    return redirect(redirectUrl);
   }
 
   // Optionally handle workspace invite

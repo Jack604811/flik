@@ -13,7 +13,7 @@ import { WorkspaceInviteMagicLinkTemplate } from "@/emails/workspace/new-invitat
 import { WorkspaceRemovalNotificationTemplate } from "@/emails/workspace/delete-user";
 import { Resend } from "resend";
 import { TeamMember, TeamMemberStatus } from "@prisma/client";
-import { getUserById } from "./auth.action";
+import { getUserById, validatePassword } from "./auth.action";
 import { FORBIDDEN_SUBDOMAINS } from "@/app-settings";
 
 const resend = new Resend(env.RESEND_API_KEY);
@@ -50,7 +50,7 @@ export const getWorkspaces = async () => {
   // Fetch the workspaces owned by the current user
   const workspaces = await db.workspace.findMany({
     where: { OR: [{ teamMembers: { some: { userId: currentUser.id } } }, {ownerId: currentUser.id}] },
-    select: { id: true, siteName: true },
+    select: { id: true, siteName: true, logo: true, },
   });
 
   // Fetch the user's currentWorkspaceId
@@ -81,6 +81,32 @@ export const updateWorkspace = async (
 
   return workspace;
 };
+
+
+
+export const deleteWorkspace = async (workspaceId: string, password: string) => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("User not authenticated");
+
+  // Validate the user's password
+  await validatePassword(currentUser.id, password);
+
+  // Ensure the user is the owner of the workspace
+  const workspace = await db.workspace.findFirst({
+    where: { id: workspaceId, ownerId: currentUser.id },
+  });
+  if (!workspace) throw new Error("Workspace not found or unauthorized");
+
+  // Clear the current workspace for the user
+  await updateCurrentWorkspace(currentUser.id, null);
+
+  // Delete the workspace (cascade deletion will handle related data)
+  await db.workspace.delete({ where: { id: workspaceId } });
+
+  return true; // Workspace and related data deleted
+};
+
+
 
 export const updateSubdomain = async (id: string, subdomain: string) => {
   if (FORBIDDEN_SUBDOMAINS.includes(subdomain.toLowerCase())) {

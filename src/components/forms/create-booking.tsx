@@ -152,10 +152,10 @@ export function CreateBooking({ workspaceId, refreshBookings }: CreateBookingPro
             <X className="h-0 w-0" />
           </CredenzaClose>
         </CredenzaHeader>
-        <form className="p-0 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="px-4 md:px-0 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-2 pb-0">
             <label htmlFor="spot" className="block text-sm font-medium text-gray-700">
-              Spot
+              Service
             </label>
             <SpotSelector workspaceId={workspaceId} onSelect={handleSpotSelect} />
           </div>

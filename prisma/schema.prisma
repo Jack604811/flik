@@ -85,7 +85,7 @@ model TeamMember {
   userId      String?
   user        User?            @relation(fields: [userId], references: [id])
   workspaceId String
-  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   role        String
   status      TeamMemberStatus @default(Pending)
   invitation  Invitation?      @relation("InvitationToTeamMember")
@@ -106,7 +106,7 @@ model Invitation {
 model Spot {
   id                   String       @id @default(cuid())
   workspaceId          String
-  workspace            Workspace    @relation(fields: [workspaceId], references: [id])
+  workspace            Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   name                 String
   description          String
   status               SpotStatus
@@ -167,7 +167,7 @@ model Booking {
 model CustomField {
   id                 String               @id @default(cuid())
   workspaceId        String
-  workspace          Workspace            @relation(fields: [workspaceId], references: [id])
+  workspace          Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   fieldName          String // Name of the field
   fieldType          CustomFieldType // Type of field (e.g., String, Integer, Select)
   placeholder        String               @default("") // Placeholder for the field
@@ -204,13 +204,13 @@ model Transaction {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime?         @updatedAt
   deletedAt     DateTime?
-  booking       Booking           @relation(fields: [bookingId], references: [id])
+  booking       Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
 model Extras {
   id            String          @id @default(cuid())
   workspaceId   String
-  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   name          String
   description   String
   price         Float
@@ -250,7 +250,7 @@ model BookingExtras {
 model Category {
   id            String        @id @default(cuid())
   workspaceId   String
-  owner         Workspace     @relation(fields: [workspaceId], references: [id])
+  owner         Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   name          String
   createdAt     DateTime      @default(now())
   extras        Extras[]
@@ -295,7 +295,7 @@ model ApiKey {
   key         String    @unique
   permission  Permission
   workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
   updatedAt   DateTime? @updatedAt

@@ -107,7 +107,7 @@ export default function SpotSelector({ workspaceId, onSelect }: SpotSelectorProp
                   height={60}
                   className="mr-2 h-12 w-12 rounded-md object-cover"
                 />
-                <span>Select a spot</span>
+                <span>Select a service</span>
               </div>
             )}
             <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
