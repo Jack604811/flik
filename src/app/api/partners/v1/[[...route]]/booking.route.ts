@@ -7,14 +7,16 @@ import { validateAPIKey } from "./api.key.validate";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { bookingSchema } from "@/schemas/booking.schema";
 import { BookingStatus } from "@prisma/client";
+import { db } from "@/server/db";
+import moment from "moment";
 
 const bookingRoutes = new OpenAPIHono<API_APP_TYPE>();
 bookingRoutes.use("*", validateAPIKey);
 
 const addBookingSchema = z.object({
     spotId: z.string(),
-    startDate: z.string().transform(str => new Date(str)).openapi({description: "The start date of the booking", example: "2022-01-01 10:00:00"}),
-    endDate: z.string().transform(str => new Date(str)).openapi({description: "The end date of the booking", example: "2022-01-01 12:00:00"}),
+    startDate: z.string().transform(str => moment(str).toDate()).openapi({description: "The start date of the booking", example: "2022-01-01 10:00:00"}),
+    endDate: z.string().transform(str => moment(str).toDate()).openapi({description: "The end date of the booking", example: "2022-01-01 12:00:00"}),
     customer: z.object({
         name: z.string(),
         email: z.string().email(),
@@ -24,7 +26,12 @@ const addBookingSchema = z.object({
         customFieldId: z.string().openapi({description: "The ID of the Custom Field that you want to add value to."}),
         value: z.string()
     })).optional(),
+    extras: z.array(z.object({
+        extraId: z.string().openapi({description: "The ID of the Extra that you want to add to the booking."}),
+        quantity: z.number().openapi({description: "The quantity of the extra."})
+    })).optional(),
     note: z.string().optional(),
+    createdAt: z.string().transform(str => new Date(str)).openapi({description: "The date booking is created", example: "2022-01-01 12:00:00"}).optional()
 });
 
 
@@ -49,6 +56,12 @@ const addBookingResponseSchema = z.object({
             fieldName: z.string(),
         })
     })),
+    bookingExtras: z.array(z.object({
+       id: z.string(),
+       extraId: z.string(),
+       quantity: z.number(),
+       price: z.number() 
+    }))
 })
 
 const addBookingRoute = createRoute({
@@ -104,6 +117,23 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
         const subtotal = calculateSubtotal(dateRange, workingHours);
         const totalPrice = subtotal;
 
+        const extras = await db.extras.findMany({
+            where: {
+                id: {
+                    in: body.extras?.map(extra => extra.extraId) ?? []
+                }
+            }
+        })
+
+        const bookingExtras = extras.map(extra => {
+            const extraData = body.extras?.find(bExtra => extra.id === bExtra.extraId);
+            return {
+                extraId: extra.id,
+                price: extra.price * (extraData?.quantity ?? 1),
+                quantity: extraData?.quantity ?? 1
+            }
+        });
+
         const booking = await addBooking({
             spotId: body.spotId,
             startDate: body.startDate,
@@ -114,7 +144,9 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
             note: body.note,
             subtotal,
             totalPrice,
-            customFields: body.customFields
+            customFields: body.customFields,
+            extras: bookingExtras,
+            createdAt: body.createdAt
         });
 
 

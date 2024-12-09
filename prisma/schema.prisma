@@ -231,7 +231,6 @@ model Customer {
   name     String
   email    String
   phone    String
-  note     String    @default("")
   bookings Booking[]
 }
 

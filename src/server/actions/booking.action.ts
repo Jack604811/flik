@@ -115,11 +115,13 @@ export const addBooking = async (data: {
   spotId: string;
   startDate: Date | null;
   endDate: Date | null;
+  createdAt?: Date | null
   name: string;
   email: string;
   phone: string;
   note?: string;
   customFields?: { customFieldId: string; value: string }[];
+  extras?: { extraId: string; price: number; quantity: number }[];
 }) => {
   const booking = await db.booking.create({
     data: {
@@ -129,6 +131,8 @@ export const addBooking = async (data: {
       startDate: data.startDate,
       endDate: data.endDate,
       spotId: data.spotId,
+      createdAt: data.createdAt ?? undefined,
+      note: data.note,
       ...(data.customFields
         ? {
             customFields: {
@@ -136,6 +140,19 @@ export const addBooking = async (data: {
                 data: data.customFields.map((field) => ({
                   customFieldId: field.customFieldId,
                   value: field.value,
+                })),
+              }
+            },
+          }
+        : {}),
+      ...(data.extras
+        ? {
+          bookingExtras: {
+              createMany: {
+                data: data.extras.map((field) => ({
+                  extraId: field.extraId,
+                  quantity: field.quantity,
+                  price: field.price
                 })),
               }
             },
@@ -156,6 +173,14 @@ export const addBooking = async (data: {
           workspaceId: true,
         },
       },
+      bookingExtras: {
+        select: {
+          id: true,
+          extraId: true,
+          quantity: true,
+          price: true,
+        },
+      }
     },
   });
   const customer = await addCustomerToBooking({
@@ -235,20 +260,17 @@ export const addCustomerToBooking = async ({
   name,
   email,
   phone,
-  note,
 }: {
   bookingId: string;
   name: string;
   email: string;
   phone: string;
-  note?: string;
 }) => {
   const customer = await db.customer.create({
     data: {
       name,
       email,
       phone,
-      note,
       bookings: { connect: { id: bookingId } },
     },
   });
@@ -267,10 +289,11 @@ export const updateBooking = async (data: {
     name?: string;
     email?: string;
     phone?: string;
-    note?: string;
   };
+  note?: string;
   customFields?: { id?: string | null; value: string; customFieldId: string }[];
   spotId?: string;
+  extras?: { extraId: string; price: number; quantity: number }[];
 }) => {
 
   const booking = await db.booking.update({
@@ -281,6 +304,7 @@ export const updateBooking = async (data: {
       startDate: data.startDate,
       endDate: data.endDate,
       updatedAt: new Date(),
+      note: data.note,
       ...(data.spotId ? { spot: { connect: { id: data.spotId } } } : {}),
       ...(data.customer ? { customer: { update: { ...data.customer } } } : {}),
       ...(data.customFields
@@ -297,6 +321,19 @@ export const updateBooking = async (data: {
             },
           }
         : {}),
+      ...(data.extras
+        ? {
+          bookingExtras: {
+              createMany: {
+                data: data.extras.map((field) => ({
+                  extraId: field.extraId,
+                  quantity: field.quantity,
+                  price: field.price
+                })),
+              }
+            },
+          }
+        : {}),
     },
     include: {
       customer: true,
@@ -307,6 +344,14 @@ export const updateBooking = async (data: {
           CustomField: { select: { fieldName: true } },
         },
       },
+      bookingExtras: {
+        select: {
+          id: true,
+          extraId: true,
+          quantity: true,
+          price: true,
+        },
+      }
     }
   });
 

@@ -55,13 +55,13 @@ const bookingSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),
   status: z.nativeEnum(BookingStatus).optional(),
   spotId: z.string().optional(),
+  note: z.string().optional(),
   customer: z
     .object({
       id: z.string().min(1, { message: "Customer ID is required" }),
       name: z.string().optional(),
       email: z.string().email().optional(),
       phone: z.string().optional(),
-      note: z.string().optional(),
     })
     .optional(),
   customFields: z
@@ -82,7 +82,7 @@ type EDITING_FIELD =
   | "customer.email"
   | "customer.phone"
   | "status"
-  | "customer.note"
+  | "note"
   | "spotId"
   | `customFields.${number}.value`
   | null;
@@ -153,6 +153,8 @@ function BookingDetailSheet() {
       updatedData.status = data.status;
     } else if (editingField === "spotId") {
       updatedData.spotId = data.spotId;
+    } else if (editingField === "note") {
+      updatedData.note = data.note;
     } else if(editingField?.startsWith("customFields") && data.customFields) {
       updatedData.customFields = data.customFields ?? [];
     } else if (editingField && data.customer) {
@@ -676,7 +678,7 @@ function BookingDetailSheet() {
                                   <>
                                     <FormField
                                       control={control}
-                                      name={`customer.note`}
+                                      name={`note`}
                                       render={({ field: formField }) => (
                                         <Textarea
                                           {...formField}
@@ -716,9 +718,7 @@ function BookingDetailSheet() {
                                         }
                                       >
                                         {
-                                          booking!.customer?.[
-                                            field as keyof Booking["customer"]
-                                          ]
+                                          booking!.note
                                         }
                                       </span>
                                       <span
