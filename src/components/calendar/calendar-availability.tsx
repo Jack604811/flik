@@ -289,9 +289,9 @@ function CalendarAvailability({
           return;
         }
       }
-
+  
       const { startDate, endDate } = getStartEndDates(selectedDate);
-
+  
       const subTotal = calculateSubtotal(selectedDate, workingHours);
       onDateSelected({
         startDate,
@@ -299,7 +299,7 @@ function CalendarAvailability({
         subTotal,
       });
     },
-    [getStartEndDates, onDateSelected, workingHours]
+    [getStartEndDates, onDateSelected, workingHours, isDateDisabled] 
   );
 
   const getNextAvailableMonth = (): Date | undefined => {
@@ -355,7 +355,7 @@ function CalendarAvailability({
             updateFormData(date);
           }}
           selected={selectedDate as any}
-          disabled={(date) => isDateDisabled(date)}
+          disabled={(date: Date) => isDateDisabled(date)}
           min={spot.durationType === "days" ? spot.duration + 1 : undefined}
         />
       </div>

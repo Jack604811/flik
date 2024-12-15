@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 // Sample data for cards
@@ -66,7 +67,13 @@ const BentoCard = ({
   >
     {/* Image or Icon */}
     <div className="flex justify-center items-center p-6">
-      <img src={image} alt={title} className="h-24 w-24 object-contain" />
+      <Image
+        src={image}
+        alt={title}
+        width={96} // example width
+        height={96} // example height
+        className="h-24 w-24 object-contain"
+      />
     </div>
 
     {/* Title and Subtitle */}

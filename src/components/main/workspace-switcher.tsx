@@ -32,6 +32,7 @@ import { getWorkspaces } from "@/server/actions/workspace.action";
 import { updateCurrentWorkspace } from "@/server/actions/user.action";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "../ui/skeleton";
+import Image from "next/image";
 
 interface WorkspaceData {
   id: string;
@@ -187,13 +188,13 @@ export default function WorkspaceSwitcher({
             className={cn("w-full max-w-6xl h-12 justify-between", className)}
           >
             {currentWorkspace?.logo ? (
-              <img
+              <Image
                 src={currentWorkspace.logo}
                 alt="Workspace Logo"
                 className="mr-2 h-6 w-6 rounded-full object-cover"
               />
             ) : (
-              <img
+              <Image
                 src="/assets/placeholder.svg" 
                 alt="Placeholder Logo"
                 className="mr-2 h-8 w-8 rounded-full object-cover"
@@ -226,13 +227,13 @@ export default function WorkspaceSwitcher({
                       }
                     >
                       {workspace.logo ? (
-                        <img
+                        <Image
                           src={workspace.logo}
                           alt="Workspace Logo"
                           className="mr-2 h-6 w-6 rounded-full"
                         />
                       ) : (
-                        <img
+                        <Image
                         src="/assets/placeholder.svg" 
                         alt="Placeholder Logo"
                         className="mr-2 h-8 w-8 rounded-full object-cover"

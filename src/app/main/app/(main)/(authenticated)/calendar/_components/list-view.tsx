@@ -145,7 +145,7 @@ export default function ListView({
                     return (
                       <HoverCard key={booking.id}>
                         <HoverCardTrigger asChild>
-                          <BookingDetailButton booking={booking}>   
+                          {/* <BookingDetailButton booking={booking}>    */}
                    
                             <motion.div
                               initial={{ opacity: 0, y: 10 }}
@@ -182,7 +182,7 @@ export default function ListView({
                                   </div>
                                 </div>
                               </div>
-                              <div className="">
+                              <div className="mr-2">
                               <RowActions
                                 booking={booking}
                                 refreshEvents={refreshEvents} 
@@ -190,7 +190,7 @@ export default function ListView({
                             </div>
                             </motion.div>
                             
-                          </BookingDetailButton>
+                          {/* </BookingDetailButton> */}
                         </HoverCardTrigger>
                         <HoverCardContent
                           align="center"
