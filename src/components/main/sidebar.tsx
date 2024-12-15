@@ -52,10 +52,15 @@ export const Sidebar = () => {
                   className="justify-start px-2 w-full h-[32px]"
                 >
                   <Link href="/calendar" prefetch={true}>
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full justify-between items-center">
+                      <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 mr-0" />
                       <span>Calendar</span>
+                      </div>
+                      {/* <span className="bg-neutral-100 rounded-sm p-1 text-xs items-center">34</span> */}
+                      
                     </div>
+                    
                   </Link>
                 </Button>
               </CommandItem>

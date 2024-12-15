@@ -34,10 +34,10 @@ export const USER_ROUTES = [
 // ****** / Sidebar Routes / ******
 export const SIDEBAR_ROUTES = [
 { name: "Dashboard", icon: Square, path: "/dashboard" },
-{ name: "Bookings", icon: Calendar, path: "/bookings" },
+{ name: "Calendar", icon: Calendar, path: "/calendar" },
 { name: "Transactions", icon: Landmark, path: "/transactions" },
 { name: "Extras", icon: ShoppingCart, path: "/extras" },
-{ name: "Spots", icon: MapPin, path: "/spots" },
+{ name: "Services", icon: MapPin, path: "/services" },
 { name: "Integrations", icon: Zap, path: "/integrations" },
 { name: "Billing", icon: CreditCard, path: "/billing" },
 { name: "Settings", icon: Settings, path: "/settings" },

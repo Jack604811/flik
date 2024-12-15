@@ -169,7 +169,7 @@ const EditBookingDate = ({
             </Button>
           </PopoverTrigger>
 
-            <PopoverContent className="w-auto" align="start">
+            <PopoverContent className="w-auto bg-background" align="start">
               <CalendarAvailability
                 selectedDate={date}
                 onDateSelected={onBookingDateChanged}

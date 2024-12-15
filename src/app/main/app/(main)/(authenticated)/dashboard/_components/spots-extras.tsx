@@ -20,6 +20,7 @@ import Image from "next/image";
 import { useDateRange } from "./date-range-context";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsAndExtrasMetrics } from "@/server/actions/dashboard.action";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const chartConfig = {
   spots: {
@@ -33,7 +34,7 @@ const chartConfig = {
 type Params = { workspaceId?: string };
 
 export function SpotsAndExtras({ workspaceId }: Params) {
-  const { startDate, endDate } = useDateRange(); 
+  const { startDate, endDate } = useDateRange();
 
   const { data, isLoading } = useQuery({
     queryKey: ["spots-extras", workspaceId, startDate, endDate],
@@ -47,13 +48,13 @@ export function SpotsAndExtras({ workspaceId }: Params) {
   return (
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-6 sm:py-6 overflow-x-auto">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-6 sm:py-6">
           <CardTitle>
             {activeChart === "spots" ? "Spots Overview" : "Extras Overview"}
           </CardTitle>
           <CardDescription>Showing data based on the selected tab</CardDescription>
         </div>
-        <div className="flex w-full sm:w-auto overflow-x-auto">
+        <div className="flex w-full sm:w-auto">
           {["spots", "extras"].map((key) => {
             const chart = key as keyof typeof chartConfig;
             return (
@@ -75,18 +76,17 @@ export function SpotsAndExtras({ workspaceId }: Params) {
         </div>
       </CardHeader>
       <CardContent className="px-2 sm:px-4 lg:px-6">
-        <div className="overflow-x-auto">
+        {/* Scrollable container */}
+        <div className="max-h-[512px] overflow-y-auto">
           {activeChart === "spots" ? (
-            <Table>
+            <Table className="relative">
               <TableHeader>
-                <TableRow>
+                {/* Sticky header */}
+                <TableRow className="bg-white sticky top-0 z-10 dark:bg-neutral-950">
                   <TableHead></TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead>Bookings</TableHead>
                   <TableHead>Revenue</TableHead>
-                  {/* <TableHead>Visits</TableHead>
-                  <TableHead>OR</TableHead>
-                  <TableHead>CTR</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -104,22 +104,19 @@ export function SpotsAndExtras({ workspaceId }: Params) {
                     <TableCell>{spot.product}</TableCell>
                     <TableCell>{spot.bookings}</TableCell>
                     <TableCell>{spot.revenue}</TableCell>
-                    {/* <TableCell>{spot.visits}</TableCell>
-                    <TableCell>{spot.occupancyRate}</TableCell>
-                    <TableCell>{spot.clickThroughRate}</TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           ) : (
-            <Table className="w-full">
+            <Table className="relative">
               <TableHeader>
-                <TableRow>
+                {/* Sticky header */}
+                <TableRow className="bg-white sticky top-0 z-10 shadow dark:bg-neutral-950">
                   <TableHead></TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead>Total Sales</TableHead>
                   <TableHead>Revenue</TableHead>
-                  {/* <TableHead>CTR</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -137,7 +134,6 @@ export function SpotsAndExtras({ workspaceId }: Params) {
                     <TableCell>{extra.product}</TableCell>
                     <TableCell>{extra.totalSales}</TableCell>
                     <TableCell>{extra.revenue}</TableCell>
-                    {/* <TableCell>{extra.clickThroughRate}</TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>

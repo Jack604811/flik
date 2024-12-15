@@ -19,6 +19,7 @@ import {
 import { BookingDetailButton } from "@/hooks/use-booking-detail";
 import { RowActions } from '@/components/calendar/row-actions';
 import { Booking as BaseBooking } from "@/schemas/booking.schema";
+import { CreateBooking } from '@/components/forms/create-booking';
 
 interface Booking extends BaseBooking {
   isNewEvent?: boolean; 
@@ -81,12 +82,23 @@ export default function ListView({
     });
   };
 
+    function fetchBookings(): Promise<void> {
+        throw new Error('Function not implemented.');
+    }
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="py-4 space-y-4">
         <DateFilter column={Row} title="Filter by Date" className="mb-4" />
-
+        <div className="flex justify-between items-center">
         <p className="text-lg font-semibold">{bookingsCount}</p>
+        <div className="md:hidden">
+            <CreateBooking 
+            workspaceId={workspaceId} 
+            refreshBookings={fetchBookings} 
+            />
+        </div>
+        </div>
         <Input
           placeholder="Search..."
           value={searchTerm}

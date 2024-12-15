@@ -144,10 +144,10 @@ function SpotForm({
     toast.promise(promise, {
       loading: 'Loading...',
       success: () => {
-        router.push('/spots');
-        return 'Spot created/updated successfully';
+        router.push('/services');
+        return 'Service created/updated successfully';
       },
-      error: 'Error adding/updating spot',
+      error: 'Error adding/updating service',
     });
   };
 

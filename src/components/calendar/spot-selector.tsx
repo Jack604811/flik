@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Command, CommandInput, CommandList, CommandItem, CommandEmpty } from '@/components/ui/command';
+import { Command, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup } from '@/components/ui/command';
 import { getSpotsByWorkspace } from '@/server/actions/spot.action';
+import { ScrollArea } from '../ui/scroll-area';
 
 type Spot = {
   id: string;
@@ -114,26 +115,24 @@ export default function SpotSelector({ workspaceId, onSelect }: SpotSelectorProp
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0">
-          <Command>
-            <div className="items-center p-2">
-              <div className="relative">
-                <CommandInput
-                  placeholder="Search spots..."
-                  defaultValue={searchTerm}
-                  onValueChange={setSearchTerm}
-                  className=""
-                />
-              </div>
-            </div>
-            <CommandList>
-              {filteredSpots.length > 0 ? (
-                filteredSpots.map((spot) => (
+        <Command className="max-h-[400px] overflow-hidden">
+          <CommandInput placeholder="Search service..." onValueChange={(search) => {
+            const filtered = spots.filter((spot) =>
+              spot.name.toLowerCase().includes(search.toLowerCase())
+            )
+            setFilteredSpots(filtered)
+          }} />
+          <CommandList>
+            <CommandEmpty>No service found</CommandEmpty>
+            <CommandGroup>
+              <ScrollArea className="h-[300px] overflow-auto">
+                {filteredSpots.map((spot) => (
                   <CommandItem
                     key={spot.id}
                     onSelect={() => handleSelect(spot)}
                     className={cn(
-                      "flex items-center py-2 cursor-pointer", 
-                      selectedSpot?.id === spot.id && "bg-neutral-100"
+                      "flex items-center py-2 cursor-pointer mx-2", 
+                      selectedSpot?.id === spot.id && "bg-neutral-100 dark:bg-neutral-900"
                     )}
                   >
                     <Image
@@ -153,12 +152,11 @@ export default function SpotSelector({ workspaceId, onSelect }: SpotSelectorProp
                       <Check className="ml-auto h-4 w-4 opacity-50" />
                     )}
                   </CommandItem>
-                ))
-              ) : (
-                <CommandEmpty>No spots found</CommandEmpty>
-              )}
-            </CommandList>
-          </Command>
+                ))}
+              </ScrollArea>
+            </CommandGroup>
+          </CommandList>
+        </Command>
         </PopoverContent>
       </Popover>
     </div>
