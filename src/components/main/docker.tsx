@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils";
 export function Docker() {
   const pathname = usePathname(); // Get the current path
 
+  // Hide sidebar if the pathname is "/workspaces"
+  if (pathname === "/workspaces") {
+    return null;
+  }
+
   // Function to determine if a tab is active
   const isActive = (path: string) => pathname === path;
 

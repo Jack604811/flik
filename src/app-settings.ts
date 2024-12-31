@@ -37,7 +37,7 @@ export const SIDEBAR_ROUTES = [
 { name: "Calendar", icon: Calendar, path: "/calendar" },
 { name: "Transactions", icon: Landmark, path: "/transactions" },
 { name: "Extras", icon: ShoppingCart, path: "/extras" },
-{ name: "Services", icon: MapPin, path: "/services" },
+{ name: "Spots", icon: MapPin, path: "/spots" },
 { name: "Integrations", icon: Zap, path: "/integrations" },
 { name: "Billing", icon: CreditCard, path: "/billing" },
 { name: "Settings", icon: Settings, path: "/settings" },

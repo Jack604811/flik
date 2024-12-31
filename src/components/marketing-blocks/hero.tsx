@@ -13,7 +13,7 @@ import { AnimationContainer } from "@/components/marketing-blocks/animations/ani
 export function Hero() {
   return (
     <section id="hero">
-      <div className="relative h-full overflow-hidden py-14">
+      <div className="relative h-full overflow-hidden py-32">
         <Particles className="absolute inset-0" quantity={100} ease={80} refresh />
         <div className="container z-10 flex flex-col items-center text-center">
           <div className="mt-20 grid grid-cols-1">

@@ -10,7 +10,7 @@ async function Page({params: { spotId }}: {params: {spotId: string}}) {
   const currentWorkspace = await getCurrentWorkspace();
   const spot = await getSpotById(spotId);
 
-  if(!spot) redirect("/services/new")
+  if(!spot) redirect("/spots/new")
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 mt-16 mb-24">

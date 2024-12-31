@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MoneyInput from 'src/components/ui/money-input';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
@@ -40,8 +40,8 @@ import { getExtrasByWorkspace } from '@/server/actions/extra.action';
 // Validation schema
 const formSchema = z
   .object({
-    name: z.string({ required_error: 'Spot Name is required' }),
-    description: z.string({ required_error: 'Spot Description is required' }),
+    name: z.string({ required_error: 'Service Name is required' }),
+    description: z.string({ required_error: 'Service Description is required' }),
     status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
     maxGuest: z.string().optional(),
     additionalGuestPrice: z.string().optional(),
@@ -87,7 +87,7 @@ function SpotForm({
 }) {
   const router = useRouter();
   
-  // Fetch extras using workspaceId instead of userId
+
   const { data: extrasOption, isLoading } = useQuery({
     queryKey: ['extras'],
     queryFn: async () => getExtrasByWorkspace({ workspaceId }),
@@ -116,6 +116,7 @@ function SpotForm({
       extras: spot?.extras?.map((ex) => ex.id) ?? [],
     },
   });
+  
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let obj = {
@@ -144,7 +145,7 @@ function SpotForm({
     toast.promise(promise, {
       loading: 'Loading...',
       success: () => {
-        router.push('/services');
+        router.push('/spots');
         return 'Service created/updated successfully';
       },
       error: 'Error adding/updating service',
@@ -193,7 +194,7 @@ function SpotForm({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/services">
+            <Link href="/spots">
               <Button
                 type="button"
                 className="h-7 w-7"
@@ -779,4 +780,24 @@ function SpotForm({
   );
 }
 
+function getDefaultValues(service: any) {
+  return {
+    status: 'Private',
+    allowAdditionalGuest: false,
+    ...(service ?? {}),
+    maxGuest: service?.maxGuest ? String(service.maxGuest) : '1',
+    units: service?.units ? String(service.units) : '1',
+    additionalGuestPrice: service?.additionalGuestPrice ? String(service.additionalGuestPrice) : undefined,
+    workingHours: (service?.workingHours ?? []).map((wh: { price: any; }) => ({
+      ...wh,
+      price: String(wh.price),
+    })),
+    duration: service?.duration ? String(service.duration) : '1',
+    durationType: service?.durationType ?? 'hours',
+    extras: service?.extras?.map((extra: { id: any; }) => extra.id) ?? [],
+  };
+}
+
 export default SpotForm;
+
+
