@@ -7,6 +7,7 @@ import {
   Search,
   ArrowUpRightSquare,
   Copy,
+  Plus,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,8 @@ import { AFTER_SIGNIN_REDIRECT_URL } from '@/app-settings';
 import { useSession } from 'next-auth/react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type Workspace = {
   id: string;
@@ -103,9 +106,11 @@ export default function WorkspaceView() {
                 className="pl-10 w-full"
               />
             </div>
-            <button className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
-              <PlusCircle className="mr-2 h-4 w-4" /> New Workspace
-            </button>
+            <Link href="/create-workspace">
+            <Button className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
+              <Plus className="mr-2 h-4 w-4" /> New Workspace
+            </Button>
+            </Link>
           </div>
         </div>
 
@@ -118,7 +123,7 @@ export default function WorkspaceView() {
           </div>
         ) : workspaces.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-xl text-gray-500">No workspaces found. Try adjusting your search.</p>
+            <p className="text-xl text-gray-500">No workspaces found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

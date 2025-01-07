@@ -15,7 +15,7 @@ import {
     Syringe,
     HandHeart,
   } from "lucide-react";
-import { AnimationContainer } from "./animations/animation-container";
+import { AnimationContainer } from "../animations/animation-container";
 import { Badge } from "../ui/badge";
   
   export function Industries() {

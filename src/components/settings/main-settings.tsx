@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { updateSiteSetting } from "@/server/actions/workspace.action"; // Import from workspace.action.ts
+import { updateSiteSetting } from "@/server/actions/workspace.action";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {

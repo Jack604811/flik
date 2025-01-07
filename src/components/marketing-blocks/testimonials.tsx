@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Marquee from "@/components/magicui/marquee";
 import { StarFilledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
-import{ AnimationContainer } from "./animations/animation-container";
+import{ AnimationContainer } from "../animations/animation-container";
 
 export const Highlight = ({
   children,

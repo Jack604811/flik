@@ -61,4 +61,4 @@ export const getCurrentUser = async () => {
   return userSession?.user;
 }
 
-export { providers, events, callbacks, pages };
+export { providers, events, callbacks, pages, authOptions };

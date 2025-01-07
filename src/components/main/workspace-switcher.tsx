@@ -230,12 +230,16 @@ export default function WorkspaceSwitcher({
                         <Image
                           src={workspace.logo}
                           alt="Workspace Logo"
+                          width={24} 
+                          height={24} 
                           className="mr-2 h-6 w-6 rounded-full"
                         />
                       ) : (
                         <Image
                         src="/assets/placeholder.svg" 
                         alt="Placeholder Logo"
+                        width={24} 
+                        height={24} 
                         className="mr-2 h-8 w-8 rounded-full object-cover"
                         />
                       )}

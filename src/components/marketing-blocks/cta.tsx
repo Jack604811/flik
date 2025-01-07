@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image"; 
-import { AnimationContainer } from "./animations/animation-container";
+import { AnimationContainer } from "../animations/animation-container";
 import DashboardButton from "./dashboard-button";
 
 export function CTA() {

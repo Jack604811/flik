@@ -1,6 +1,6 @@
 import Image from "next/image";  
 import Marquee from "@/components/magicui/marquee";
-import { AnimationContainer } from "@/components/marketing-blocks/animations/animation-container";
+import { AnimationContainer } from "@/components/animations/animation-container";
 
 const companies = [
   "Google",

@@ -7,13 +7,13 @@ import AnimatedShinyText from "../magicui/animated-shiny-text";
 import ShimmerButton from "../magicui/shimmer-button";
 import Particles from "../magicui/particles";
 import DashboardButton from "./dashboard-button";
-import { AnimationContainer } from "@/components/marketing-blocks/animations/animation-container";
+import { AnimationContainer } from "@/components/animations/animation-container";
 
 
 export function Hero() {
   return (
     <section id="hero">
-      <div className="relative h-full overflow-hidden py-32">
+      <div className="relative h-full overflow-hidden py-14 md:py-32">
         <Particles className="absolute inset-0" quantity={100} ease={80} refresh />
         <div className="container z-10 flex flex-col items-center text-center">
           <div className="mt-20 grid grid-cols-1">

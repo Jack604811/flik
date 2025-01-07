@@ -1,27 +1,27 @@
 "use client";
+
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Provider } from "next-auth/providers/index";
 
 export const OauthProvider = ({
   provider,
   callbackUrl,
-  prefix
+  prefix,
 }: {
   prefix: string;
   callbackUrl: string;
-  provider: Provider;
+  provider: { id: string; name: string };
 }) => {
   return (
     <Button
-      onClick={() => signIn(provider.name, { callbackUrl })}
-      className="flex gap-2 items-center justify-center w-full "
-      variant={"secondary"}
+      onClick={() => signIn(provider.id, { callbackUrl })}
+      className="flex gap-2 items-center justify-center w-full hover:bg-neutral-200/20"
+      variant="secondary"
     >
       <Image
-        alt=""
-        src={`/assets/icons/nextauth-providers/${provider.name.toLowerCase()}.svg`}
+        alt={`${provider.name} logo`}
+        src={`/assets/icons/nextauth-providers/${provider.id.toLowerCase()}.svg`}
         width={20}
         height={20}
       />

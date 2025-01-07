@@ -33,7 +33,7 @@ export default function MainLayout({
             <Sidebar />
       </Suspense>
       <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
         <Suspense fallback={<Loader />}>
           <Header />
         </Suspense>

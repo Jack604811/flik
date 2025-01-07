@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import Image from "next/image";
 import { motion } from "framer-motion"; 
-import { AnimationContainer } from "./animations/animation-container";
+import { AnimationContainer } from "../animations/animation-container";
 import { Badge } from "../ui/badge";
 
 

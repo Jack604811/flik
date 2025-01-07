@@ -6,7 +6,7 @@ import "../globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
-
+import ErrorBoundary from "@/components/errorBoundary";
 
 export default function RootLayout({
   children,
@@ -44,7 +44,9 @@ export default function RootLayout({
             <NextTopLoader />
             <Toaster position="bottom-center" />
             <TanstackQueryProvider>
-              {children}
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
             </TanstackQueryProvider>
           </ThemeProvider>
         </NextAuthProvider>
@@ -52,5 +54,3 @@ export default function RootLayout({
     </html>
   );
 }
-
- 

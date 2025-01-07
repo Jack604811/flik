@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AnimationContainer } from "@/components/marketing-blocks/animations/animation-container";
+import { AnimationContainer } from "@/components/animations/animation-container";
 
 const faqs = [
   {

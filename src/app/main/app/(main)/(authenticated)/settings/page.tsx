@@ -2,15 +2,15 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
-import SiteSettings from "./site-settings";
-import MainSettings from "./main-settings";
-import { DeleteWorkspace } from "./delete-workspace";
+import SiteSettings from "../../../../../../components/settings/site-settings";
+import MainSettings from "../../../../../../components/settings/main-settings";
+import { DeleteWorkspace } from "../../../../../../components/settings/delete-workspace";
 import { Metadata } from "next";
-import TeamManagement from "./team-management";
-import Billing from "./billing";
-import CustomFields from "./custom-fields";
-import Integrations from "./integrations/page";
-import APIKeys from "./api-keys";
+import TeamManagement from "../../../../../../components/settings/team-management";
+import Billing from "../../../../../../components/settings/billing";
+import CustomFields from "../../../../../../components/settings/custom-fields";
+import Integrations from "../../../../../../components/settings/integrations/page";
+import APIKeys from "../../../../../../components/settings/api-keys";
 
 export const metadata: Metadata = {
   title: "Settings",

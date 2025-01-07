@@ -10,7 +10,8 @@ const nextConfig = {
         remotePatterns: [
             { hostname: "rnetulpcbgfmgdvyrsdh.supabase.co", protocol: "https"},
             { hostname: "mbcobsjjxvpydprpyybp.supabase.co", protocol: "https"},
-            { hostname: "randomuser.me", protocol: "https" }
+            { hostname: "randomuser.me", protocol: "https" },
+            { hostname: "lh3.googleusercontent.com", protocol: "https" }
         ]
     },
     // Remove or leave empty if you don't have other experimental features

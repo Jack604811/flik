@@ -63,6 +63,7 @@
     "hono": "^4.6.8",
     "hono-rate-limiter": "^0.4.0",
     "html-loader": "^5.1.0",
+    "input-otp": "^1.4.1",
     "jiti": "^1.21.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.428.0",
