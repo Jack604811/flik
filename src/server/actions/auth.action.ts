@@ -253,15 +253,38 @@ export const validatePasswordResetToken = async (token: string) => {
 };
 
 export const validatePassword = async (userId: string, password: string) => {
-  const user = await getUserById(userId);
-  if (!user || !user.password) {
-    throw new Error("Invalid user or password not set.");
-  }
+    const user = await getUserById(userId);
+    if (!user || !user.password) {
+      throw new Error("Invalid user or password not set.");
+    }
+  
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid password.");
+    }
+  
+    return true; 
+  };
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new Error("Invalid password.");
-  }
 
-  return true;
-};
+
+// Admin Auth Actions
+export const getAdminByEmail = async (email: string) => {
+    const existingAdmin = await db.admin.findFirst({
+      where: {
+        email,
+      },
+    });
+  
+    return existingAdmin;
+}
+
+export const getAdminById = async (id: string) => {
+    const existingAdmin = await db.admin.findFirst({
+      where: {
+        id,
+      },
+    });
+  
+    return existingAdmin;
+  }

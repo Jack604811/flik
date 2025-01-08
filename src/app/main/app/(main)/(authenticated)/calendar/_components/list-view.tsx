@@ -20,6 +20,7 @@ import { BookingDetailButton } from "@/hooks/use-booking-detail";
 import { RowActions } from '@/components/calendar/row-actions';
 import { Booking as BaseBooking } from "@/schemas/booking.schema";
 import { CreateBooking } from '@/components/forms/create-booking';
+import BookingDetail from '@/components/main/booking-details';
 
 interface Booking extends BaseBooking {
   isNewEvent?: boolean; 
@@ -105,7 +106,6 @@ export default function ListView({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="mb-4"
         />
-
         <div className="h-[80vh] pb-8 md:pb-16 overflow-y-auto">
           <TooltipProvider>
             <div className="flex flex-col gap-4">
@@ -163,6 +163,7 @@ export default function ListView({
                                     <h3 className="font-semibold">
                                       {booking.customer.name}
                                     </h3>
+                                    
                                     {booking.isNewEvent && (
                                       <Tooltip>
                                         <TooltipTrigger>

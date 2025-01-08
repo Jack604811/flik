@@ -1,15 +1,19 @@
 import { env } from "@/env";
 import type { CallbacksOptions } from "next-auth";
-import { getUserById } from "../actions/auth.action";
+import { getAdminById, getUserById } from "../actions/auth.action";
 
 export const callbacks: Partial<CallbacksOptions> = {
   async signIn({ user, account }) {
-    // Skip additional checks for non-credentials-based accounts
-    if (account?.type !== "credentials") return true;
+    if(account?.type !== "credentials") return true;
+    if(user?.isAdmin){
+      const existingAdmin = await getAdminById(user.id);
+      if(!existingAdmin) return false
+      return true;
+    }
 
     // Fetch the user from the database
     const existingUser = await getUserById(user.id);
-    if (!existingUser) return false; // Deny login if user does not exist
+    if (!existingUser || !existingUser.emailVerified) return false; // Deny login if user does not exist
 
     // Pass verified email information
     user.emailVerified = existingUser.emailVerified;

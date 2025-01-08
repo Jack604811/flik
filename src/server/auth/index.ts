@@ -26,6 +26,7 @@ declare module "next-auth" {
     email?: string | null | undefined;
     name?: string | null | undefined;
     emailVerified?: Date | null;
+    isAdmin?: boolean;
     customerId?: string | null | undefined;
     stripeCustomerId?: string | null | undefined;
     subscriptionId?: string | null | undefined;

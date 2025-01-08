@@ -53,6 +53,13 @@ model User {
   CustomField CustomField[]
 }
 
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
 model Workspace {
   id                   String        @id @default(cuid())
   ownerId              String // Relation to User (owner)

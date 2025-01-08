@@ -65,6 +65,16 @@ export default async function middleware(req: NextRequest) {
     );
   }
 
+  // rewrites for app pages
+  if (hostname == `admin.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
+    const headers = new Headers(req.headers);
+    headers.set("x-current-path", req.nextUrl.pathname);
+
+    return NextResponse.rewrite(
+      new URL(`/main/admin${path === "/" ? "" : path}`, req.url), {headers}
+    );
+  }
+
   if(hostname.endsWith(process.env.NEXT_PUBLIC_ROOT_DOMAIN!)){
     const res = await fetch(new URL(`/api/domain/${hostname}/user`, req.url));
     const resData = await res.json();
