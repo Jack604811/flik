@@ -14,7 +14,7 @@ export const Sidebar = () => {
   const pathname = usePathname();
 
   // Hide sidebar if the pathname is "/workspaces"
-  if (pathname === "/workspaces") {
+  if (pathname === "/workspaces" || pathname === "/create-workspace") {
     return null;
   }
 
@@ -28,7 +28,7 @@ export const Sidebar = () => {
         </Link>
 
         <div className="mx-4">
-          {/* <WorkspaceSwitcher /> */}
+          <WorkspaceSwitcher />
         </div>
 
         <Command className="gap-4 bg-inherit">

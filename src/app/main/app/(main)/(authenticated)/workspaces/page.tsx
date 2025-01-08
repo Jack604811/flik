@@ -1,27 +1,32 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   PlusCircle,
   Search,
   ArrowUpRightSquare,
   Copy,
   Plus,
-} from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import useSWR from 'swr';
-import { useRouter } from 'next/navigation';
-import { getWorkspaces } from '@/server/actions/workspace.action';
-import { updateCurrentWorkspace } from '@/server/actions/user.action';
-import { getSiteData } from '@/server/actions/domain.action';
-import { AFTER_SIGNIN_REDIRECT_URL } from '@/app-settings';
-import { useSession } from 'next-auth/react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import useSWR from "swr";
+import { useRouter } from "next/navigation";
+import { getWorkspaces } from "@/server/actions/workspace.action";
+import { updateCurrentWorkspace } from "@/server/actions/user.action";
+import { getSiteData } from "@/server/actions/domain.action";
+import { AFTER_SIGNIN_REDIRECT_URL } from "@/app-settings";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Workspace = {
   id: string;
@@ -32,32 +37,38 @@ type Workspace = {
 };
 
 export default function WorkspaceView() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const { data, error } = useSWR('workspaces', getWorkspaces);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { data, error } = useSWR("workspaces", getWorkspaces);
   const { data: session } = useSession();
   const router = useRouter();
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [externalLinks, setExternalLinks] = useState<{ [id: string]: string }>({});
-  const [copiedId, setCopiedId] = useState<string | null>(null); // Track the ID being copied
+  const [externalLinks, setExternalLinks] = useState<{ [id: string]: string }>(
+    {}
+  );
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const isLoading = !data && !error;
 
   useEffect(() => {
     if (data) {
       const Workspaces: Workspace[] = data.workspaces.map((workspace: any) => ({
         id: workspace.id,
-        name: workspace.siteName || 'Untitled Workspace',
-        description: workspace.aboutUs || 'No description available.',
+        name: workspace.siteName || "Untitled Workspace",
+        description: workspace.aboutUs || "No description available.",
         logo: workspace.logo || null,
         subdomain: workspace.subdomain,
       }));
       setWorkspaces(Workspaces);
 
       Workspaces.forEach(async (workspace) => {
-        const siteData = await getSiteData(`${workspace.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
+        const siteData = await getSiteData(
+          `${workspace.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
+        );
         setExternalLinks((prev) => ({
           ...prev,
-          [workspace.id]: siteData ? `https://${siteData.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}` : '#',
+          [workspace.id]: siteData
+            ? `https://${siteData.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
+            : "#",
         }));
       });
     }
@@ -70,18 +81,30 @@ export default function WorkspaceView() {
   const handleWorkspaceClick = async (workspaceId: string) => {
     if (session?.user?.id) {
       await updateCurrentWorkspace(session.user.id, workspaceId);
+
+      // Update the local storage cache (so the switcher sees the new workspace)
+      if (typeof window !== "undefined") {
+        const savedCache = window.localStorage.getItem("workspaceCache");
+        if (savedCache) {
+          const parsedCache = JSON.parse(savedCache);
+          parsedCache.currentWorkspaceId = workspaceId;
+          window.localStorage.setItem("workspaceCache", JSON.stringify(parsedCache));
+        }
+      }
+
       router.push(AFTER_SIGNIN_REDIRECT_URL);
     }
   };
 
   const handleCopy = (id: string) => {
-    navigator.clipboard.writeText(id)
+    navigator.clipboard
+      .writeText(id)
       .then(() => {
-        setCopiedId(id); // Show "Copied!" message
-        setTimeout(() => setCopiedId(null), 1500); // Reset the tooltip after 1.5 seconds
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 1500);
       })
       .catch((err) => {
-        console.error('Failed to copy:', err);
+        console.error("Failed to copy:", err);
       });
   };
 
@@ -107,9 +130,9 @@ export default function WorkspaceView() {
               />
             </div>
             <Link href="/create-workspace">
-            <Button className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
-              <Plus className="mr-2 h-4 w-4" /> New Workspace
-            </Button>
+              <Button className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
+                <Plus className="mr-2 h-4 w-4" /> New Workspace
+              </Button>
             </Link>
           </div>
         </div>
@@ -137,7 +160,7 @@ export default function WorkspaceView() {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={workspace.logo || '/placeholder.svg'}
+                        src={workspace.logo || "/placeholder.svg"}
                         alt={`${workspace.name} logo`}
                         width={40}
                         height={40}
@@ -149,14 +172,16 @@ export default function WorkspaceView() {
                       <ArrowUpRightSquare className="h-5 w-5" />
                     </button>
                   </div>
-                  <p className="text-lg text-gray-500 mb-6 truncate">{workspace.description}</p>
+                  <p className="text-lg text-gray-500 mb-6 truncate">
+                    {workspace.description}
+                  </p>
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
                       className="mt-auto bg-gray-50 px-6 py-4 rounded-b-lg text-[15px] text-gray-500 flex items-center justify-between shadow-[0_-1px_1px_rgba(0,0,0,0.05)] cursor-pointer"
                       onClick={(e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         handleCopy(workspace.id);
                       }}
                     >
@@ -168,7 +193,7 @@ export default function WorkspaceView() {
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <span>{copiedId === workspace.id ? 'Copied!' : 'Click to Copy ID'}</span>
+                    <span>{copiedId === workspace.id ? "Copied!" : "Click to Copy ID"}</span>
                   </TooltipContent>
                 </Tooltip>
               </Card>

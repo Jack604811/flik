@@ -13,6 +13,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
+      emailVerified?: Date | null;
       customerId?: string | null | undefined;
       stripeCustomerId?: string | null | undefined;
       subscriptionId?: string | null | undefined;
@@ -24,6 +25,7 @@ declare module "next-auth" {
     id: string;
     email?: string | null | undefined;
     name?: string | null | undefined;
+    emailVerified?: Date | null;
     customerId?: string | null | undefined;
     stripeCustomerId?: string | null | undefined;
     subscriptionId?: string | null | undefined;

@@ -4,46 +4,50 @@ import { getUserById } from "../actions/auth.action";
 
 export const callbacks: Partial<CallbacksOptions> = {
   async signIn({ user, account }) {
-    if(account?.type !== "credentials") return true;
-    const existingUser = await getUserById(user.id);
-    if(!existingUser?.emailVerified)  return false;
+    // Skip additional checks for non-credentials-based accounts
+    if (account?.type !== "credentials") return true;
 
-    // db.session.create({
-    //   data: {
-    //     userId: user.id,
-    //     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-    //     sessionToken: 
-    //   }
-    // })
-    return true;
+    // Fetch the user from the database
+    const existingUser = await getUserById(user.id);
+    if (!existingUser) return false; // Deny login if user does not exist
+
+    // Pass verified email information
+    user.emailVerified = existingUser.emailVerified;
+    return true; // Allow login
   },
   jwt: async ({ token, user }) => {
-    if(user){
+    // Attach user information to the token if available
+    if (user) {
       token.id = user.id;
+      token.emailVerified = user.emailVerified || null; // Pass the emailVerified flag
     }
     return token;
   },
-  session: ({ session, user, token }) => {
-    return ({
-    ...session,
-    user: {
-      ...session.user,
-      id: user?.id ?? token.id,
-      // customerId: user.customerId,
-      // subscriptionId: user.subscriptionId,
-      // oneTimeProductId: user.oneTimeProductId,
-    },
-  })},
+  session: ({ session, token }) => {
+    // Add user details to the session
+    return {
+      ...session,
+      user: {
+        ...session.user,
+        id: token.id,
+        emailVerified: token.emailVerified, // Include emailVerified
+        // customerId: user.customerId,
+        // subscriptionId: user.subscriptionId,
+        // oneTimeProductId: user.oneTimeProductId,
+      },
+    };
+  },
   async redirect({ url, baseUrl }) {
     // Ensure baseUrl is using the app subdomain
     const appBaseUrl = env.NEXTAUTH_URL;
-    
+
     // Allows relative callback URLs
     if (url.startsWith("/")) return `${appBaseUrl}${url}`;
     // Allows callback URLs on the same origin
     else if (new URL(url).origin === appBaseUrl) return url;
     // Allows callback URLs on any subdomain of the root domain
     else if (new URL(url).hostname.endsWith(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`)) return url;
-    return appBaseUrl;
+
+    return appBaseUrl; // Default to app base URL if none of the conditions match
   },
 };

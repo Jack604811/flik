@@ -18,15 +18,15 @@ import { WeekView } from "@/components/calendar/week-view";
 import MonthView from "@/components/calendar/month-view";
 
 export default function CalendarView({
-  bookings,
+  events,
   workspaceId,
 }: {
-  bookings: any;
+  events: any;
   workspaceId: string;
 }) {
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("month");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentEvents, setCurrentEvents] = useState(bookings);
+  const [currentEvents, setCurrentEvents] = useState(events);
 
   // Use the actual current date, not the calendar's current date
   const today = new Date(); // Actual current date

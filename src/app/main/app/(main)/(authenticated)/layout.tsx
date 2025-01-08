@@ -5,32 +5,36 @@ import { getCurrentWorkspace } from "@/server/actions/user.action";
 import { auth } from "@/server/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import React from "react";
 
 export default async function Layout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  searchParams,
+}: Readonly<{ children: React.ReactNode; searchParams: { invite?: string } }>) {
+  const header = headers();
   const session = await auth();
-  const currentWorkspace = await getCurrentWorkspace();
+  const currentPath = header.get("x-current-path");
 
   if (!session?.user) {
-    return redirect(NON_AUTHENTICATED_REDIRECT_URL);
+    const redirectUrl = `${NON_AUTHENTICATED_REDIRECT_URL}${
+      searchParams?.invite ? `?invite=${searchParams.invite}` : ""
+    }`;
+    return redirect(redirectUrl);
   }
 
-  if (!currentWorkspace) {
+  const currentWorkspace = await getCurrentWorkspace().catch((err) => {
+    console.error("Error fetching workspace:", err);
+    return null;
+  });
+
+  if (!currentWorkspace && !currentPath?.startsWith("/workspaces")) {
     return redirect("/workspaces");
   }
 
   return (
     <>
       <ModalAndSheetProvider />
-      {React.cloneElement(children as React.ReactElement, {
-        currentWorkspace,
-      })}
+      {children}
       {process.env.NODE_ENV === "development" && <TailwindScreen />}
     </>
   );
 }
-

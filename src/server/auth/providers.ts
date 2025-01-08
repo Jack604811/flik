@@ -2,15 +2,12 @@ import GoogleProvider from "next-auth/providers/google";
 import ResendProvider from "next-auth/providers/email";
 import { type Provider } from "next-auth/providers/index";
 import { env } from "@/env";
-import { Resend } from 'resend';
-import { APP_NAME } from "@/app-settings";
-import { MagicLinkTemplate } from "@/emails/auth/magic-link";
 import Credentials from "next-auth/providers/credentials";
 import { getUserByEmail } from "../actions/auth.action";
 import bcrypt from "bcrypt";
 import { User } from "next-auth";
 
-const resend = new Resend(env.RESEND_API_KEY);
+
 
 export const providers: Provider[] = [
   GoogleProvider({
@@ -19,17 +16,6 @@ export const providers: Provider[] = [
     clientSecret: env.GOOGLE_CLIENT_SECRET,
   }),
   
-  ResendProvider({
-    async sendVerificationRequest({ identifier: email, url }) {
-      await resend.emails.send({
-        from: env.EMAIL_FROM,
-        to: email,
-        subject: `Sign in to ${APP_NAME}`,
-        react: MagicLinkTemplate({ link: url }),
-        html: ""
-      })
-    },
-  }),
 
   Credentials({
     id: "signin",
