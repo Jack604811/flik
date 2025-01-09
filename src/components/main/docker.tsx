@@ -11,7 +11,7 @@ export function Docker() {
   const pathname = usePathname(); // Get the current path
 
   // Hide sidebar if the pathname is "/workspaces"
-  if (pathname === "/workspaces") {
+  if (pathname === "/workspaces" || pathname === "/create-workspace") {
     return null;
   }
 

@@ -104,7 +104,7 @@ export function PreviewContent({
             <div className="text-sm">Amount Due: ${amountDue.toFixed(2)}</div>
           </div>
         </div>
-        <Link href={`/calendar/${Id}`}>
+        
           <Button
             variant="outline"
             className="w-full mt-2 text-black dark:text-white"
@@ -112,7 +112,7 @@ export function PreviewContent({
             View More
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-        </Link>
+  
       </div>
     </TooltipProvider>
   );

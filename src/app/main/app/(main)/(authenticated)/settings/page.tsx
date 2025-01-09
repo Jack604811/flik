@@ -1,16 +1,16 @@
 // app/settings/page.tsx
 
+import { Metadata } from "next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
-import SiteSettings from "../../../../../../components/settings/site-settings";
-import MainSettings from "../../../../../../components/settings/main-settings";
-import { DeleteWorkspace } from "../../../../../../components/settings/delete-workspace";
-import { Metadata } from "next";
-import TeamManagement from "../../../../../../components/settings/team-management";
-import Billing from "../../../../../../components/settings/billing";
-import CustomFields from "../../../../../../components/settings/custom-fields";
-import Integrations from "../../../../../../components/settings/integrations/page";
-import APIKeys from "../../../../../../components/settings/api-keys";
+import MainSettings from "@/components/settings/main-settings";
+import { DeleteWorkspace } from "@/components/settings/delete-workspace";
+import SiteSettings from "@/components/settings/site-settings";
+import TeamManagement from "@/components/settings/team-management";
+import Billing from "@/components/settings/billing";
+import CustomFields from "@/components/settings/custom-fields";
+import Integrations from "@/components/settings/integrations/page";
+import APIKeys from "@/components/settings/api-keys";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -56,7 +56,7 @@ export default async function Page() {
         </div>
         <TabsContent value="main">
           <MainSettings workspace={currentWorkspace} />
-          <DeleteWorkspace workspace={currentWorkspace}/>
+          <DeleteWorkspace workspace={currentWorkspace} />
         </TabsContent>
         <TabsContent value="site">
           <SiteSettings
