@@ -25,20 +25,35 @@ export const createWorkspace = async (siteName: string) => {
     throw new Error("User not authenticated");
   }
 
-  // Create the workspace
+  // Debugging siteName and currentUser
+  console.log("Received siteName:", siteName);
+  console.log("Current user ID:", currentUser.id);
+
+  if (!siteName || typeof siteName !== "string" || siteName.trim() === "") {
+    throw new Error("Invalid site name");
+  }
+
   const newWorkspace = await db.workspace.create({
     data: {
-      siteName,
+      siteName: siteName.trim(),
       ownerId: currentUser.id,
-      teamMembers: { create: { userId: currentUser.id, role: "OWNER", status: TeamMemberStatus.Active } },
+      teamMembers: {
+        create: {
+          userId: currentUser.id,
+          role: "OWNER",
+          status: TeamMemberStatus.Active,
+        },
+      },
     },
   });
 
-  // Set the newly created workspace as the user's current workspace
+  console.log("New workspace created:", newWorkspace);
+
   await updateCurrentWorkspace(currentUser.id, newWorkspace.id);
 
   return newWorkspace;
 };
+
 
 export const getWorkspaces = async () => {
   const currentUser = await getCurrentUser();

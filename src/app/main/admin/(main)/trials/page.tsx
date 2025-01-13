@@ -74,7 +74,7 @@ export default function TrialsPage() {
           </DialogContent>
         </Dialog>
       </div>
-      <DataTable columns={columns} data={data} />
+      {/* <DataTable columns={columns} data={data} /> */}
     </div>
   )
 }

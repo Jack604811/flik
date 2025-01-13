@@ -206,7 +206,7 @@ function SpotForm({
               </Button>
             </Link>
             <h1 className="whitespace-nowrap text-xl font-semibold tracking-tight ">
-              {spot?.id ? "Edit" : "New"} Service
+              {spot?.id ? "Edit" : "New"} Spot
             </h1>
             <Badge className="ml-0" variant="outline">
               {form.getValues().status}
