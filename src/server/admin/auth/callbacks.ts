@@ -1,24 +1,15 @@
 import { env } from "@/env";
 import type { CallbacksOptions } from "next-auth";
-import { getAdminById, getUserById } from "../actions/auth.action";
+import { getAdminById } from "@/server/actions/auth.action";
 
 export const callbacks: Partial<CallbacksOptions> = {
   async signIn({ user, account }) {
     if(account?.type !== "credentials") return true;
-    if(user?.isAdmin){
-      if(user.id === "admin") return true;
-      const existingAdmin = await getAdminById(user.id);
-      if(!existingAdmin) return false
-      return true;
-    }
 
-    // Fetch the user from the database
-    const existingUser = await getUserById(user.id);
-    if (!existingUser || !existingUser.emailVerified) return false; // Deny login if user does not exist
-
-    // Pass verified email information
-    user.emailVerified = existingUser.emailVerified;
-    return true; // Allow login
+    if(user.id === "admin") return true;
+    const existingAdmin = await getAdminById(user.id);
+    if(!existingAdmin) return false
+    return true;
   },
   jwt: async ({ token, user }) => {
     // Attach user information to the token if available
@@ -44,7 +35,7 @@ export const callbacks: Partial<CallbacksOptions> = {
   },
   async redirect({ url, baseUrl }) {
     // Ensure baseUrl is using the app subdomain
-    const appBaseUrl = env.NEXTAUTH_URL;
+    const appBaseUrl = env.NEXTAUTH_URL.replace("app.", "admin.");
 
     // Allows relative callback URLs
     if (url.startsWith("/")) return `${appBaseUrl}${url}`;

@@ -1,5 +1,6 @@
 import MarketingHeader from "@/components/marketing-blocks/header";
 import { Footer } from "@/components/marketing-blocks/footer";
+import MainContent from "@/components/main-content";
 
 
 export default function RootLayout({
@@ -11,7 +12,9 @@ export default function RootLayout({
   <>
   
   <MarketingHeader />
-  {children}
+  <MainContent>
+    {children}
+  </MainContent>
   <Footer />
   
   </>

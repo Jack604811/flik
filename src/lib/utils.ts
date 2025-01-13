@@ -107,3 +107,10 @@ export const parseDashboardDates = (startDateString: string|null, endDateString:
   const endDate = endDateString ? moment(endDateString, ["MM/DD/YYYY"]).toDate() : moment().toDate();
   return { startDate, endDate }
 }
+
+export const getInitials = (name: string) => {
+  if (!name) return '??';
+  const splitName = name.split(' ');
+  if (splitName.length < 2) return splitName[0].charAt(0).toUpperCase();
+  return `${splitName[0].charAt(0).toUpperCase()}${splitName[splitName.length - 1].charAt(0).toUpperCase()}`;
+};

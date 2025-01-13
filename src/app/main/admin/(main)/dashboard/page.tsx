@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Briefcase, Clock } from 'lucide-react'
 import { DataTable } from "@/components/admin/dashboard/data-table"
 import { recentUsersColumns, recentWorkspacesColumns } from "@/components/admin/dashboard/columns"
+import { getDashboardData } from "@/server/actions/admin.action"
 
 const recentUsers = [
   { id: "1", name: "Alice Johnson", email: "alice@example.com", joinDate: "2023-06-01" },
@@ -15,7 +16,9 @@ const recentWorkspaces = [
   { id: "3", name: "Team Z", owner: "Charlie Brown", createdDate: "2023-06-03" },
 ]
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const data = await getDashboardData();
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8">Dashboard Overview</h1>
@@ -26,7 +29,7 @@ export default function Dashboard() {
             <Users size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">{data.userCount}</div>
           </CardContent>
         </Card>
         <Card>
@@ -35,7 +38,7 @@ export default function Dashboard() {
             <Briefcase size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">567</div>
+            <div className="text-2xl font-bold">{data.workspaceCount}</div>
           </CardContent>
         </Card>
         <Card>
@@ -44,18 +47,18 @@ export default function Dashboard() {
             <Clock size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">89</div>
+            <div className="text-2xl font-bold">{data.activeTrials}</div>
           </CardContent>
         </Card>
       </div>
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-4">Recent Users</h2>
-          <DataTable columns={recentUsersColumns} data={recentUsers} />
+          <DataTable columns={recentUsersColumns} data={data.recentUsers} />
         </div>
         <div>
           <h2 className="text-2xl font-bold mb-4">Recent Workspaces</h2>
-          <DataTable columns={recentWorkspacesColumns} data={recentWorkspaces} />
+          <DataTable columns={recentWorkspacesColumns} data={data.recentWorkspaces} />
         </div>
       </div>
     </div>

@@ -6,27 +6,43 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { signIn } from "next-auth/react"
+import { Alert, AlertDescription } from "../ui/alert"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real app, you would validate credentials against your backend
-    if (email === "admin@flik.com" && password === "password") {
-      // Set a token in localStorage (this should be more secure in a real app)
-      localStorage.setItem("flikAdminToken", "dummy_token")
-      router.push("/dashboard")
-    } else {
-      alert("Invalid credentials")
-    }
+    e.preventDefault();
+    setError(null)
+    try {
+        const res = await signIn("admin-signin", {
+          email,
+          password,
+          redirect: false,
+          callbackUrl: `/dashboard`,
+        });
+  
+        if (res?.error) {
+          setError(res.error);
+        } else if (res?.ok && res.url) {
+          router.push(res.url);
+        }
+      } catch (err) {
+        setError("An unexpected error occurred. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
   }
 
   return (
     <Card>
       <form onSubmit={handleSubmit}>
+        
         <CardContent className="space-y-4 py-5">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -49,8 +65,21 @@ export function LoginForm() {
             />
           </div>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full">Log in</Button>
+        <CardFooter className="flex-col">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full ${
+              isLoading ? "bg-gray-500 cursor-not-allowed" : "bg-primary hover:bg-primary/90"
+            } dark:text-black`}
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </Button>
+          {error && (
+          <Alert variant="destructive" className="mt-2">
+            <AlertDescription className="text-red-500 text-sm text-center">{error}</AlertDescription>
+          </Alert>
+          )}
         </CardFooter>
       </form>
     </Card>

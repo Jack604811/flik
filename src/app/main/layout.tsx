@@ -1,12 +1,8 @@
-import { NextAuthProvider } from "@/components/auth/session-provider";
 import { APP_LANG } from "@/app-settings";
-import { ThemeProvider } from "@/components/main/theme-provider";
+
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
-import NextTopLoader from "nextjs-toploader";
-import { Toaster } from "sonner";
-import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
-import ErrorBoundary from "@/components/errorBoundary";
+
 
 export default function RootLayout({
   children,
@@ -39,17 +35,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body suppressHydrationWarning={true}>
-        <NextAuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system">
-            <NextTopLoader />
-            <Toaster position="bottom-center" />
-            <TanstackQueryProvider>
-              <ErrorBoundary>
-                {children}
-              </ErrorBoundary>
-            </TanstackQueryProvider>
-          </ThemeProvider>
-        </NextAuthProvider>
+        {children}
       </body>
     </html>
   );

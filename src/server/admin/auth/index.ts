@@ -51,7 +51,7 @@ const authOptions: NextAuthOptions = {
   pages,
   cookies: {
     sessionToken: {
-      name: "next-auth.session-token",
+      name: "next-auth.session-token-admin",
       options: {
         path: "/",
         httpOnly: true,

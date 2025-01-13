@@ -1,38 +1,40 @@
-import GoogleProvider from "next-auth/providers/google";
 import { type Provider } from "next-auth/providers/index";
-import { env } from "@/env";
 import Credentials from "next-auth/providers/credentials";
-import { getUserByEmail } from "../actions/auth.action";
+import { getAdminByEmail } from "@/server/actions/auth.action";
 import bcrypt from "bcrypt";
 import { User } from "next-auth";
 
 
 
 export const providers: Provider[] = [
-  GoogleProvider({
-    name: "google",
-    clientId: env.GOOGLE_CLIENT_ID,
-    clientSecret: env.GOOGLE_CLIENT_SECRET,
-  }),
-  
-
   Credentials({
-    id: "signin",
-    name: "signin",
+    id: "admin-signin",
+    name: "admin-signin",
     credentials: {
       email: { label: "Email", type: "text" },
       password: { label: "Password", type: "password" },
     },
     async authorize(credentials) {
       if(!credentials?.email || !credentials?.password)  return null;
-      const existingUser = await getUserByEmail(credentials.email);
+
+      // Mock the admin login for inirial setup
+      if(credentials.email === "admin@flik.so" && credentials.password === "admin") {
+        return {
+          id: "admin",
+          email: "admin@flik.so",
+          name: "Admin",
+          isAdmin: true,
+        } as unknown as User
+      }
+
+      const existingUser = await getAdminByEmail(credentials.email);
       if(!existingUser) throw new Error("Invalid credentials, please check your email and password.");
-      if(!existingUser.password) throw new Error("Your account is connected to a social provider. Please sign in with Google.");
+      if(!existingUser.password) throw new Error("Invited admins must sign in with the magic link sent to their email.");
 
       const isPasswordValid = await bcrypt.compare(credentials.password, existingUser.password);
       if(!isPasswordValid)  throw new Error("Invalid credentials, please check your email and password.");
 
-      return existingUser as unknown as User
+      return {...existingUser, isAdmin: true} as unknown as User
     },
   }),
 ];
