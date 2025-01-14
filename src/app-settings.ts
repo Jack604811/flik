@@ -1,4 +1,4 @@
-import { CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart } from "lucide-react";
+import { CreditCard, MapPin, Square, Star, Settings, Zap, Calendar, Landmark, ShoppingCart, Home, Users, Briefcase, Clock, Settings2 } from "lucide-react";
 import { env } from "./env";
 
 // ****** General app settings ******
@@ -53,9 +53,44 @@ export const NON_AUTHENTICATED_REDIRECT_URL = "/"; // where to redirect if the u
 export const NON_SUBSCRIBED_REDIRECT_URL = "/pricing"; // where to redirect if the user is authenticated but is not subscribed and 
 export const AFTER_CUSTOMER_PORTAL_REDIRECT_URL = "/dashboard"; // where to redirect after the user leaves the customer portal
 
-// ****** / Auth settings / ******
 
 
+// ****** / Auth ADMIN settings / ******
+export const ADMIN_DOMAIN = `//admin.${APP_DOMAIN}`;
+export const USER_ADMIN = `admin@${APP_DOMAIN}`;
+export const PASSWORD_ADMIN = "admin"
+export const TRIAL_DAYS = 14
+
+
+
+// ****** / Admin Sidebar Routes / ******
+export const ADMIN_SIDEBAR_ROUTES = [
+  { name: "Dashboard", icon: Home, path: "/dashboard" },
+  { name: "Users", icon: Users, path: "/users" },
+  { name: "Workspaces", icon: Briefcase, path: "/Workspaces" },
+  { name: "Trials", icon: Clock, path: "/trials" },
+  { name: "Settings", icon: Settings2, path: "#",
+    items: [
+      {
+        title: "General",
+        url: "#",
+      },
+      {
+        title: "Team",
+        url: "#",
+      },
+      {
+        title: "Billing",
+        url: "#",
+      },
+      {
+        title: "Limits",
+        url: "#",
+      },
+    ],
+   },
+
+  ];
 
 // ****** SEO settings ******
 export const SEO_TITLE = "Flik"; // recommended 30-65 characters
@@ -78,7 +113,6 @@ export const BLOG_ENABLED = true;
 export const BLOG_POSTS_PATH = "src/blog_content/posts";
 export const BLOG_TITLE = "My blog";
 export const BLOG_DESCRIPTION = "This is my blog description";
-
 // ****** / Blog settings / ******
 
 
@@ -94,7 +128,7 @@ export const AFTER_PURCHASE_REDIRECT_URL = "/dashboard";
 // Redirect for subscriptions
 export const AFTER_SUBSCRIPTION_REDIRECT_URL = "/dashboard";
 
-export const TRIAL_DAYS = 14
+
 // ****** / Store Settings / ******
 
 export const WOMPI_CENT_MULTIPLIER = 100.000;
