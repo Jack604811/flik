@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   format,
   addDays,
@@ -16,6 +16,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import Link from 'next/link';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import BookingDetail from "@/components/calendar/booking-details";
+import { BookingStatus } from "@prisma/client"; 
 
 type Event = {
   id: string;
@@ -51,6 +54,47 @@ export default function MonthView({
     addDays(startDate, i - firstDayOfWeek)
   );
 
+  // -- SHEET HANDLING
+  const [open, setOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  // builds an object matching the shape required by BookingDetail
+  function getBookingForSheet(evt: Event) {
+    return {
+      id: evt.id,
+      status: "Confirmed" as BookingStatus, 
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      spot: {
+        id: "",
+        name: evt.spot.name,
+        units: 0,
+        duration: 0,
+        durationType: "",
+        workingHours: [],
+      },
+      spotId: "",
+      customer: {
+        id: "TEMP_ID",
+        name: evt.customer.name,
+        email: "",
+        phone: evt.customer.phone,
+      },
+      subtotal: 0,
+      totalPrice: evt.totalPrice,
+      startDate: new Date(evt.startDate),
+      endDate: new Date(evt.endDate),
+      note: "",
+      customFields: [],
+    };
+  }
+
+  const handleOpenSheet = (evt: Event) => {
+    setSelectedEvent(evt);
+    setOpen(true);
+  };
+  // -----------------
+
   return (
     <TooltipProvider>
       <div className="flex justify-center w-full">
@@ -80,10 +124,11 @@ export default function MonthView({
                   key={index}
                   className={`relative flex flex-col aspect-square border border-neutral-200 dark:border-neutral-800 p-1 group cursor-pointer ${
                     isToday ? 'bg-neutral-100 dark:bg-neutral-900' : ''
-                  } ${!isCurrentMonth ? 'bg-neutral-100 dark:bg-neutral-900' : ''}`}
-                  onClick={() => {
-                    if (eventsForDate.length > 0) onDaySelected(date);
-                  }}
+                  } ${
+                    !isCurrentMonth ? 'bg-neutral-100 dark:bg-neutral-900' : ''
+                  }`}
+                  // Removed onClick={() => onDaySelected(date)}
+                  // to avoid changing the view on click
                 >
                   <time
                     dateTime={format(date, 'yyyy-MM-dd')}
@@ -116,22 +161,42 @@ export default function MonthView({
                           <Tooltip key={event.id}>
                             <TooltipTrigger asChild>
                               <div>
-                                <div
-                                  className="truncate bg-violet-500 text-white rounded px-1 py-0.5 mb-1 cursor-pointer flex items-center justify-between gap-2"
-                                  onClick={(e) => e.stopPropagation()}
+                                {/* --- SHEET FOR THIS EVENT --- */}
+                                <Sheet
+                                  open={open && selectedEvent?.id === event.id}
+                                  onOpenChange={setOpen}
                                 >
-                                  {event.spot.name}
-                                  {event.isNewEvent && (
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>New</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </div>
+                                  <SheetTrigger asChild>
+                                    <div
+                                      className="truncate bg-violet-500 text-white rounded px-1 py-0.5 mb-1 cursor-pointer flex items-center justify-between gap-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenSheet(event);
+                                      }}
+                                    >
+                                      {event.spot.name}
+                                      {event.isNewEvent && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>New</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                    </div>
+                                  </SheetTrigger>
+                                  <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
+                                    {selectedEvent &&
+                                      selectedEvent.id === event.id && (
+                                        <BookingDetail
+                                          booking={getBookingForSheet(selectedEvent)}
+                                        />
+                                      )}
+                                  </SheetContent>
+                                </Sheet>
+                                {/* --------------------------------- */}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent
@@ -148,8 +213,9 @@ export default function MonthView({
                                 startDate={eventStartDate}
                                 endDate={eventEndDate}
                                 spot={event.spot.name}
-                                totalPrice={event.totalPrice} 
-                                isNewEvent={event.isNewEvent}                              />
+                                totalPrice={event.totalPrice}
+                                isNewEvent={event.isNewEvent}
+                              />
                             </TooltipContent>
                           </Tooltip>
                         );

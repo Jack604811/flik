@@ -1,3 +1,4 @@
+// calendar-view.tsx
 "use client";
 
 import { useState } from "react";
@@ -28,8 +29,7 @@ export default function CalendarView({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentEvents, setCurrentEvents] = useState(events);
 
-  // Use the actual current date, not the calendar's current date
-  const today = new Date(); // Actual current date
+  const today = new Date();
   const todayStart = new Date(
     today.getFullYear(),
     today.getMonth(),
@@ -46,13 +46,12 @@ export default function CalendarView({
     setCurrentEvents(updatedBookings);
   };
 
-  // Enhance the events with the `isNewEvent` flag
   const enrichedEvents = currentEvents.map((event: any) => ({
     ...event,
     isNewEvent:
       new Date(event.createdAt) >= todayStart &&
       new Date(event.createdAt) < todayEnd,
-      totalPrice: event.totalPrice,
+    totalPrice: event.totalPrice,
   }));
 
   const goToPrevious = () => {
@@ -127,7 +126,7 @@ export default function CalendarView({
             <TabsTrigger value="month">Month</TabsTrigger>
           </TabsList>
         </Tabs>
-        <CreateBooking workspaceId={workspaceId} refreshBookings={fetchBookings}/>
+        <CreateBooking workspaceId={workspaceId} refreshBookings={fetchBookings} />
       </header>
 
       <div className="flex flex-col h-[95vh] md:flex-row flex-1 overflow-y-hidden">
@@ -167,7 +166,7 @@ export default function CalendarView({
           </ResizablePanel>
           <ResizableHandle className="hidden md:flex" />
           <ResizablePanel className="overflow-auto px-4 min-w-[348px] md:max-w-[348px]">
-          <ListView
+            <ListView
               workspaceId={workspaceId}
               bookings={enrichedEvents}
               refreshEvents={fetchBookings}

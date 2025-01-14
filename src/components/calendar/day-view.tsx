@@ -22,6 +22,9 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import BookingDetail from "@/components/calendar/booking-details";
+import { BookingStatus } from "@prisma/client"; 
 
 type Event = {
   id: string;
@@ -62,6 +65,8 @@ export function DayView({
   );
   const [hoveredEvent, setHoveredEvent] = React.useState<Event | null>(null);
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+  const [open, setOpen] = React.useState(false);
+  const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
 
   const dayViewRef = React.useRef<HTMLDivElement>(null);
 
@@ -228,6 +233,44 @@ export function DayView({
     };
   };
 
+  // ---- SHEET DATA BUILDER ----
+  function getBookingForSheet(evt: Event) {
+    return {
+      id: evt.id,
+      status: "Confirmed" as BookingStatus, // or any suitable default
+      createdAt: new Date(evt.createdAt),
+      updatedAt: new Date(),
+      spot: {
+        id: "",
+        name: evt.spot.name,
+        units: 0,
+        duration: 0,
+        durationType: "",
+        workingHours: [],
+      },
+      spotId: "",
+      customer: {
+        id: "TEMP_ID",
+        name: evt.customer.name,
+        email: "",
+        phone: evt.customer.phone,
+      },
+      subtotal: 0,
+      totalPrice: evt.totalPrice,
+      startDate: new Date(evt.startDate),
+      endDate: new Date(evt.endDate),
+      note: "",
+      customFields: [],
+    };
+  }
+  const handleOpenSheet = (evt: Event, e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedEvent(evt);
+    setOpen(true);
+  };
+  // ----------------------------
+
   return (
     <TooltipProvider>
       <div className="relative h-[95vh] overflow-y-auto">
@@ -250,6 +293,7 @@ export function DayView({
           className="absolute left-16 right-0 top-8 border-t border-neutral-200 dark:border-neutral-800 cursor-pointer overflow-x-auto"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          // We keep onClick for selecting the day, if needed
           onClick={() => onDaySelected(currentDate)}
         >
           <div
@@ -282,45 +326,60 @@ export function DayView({
                   ? "bg-neutral-200 dark:bg-neutral-800 mr-2"
                   : "bg-violet-500";
 
-                  const textColor = isContinuingEvent ? "text-black dark:text-neutral-300" : "text-white";
+                const textColor = isContinuingEvent
+                  ? "text-black dark:text-neutral-300"
+                  : "text-white";
 
                 return (
-                  <div
+                  <Sheet
                     key={event.id}
-                    onMouseEnter={() => setHoveredEvent(event)}
-                    onMouseLeave={() => setHoveredEvent(null)}
-                    onMouseMove={(e) =>
-                      setMousePosition({ x: e.clientX, y: e.clientY })
-                    }
+                    open={open && selectedEvent?.id === event.id}
+                    onOpenChange={setOpen}
                   >
-                    <Link href={`/calendar/${event.id}`}>
+                    <SheetTrigger asChild>
                       <div
-                        className={`${eventBgColor} ${textColor} rounded px-2 py-1 text-xs cursor-pointer border gap-2 relative`}
-                        style={style}
-                        onClick={(e) => e.stopPropagation()}
+                        onMouseEnter={() => setHoveredEvent(event)}
+                        onMouseLeave={() => setHoveredEvent(null)}
+                        onMouseMove={(e) =>
+                          setMousePosition({ x: e.clientX, y: e.clientY })
+                        }
                       >
-                        <div className="font-bold flex items-center gap-1">
-                          {event.customer.name}
-                          {event.isNewEvent && (
-                            <Tooltip>
-                              <TooltipTrigger>
-                              <div className={`${textColor} w-2 h-2 rounded-full`}></div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>New</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                        </div>
-                        <div className="font-bold">{event.spot.name}</div>
-                        <div className="text-xs">
-                        {format(new Date(event.startDate), "hh:mm a")}{" "}
-                          -{" "}
-                          {format(new Date(event.endDate), "hh:mm a")}
-                        </div>
+                        {/* We keep this Link but override click with a sheet open */}
+                 
+                          <div
+                            className={`${eventBgColor} ${textColor} rounded px-2 py-1 text-xs cursor-pointer border gap-2 relative`}
+                            style={style}
+                            onClick={(e) => handleOpenSheet(event, e)}
+                          >
+                            <div className="font-bold flex items-center gap-1">
+                              {event.customer.name}
+                              {event.isNewEvent && (
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <div className={`${textColor} w-2 h-2 rounded-full`}></div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>New</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                            <div className="font-bold">{event.spot.name}</div>
+                            <div className="text-xs">
+                              {format(eventStartTime, "hh:mm a")} -{" "}
+                              {format(eventEndTime, "hh:mm a")}
+                            </div>
+                          </div>
+                   
                       </div>
-                    </Link>
-                  </div>
+                    </SheetTrigger>
+
+                    <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
+                      {selectedEvent && selectedEvent.id === event.id && (
+                        <BookingDetail booking={getBookingForSheet(event)} />
+                      )}
+                    </SheetContent>
+                  </Sheet>
                 );
               })
             )}
