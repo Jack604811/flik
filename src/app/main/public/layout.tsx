@@ -11,11 +11,11 @@ export default function RootLayout({
   return (
   <>
   
-  <MarketingHeader />
   <MainContent>
-    {children}
+    <MarketingHeader />
+      {children}
+    <Footer />
   </MainContent>
-  <Footer />
   
   </>
 

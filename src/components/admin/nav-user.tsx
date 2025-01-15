@@ -32,15 +32,7 @@ import {
 import { signOut, useSession } from "next-auth/react"
 import { getInitials } from "@/lib/utils"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const {data} = useSession()
   const { isMobile } = useSidebar()
 

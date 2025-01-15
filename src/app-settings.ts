@@ -65,11 +65,11 @@ export const TRIAL_DAYS = 14
 
 // ****** / Admin Sidebar Routes / ******
 export const ADMIN_SIDEBAR_ROUTES = [
-  { name: "Dashboard", icon: Home, path: "/dashboard" },
-  { name: "Users", icon: Users, path: "/users" },
-  { name: "Workspaces", icon: Briefcase, path: "/Workspaces" },
-  { name: "Trials", icon: Clock, path: "/trials" },
-  { name: "Settings", icon: Settings2, path: "#",
+  { title: "Dashboard", icon: Home, url: "/dashboard" },
+  { title: "Users", icon: Users, url: "/users" },
+  { title: "Workspaces", icon: Briefcase, url: "/workspaces" },
+  { title: "Trials", icon: Clock, url: "/trials" },
+  { title: "Settings", icon: Settings2, url: "#",
     items: [
       {
         title: "General",
