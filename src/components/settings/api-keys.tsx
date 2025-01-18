@@ -84,7 +84,7 @@ export default function APIKeys({ workspaceId }: { workspaceId: string }) {
         <div className="flex justify-between items-center mb-4">
           <Input
             type="text"
-            placeholder="Search fields..."
+            placeholder="Search API keys..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pr-4 py-2 w-64"

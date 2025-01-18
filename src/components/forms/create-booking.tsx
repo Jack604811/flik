@@ -118,9 +118,9 @@ export function CreateBooking({ workspaceId, refreshBookings }: CreateBookingPro
         totalPrice: selectedSpot.price + 20, 
       });
       toast.success("Booking created successfully");
-      setIsCredenzaOpen(false); // Close the credenza
-      await refreshBookings(); // Refresh bookings list
-      resetForm(); // Reset the form after closing
+      setIsCredenzaOpen(false); 
+      await refreshBookings(); 
+      resetForm();
     } catch (error) {
       toast.error("Failed to create booking");
     } finally {
@@ -155,7 +155,7 @@ export function CreateBooking({ workspaceId, refreshBookings }: CreateBookingPro
         <form className="px-4 md:px-0 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-2 pb-0">
             <label htmlFor="spot" className="block text-sm font-medium text-gray-700">
-              Service
+              Spot
             </label>
             <SpotSelector workspaceId={workspaceId} onSelect={handleSpotSelect} />
           </div>
