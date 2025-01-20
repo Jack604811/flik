@@ -129,7 +129,7 @@ export default function APIKeyForm({
             <>
               <CredenzaTitle>Save your key</CredenzaTitle>
               <CredenzaDescription>
-                Please save your secret key in a safe place since you won't be
+                Please save your secret key in a safe place since you won&apos;t be
                 able to view it again. Keep it secure, as anyone with your API
                 key can make requests on your behalf. If you do lose it, you
                 will need to generate a new one.

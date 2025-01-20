@@ -21,15 +21,13 @@ type NEW_SPOT_PARAMS = {
   name: string;
   description: string;
   status: SpotStatus;
-  maxGuest: number;
   units: number;
   duration: number;
   durationType: string;
   workingHours: any;
-  additionalGuestPrice: number;
-  allowAdditionalGuest: boolean;
+  price: number;
   files: FormData;
-  amenities: string[],
+  amenities?: string[],
   path?:string,
   extras: string[]
 };
@@ -39,11 +37,9 @@ export const createNewSpot = async ({
   name,
   description,
   status,
-  maxGuest,
   units,
   workingHours,
-  additionalGuestPrice,
-  allowAdditionalGuest,
+  price,
   duration,
   durationType,
   files,
@@ -56,12 +52,10 @@ export const createNewSpot = async ({
       name,
       description,
       status,
-      maxGuest,
       workspaceId,
       units,
       workingHours,
-      allowAdditionalGuest,
-      additionalGuestPrice,
+      price,
       duration,
       durationType,
       amenities,
@@ -74,11 +68,9 @@ export const createNewSpot = async ({
     name,
     description,
     status,
-    maxGuest,
     units,
     workingHours,
-    additionalGuestPrice,
-    allowAdditionalGuest,
+    price,
     duration,
     durationType,
     files,
@@ -95,11 +87,9 @@ export const updateSpot = async ({
   name,
   description,
   status,
-  maxGuest,
   units,
   workingHours,
-  additionalGuestPrice,
-  allowAdditionalGuest,
+  price,
   id,
   files,
   duration,
@@ -119,12 +109,10 @@ export const updateSpot = async ({
       name,
       description,
       status,
-      maxGuest,
       workspaceId,
       units,
       workingHours,
-      allowAdditionalGuest,
-      additionalGuestPrice,
+      price,
       duration,
       durationType,
       amenities,

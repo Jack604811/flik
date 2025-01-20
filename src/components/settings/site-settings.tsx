@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { updateCustomDomain, updateSiteSetting, updateSubdomain } from "@/server/actions/workspace.action";
 import { Label } from "@radix-ui/react-label";
-import DomainForm from "@/components/domain";
+import DomainForm from "./domain";
 import { Workspace } from "@prisma/client";
 
 

@@ -28,14 +28,17 @@ const moneyFormatter = Intl.NumberFormat("es-CO", {
 export default function MoneyInput(props: MoneyInputProps) {
   const initialValue = props.defaultValue || "";
 
-  const [value, setValue] = useReducer((_: any, next: string) => {
+  const [formattedValue, setFormattedValue] = useReducer((_: string, next: string) => {
+    // Extract only digits
     const digits = next.replace(/\D/g, "");
-    return digits;
-  }, initialValue);
+    // Format with dots
+    return moneyFormatter.format(Number(digits));
+  }, moneyFormatter.format(Number(initialValue.replace(/\D/g, ""))));
 
-  function handleChange(realChangeFn: Function, formattedValue: string) {
-    const digits = formattedValue.replace(/\D/g, "");
-    realChangeFn(digits);
+  function handleChange(realChangeFn: Function, newFormattedValue: string) {
+    // Extract only digits for the actual value sent to `onChange`
+    const digits = newFormattedValue.replace(/\D/g, "");
+    realChangeFn(digits); // Send unformatted value to form
   }
 
   return (
@@ -54,10 +57,11 @@ export default function MoneyInput(props: MoneyInputProps) {
                 type="text"
                 {...field}
                 onChange={(ev) => {
-                  setValue(ev.target.value);
-                  handleChange(_change, ev.target.value);
+                  const newValue = ev.target.value;
+                  setFormattedValue(newValue); // Update formatted value
+                  handleChange(_change, newValue); // Update raw value
                 }}
-                value={value}
+                value={formattedValue}
               />
             </FormControl>
             <FormMessage />

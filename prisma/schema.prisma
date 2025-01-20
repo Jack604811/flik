@@ -119,12 +119,10 @@ model Spot {
   status               SpotStatus
   path                 String       @default("")
   units                Int?
-  maxGuest             Int?
   duration             Int?
   durationType         String?
   amenities            String[]
-  allowAdditionalGuest Boolean      @default(false)
-  additionalGuestPrice Float?
+  price Float?
   workingHours         Json         @default("[]")
   createdAt            DateTime     @default(now())
   updatedAt            DateTime?    @default(now())

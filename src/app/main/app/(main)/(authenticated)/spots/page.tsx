@@ -30,7 +30,7 @@ export default async function Page() {
             <Button size="sm" className="h-10 gap-1 xs:rounded-full lg:rounded-md">
               <Plus className="h-5 w-5 md:h-3.5 md:w-3.5" />
               <span className="sr-only md:not-sr-only md:whitespace-nowrap">
-                Add service
+                Add spot
               </span>
             </Button>
           </Link>
