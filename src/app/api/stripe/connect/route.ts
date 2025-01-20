@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
 import { updateStripeConnection } from "@/server/actions/workspace.action";
 import { getCurrentUser } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -21,10 +22,10 @@ export const GET = async (req: NextRequest) => {
       grant_type: "authorization_code",
       code,
     });
-    await updateStripeConnection(currentUser.id, response.stripe_user_id!);
+    const currentWorkspace = await getCurrentWorkspace();
+    await updateStripeConnection(currentWorkspace!.id, response.stripe_user_id!);
   } catch (error: any) { }
 
   
-  
-  return NextResponse.redirect(new URL("/integrations", req.url));
+  return NextResponse.redirect(new URL("/settings", `${req.headers.get('x-forwarded-proto')}://${req.headers.get('host')}`));
 };

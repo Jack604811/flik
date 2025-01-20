@@ -8,10 +8,13 @@ import { updateWompiConnection } from "./workspace.action";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" });
 export const connectStripeAccount = async () => {
+  const currentWorkspace = await getCurrentWorkspace();
+  if(!currentWorkspace) return null;
   const url = stripe.oauth.authorizeUrl({
     client_id: env.STRIPE_CLIENT_ID,
     response_type: "code",
     redirect_uri: env.STRIPE_REDIRECT_URI,
+    state: currentWorkspace.id
   });
 
   return { url };

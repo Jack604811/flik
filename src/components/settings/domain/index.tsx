@@ -62,7 +62,31 @@ export default function DomainForm({
   }, [domain]);
 
   const handleFormSubmit = async () => {
-    // ...same domain submit logic...
+    if (!isDomainValid) {
+      toast.error("Please enter a valid domain");
+      return;
+    }
+
+    setIsLoading(true);
+    toast.loading("Adding domain...");
+    try {
+      const res = await handleSubmit(workspaceId, domain);
+
+      if (res && res.error) {
+        toast.error(res.error);
+      } else {
+        await update();
+        router.refresh();
+        toast.success("Successfully added Custom Domain!");
+        setDomainAdded(true);
+      }
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+      toast.dismiss();
+    }
   };
 
   const handleRemoveDomain = async () => {

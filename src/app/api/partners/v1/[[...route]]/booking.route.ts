@@ -113,7 +113,7 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
             note: body.note,
             subtotal,
             totalPrice,
-            customFields: body.customFields?.filter(cf => cf.value !== "")
+            customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null")
         });
 
         return c.json({ status: "success" as const, type: "booking.create" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
@@ -199,7 +199,7 @@ bookingRoutes.openapi(updateBookingRoute, async (c) => {
             } : undefined,
             note: body.note,
             status: body.status,
-            customFields: body.customFields?.filter(cf => cf.value !== "")
+            customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null")
         });
         return c.json({ status: "success" as const, type: "booking.update" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
     } catch (e) {
