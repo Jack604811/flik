@@ -1,5 +1,5 @@
 import React from 'react';
-import SpotForm from '@/components/forms/SpotForm';
+import SpotForm from '@/components/forms/spot-form';
 import { getSpotById } from '@/server/actions/spot.action';
 import { redirect } from 'next/navigation';
 import { getCurrentWorkspace } from '@/server/actions/user.action';

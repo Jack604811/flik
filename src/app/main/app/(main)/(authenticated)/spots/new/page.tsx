@@ -1,5 +1,5 @@
 import React from 'react';
-import SpotForm from '@/components/forms/SpotForm';
+import SpotForm from '@/components/forms/spot-form';
 import { getCurrentWorkspace } from '@/server/actions/user.action';
 
 export const metadata = {
