@@ -10,7 +10,7 @@ async function Page() {
   const currentWorkspace = await getCurrentWorkspace();
 
   return (
-    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 mt-16 mb-24">
+    <main className="gap-4 px-2 md:px-4 mb-24 md:mb-0">
       <SpotForm workspaceId={currentWorkspace!.id} />
     </main>
   );

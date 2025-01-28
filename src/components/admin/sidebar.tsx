@@ -3,7 +3,7 @@ import { Home, Users, Briefcase, Clock } from 'lucide-react'
 
 export function Sidebar() {
   return (
-    <div className="w-64 bg-black text-white p-4">
+    <div className="w-64 bg-background text-white p-4">
       <h1 className="text-2xl font-bold mb-8">Flik Admin</h1>
       <nav>
         <ul className="space-y-2">

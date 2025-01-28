@@ -294,13 +294,39 @@ export const updateBooking = async (data: {
   customFields?: { id?: string | null; value: string; customFieldId: string }[];
   spotId?: string;
   extras?: { extraId: string; price: number; quantity: number }[];
+  totalPrice?: number;
 }) => {
+  // 1) If the user is updating spotId, find the new Spot’s price
+  if (data.spotId) {
+    const newSpot = await db.spot.findUnique({
+      where: { id: data.spotId },
+      select: { price: true },
+    });
 
+    // 2) Default the new subtotal to the spot’s price
+    const newSubtotal = newSpot?.price ?? 0;
+
+    // 3) Sum existing extras from DB (we look them up by bookingId)
+    const existingExtras = await db.bookingExtras.findMany({
+      where: { bookingId: data.id },
+    });
+
+    let extrasTotal = 0;
+    for (const ex of existingExtras) {
+      // Each row might have a "price" and "quantity"
+      extrasTotal += ex.price * (ex.quantity || 1);
+    }
+
+    // 4) Now set data.subtotal and data.totalPrice for your DB update
+    data.subtotal = newSubtotal;
+    data.totalPrice = newSubtotal + extrasTotal;
+  }
   const booking = await db.booking.update({
     where: { id: data.id },
     data: {
       status: data.status,
       subtotal: data.subtotal,
+      totalPrice: data.totalPrice,
       startDate: data.startDate,
       endDate: data.endDate,
       updatedAt: new Date(),

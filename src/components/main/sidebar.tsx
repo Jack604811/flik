@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { Square, Calendar, MapPin, Settings } from "lucide-react";
+import { Square, Calendar, MapPin, Settings, ShoppingCart } from "lucide-react";
 import { APP_NAME } from "@/app-settings";
 import WorkspaceSwitcher from "./workspace-switcher";
 import SidebarProfileDropdown from "./sidebar-profile-dropdown";
@@ -60,6 +60,23 @@ export const Sidebar = () => {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 mr-0" />
                         <span>Calendar</span>
+                      </div>
+                    </div>
+                  </Link>
+                </Button>
+              </CommandItem>
+
+              <CommandItem className="h-[32px]">
+                <Button
+                  asChild
+                  variant={pathname.includes("/extras") ? "secondary" : "ghost"}
+                  className="justify-start px-2 w-full h-[32px]"
+                >
+                  <Link href="/extras" prefetch={true}>
+                    <div className="flex w-full justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <ShoppingCart className="h-4 w-4 mr-0" />
+                        <span>Extras</span>
                       </div>
                     </div>
                   </Link>

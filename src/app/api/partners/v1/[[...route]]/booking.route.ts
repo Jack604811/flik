@@ -125,8 +125,8 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
 const updateBookingSchema = z.object({
     id: z.string(),
     spotId: z.string().optional(),
-    startDate: z.date().optional(),
-    endDate: z.date().optional(),
+    startDate: z.string().transform(str => new Date(str)).openapi({description: "The start date of the booking", example: "2022-01-01 10:00:00"}),
+    endDate: z.string().transform(str => new Date(str)).openapi({description: "The end date of the booking", example: "2022-01-01 12:00:00"}),
     customer: z.object({
         name: z.string().optional(),
         email: z.string().email().optional(),

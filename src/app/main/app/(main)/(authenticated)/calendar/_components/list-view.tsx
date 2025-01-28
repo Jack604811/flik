@@ -1,4 +1,3 @@
-// list-view.tsx
 "use client";
 
 import * as React from "react";
@@ -114,7 +113,7 @@ export default function ListView({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="mb-4"
           />
-          <div className="h-[80vh] pb-8 md:pb-16 overflow-y-auto">
+          <div className="h-[80vh] pb-24 md:pb-16 overflow-y-auto">
             <TooltipProvider>
               <div className="flex flex-col gap-4">
                 {loading ? (
@@ -217,7 +216,7 @@ export default function ListView({
                           <HoverCardContent
                             align="center"
                             side="right"
-                            className="w-64 p-4 bg-black text-white rounded-lg"
+                            className="hidden md:block w-64 p-4 bg-black text-white rounded-lg"
                           >
                             <PreviewContent
                               Id={booking.id}

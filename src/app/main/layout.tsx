@@ -1,8 +1,7 @@
 import { APP_LANG } from "@/app-settings";
-
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
-import { ThemeProvider } from "@/components/main/theme-provider";
+
 
 
 export default function RootLayout({
@@ -35,11 +34,11 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
       </head>
-      <ThemeProvider attribute="class" defaultTheme="system">
+      {/* <ThemeProvider attribute="class" defaultTheme="system"> */}
       <body suppressHydrationWarning={true}>
         {children}
       </body>
-      </ThemeProvider>
+      {/* </ThemeProvider> */}
     </html>
   );
 }

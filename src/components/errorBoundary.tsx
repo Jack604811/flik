@@ -1,8 +1,12 @@
 "use client";
 
 import React, { Component, ErrorInfo } from "react";
+import { Button } from "@/components/ui/button";
 
-class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
+class ErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
   state = { hasError: false };
 
   static getDerivedStateFromError() {
@@ -13,10 +17,25 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     console.error("Error caught in ErrorBoundary:", error, errorInfo);
   }
 
+  handleReload = () => {
+    window.location.reload();
+  };
+
   render() {
     if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
+      return (
+        <div className="flex flex-col items-center justify-center h-screen text-center p-6">
+          <h1 className="text-2xl font-bold mb-4">Oops! Something went wrong.</h1>
+          <p className="text-lg mb-6 text-muted-foreground">
+            We encountered an error. Please try reloading the page.
+          </p>
+          <Button onClick={this.handleReload} variant="default">
+            Reload Page
+          </Button>
+        </div>
+      );
     }
+
     return this.props.children;
   }
 }

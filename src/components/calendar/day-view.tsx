@@ -237,7 +237,7 @@ export function DayView({
   function getBookingForSheet(evt: Event) {
     return {
       id: evt.id,
-      status: "Confirmed" as BookingStatus, // or any suitable default
+      status: "Confirmed" as BookingStatus,
       createdAt: new Date(evt.createdAt),
       updatedAt: new Date(),
       spot: {
@@ -264,7 +264,6 @@ export function DayView({
     };
   }
   const handleOpenSheet = (evt: Event, e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
     e.stopPropagation();
     setSelectedEvent(evt);
     setOpen(true);

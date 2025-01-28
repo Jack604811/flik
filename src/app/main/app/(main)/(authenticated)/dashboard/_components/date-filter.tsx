@@ -57,14 +57,28 @@ export function DateFilter({ title, className }: { title?: string; className?: s
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={startDate}
-            selected={startDate && endDate ? { from: startDate, to: endDate } : undefined}
-            onSelect={handleSelect}
-            numberOfMonths={2}
-          />
+          <div className="block sm:hidden">
+            {/* Render Calendar with 1 month on small screens */}
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={startDate}
+              selected={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+              onSelect={handleSelect}
+              numberOfMonths={1}
+            />
+          </div>
+          <div className="hidden sm:block">
+            {/* Render Calendar with 2 months on medium and larger screens */}
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={startDate}
+              selected={startDate && endDate ? { from: startDate, to: endDate } : undefined}
+              onSelect={handleSelect}
+              numberOfMonths={2}
+            />
+          </div>
         </PopoverContent>
       </Popover>
     </div>

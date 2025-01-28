@@ -66,7 +66,7 @@ export function PreviewContent({
   // Adjust to fill in whatever defaults are needed for your booking shape:
   const bookingForSheet = {
     id: Id,
-    status: "Confirmed" as BookingStatus, // pick whichever status you want
+    status: "Confirmed" as BookingStatus, 
     createdAt: new Date(),
     updatedAt: new Date(),
     spot: {
@@ -136,7 +136,7 @@ export function PreviewContent({
           </div>
           <div className="grid grid-cols-[20px_1fr] items-center gap-2">
             <Receipt className="h-4 w-4" />
-            <div className="text-sm">Amount Due: ${amountDue.toFixed(2)}</div>
+            <div className="text-sm">Amount Due: ${Intl.NumberFormat("de-DE").format(amountDue?? 0 )}</div>
           </div>
         </div>
 

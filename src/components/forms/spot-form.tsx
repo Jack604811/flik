@@ -47,7 +47,6 @@ import {
 import MultiSelect from "../ui/multiselect";
 import MoneyInput from "../ui/money-input";
 
-// 1) Import your useConfirm hook
 import useConfirm from "@/hooks/use-confirm";
 
 import { MoreVertical, UploadIcon, X, HelpCircle, ChevronLeftIcon, CirclePlusIcon, Trash2 } from "lucide-react";
@@ -55,13 +54,7 @@ import { toast } from "sonner";
 
 import { Spot, SpotStatus } from "@prisma/client";
 import { AMENITIES } from "@/lib/constant";
-import { env } from "@/env";
-import {
-  deleteSpot,
-  deleteSpotImage,
-  updateSpot,
-  createNewSpot,
-} from "@/server/actions/spot.action";
+import { deleteSpot, deleteSpotImage, updateSpot, createNewSpot } from "@/server/actions/spot.action";
 import { getExtrasByWorkspace } from "@/server/actions/extra.action";
 
 import {
@@ -72,7 +65,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "../ui/badge";
 
-// Inline tooltip messages
 const tooltipContent = {
   image: "Upload a featured image for your event",
   title: "Enter the name of your event that will be displayed to users",
@@ -88,12 +80,9 @@ const tooltipContent = {
   extras: "Optional add-ons or services for this event",
 };
 
-// -------------------
-// Zod schema
-// -------------------
 const formSchema = z.object({
-  name: z.string(),
-  description: z.string(),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
   status: z.enum([SpotStatus.Disabled, SpotStatus.Public, SpotStatus.Private]),
   units: z.string().min(1, "Units is required"),
   price: z.string().min(1, "Price is required"),
@@ -129,20 +118,17 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
     initialData: [],
   });
 
-  // Track local images
   const [files, setFiles] = useState<(File & { url: string })[]>([]);
   const [spotImages, setSpotImages] = useState<Record<string, string>[]>(
     spot?.images ?? []
   );
   const [isDragActive, setIsDragActive] = useState(false);
 
-  // 2) Destructure from your useConfirm hook
   const [ConfirmRemoval, confirmRemoval] = useConfirm(
     "Confirm Deletion",
     "Are you sure you want to delete this spot? This action cannot be undone."
   );
 
-  // Hook form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -162,8 +148,7 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
     },
   });
 
-  const isEditing = !!spot?.id; 
-
+  const isEditing = !!spot?.id;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const payload = {
@@ -188,20 +173,19 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
         : createNewSpot({ ...payload, files: formData });
     };
     const successMessage = isEditing
-    ? "Spot updated successfully"
-    : "Spot created successfully";
+      ? "Spot updated successfully"
+      : "Spot created successfully";
 
-  toast.promise(promise, {
-    loading: "Loading...",
-    success: () => {
-      router.push("/spots");
-      return successMessage;
-    },
-    error: "Error adding/updating service",
-  });
-};
+    toast.promise(promise, {
+      loading: "Loading...",
+      success: () => {
+        router.push("/spots");
+        return successMessage;
+      },
+      error: "Error adding/updating spot",
+    });
+  };
 
-  // Dropzone
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) =>
       Object.assign(file, { url: URL.createObjectURL(file) })
@@ -222,13 +206,11 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
     onDropRejected: () => setIsDragActive(false),
   });
 
-  // Working hours
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "workingHours",
   });
 
-  // Deleting images
   const onDeleteImage = async (file: any, index: number) => {
     if (!file.id) {
       setFiles((prev) => prev.filter((_, i) => i !== index));
@@ -241,16 +223,19 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
   return (
     <TooltipProvider delayDuration={300}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto w-[48rem] space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-8"
+        >
           {/* Top navigation + Save + Dropdown */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 md:gap-4">
             <Link href="/spots">
               <Button type="button" size="icon" variant="outline" className="h-7 w-7">
                 <ChevronLeftIcon className="h-4 w-4" />
                 <span className="sr-only">Back</span>
               </Button>
             </Link>
-            <h1 className="text-xl font-semibold tracking-tight">
+            <h1 className="hidden md:block text-xl font-semibold tracking-tight">
               {spot?.id ? "Edit Spot" : "New Spot"}
             </h1>
             <Badge className="ml-0" variant="outline">
@@ -258,12 +243,10 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
             </Badge>
 
             <div className="ml-auto flex items-center gap-2">
-              {/* Save changes button */}
               <Button type="submit" size="sm">
                 Save changes
               </Button>
 
-              {/* If editing => show dropdown with a ... icon trigger + delete item */}
               {spot?.id && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -275,7 +258,6 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
                     <DropdownMenuItem
                       className="text-red-500 cursor-pointer flex items-center gap-2"
                       onClick={async () => {
-                        // 3) Ask for confirmation
                         const didConfirm = await confirmRemoval();
                         if (didConfirm) {
                           await deleteSpot(spot.id);
@@ -293,7 +275,6 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
             </div>
           </div>
 
-          {/* Render the Credenza confirm if opened */}
           <ConfirmRemoval />
 
           {/* Images dropzone */}
@@ -330,7 +311,7 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
             </div>
 
             {(spotImages.length + files.length) > 0 && (
-              <div className="mt-2 grid grid-cols-5 gap-2">
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                 {[...spotImages, ...files].map((file, idx) => (
                   <div key={idx} className="relative h-20 w-full overflow-hidden rounded-md">
                     <button
@@ -514,9 +495,9 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
                           <SelectValue placeholder="Day" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="months">Minutes</SelectItem>
                           <SelectItem value="hours">Hours</SelectItem>
                           <SelectItem value="days">Day</SelectItem>
-                          <SelectItem value="months">Months</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -591,26 +572,23 @@ export default function SpotForm({ workspaceId, spot }: SpotFormProps) {
                   {fields.map((fieldItem, idx) => (
                     <TableRow key={fieldItem.id}>
                       <TableCell>
-                        <Select
-                          defaultValue={fieldItem.day}
-                          {...form.register(`workingHours.${idx}.day`)}
-                          onValueChange={(value) =>
-                            form.setValue(`workingHours.${idx}.day`, value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a day" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Sunday">Sunday</SelectItem>
-                            <SelectItem value="Monday">Monday</SelectItem>
-                            <SelectItem value="Tuesday">Tuesday</SelectItem>
-                            <SelectItem value="Wednesday">Wednesday</SelectItem>
-                            <SelectItem value="Thursday">Thursday</SelectItem>
-                            <SelectItem value="Friday">Friday</SelectItem>
-                            <SelectItem value="Saturday">Saturday</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <Select
+                        value={form.watch(`workingHours.${idx}.day`)}
+                        onValueChange={(value) => form.setValue(`workingHours.${idx}.day`, value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a day" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Sunday">Sunday</SelectItem>
+                          <SelectItem value="Monday">Monday</SelectItem>
+                          <SelectItem value="Tuesday">Tuesday</SelectItem>
+                          <SelectItem value="Wednesday">Wednesday</SelectItem>
+                          <SelectItem value="Thursday">Thursday</SelectItem>
+                          <SelectItem value="Friday">Friday</SelectItem>
+                          <SelectItem value="Saturday">Saturday</SelectItem>
+                        </SelectContent>
+                      </Select>
                       </TableCell>
                       <TableCell>
                         <Input type="time" {...form.register(`workingHours.${idx}.openTime`)} />

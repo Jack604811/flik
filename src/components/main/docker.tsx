@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Home, Calendar, Landmark } from "lucide-react";
+import { Settings, Home, Calendar, Landmark, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,7 +11,7 @@ export function Docker() {
   const pathname = usePathname(); // Get the current path
 
   // Hide sidebar if the pathname is "/workspaces"
-  if (pathname === "/workspaces" || pathname === "/create-workspace") {
+  if (pathname === "/workspaces" || pathname === "/create-workspace" || pathname.startsWith ("/spots/")) {
     return null;
   }
 
@@ -60,19 +60,19 @@ export function Docker() {
             <span className="sr-only">Home</span>
           </Button>
         </Link>
-        <Link href="/transactions">
+        <Link href="/spots">
           <Button
             variant="ghost"
             size="icon"
             className={cn(
               "bg-transparent hover:bg-transparent",
-              isActive("/transactions") && "bg-neutral-800 rounded-full"
+              isActive("/spots") && "bg-neutral-800 rounded-full"
             )}
           >
-            <Landmark
+            <MapPin
               className={cn(
                 "h-5 w-5 text-muted-foreground",
-                isActive("/transactions") && "text-white"
+                isActive("/spots") && "text-white"
               )}
             />
             <span className="sr-only">Home</span>

@@ -1,4 +1,3 @@
-// calendar-view.tsx
 "use client";
 
 import { useState } from "react";
@@ -131,7 +130,7 @@ export default function CalendarView({
 
       <div className="flex flex-col h-[95vh] md:flex-row flex-1 overflow-y-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex w-full h-full">
-          <ResizablePanel className="hidden md:flex overflow-auto p-4 min-w-[60%] justify-center">
+          <ResizablePanel className="hidden md:flex overflow-auto p-4 min-w-[60%] justify-center" defaultSize={70} >
             <div className="w-full">
               <h2 className="text-lg font-semibold">
                 {viewMode === "day" && (
@@ -165,7 +164,7 @@ export default function CalendarView({
             </div>
           </ResizablePanel>
           <ResizableHandle className="hidden md:flex" />
-          <ResizablePanel className="overflow-auto px-4 min-w-[348px] md:max-w-[348px]">
+          <ResizablePanel className="overflow-auto px-4 min-w-[348px] md:max-w-[348px]" defaultSize={30}>
             <ListView
               workspaceId={workspaceId}
               bookings={enrichedEvents}

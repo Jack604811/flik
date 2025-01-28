@@ -38,42 +38,41 @@ export default async function Page() {
         {spots.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 justify-items-start items-start">
             {spots.map((spot) => (
-  <div
-    className="group relative overflow-hidden rounded-xl border-solid border-1 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-2"
-    key={spot.id}
-  >
-    <Link href={`/spots/${spot.id}`} key={spot.id}>
-      <Image
-        alt={spot.name}
-        className="transition-all duration-300 group-hover:scale-110"
-        height={80}
-        src={spot.images[0]?.url ?? "/placeholder.svg"}
-        style={{
-          aspectRatio: "4/3",
-          objectFit: "cover",
-        }}
-        width={500}
-      />
-      <div className="p-4">
-        <div className="flex flex-row gap-2 justify-between items-center">
-          <h2 className="text-2xl font-bold mb-2 line-clamp-1">{spot.name}</h2>
-          <Badge
-            variant={spot.status === "Public" ? "outline" : "outline"}
-            className="h-6 mb-2 px-2 py-0 rounded-2xl"
-          >
-            {spot.status}
-          </Badge>
-        </div>
-        <div className="flex flex-row justify-between items-center">
-          <p className="text-gray-600 dark:text-gray-400 line-clamp-1">
-            {spot.description}
-          </p>
-        </div>
-      </div>
-    </Link>
-  </div>
-))}
-
+              <div
+                className="group relative overflow-hidden rounded-xl border-solid border-1 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-2"
+                key={spot.id}
+              >
+                <Link href={`/spots/${spot.id}`} key={spot.id}>
+                  <Image
+                    alt={spot.name}
+                    className="transition-all duration-300 group-hover:scale-110"
+                    height={80}
+                    src={spot.images[0]?.url ?? "/placeholder.svg"}
+                    style={{
+                      aspectRatio: "4/3",
+                      objectFit: "cover",
+                    }}
+                    width={500}
+                  />
+                  <div className="p-4">
+                    <div className="flex flex-row gap-2 justify-between items-center">
+                      <h2 className="text-2xl font-bold mb-2 line-clamp-1">{spot.name}</h2>
+                      <Badge
+                        variant={spot.status === "Public" ? "outline" : "outline"}
+                        className="h-6 mb-2 px-2 py-0 rounded-2xl"
+                      >
+                        {spot.status}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-gray-600 dark:text-gray-400 line-clamp-1">
+                        {spot.description}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="flex h-screen w-full items-center justify-center">

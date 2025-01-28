@@ -1,14 +1,6 @@
 "use client"
 
 import * as React from "react"
-import {
-    Briefcase,
-  Clock,
-  Home,
-  Settings2,
-  Users,
-} from "lucide-react"
-
 import { NavMain } from "./nav-main"
 import { NavUser } from "./nav-user"
 import {

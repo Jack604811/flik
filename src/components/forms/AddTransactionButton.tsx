@@ -130,7 +130,7 @@ function AddTransactionButton({
           <CredenzaTitle className="text-xl text-semibold">
           {defaultTransaction?.id ? "Update" : "Create"}
           </CredenzaTitle>
-          <CredenzaDescription className="text-sm text-muted-foreground">
+          <CredenzaDescription className="sr-only text-sm text-muted-foreground">
             Enter the details of the {placeholder ?? "payment"} you want
             to {defaultTransaction?.id ? "update" : "create"}
           </CredenzaDescription>

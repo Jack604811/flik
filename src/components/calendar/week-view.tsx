@@ -88,7 +88,6 @@ export function WeekView({
     evt: Event,
     e: React.MouseEvent<HTMLDivElement>
   ) => {
-    e.preventDefault();
     e.stopPropagation();
     setSelectedEvent(evt);
     setOpen(true);

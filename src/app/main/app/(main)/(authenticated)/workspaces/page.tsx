@@ -109,7 +109,7 @@ export default function WorkspaceView() {
   };
 
   if (error) {
-    return <div>Error loading workspaces.</div>;
+    return error;
   }
 
   return (

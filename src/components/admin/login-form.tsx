@@ -40,10 +40,16 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
+    <div className="w-full max-w-sm">
+      <div className="flex flex-col gap-4 text-start">
+        <h1 className="text-2xl font-semibold">Flik Admin Login</h1>
+        <p className="text-muted-foreground text-sm">
+          Please enter your email and password to login.
+        </p>
+      </div>
       <form onSubmit={handleSubmit}>
         
-        <CardContent className="space-y-4 py-5">
+        <div className="space-y-4 py-5">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -64,8 +70,8 @@ export function LoginForm() {
               required
             />
           </div>
-        </CardContent>
-        <CardFooter className="flex-col">
+        </div>
+        <div className="flex-col">
           <Button
             type="submit"
             disabled={isLoading}
@@ -80,9 +86,9 @@ export function LoginForm() {
             <AlertDescription className="text-red-500 text-sm text-center">{error}</AlertDescription>
           </Alert>
           )}
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   )
 }
 

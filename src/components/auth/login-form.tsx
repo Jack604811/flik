@@ -89,7 +89,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ searchParams, authProviders }) =>
           <div className="flex flex-col gap-4 text-start">
             <h1 className="text-2xl font-semibold">Welcome Back!</h1>
             <p className="text-muted-foreground text-sm">
-              Please enter your email and password to log in or use Google Sign-In.
+              Please enter your email and password to login or use a provider.
             </p>
           </div>
 
