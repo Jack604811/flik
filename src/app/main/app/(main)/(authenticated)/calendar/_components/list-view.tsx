@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { DateFilter } from "@/components/calendar/date-filter";
+import { DateFilter } from "@/components/calendar/filter/date-filter";
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +22,7 @@ import { Booking as BaseBooking } from "@/schemas/booking.schema";
 import { CreateBooking } from "@/components/forms/create-booking";
 import BookingDetail from "@/components/calendar/booking-details";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { FilterPopover } from "@/components/calendar/filter/filter-popover";
 
 interface Booking extends BaseBooking {
   isNewEvent?: boolean;
@@ -44,28 +45,38 @@ export default function ListView({
   const [dateRange, setDateRange] = React.useState<[Date, Date] | null>(null);
   const [open, setOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedSpots, setSelectedSpots] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
   const Row = {
     getFilterValue: () => dateRange,
     setFilterValue: (value: [Date, Date] | null) => setDateRange(value),
   } as any;
 
+  // **Apply Filtering Logic**
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
       booking.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.spot.name.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesDateRange =
       dateRange === null ||
       (new Date(booking.startDate) >= dateRange[0] &&
         new Date(booking.startDate) <= dateRange[1]);
 
-    return matchesSearch && matchesDateRange;
+    const matchesSpots =
+      selectedSpots.length === 0 || selectedSpots.includes(booking.spot.id);
+
+    const matchesStatuses =
+      selectedStatuses.length === 0 || selectedStatuses.includes(booking.status);
+
+    return matchesSearch && matchesDateRange && matchesSpots && matchesStatuses;
   });
 
   const newBookingsCount = bookings.filter((booking) => booking.isNewEvent).length;
 
   const bookingsCount =
-    dateRange || searchTerm
+    dateRange || searchTerm || selectedSpots.length > 0 || selectedStatuses.length > 0
       ? `Result ${filteredBookings.length}`
       : `Last bookings ${newBookingsCount > 0 ? `+${newBookingsCount}` : ""}`;
 
@@ -107,12 +118,22 @@ export default function ListView({
               />
             </div>
           </div>
+        <div className="flex gap-2">
           <Input
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="mb-4"
           />
+
+         <div className="md:hidden">
+          <FilterPopover 
+            bookings={bookings} 
+            onSpotSelected={(selected) => setSelectedSpots(selected)} 
+            onStatusSelected={(selected) => setSelectedStatuses(selected)} 
+          />
+          </div>
+        </div>
           <div className="h-[80vh] pb-24 md:pb-16 overflow-y-auto">
             <TooltipProvider>
               <div className="flex flex-col gap-4">
@@ -176,16 +197,6 @@ export default function ListView({
                                           <h3 className="font-semibold">
                                             {booking.customer.name}
                                           </h3>
-                                          {booking.isNewEvent && (
-                                            <Tooltip>
-                                              <TooltipTrigger>
-                                                <div className="w-2 h-2 bg-black dark:bg-white rounded-full"></div>
-                                              </TooltipTrigger>
-                                              <TooltipContent>
-                                                <p>New</p>
-                                              </TooltipContent>
-                                            </Tooltip>
-                                          )}
                                         </div>
                                         <p className="text-sm text-muted-foreground mb-0">
                                           {booking.spot.name}
@@ -203,38 +214,9 @@ export default function ListView({
                                     </div>
                                   </motion.div>
                                 </SheetTrigger>
-                                <SheetContent
-                                  className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]"
-                                >
-                                  {selectedBooking && selectedBooking.id === booking.id && (
-                                    <BookingDetail booking={selectedBooking} />
-                                  )}
-                                </SheetContent>
                               </Sheet>
                             </div>
                           </HoverCardTrigger>
-                          <HoverCardContent
-                            align="center"
-                            side="right"
-                            className="hidden md:block w-64 p-4 bg-black text-white rounded-lg"
-                          >
-                            <PreviewContent
-                              Id={booking.id}
-                              customerName={booking.customer.name}
-                              customerPhone={booking.customer.phone}
-                              eventDateRange={`${formatDate(
-                                booking.startDate
-                              )} - ${formatDate(booking.endDate)}`}
-                              eventTimeRange={`${formatTime(
-                                booking.startDate
-                              )} - ${formatTime(booking.endDate)}`}
-                              spot={booking.spot.name}
-                              totalPrice={booking.totalPrice}
-                              startDate={booking.startDate.toString()}
-                              endDate={booking.endDate.toString()}
-                              isNewEvent={booking.isNewEvent}
-                            />
-                          </HoverCardContent>
                         </HoverCard>
                       );
                     })}

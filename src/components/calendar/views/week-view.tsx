@@ -12,7 +12,7 @@ import {
   min,
 } from "date-fns";
 import Link from "next/link";
-import { PreviewContent } from "./preview-content";
+import { PreviewContent } from "../preview-content";
 import { CreateBooking } from "@/components/forms/create-booking";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import BookingDetail from "@/components/calendar/booking-details";

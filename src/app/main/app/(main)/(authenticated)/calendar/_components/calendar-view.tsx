@@ -13,20 +13,25 @@ import { format, addDays, addMonths, startOfWeek, endOfWeek } from "date-fns";
 import ListView from "./list-view";
 import { CreateBooking } from "@/components/forms/create-booking";
 import { getBookings } from "@/server/actions/booking.action";
-import { DayView } from "@/components/calendar/day-view";
-import { WeekView } from "@/components/calendar/week-view";
-import MonthView from "@/components/calendar/month-view";
+import { DayView } from "@/components/calendar/views/day-view";
+import { WeekView } from "@/components/calendar/views/week-view";
+import MonthView from "@/components/calendar/views/month-view";
+import { SpotFilter } from "@/components/calendar/filter/spot-filter";
+import { StatusFilter } from "@/components/calendar/filter/status-filter";
+import { FilterPopover } from "@/components/calendar/filter/filter-popover";
 
 export default function CalendarView({
-  events,
+  bookings,
   workspaceId,
 }: {
-  events: any;
+  bookings: any;
   workspaceId: string;
 }) {
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("month");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentEvents, setCurrentEvents] = useState(events);
+  const [currentBookings, setCurrentBookings] = useState(bookings);
+  const [selectedSpots, setSelectedSpots] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
   const today = new Date();
   const todayStart = new Date(
@@ -42,16 +47,22 @@ export default function CalendarView({
 
   const fetchBookings = async () => {
     const updatedBookings = await getBookings(workspaceId);
-    setCurrentEvents(updatedBookings);
+    setCurrentBookings(updatedBookings);
   };
 
-  const enrichedEvents = currentEvents.map((event: any) => ({
-    ...event,
-    isNewEvent:
-      new Date(event.createdAt) >= todayStart &&
-      new Date(event.createdAt) < todayEnd,
-    totalPrice: event.totalPrice,
-  }));
+    // Filter bookings based on selected spots
+    const filteredBookings = currentBookings.filter((booking: any) =>
+      (selectedSpots.length > 0 ? selectedSpots.includes(booking.spotId) : true) &&
+      (selectedStatuses.length > 0 ? selectedStatuses.includes(booking.status) : true)
+    );
+
+    const enrichedBookings = filteredBookings.map((booking: any) => ({
+      ...booking,
+      isNewBooking:
+        new Date(booking.createdAt) >= todayStart &&
+        new Date(booking.createdAt) < todayEnd,
+      totalPrice: booking.totalPrice,
+    }));
 
   const goToPrevious = () => {
     setCurrentDate((prev) =>
@@ -115,6 +126,11 @@ export default function CalendarView({
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+        <FilterPopover 
+          bookings={bookings} 
+          onSpotSelected={(selected) => setSelectedSpots(selected)} 
+          onStatusSelected={(selected) => setSelectedStatuses(selected)} 
+        />
         <Tabs
           value={viewMode}
           onValueChange={(value) => setViewMode(value as "day" | "week" | "month")}
@@ -138,7 +154,7 @@ export default function CalendarView({
                     currentDate={currentDate}
                     workspaceId={workspaceId}
                     onEventCreated={fetchBookings}
-                    events={enrichedEvents}
+                    events={enrichedBookings}
                     onDaySelected={handleDaySelected}
                   />
                 )}
@@ -147,7 +163,7 @@ export default function CalendarView({
                     currentDate={currentDate}
                     workspaceId={workspaceId}
                     onEventCreated={fetchBookings}
-                    events={enrichedEvents}
+                    events={enrichedBookings}
                     onDaySelected={handleDaySelected}
                   />
                 )}
@@ -156,7 +172,7 @@ export default function CalendarView({
                     currentDate={currentDate}
                     workspaceId={workspaceId}
                     onEventCreated={fetchBookings}
-                    events={enrichedEvents}
+                    events={enrichedBookings}
                     onDaySelected={handleDaySelected}
                   />
                 )}
@@ -167,7 +183,7 @@ export default function CalendarView({
           <ResizablePanel className="overflow-auto px-4 min-w-[348px] md:max-w-[348px]" defaultSize={30}>
             <ListView
               workspaceId={workspaceId}
-              bookings={enrichedEvents}
+              bookings={enrichedBookings}
               refreshEvents={fetchBookings}
             />
           </ResizablePanel>

@@ -14,7 +14,7 @@ import {
 import { Copy, Edit, MoreVerticalIcon } from "lucide-react";
 import { Booking } from "@/schemas/booking.schema";
 import moment from "moment";
-import { BookingStatus } from "@prisma/client"; // <-- "Spot" removed here
+import { BookingStatus } from "@prisma/client";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { statuses } from "@/schemas/booking.schema";
 import { useForm } from "react-hook-form";

@@ -14,7 +14,7 @@ import {
   max as maxDate,
   min as minDate,
 } from "date-fns";
-import { PreviewContent } from "./preview-content";
+import { PreviewContent } from "../preview-content";
 import Link from "next/link";
 import {
   Tooltip,

@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { getBookings } from "@/server/actions/booking.action";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
 import CalendarView from "./_components/calendar-view";
+import BookingSection from "@/app/[domain]/[spotId]/_components/BookingSection";
 
 export const metadata: Metadata = {
   title: "Calendar",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const currentWorkspace = await getCurrentWorkspace();
-  const events = currentWorkspace ? await getBookings(currentWorkspace.id) : [];
+  const bookings = currentWorkspace ? await getBookings(currentWorkspace.id) : [];
 
   if (!currentWorkspace) {
     return (
@@ -29,7 +30,7 @@ export default async function Page() {
   return (
     <div className="flex-1">
       <CalendarView 
-        events={events} 
+        bookings={bookings} 
         workspaceId={currentWorkspace.id}
       />
     </div>

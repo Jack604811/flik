@@ -8,7 +8,7 @@ import {
   isSameMonth,
 } from 'date-fns';
 import { CreateBooking } from '@/components/forms/create-booking';
-import { PreviewContent } from './preview-content';
+import { PreviewContent } from '../preview-content';
 import {
   TooltipProvider,
   Tooltip,
