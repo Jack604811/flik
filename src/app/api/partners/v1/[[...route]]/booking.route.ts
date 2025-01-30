@@ -25,6 +25,7 @@ const addBookingSchema = z.object({
         value: z.string()
     })).optional(),
     note: z.string().optional(),
+    file: z.instanceof(File).openapi({ type: "string", format: "binary"})
 });
 
 const addBookingResponseSchema = z.object({
@@ -52,13 +53,14 @@ const addBookingResponseSchema = z.object({
 
 const addBookingRoute = createRoute({
     method: "post",
+    description: "Create a new booking",
     path: "/",
     request: {
         body: {
             content: {
-                "application/json": {
-                    schema: addBookingSchema
-                }
+                "multipart/form-data": {
+                    schema: addBookingSchema,
+                },
             }
         }
     },
@@ -95,7 +97,7 @@ const addBookingRoute = createRoute({
 });
 
 bookingRoutes.openapi(addBookingRoute, async (c) => {
-    const body = c.req.valid("json");
+    const body = c.req.valid("form");
     try {
         const spot = await getSpotById(body.spotId);
         const dateRange = { from: body.startDate, to: body.endDate };
@@ -142,6 +144,7 @@ const updateBookingSchema = z.object({
 
 const updateBookingRoute = createRoute({
     method: "put",
+    description: "Update an existing booking",
     path: "/",
     request: {
         body: {
@@ -209,6 +212,7 @@ bookingRoutes.openapi(updateBookingRoute, async (c) => {
 
 const getBookingsRoute = createRoute({
     method: "get",
+    description: "Get all bookings",
     path: "/",
     responses: {
         200: {
@@ -238,6 +242,7 @@ bookingRoutes.openapi(getBookingsRoute, async (c) => {
 
 const getBookingByIdRoute = createRoute({
     method: "get",
+    description: "Get a booking by ID",
     path: "/{id}",
     request: {
         params: z.object({ id: z.string().openapi({ description: "The ID of the booking" }) })
@@ -286,6 +291,7 @@ bookingRoutes.openapi(getBookingByIdRoute, async (c) => {
 
 const deleteBookingRoute = createRoute({
     method: "delete",
+    description: "Delete a booking",
     path: "/{id}",
     request: {
         params: z.object({ id: z.string().openapi({ description: "The ID of the booking to delete" }) })

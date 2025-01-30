@@ -9,6 +9,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import transactionRoutes from "./transaction.route";
 import customFieldRoutes from "./custom-field.route";
 import { getWorkspace } from "@/server/actions/workspace.action";
+import extraRoutes from "./extra.route";
 
 const app = new OpenAPIHono<API_APP_TYPE>().basePath("/v1");
 
@@ -28,6 +29,7 @@ app.post("/auth", validateAPIKey, (c) => {
 const getWorkspaceRoute = createRoute({
   method: "get",
   path: "/whoami",
+  description: "Get workspace info",
   responses: {
     200: {
       description: "Workspace",
@@ -83,9 +85,11 @@ app.openapi(getWorkspaceRoute, async (c) => {
     return c.json({ status: "error" as const, error: "Invalid request" }, 400);
   }
 });
+app.route("/spots", spotRoutes);
+app.route("/extras", extraRoutes)
 app.route("/bookings", bookingRoutes);
 app.route("/custom-fields", customFieldRoutes);
-app.route("/spots", spotRoutes);
+
 app.route("/transactions", transactionRoutes);
 app.route("/hooks", hookRoutes);
 
