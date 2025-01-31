@@ -230,7 +230,7 @@ extraRoutes.openapi(deleteExtraRoute, async (c) => {
 
 const getCategoriesRoute = createRoute({
     method: "get",
-    path: "/categories",
+    path: "/categories/all",
     description: "Get Categories",
     request: {},
     responses: {
@@ -259,7 +259,7 @@ const getCategoriesRoute = createRoute({
                 "application/json": {
                     schema: z.object({
                         status: z.literal("error"),
-                        error: z.string()
+                        data: z.array(z.null())
                     })
                 }
             }
@@ -284,7 +284,7 @@ extraRoutes.openapi(getCategoriesRoute, async (c) => {
             }))
         })) }, 200);
     }catch(e){
-        return c.json({ status: "error" as const, error: "Extra not found!" }, 400);
+        return c.json({ status: "error" as const, data: [] }, 400);
     }
 });
 

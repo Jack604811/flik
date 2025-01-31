@@ -89,7 +89,6 @@ app.route("/spots", spotRoutes);
 app.route("/extras", extraRoutes)
 app.route("/bookings", bookingRoutes);
 app.route("/custom-fields", customFieldRoutes);
-
 app.route("/transactions", transactionRoutes);
 app.route("/hooks", hookRoutes);
 

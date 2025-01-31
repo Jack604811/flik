@@ -7,6 +7,7 @@ import { validateAPIKey } from "./api.key.validate";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { bookingSchema } from "@/schemas/booking.schema";
 import { BookingStatus } from "@prisma/client";
+import { addExtrasToBooking, updateBookingExtra, removeExtraFromBooking } from "@/server/actions/booking.action";
 
 const bookingRoutes = new OpenAPIHono<API_APP_TYPE>();
 bookingRoutes.use("*", validateAPIKey);
@@ -24,8 +25,11 @@ const addBookingSchema = z.object({
         customFieldId: z.string().openapi({description: "The ID of the Custom Field that you want to add value to."}),
         value: z.string()
     })).optional(),
+    extras: z.array(z.object({
+        extraId: z.string().openapi({description: "The ID of the Extra that you want to add to the booking."}),
+        quantity: z.number().openapi({description: "The quantity of the Extra that you want to add to the booking."}),
+    })),
     note: z.string().optional(),
-    file: z.instanceof(File).openapi({ type: "string", format: "binary"})
 });
 
 const addBookingResponseSchema = z.object({
@@ -115,7 +119,8 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
             note: body.note,
             subtotal,
             totalPrice,
-            customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null")
+            customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null"),
+            extras: body.extras,
         });
 
         return c.json({ status: "success" as const, type: "booking.create" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
@@ -139,7 +144,11 @@ const updateBookingSchema = z.object({
     customFields: z.array(z.object({
         customFieldId: z.string().openapi({description: "The ID of the Custom Field that you want to add value to."}),
         value: z.string()
-    }))
+    })),
+    extras: z.array(z.object({
+        extraId: z.string().openapi({description: "The ID of the Extra that you want to add to the booking."}),
+        quantity: z.number().openapi({description: "The quantity of the Extra that you want to add to the booking."}),
+    })),
 });
 
 const updateBookingRoute = createRoute({
@@ -202,7 +211,8 @@ bookingRoutes.openapi(updateBookingRoute, async (c) => {
             } : undefined,
             note: body.note,
             status: body.status,
-            customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null")
+            customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null"),
+            extras: body.extras
         });
         return c.json({ status: "success" as const, type: "booking.update" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
     } catch (e) {
@@ -336,5 +346,184 @@ bookingRoutes.openapi(deleteBookingRoute, async (c) => {
         return c.json({ status: "error" as const, error: "Booking not found!" }, 404);
     }
 });
+
+const addBookingExtraSchema = z.object({
+    bookingId: z.string(),
+    extras: z.array(z.object({
+        extraId: z.string(),
+        quantity: z.number().min(1),
+    }))
+});
+
+const addBookingExtraRoute = createRoute({
+    method: "post",
+    description: "Add an extra to a booking",
+    path: "/{bookingId}/extras",
+    request: {
+        params: z.object({ bookingId: z.string() }),
+        body: {
+            content: {
+                "application/json": {
+                    schema: addBookingExtraSchema,
+                },
+            }
+        }
+    },
+    responses: {
+        200: {
+            description: "Extra added to booking",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("success"),
+                        type: z.literal("booking.extra.add"),
+                    })
+                }
+            }
+        },
+        400: {
+            description: "Invalid request",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("error"),
+                        error: z.string()
+                    })
+                }
+            }
+        }
+    },
+    security: [{ "x-token": [] }]
+});
+
+bookingRoutes.openapi(addBookingExtraRoute, async (c) => {
+    const { bookingId } = c.req.valid("param");
+    const body = c.req.valid("json");
+    try {
+        await addExtrasToBooking({
+            bookingId,
+            extras: body.extras,
+        });
+        return c.json({ 
+            status: "success" as const, 
+            type: "booking.extra.add" as const, 
+        }, 200);
+    } catch (e) {
+        return c.json({ status: "error" as const, error: "Failed to add extra to booking" }, 400);
+    }
+});
+
+const updateBookingExtraRoute = createRoute({
+    method: "put",
+    description: "Update an extra in a booking",
+    path: "/{bookingId}/extras/{extraId}",
+    request: {
+        params: z.object({ 
+            bookingId: z.string(),
+            extraId: z.string()
+        }),
+        body: {
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        quantity: z.number().min(1)
+                    })
+                }
+            }
+        }
+    },
+    responses: {
+        200: {
+            description: "Extra updated in booking",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("success"),
+                        type: z.literal("booking.extra.update"),
+                    })
+                }
+            }
+        },
+        400: {
+            description: "Invalid request",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("error"),
+                        error: z.string()
+                    })
+                }
+            }
+        }
+    },
+    security: [{ "x-token": [] }]
+});
+
+bookingRoutes.openapi(updateBookingExtraRoute, async (c) => {
+    const { bookingId, extraId } = c.req.valid("param");
+    const body = c.req.valid("json");
+    try {
+       await updateBookingExtra(extraId, {
+            quantity: body.quantity
+        }) as unknown as z.infer<typeof bookingSchema>;
+        return c.json({ 
+            status: "success" as const, 
+            type: "booking.extra.update" as const, 
+        }, 200);
+    } catch (e) {
+        return c.json({ status: "error" as const, error: "Failed to update extra" }, 400);
+    }
+});
+
+const deleteBookingExtraRoute = createRoute({
+    method: "delete",
+    description: "Delete an extra from a booking",
+    path: "/{bookingId}/extras/{extraId}",
+    request: {
+        params: z.object({ 
+            bookingId: z.string(),
+            extraId: z.string()
+        })
+    },
+    responses: {
+        200: {
+            description: "Extra removed from booking",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("success"),
+                        type: z.literal("booking.extra.delete")
+                    })
+                }
+            }
+        },
+        400: {
+            description: "Invalid request",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("error"),
+                        error: z.string()
+                    })
+                }
+            }
+        }
+    },
+    security: [{ "x-token": [] }]
+});
+
+bookingRoutes.openapi(deleteBookingExtraRoute, async (c) => {
+    const { bookingId, extraId } = c.req.valid("param");
+    try {
+        await removeExtraFromBooking(extraId);
+        return c.json({ 
+            status: "success" as const,
+            type: "booking.extra.delete"  as const
+        }, 200);
+    } catch (e) {
+        return c.json({ status: "error" as const, error: "Failed to delete extra" }, 400);
+    }
+});
+
 
 export default bookingRoutes;
