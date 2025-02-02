@@ -1,4 +1,4 @@
-import { createNewExtra, deleteExtra, getExtraById, getExtrasByWorkspace, getCategories } from "@/server/actions/extra.action";
+import { createNewExtra, deleteExtra, getExtraById, getExtrasByWorkspace, getCategories, getCategory } from "@/server/actions/extra.action";
 import { API_APP_TYPE } from "@/types/api";
 import { createRoute, z } from '@hono/zod-openapi';
 import { validateAPIKey } from "./api.key.validate";
@@ -225,6 +225,76 @@ extraRoutes.openapi(deleteExtraRoute, async (c) => {
         return c.json({ status: "success" as const, type: "extra.delete" as const }, 200);
     }catch(e){
         return c.json({ status: "error" as const, error: "Extra not found!" }, 404);
+    }
+});
+
+const getCategoryRoute = createRoute({
+    method: "get",
+    path: "/categories/get",
+    description: "Get Category by ID",
+    request: {
+        query: z.object({ id: z.string().openapi({ description: "The ID of the category" }) })
+    },
+    responses: {
+        200: {
+            description: "Category fetched successfully",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("success"),
+                        type: z.literal("category"),
+                        data: z.object({
+                            id: z.string(),
+                            name: z.string(),
+                            subCategories: z.array(z.object({
+                                id: z.string(),
+                                name: z.string()
+                            }))
+                        })
+                    })
+                }
+            }
+        },
+        404: {
+            description: "Category not found",
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        status: z.literal("error"),
+                        error: z.string()
+                    })
+                }
+            }
+        }
+    },
+    security: [
+        {
+            "x-token": []
+        }
+    ]
+});
+
+extraRoutes.openapi(getCategoryRoute, async (c) => {
+    const { id } = c.req.valid("query");
+    try {
+        const category = await getCategory({ id, workspaceId: c.get("workspace").id });
+        if (!category) {
+            return c.json({ status: "error" as const, error: "Category not found" }, 404);
+        }
+        return c.json({ 
+            status: "success" as const, 
+            type: "category" as const, 
+            data: {
+                id: category.id,
+                name: category.name,
+                subCategories: category.subCategories.map(sub => ({
+                    id: sub.id,
+                    name: sub.name
+                }))
+            }
+        }, 200);
+    } catch(e) {
+        return c.json({ status: "error" as const, error: "Category not found" }, 404);
     }
 });
 
