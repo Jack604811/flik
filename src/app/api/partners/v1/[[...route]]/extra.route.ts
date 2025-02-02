@@ -13,7 +13,7 @@ const addExtraSchema = z.object({
     description: z.string(),
     status: z.nativeEnum(ExtrasStatus).default(ExtrasStatus.Private),
     price: z.string().transform(str => parseFloat(str)).openapi({type: "number"}),
-    files: z.array(z.instanceof(File)).openapi({type: "array", items: { type: "string", format: "binary" }}),
+    files: z.array(z.instanceof(File)).openapi({type: "array", items: { type: "string", format: "binary" }}).optional(),
     categoryId: z.string().transform(str => str.length ? str:null).openapi({ type: "string"}).optional(),
     subCategoryId: z.string().transform(str => str.length ? str:null).openapi({ type: "string"}).optional(),
 });
