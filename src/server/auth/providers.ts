@@ -2,9 +2,10 @@ import GoogleProvider from "next-auth/providers/google";
 import { type Provider } from "next-auth/providers/index";
 import { env } from "@/env";
 import Credentials from "next-auth/providers/credentials";
-import { getUserByEmail } from "../actions/auth.action";
+import { generateVerificationCodeOTP, getUserByEmail } from "../actions/auth.action";
 import bcrypt from "bcrypt";
 import { User } from "next-auth";
+import { redirect } from "next/navigation";
 
 
 
@@ -31,6 +32,10 @@ export const providers: Provider[] = [
 
       const isPasswordValid = await bcrypt.compare(credentials.password, existingUser.password);
       if(!isPasswordValid)  throw new Error("Invalid credentials, please check your email and password.");
+
+      if(!existingUser.emailVerified){
+        await generateVerificationCodeOTP(existingUser.email!);
+      }
 
       return existingUser as unknown as User
     },

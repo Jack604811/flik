@@ -10,6 +10,10 @@ import { EmailVerificationOTPTemplate } from "@/emails/auth/email-verification-o
 import { APP_NAME } from "@/app-settings";
 import { PasswordResetLinkTemplate } from "@/emails/auth/password-reset-link";
 import { acceptWorkspaceInvite } from "./workspace.action";
+import { cookies } from "next/headers";
+import { decode, JWT } from "next-auth/jwt";
+import { encode } from "next-auth/jwt";
+import { NextResponse } from "next/server";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -96,10 +100,13 @@ export const validateVerificationCodeOTP = async (otpCode: string) => {
 
   await db.verificationToken.delete({ where: { token: otpCode } });
 
-  await db.user.update({
+  const updatedUser = await db.user.update({
     where: { email: verificationToken.identifier },
     data: { emailVerified: new Date() },
   });
+
+  // update emailVerified in session.user 
+  await updateSession({emailVerified: updatedUser.emailVerified})
 
   return { success: "Verified successfully!" };
 };
@@ -154,24 +161,7 @@ export const registerUser = async (
     }
   
     // Generate and save OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
-    await db.verificationToken.create({
-      data: {
-        identifier: email,
-        token: otpCode,
-        expires: otpExpiration,
-      },
-    });
-  
-    // Send OTP via email
-    await resend.emails.send({
-        from: `${APP_NAME}<${env.EMAIL_FROM}>`,
-        to: email,
-        subject: `Your code for ${APP_NAME}`,
-        react: EmailVerificationOTPTemplate({ otpCode: otpCode }), // Match the property name here
-        html: "", // Include only if you need fallback HTML
-      });
+    await generateVerificationCodeOTP(email);
   
     return { success: "Code sent to your email!" };
   };
@@ -288,3 +278,32 @@ export const getAdminById = async (id: string) => {
   
     return existingAdmin;
   }
+
+export const updateSession = async (data: Partial<JWT> ) => {
+
+  // const response = NextResponse.next();
+
+  // const key = env.NEXTAUTH_URL.startsWith("https://")
+  // ? "__Secure-next-auth.session-token"
+  // : "next-auth.session-token";
+  // const c = cookies().get(key);
+  // const decodedSession = await decode({secret: env.NEXTAUTH_SECRET, token: c?.value});
+  // const newSession = {
+  //   ...decodedSession!,
+  //   ...data,
+  // }
+  // const encodedSession = await encode({secret: env.NEXTAUTH_SECRET, token: newSession, maxAge: 30 * 24 * 60 * 60});
+
+  // // cookies().getAll().forEach((c) => {
+  // //   if(c.name.includes("next-auth")) cookies().delete(c.name);
+  // // });
+  // // cookies().set(key, encodedSession)
+  // response.cookies.set(key, encodedSession);
+
+  fetch("/api/auth/session", { 
+    method: "POST",
+    body: JSON.stringify({
+      ...data,
+    }),
+   })
+}

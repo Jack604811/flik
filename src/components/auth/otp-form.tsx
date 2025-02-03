@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { validateVerificationCodeOTP, generateVerificationCodeOTP } from '@/server/actions/auth.action';
 import { AFTER_VERIFY_REDIRECT_URL } from '@/app-settings';
+import { useSession } from 'next-auth/react';
 
 export default function OTPVerification({ email }: { email: string }) {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function OTPVerification({ email }: { email: string }) {
   const [isResending, setIsResending] = useState(false);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const {update: updateSession} = useSession()
 
   const BACK_BUTTON_URL = '/signup';
 
@@ -59,6 +61,7 @@ export default function OTPVerification({ email }: { email: string }) {
       if (result.error) {
         throw new Error(result.error);
       }
+      await updateSession();
   
       // Redirect to the dashboard after successful verification and login
       router.push(AFTER_VERIFY_REDIRECT_URL);

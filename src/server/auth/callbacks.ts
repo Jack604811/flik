@@ -14,10 +14,12 @@ export const callbacks: Partial<CallbacksOptions> = {
 
     // Fetch the user from the database
     const existingUser = await getUserById(user.id);
-    if (!existingUser || !existingUser.emailVerified) return false; // Deny login if user does not exist
+    if (!existingUser) return false; // Deny login if user does not exist
 
     // Pass verified email information
     user.emailVerified = existingUser.emailVerified;
+    user.emailVerified = existingUser.emailVerified;
+    user.onboardingComplete = existingUser.onboardingComplete || null;
     return true; // Allow login
   },
   jwt: async ({ token, user }) => {
@@ -25,6 +27,7 @@ export const callbacks: Partial<CallbacksOptions> = {
     if (user) {
       token.id = user.id;
       token.emailVerified = user.emailVerified || null; // Pass the emailVerified flag
+      token.onboardingComplete = user.onboardingComplete || null; // Pass the onboardingComplete flag
     }
     return token;
   },
@@ -36,6 +39,7 @@ export const callbacks: Partial<CallbacksOptions> = {
         ...session.user,
         id: token.id,
         emailVerified: token.emailVerified, // Include emailVerified
+        onboardingComplete: token.onboardingComplete, // Include onboardingComplete
         // customerId: user.customerId,
         // subscriptionId: user.subscriptionId,
         // oneTimeProductId: user.oneTimeProductId,

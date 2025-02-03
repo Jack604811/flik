@@ -20,13 +20,21 @@ export default async function Layout({
     }`;
     return redirect(redirectUrl);
   }
+  // If email is not verified, redirect to verification
+  if (!session.user.emailVerified) {
+    return redirect("/verify-request");
+  }
+  // If onboarding is not completed, redirect to onboarding
+  if (!session.user.onboardingComplete && !currentPath?.startsWith("/onboarding")) {
+    return redirect("/onboarding");
+  }
 
   const currentWorkspace = await getCurrentWorkspace().catch((err) => {
     console.error("Error fetching workspace:", err);
     return null;
   });
 
-  if (!currentWorkspace && !currentPath?.startsWith("/workspaces")) {
+  if (session.user.onboardingComplete && !currentWorkspace && !currentPath?.startsWith("/workspaces")) {
     return redirect("/workspaces");
   }
 

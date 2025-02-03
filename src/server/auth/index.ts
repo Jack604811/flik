@@ -2,7 +2,15 @@ import NextAuth, { getServerSession, type DefaultSession, type NextAuthOptions }
 import { Adapter } from "next-auth/adapters"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/server/db";
+import { DefaultJWT, JWT } from "next-auth/jwt"
 
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+  interface JWT extends DefaultJWT {
+    onboardingComplete: Date | null;
+    emailVerified: Date | null;
+  }
+}
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -13,12 +21,13 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
-      emailVerified?: Date | null;
+      emailVerified: Date | null;
       isAdmin?: boolean;
       customerId?: string | null | undefined;
       stripeCustomerId?: string | null | undefined;
       subscriptionId?: string | null | undefined;
       oneTimeProductId?: string | null | undefined;
+      onboardingComplete: Date | null;
     };
   }
 
@@ -32,6 +41,7 @@ declare module "next-auth" {
     stripeCustomerId?: string | null | undefined;
     subscriptionId?: string | null | undefined;
     oneTimeProductId?: string | null | undefined;
+    onboardingComplete: Date | null;
   }
 }
 
