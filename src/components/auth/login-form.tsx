@@ -56,7 +56,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ searchParams, authProviders }) =>
         email: emailValue,
         password: passwordValue,
         redirect: false,
-        callbackUrl: AFTER_SIGNIN_REDIRECT_URL,
+        callbackUrl: `${AFTER_SIGNIN_REDIRECT_URL}${
+                  searchParams.invite ? `?invite=${searchParams.invite}` : ""
+                }`,
       });
 
       if (res?.error) {

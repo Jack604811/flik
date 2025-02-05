@@ -61,7 +61,11 @@ export default function OTPVerification({ email }: { email: string }) {
       if (result.error) {
         throw new Error(result.error);
       }
-      await updateSession();
+      await updateSession({
+        user: {
+          emailVerified: result.emailVerified
+        }
+      });
   
       // Redirect to the dashboard after successful verification and login
       router.push(AFTER_VERIFY_REDIRECT_URL);
@@ -79,7 +83,6 @@ export default function OTPVerification({ email }: { email: string }) {
 
     try {
       const result = await generateVerificationCodeOTP(email);
-
       if (result.success) {
         setError('A new code has been sent to your email.');
         startResendTimer(); // Start the timer after sending OTP

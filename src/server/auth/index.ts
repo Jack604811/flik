@@ -1,4 +1,4 @@
-import NextAuth, { getServerSession, type DefaultSession, type NextAuthOptions } from "next-auth";
+import NextAuth, {  type DefaultSession, type NextAuthConfig, type User } from "next-auth";
 import { Adapter } from "next-auth/adapters"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/server/db";
@@ -7,6 +7,7 @@ import { DefaultJWT, JWT } from "next-auth/jwt"
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
   interface JWT extends DefaultJWT {
+    id?: string;
     onboardingComplete: Date | null;
     emailVerified: Date | null;
   }
@@ -31,8 +32,9 @@ declare module "next-auth" {
     };
   }
 
+
   interface User {
-    id: string;
+    id?: string;
     email?: string | null | undefined;
     name?: string | null | undefined;
     emailVerified?: Date | null;
@@ -51,33 +53,20 @@ import { providers } from "./providers";
 import { events } from "./events";
 import { callbacks } from "./callbacks";
 import { pages } from "./pages";
+import { env } from "@/env";
 
-const authOptions: NextAuthOptions = {
+const authOptions: NextAuthConfig = {
+  secret: env.NEXTAUTH_SECRET,
   callbacks,
   events,
   adapter: PrismaAdapter(db) as Adapter,
   session: { strategy: "jwt" },
   providers,
   pages,
-  cookies: {
-    sessionToken: {
-      name: "next-auth.session-token",
-      options: {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  }
 }
 
-export const handlers = NextAuth(authOptions);
+export const { auth, signIn, unstable_update: updateSession, handlers } = NextAuth(authOptions);
 
-export const auth = async () => {
-  const session = await getServerSession(authOptions);
-  return session;
-}
 
 
 export const getCurrentUser = async () => {

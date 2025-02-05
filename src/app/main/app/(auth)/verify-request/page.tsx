@@ -8,8 +8,8 @@ import { redirect } from "next/navigation";
 
 export default async function Page() {
   const session = await auth();
-  // console.log(await decode({secret: env.NEXTAUTH_SECRET, token: "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..5K69rpuE3uzDgfN9.qUP3n3KzFBu57OGgCophztYnM8bgnjd07L1_jiORV4xlbEpwycNhskpIXcrcBHhh09sQvl4SIorLTyfRWME5Tr3bNEpmCPlbMKkdrvQbrKXUB_6GicEclY7lnMCHjeLP-sgQgh48DGyDsrt1G9CJ9fFfV410FdbxIUaaG_60AhU2bfiIN3N0oDQpCcIz8ruvq5dyhyglyyoNMs6ELoSYqRmg5WMN0WepE8oezRt9BbXbRFSdc36LyaSupcJXNJMsXPcyXp4RWaTeNSyAX6bkMdHCmHzikzHCYof85K0juL_rv22IHd78XxIGM7nEc9BSVySKeoMt0pTfs92Fvlk1LVCdEGfeWBbGq95Amw.mQNmmU0o1J4xSkKaY8db9Q"}))
-
+  const c = cookies().get("authjs.session-token")
+  // console.log(await decode({secret: env.NEXTAUTH_SECRET, token: c?.value!.toString(), salt: "authjs.session-token"}))
 
   // Redirect if user is already authenticated and verified
   if (session?.user && session.user.emailVerified) {

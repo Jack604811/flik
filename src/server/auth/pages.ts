@@ -1,6 +1,6 @@
 import { AFTER_SIGNUP_REDIRECT_URL } from "@/app-settings";
-import { PagesOptions } from "next-auth";
-export const pages: Partial<PagesOptions> = {
+import { NextAuthConfig } from "next-auth";
+export const pages: Partial<NextAuthConfig["pages"]> = {
   newUser: AFTER_SIGNUP_REDIRECT_URL,
   signIn: "/",
   verifyRequest: "/verify-request",

@@ -10,10 +10,10 @@ import { EmailVerificationOTPTemplate } from "@/emails/auth/email-verification-o
 import { APP_NAME } from "@/app-settings";
 import { PasswordResetLinkTemplate } from "@/emails/auth/password-reset-link";
 import { acceptWorkspaceInvite } from "./workspace.action";
+import { Session } from "next-auth";
 import { cookies } from "next/headers";
-import { decode, JWT } from "next-auth/jwt";
-import { encode } from "next-auth/jwt";
-import { NextResponse } from "next/server";
+import { getCurrentUser, updateSession } from "../auth";
+
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -106,9 +106,31 @@ export const validateVerificationCodeOTP = async (otpCode: string) => {
   });
 
   // update emailVerified in session.user 
-  await updateSession({emailVerified: updatedUser.emailVerified})
 
-  return { success: "Verified successfully!" };
+  await updateSession({
+    user: {
+      emailVerified: updatedUser.emailVerified,
+    }
+  })
+
+  return { success: "Verified successfully!", emailVerified: updatedUser.emailVerified };
+};
+
+export const updateOnboardingState = async () => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return { error: "User not found" };
+  }
+  const updatedUser = await db.user.update({
+    where: { id: currentUser.id },
+    data: { onboardingComplete: new Date() },
+  });
+  await updateSession({
+    user: {
+      onboardingComplete: updatedUser.onboardingComplete
+    }
+  })
+  return { onboadingDate: updatedUser.onboardingComplete };
 };
 
 export const generatePasswordResetToken = async (email: string) => {
@@ -278,32 +300,3 @@ export const getAdminById = async (id: string) => {
   
     return existingAdmin;
   }
-
-export const updateSession = async (data: Partial<JWT> ) => {
-
-  // const response = NextResponse.next();
-
-  // const key = env.NEXTAUTH_URL.startsWith("https://")
-  // ? "__Secure-next-auth.session-token"
-  // : "next-auth.session-token";
-  // const c = cookies().get(key);
-  // const decodedSession = await decode({secret: env.NEXTAUTH_SECRET, token: c?.value});
-  // const newSession = {
-  //   ...decodedSession!,
-  //   ...data,
-  // }
-  // const encodedSession = await encode({secret: env.NEXTAUTH_SECRET, token: newSession, maxAge: 30 * 24 * 60 * 60});
-
-  // // cookies().getAll().forEach((c) => {
-  // //   if(c.name.includes("next-auth")) cookies().delete(c.name);
-  // // });
-  // // cookies().set(key, encodedSession)
-  // response.cookies.set(key, encodedSession);
-
-  fetch("/api/auth/session", { 
-    method: "POST",
-    body: JSON.stringify({
-      ...data,
-    }),
-   })
-}

@@ -1,13 +1,13 @@
 import { env } from "@/env";
-import type { CallbacksOptions } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import { getAdminById } from "@/server/actions/auth.action";
 
-export const callbacks: Partial<CallbacksOptions> = {
+export const callbacks: Partial<NextAuthConfig["callbacks"]> = {
   async signIn({ user, account }) {
     if(account?.type !== "credentials") return true;
 
     if(user.id === "admin") return true;
-    const existingAdmin = await getAdminById(user.id);
+    const existingAdmin = await getAdminById(user.id!);
     if(!existingAdmin) return false
     return true;
   },
