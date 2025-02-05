@@ -21,8 +21,11 @@ export default async function MainLayout({
   }
   // If email is not verified, redirect to verification
   if (!session.user.emailVerified) {
-    return redirect("/verify-request");
+    return redirect(`/verify-request${
+      searchParams.get("invite") ? `?invite=${searchParams.get("invite")}` : ""
+    }`);
   }
+  console.log(searchParams.get("invite"))
 // If invited to a workspace, redirect to accept invite page
   if (searchParams.get("invite") && currentPath !== "/invite") {
     return redirect(`/invite?invite=${searchParams.get("invite")}`);

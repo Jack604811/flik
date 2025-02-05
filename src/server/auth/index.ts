@@ -65,7 +65,7 @@ const authOptions: NextAuthConfig = {
   pages,
 }
 
-export const { auth, signIn, unstable_update: updateSession, handlers } = NextAuth(authOptions);
+export const { auth, signIn, unstable_update: updateSession, handlers} = NextAuth(authOptions);
 
 
 

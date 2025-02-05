@@ -1,23 +1,20 @@
 import OTPVerification from "@/components/auth/otp-form";
-import { env } from "@/env";
 import { auth } from "@/server/auth";
-import { decode, encode } from "next-auth/jwt";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 
-export default async function Page() {
+export default async function Page({searchParams}: { searchParams: { invite?: string }}) {
   const session = await auth();
-  const c = cookies().get("authjs.session-token")
-  // console.log(await decode({secret: env.NEXTAUTH_SECRET, token: c?.value!.toString(), salt: "authjs.session-token"}))
-
+  if(!session?.user) {
+    return redirect(`/${searchParams.invite? `?invite=${searchParams.invite}` : ""}`);
+  }
   // Redirect if user is already authenticated and verified
   if (session?.user && session.user.emailVerified) {
     // Check if onboarding is complete, if not redirect to onboarding
     if (!session.user.onboardingComplete) {
-      return redirect("/onboarding");
+      return redirect(`/onboarding${searchParams.invite ? `?invite=${searchParams.invite}` : ""}`);
     }
-    return redirect("/dashboard");
+    return redirect(`/dashboard${searchParams.invite? `?invite=${searchParams.invite}` : ""}`);
   }
 
   const email = session?.user.email;

@@ -408,17 +408,17 @@ export const acceptWorkspaceInvite = async (token: string, userId: string) => {
   }
 
   // Add the user to the workspace
-  // await db.teamMember.update({
-  //   where: { id: invitation.teamMemberId },
-  //   data: {
-  //     userId: user.id,
-  //     status: TeamMemberStatus.Active,
-  //     joinedAt: new Date(),
-  //   },
-  // });
+  await db.teamMember.update({
+    where: { id: invitation.teamMemberId },
+    data: {
+      userId: user.id,
+      status: TeamMemberStatus.Active,
+      joinedAt: new Date(),
+    },
+  });
 
   // Delete the user
-  // await db.invitation.delete({ where: { token } });
+  await db.invitation.delete({ where: { token } });
 
   return true;
 };

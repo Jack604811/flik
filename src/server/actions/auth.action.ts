@@ -5,14 +5,11 @@ import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { Resend } from "resend";
 import { env } from "@/env";
-import { EmailVerificationLinkTemplate } from "@/emails/auth/email-verification-link";
 import { EmailVerificationOTPTemplate } from "@/emails/auth/email-verification-otp";
 import { APP_NAME } from "@/app-settings";
 import { PasswordResetLinkTemplate } from "@/emails/auth/password-reset-link";
 import { acceptWorkspaceInvite } from "./workspace.action";
-import { Session } from "next-auth";
-import { cookies } from "next/headers";
-import { getCurrentUser, updateSession } from "../auth";
+import { getCurrentUser, signIn, updateSession } from "../auth";
 
 
 const resend = new Resend(env.RESEND_API_KEY);
@@ -130,7 +127,7 @@ export const updateOnboardingState = async () => {
       onboardingComplete: updatedUser.onboardingComplete
     }
   })
-  return { onboadingDate: updatedUser.onboardingComplete };
+  return { onboardingComplete: updatedUser.onboardingComplete };
 };
 
 export const generatePasswordResetToken = async (email: string) => {
@@ -176,14 +173,14 @@ export const registerUser = async (
       },
     });
   
-    if (inviteToken) {
-      try {
-        await acceptWorkspaceInvite(inviteToken, user.id);
-      } catch (error) {}
-    }
+    // if (inviteToken) {
+    //   try {
+    //     await acceptWorkspaceInvite(inviteToken, user.id);
+    //   } catch (error) {}
+    // }
   
     // Generate and save OTP
-    await generateVerificationCodeOTP(email);
+    // await generateVerificationCodeOTP(email);
   
     return { success: "Code sent to your email!" };
   };

@@ -31,7 +31,7 @@ export default async function middleware(req: NextRequest) {
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
   const searchParams = req.nextUrl.searchParams.toString();
-  headers.set("x-search-params", searchParams);
+
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = `${url.pathname}${
     searchParams.length > 0 ? `?${searchParams}` : ""
@@ -58,6 +58,7 @@ export default async function middleware(req: NextRequest) {
   // rewrites for app pages
   if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
     headers.set("x-current-path", req.nextUrl.pathname);
+    headers.set("x-search-params",  req.nextUrl.searchParams.toString());
 
     return NextResponse.rewrite(
       new URL(`/main/app${path === "/" ? "" : path}`, req.url), {headers}

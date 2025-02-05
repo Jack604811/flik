@@ -52,6 +52,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ searchParams, authProviders }) =>
     setError(null);
 
     try {
+
       const res = await signIn("signin", {
         email: emailValue,
         password: passwordValue,
