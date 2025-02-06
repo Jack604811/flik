@@ -112,7 +112,7 @@ export function StatusFilter<TData, TValue>({
               <>
                 <CommandSeparator />
                 <CommandGroup>
-                  <CommandItem onSelect={clearFilters} className="justify-center text-center">
+                  <CommandItem onSelect={clearFilters} className="justify-center text-center cursor-pointer">
                     Clear filters
                   </CommandItem>
                 </CommandGroup>

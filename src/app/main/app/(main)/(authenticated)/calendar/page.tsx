@@ -1,4 +1,3 @@
-// page.tsx
 import { Metadata } from "next";
 import { getBookings } from "@/server/actions/booking.action";
 import { getCurrentWorkspace } from "@/server/actions/user.action";

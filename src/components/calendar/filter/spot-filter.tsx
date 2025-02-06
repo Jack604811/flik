@@ -19,6 +19,7 @@ import { getSpotsByWorkspace } from "@/server/actions/spot.action";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
 import { useEffect, useMemo } from "react";
 import React from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Spot {
   id: string;
@@ -101,37 +102,41 @@ export function SpotFilter<TData, TValue>({
       <PopoverContent align="center" className="bg-background w-[216px] space-y-2 p-0">
         <Command>
           <CommandInput placeholder={title} />
-          <CommandList>
-            <CommandEmpty>No spots found.</CommandEmpty>
-            <CommandGroup>
-              {spots.map((spot) => (
-                <CommandItem key={spot.id} onSelect={() => handleSelect(spot.id)}>
-                  <div
-                    className={cn(
-                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                      selectedSpots.includes(spot.id)
-                        ? "bg-primary text-primary-foreground"
-                        : "opacity-50 [&_svg]:invisible"
-                    )}
-                  >
-                    {selectedSpots.includes(spot.id) && <CheckIcon className="h-4 w-4" />}
-                  </div>
-                  <span>{spot.name}</span>
-                  <span className="ml-auto text-muted-foreground">{spotCounts[spot.id] || 0}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-            {selectedSpots.length > 0 && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem onSelect={clearFilters} className="justify-center text-center">
-                    Clear filters
+          <div className="max-h-64">
+            <CommandList>
+              <CommandEmpty>No spots found.</CommandEmpty>
+              <ScrollArea>
+              <CommandGroup>
+                {spots.map((spot) => (
+                  <CommandItem key={spot.id} onSelect={() => handleSelect(spot.id)}>
+                    <div
+                      className={cn(
+                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        selectedSpots.includes(spot.id)
+                          ? "bg-primary text-primary-foreground"
+                          : "opacity-50 [&_svg]:invisible"
+                      )}
+                    >
+                      {selectedSpots.includes(spot.id) && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                    <span>{spot.name}</span>
+                    <span className="ml-auto text-muted-foreground">{spotCounts[spot.id] || 0}</span>
                   </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
+                ))}
+              </CommandGroup>
+              </ScrollArea>
+              {selectedSpots.length > 0 && (
+                <>
+                  <CommandSeparator />
+                  <CommandGroup>
+                    <CommandItem onSelect={clearFilters} className="justify-center text-center cursor-pointer">
+                      Clear filters
+                    </CommandItem>
+                  </CommandGroup>
+                </>
+              )}
+            </CommandList>
+          </div>
         </Command>
       </PopoverContent>
     </Popover>

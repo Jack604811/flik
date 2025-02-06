@@ -20,7 +20,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import BookingDetail from "@/components/calendar/booking-details";
 import { BookingStatus } from "@prisma/client"; 
 
-type Event = {
+type Booking = {
   id: string;
   spot: {
     name: string;
@@ -32,21 +32,21 @@ type Event = {
     phone: string;
   };
   totalPrice: number;
-  isNewEvent?: boolean;
+  isNewBooking?: boolean;
 };
 
 export default function MonthView({
   currentDate,
   workspaceId,
-  onEventCreated,
+  onBookingCreated,
   onDaySelected,
-  events = [],
+  bookings = [],
 }: {
   currentDate: Date;
   workspaceId: string;
-  onEventCreated: () => void;
+  onBookingCreated: () => void;
   onDaySelected: (date: Date) => void;
-  events: Event[];
+  bookings: Booking[];
 }) {
   const startDate = startOfMonth(currentDate);
   const firstDayOfWeek = getDay(startDate);
@@ -56,18 +56,18 @@ export default function MonthView({
 
   // -- SHEET HANDLING
   const [open, setOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   // builds an object matching the shape required by BookingDetail
-  function getBookingForSheet(evt: Event) {
+  function getBookingForSheet(bk: Booking) {
     return {
-      id: evt.id,
+      id: bk.id,
       status: "Confirmed" as BookingStatus, 
       createdAt: new Date(),
       updatedAt: new Date(),
       spot: {
         id: "",
-        name: evt.spot.name,
+        name: bk.spot.name,
         units: 0,
         duration: 0,
         durationType: "",
@@ -76,21 +76,21 @@ export default function MonthView({
       spotId: "",
       customer: {
         id: "TEMP_ID",
-        name: evt.customer.name,
+        name: bk.customer.name,
         email: "",
-        phone: evt.customer.phone,
+        phone: bk.customer.phone,
       },
       subtotal: 0,
-      totalPrice: evt.totalPrice,
-      startDate: new Date(evt.startDate),
-      endDate: new Date(evt.endDate),
+      totalPrice: bk.totalPrice,
+      startDate: new Date(bk.startDate),
+      endDate: new Date(bk.endDate),
       note: "",
       customFields: [],
     };
   }
 
-  const handleOpenSheet = (evt: Event) => {
-    setSelectedEvent(evt);
+  const handleOpenSheet = (bk: Booking) => {
+    setSelectedBooking(bk);
     setOpen(true);
   };
   // -----------------
@@ -112,12 +112,12 @@ export default function MonthView({
               const isToday = isSameDay(date, new Date());
               const isCurrentMonth = isSameMonth(date, currentDate);
 
-              const eventsForDate = events.filter((event) =>
-                isSameDay(new Date(event.startDate), date)
+              const bookingsForDate = bookings.filter((booking) =>
+                isSameDay(new Date(booking.startDate), date)
               );
 
-              const displayEvents = eventsForDate.slice(0);
-              const remainingEventsCount = eventsForDate.length - 5;
+              const displayBookings = bookingsForDate.slice(0);
+              const remainingBookingsCount = bookingsForDate.length - 5;
 
               return (
                 <div
@@ -139,31 +139,31 @@ export default function MonthView({
 
                   <div className="flex flex-col justify-between h-full">
                     <div className="mt-1 space-y-1 text-xs overflow-y-auto flex-grow">
-                      {displayEvents.map((event) => {
-                        const eventStartDate = new Date(event.startDate).toISOString();
-                        const eventEndDate = new Date(event.endDate).toISOString();
+                      {displayBookings.map((booking) => {
+                        const bookingStartDate = new Date(booking.startDate).toISOString();
+                        const bookingEndDate = new Date(booking.endDate).toISOString();
 
-                        const eventDateRange =
-                          new Date(event.startDate).toDateString() ===
-                          new Date(event.endDate).toDateString()
-                            ? format(new Date(event.startDate), 'MMM d')
+                        const bookingDateRange =
+                          new Date(booking.startDate).toDateString() ===
+                          new Date(booking.endDate).toDateString()
+                            ? format(new Date(booking.startDate), 'MMM d')
                             : `${format(
-                                new Date(event.startDate),
+                                new Date(booking.startDate),
                                 'MMM d'
-                              )} - ${format(new Date(event.endDate), 'MMM d')}`;
+                              )} - ${format(new Date(booking.endDate), 'MMM d')}`;
 
-                        const eventTimeRange = `${format(
-                          new Date(event.startDate),
+                        const bookingTimeRange = `${format(
+                          new Date(booking.startDate),
                           'hh:mm a'
-                        )} - ${format(new Date(event.endDate), 'hh:mm a')}`;
+                        )} - ${format(new Date(booking.endDate), 'hh:mm a')}`;
 
                         return (
-                          <Tooltip key={event.id}>
+                          <Tooltip key={booking.id}>
                             <TooltipTrigger asChild>
                               <div>
-                                {/* --- SHEET FOR THIS EVENT --- */}
+                                {/* --- SHEET FOR THIS BOOKING --- */}
                                 <Sheet
-                                  open={open && selectedEvent?.id === event.id}
+                                  open={open && selectedBooking?.id === booking.id}
                                   onOpenChange={setOpen}
                                 >
                                   <SheetTrigger asChild>
@@ -171,11 +171,11 @@ export default function MonthView({
                                       className="truncate bg-violet-500 text-white rounded px-1 py-0.5 mb-1 cursor-pointer flex items-center justify-between gap-2"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleOpenSheet(event);
+                                        handleOpenSheet(booking);
                                       }}
                                     >
-                                      {event.spot.name}
-                                      {event.isNewEvent && (
+                                      {booking.spot.name}
+                                      {booking.isNewBooking && (
                                         <Tooltip>
                                           <TooltipTrigger>
                                             <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -188,10 +188,10 @@ export default function MonthView({
                                     </div>
                                   </SheetTrigger>
                                   <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
-                                    {selectedEvent &&
-                                      selectedEvent.id === event.id && (
+                                    {selectedBooking &&
+                                      selectedBooking.id === booking.id && (
                                         <BookingDetail
-                                          booking={getBookingForSheet(selectedEvent)}
+                                          booking={getBookingForSheet(selectedBooking)}
                                         />
                                       )}
                                   </SheetContent>
@@ -205,16 +205,16 @@ export default function MonthView({
                               className="w-64 p-4 bg-black text-white rounded-lg"
                             >
                               <PreviewContent
-                                Id={event.id}
-                                customerName={event.customer.name}
-                                customerPhone={event.customer.phone}
-                                eventDateRange={eventDateRange}
-                                eventTimeRange={eventTimeRange}
-                                startDate={eventStartDate}
-                                endDate={eventEndDate}
-                                spot={event.spot.name}
-                                totalPrice={event.totalPrice}
-                                isNewEvent={event.isNewEvent}
+                                Id={booking.id}
+                                customerName={booking.customer.name}
+                                customerPhone={booking.customer.phone}
+                                eventDateRange={bookingDateRange}
+                                eventTimeRange={bookingTimeRange}
+                                startDate={bookingStartDate}
+                                endDate={bookingEndDate}
+                                spot={booking.spot.name}
+                                totalPrice={booking.totalPrice}
+                                isNewEvent={booking.isNewBooking}
                               />
                             </TooltipContent>
                           </Tooltip>
@@ -222,20 +222,20 @@ export default function MonthView({
                       })}
                     </div>
 
-                    {remainingEventsCount > 0 && (
+                    {remainingBookingsCount > 0 && (
                       <div className="flex justify-center mt-1">
                         <button className="text-xs text-gray-400">
-                          +{remainingEventsCount} more
+                          +{remainingBookingsCount} more
                         </button>
                       </div>
                     )}
                   </div>
 
-                  {eventsForDate.length === 0 && (
+                  {bookingsForDate.length === 0 && (
                     <div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity dark:bg-neutral-900/90 flex items-center justify-center p-2">
-                      {/* <CreateEvent
+                      {/* <CreateBooking
                         workspaceId={workspaceId}
-                        onEventCreated={onEventCreated} 
+                        onBookingCreated={onBookingCreated} 
                       /> */}
                     </div>
                   )}

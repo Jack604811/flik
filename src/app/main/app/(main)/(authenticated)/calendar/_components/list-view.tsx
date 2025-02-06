@@ -25,7 +25,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FilterPopover } from "@/components/calendar/filter/filter-popover";
 
 interface Booking extends BaseBooking {
-  isNewEvent?: boolean;
+  isNewBooking?: boolean;
 }
 
 interface ListViewProps {
@@ -41,8 +41,8 @@ export default function ListView({
   loading = false,
   refreshEvents,
 }: ListViewProps) {
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [dateRange, setDateRange] = React.useState<[Date, Date] | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState<[Date, Date] | null>(null);
   const [open, setOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [selectedSpots, setSelectedSpots] = useState<string[]>([]);
@@ -53,7 +53,6 @@ export default function ListView({
     setFilterValue: (value: [Date, Date] | null) => setDateRange(value),
   } as any;
 
-  // **Apply Filtering Logic**
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
       booking.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -73,7 +72,7 @@ export default function ListView({
     return matchesSearch && matchesDateRange && matchesSpots && matchesStatuses;
   });
 
-  const newBookingsCount = bookings.filter((booking) => booking.isNewEvent).length;
+  const newBookingsCount = bookings.filter((booking) => booking.isNewBooking).length;
 
   const bookingsCount =
     dateRange || searchTerm || selectedSpots.length > 0 || selectedStatuses.length > 0
@@ -95,29 +94,56 @@ export default function ListView({
     });
   };
 
+  // Minimal implementation for fetchBookings:
   function fetchBookings(): Promise<void> {
-    throw new Error("Function not implemented.");
+    return refreshEvents();
   }
 
   const handleOpenSheet = (booking: Booking) => {
+    console.log("Opening sheet for booking:", booking.id);
     setSelectedBooking(booking);
     setOpen(true);
   };
 
+  // Inline helper function to build the booking object for BookingDetail
+  const getBookingForSheet = (bk: Booking) => ({
+    id: bk.id,
+    status: "Confirmed" as any,
+    createdAt: new Date(bk.createdAt),
+    updatedAt: new Date(),
+    spot: {
+      id: "",
+      name: bk.spot.name,
+      units: 0,
+      duration: 0,
+      durationType: "",
+      workingHours: [],
+    },
+    spotId: "",
+    customer: {
+      id: "TEMP_ID",
+      name: bk.customer.name,
+      email: "",
+      phone: bk.customer.phone,
+    },
+    subtotal: 0,
+    totalPrice: bk.totalPrice,
+    startDate: new Date(bk.startDate),
+    endDate: new Date(bk.endDate),
+    note: "",
+    customFields: [],
+  });
+
   return (
-    <>
-      <div className="w-full max-w-2xl mx-auto">
-        <div className="py-4 space-y-4">
-          <DateFilter column={Row} title="Filter by Date" className="mb-4" />
-          <div className="flex justify-between items-center">
-            <p className="text-lg font-semibold">{bookingsCount}</p>
-            <div className="md:hidden">
-              <CreateBooking
-                workspaceId={workspaceId}
-                refreshBookings={fetchBookings}
-              />
-            </div>
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="py-4 space-y-4">
+        <DateFilter column={Row} title="Filter by Date" className="mb-4" />
+        <div className="flex justify-between items-center">
+          <p className="text-lg font-semibold">{bookingsCount}</p>
+          <div className="md:hidden">
+            <CreateBooking workspaceId={workspaceId} refreshBookings={fetchBookings} />
           </div>
+        </div>
         <div className="flex gap-2">
           <Input
             placeholder="Search..."
@@ -125,112 +151,131 @@ export default function ListView({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="mb-4"
           />
-
-         <div className="md:hidden">
-          <FilterPopover 
-            bookings={bookings} 
-            onSpotSelected={(selected) => setSelectedSpots(selected)} 
-            onStatusSelected={(selected) => setSelectedStatuses(selected)} 
-          />
+          <div className="md:hidden">
+            <FilterPopover
+              bookings={bookings}
+              onSpotSelected={(selected) => setSelectedSpots(selected)}
+              onStatusSelected={(selected) => setSelectedStatuses(selected)}
+            />
           </div>
         </div>
-          <div className="h-[80vh] pb-24 md:pb-16 overflow-y-auto">
-            <TooltipProvider>
-              <div className="flex flex-col gap-4">
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, index) => (
-                    <div
-                      key={index}
-                      className="flex w-full rounded-lg border bg-card py-8 animate-pulse"
-                    ></div>
-                  ))
-                ) : filteredBookings.length > 0 ? (
-                  <>
-                    {filteredBookings.map((booking) => {
-                      const day = new Date(booking.startDate).getDate();
-                      const month = new Date(booking.startDate).toLocaleString(
-                        "en-US",
-                        {
-                          month: "short",
-                        }
-                      );
-                      const durationMs =
-                        new Date(booking.endDate).getTime() -
-                        new Date(booking.startDate).getTime();
-                      const durationInHours = Math.round(
-                        durationMs / (1000 * 60 * 60)
-                      );
-                      const durationInDays = Math.floor(durationInHours / 24);
-                      const duration =
-                        durationInDays > 0
-                          ? `${durationInDays} ${
-                              durationInDays > 1 ? "days" : "day"
-                            }`
-                          : `${durationInHours} ${
-                              durationInHours > 1 ? "hours" : "hour"
-                            }`;
+        <div className="h-[80vh] pb-24 md:pb-16 overflow-y-auto">
+          <TooltipProvider>
+            <div className="flex flex-col gap-4">
+              {loading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex w-full rounded-lg border bg-card py-8 animate-pulse"
+                  ></div>
+                ))
+              ) : filteredBookings.length > 0 ? (
+                <>
+                  {filteredBookings.map((booking) => {
+                    const day = new Date(booking.startDate).getDate();
+                    const month = new Date(booking.startDate).toLocaleString("en-US", {
+                      month: "short",
+                    });
+                    const durationMs =
+                      new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime();
+                    const durationInHours = Math.round(durationMs / (1000 * 60 * 60));
+                    const durationInDays = Math.floor(durationInHours / 24);
+                    const duration =
+                      durationInDays > 0
+                        ? `${durationInDays} ${durationInDays > 1 ? "days" : "day"}`
+                        : `${durationInHours} ${durationInHours > 1 ? "hours" : "hour"}`;
 
-                      return (
-                        <HoverCard key={booking.id}>
-                          <HoverCardTrigger asChild>
-                            <div>
-                              <Sheet open={open && selectedBooking?.id === booking.id} onOpenChange={setOpen}>
-                                <SheetTrigger asChild>
-                                  <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="flex w-full rounded-lg border py-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer"
-                                    onClick={() => handleOpenSheet(booking)}
-                                  >
-                                    <div className="flex w-full">
-                                      <div className="flex min-w-[60px] flex-col items-center justify-center rounded-lg border-none p-0 text-primary">
-                                        <span className="text-sm font-semibold tracking-wider">
-                                          {month}
-                                        </span>
-                                        <span className="text-2xl font-bold">
-                                          {day}
-                                        </span>
+                    return (
+                      <HoverCard key={booking.id}>
+                        <HoverCardTrigger asChild>
+                          <div>
+                            <Sheet
+                              open={open && selectedBooking?.id === booking.id}
+                              onOpenChange={setOpen}
+                            >
+                              <SheetTrigger asChild>
+                                <motion.div
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  className="flex w-full rounded-lg border py-2 hover:bg-neutral-100 dark:hover:bg-neutral-900 cursor-pointer"
+                                  onClick={() => handleOpenSheet(booking)}
+                                >
+                                  <div className="flex w-full">
+                                    <div className="flex min-w-[60px] flex-col items-center justify-center rounded-lg border-none p-0 text-primary">
+                                      <span className="text-sm font-semibold tracking-wider">
+                                        {month}
+                                      </span>
+                                      <span className="text-2xl font-bold">{day}</span>
+                                    </div>
+                                    <div className="flex flex-col justify-center flex-grow">
+                                      <div className="flex items-center gap-2">
+                                        <h3 className="font-semibold">
+                                          {booking.customer.name}
+                                        </h3>
+                                        {booking.isNewBooking && (
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <div className="w-2 h-2 bg-black dark:bg-white rounded-full"></div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>New</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
                                       </div>
-                                      <div className="flex flex-col justify-center flex-grow">
-                                        <div className="flex items-center gap-2">
-                                          <h3 className="font-semibold">
-                                            {booking.customer.name}
-                                          </h3>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground mb-0">
-                                          {booking.spot.name}
-                                        </p>
-                                        <div className="flex items-center gap-1 text-sm">
-                                          <span>Duration: {duration}</span>
-                                        </div>
+                                      <p className="text-sm text-muted-foreground mb-0">
+                                        {booking.spot.name}
+                                      </p>
+                                      <div className="flex items-center gap-1 text-sm">
+                                        <span>Duration: {duration}</span>
                                       </div>
                                     </div>
-                                    <div className="mr-2">
-                                      <RowActions
-                                        booking={booking}
-                                        refreshEvents={refreshEvents}
-                                      />
-                                    </div>
-                                  </motion.div>
-                                </SheetTrigger>
-                              </Sheet>
-                            </div>
-                          </HoverCardTrigger>
-                        </HoverCard>
-                      );
-                    })}
-                  </>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    <p>No bookings.</p>
-                  </div>
-                )}
-              </div>
-            </TooltipProvider>
-          </div>
+                                  </div>
+                                  <div className="mr-2">
+                                    <RowActions booking={booking} refreshEvents={refreshEvents} />
+                                  </div>
+                                </motion.div>
+                              </SheetTrigger>
+                              <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
+                                {selectedBooking && selectedBooking.id === booking.id && (
+                                  <BookingDetail booking={getBookingForSheet(selectedBooking)} />
+                                )}
+                              </SheetContent>
+                            </Sheet>
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent
+                          align="center"
+                          side="right"
+                          className="w-64 p-4 bg-black text-white rounded-lg"
+                        >
+                          <PreviewContent
+                            Id={booking.id}
+                            customerName={booking.customer.name}
+                            customerPhone={booking.customer.phone}
+                            eventDateRange={`${formatDate(booking.startDate)} - ${formatDate(booking.endDate)}`}
+                            eventTimeRange={`${formatTime(booking.startDate)} - ${formatTime(booking.endDate)}`}
+                            spot={booking.spot.name}
+                            totalPrice={booking.totalPrice}
+                            startDate={booking.startDate.toString()}
+                            endDate={booking.endDate.toString()}
+                            isNewEvent={booking.isNewBooking}
+                          />
+                        </HoverCardContent>
+                      </HoverCard>
+                    );
+                  })}
+                </>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <p>No bookings.</p>
+                </div>
+              )}
+            </div>
+          </TooltipProvider>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -153,8 +153,8 @@ export default function CalendarView({
                   <DayView
                     currentDate={currentDate}
                     workspaceId={workspaceId}
-                    onEventCreated={fetchBookings}
-                    events={enrichedBookings}
+                    onBookingCreated={fetchBookings}
+                    bookings={enrichedBookings}
                     onDaySelected={handleDaySelected}
                   />
                 )}
@@ -162,8 +162,8 @@ export default function CalendarView({
                   <WeekView
                     currentDate={currentDate}
                     workspaceId={workspaceId}
-                    onEventCreated={fetchBookings}
-                    events={enrichedBookings}
+                    onBookingCreated={fetchBookings}
+                    bookings={enrichedBookings}
                     onDaySelected={handleDaySelected}
                   />
                 )}
@@ -171,8 +171,8 @@ export default function CalendarView({
                   <MonthView
                     currentDate={currentDate}
                     workspaceId={workspaceId}
-                    onEventCreated={fetchBookings}
-                    events={enrichedBookings}
+                    onBookingCreated={fetchBookings}
+                    bookings={enrichedBookings}
                     onDaySelected={handleDaySelected}
                   />
                 )}

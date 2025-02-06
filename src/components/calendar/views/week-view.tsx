@@ -18,7 +18,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import BookingDetail from "@/components/calendar/booking-details";
 import { BookingStatus } from "@prisma/client"; 
 
-type Event = {
+type Booking = {
   id: string;
   spot: {
     name: string;
@@ -30,39 +30,39 @@ type Event = {
     phone: string;
   };
   totalPrice: number;
-  isNewEvent?: boolean;
+  isNewBooking?: boolean;
 };
 
 export function WeekView({
   currentDate,
   workspaceId,
-  onEventCreated,
-  events = [],
+  onBookingCreated,
+  bookings = [],
   onDaySelected,
 }: {
   currentDate: Date;
   workspaceId: string;
-  onEventCreated: () => void;
-  events: Event[];
+  onBookingCreated: () => void;
+  bookings: Booking[];
   onDaySelected: (date: Date) => void;
 }) {
-  const [hoveredEvent, setHoveredEvent] = useState<Event | null>(null);
+  const [hoveredBooking, setHoveredBooking] = useState<Booking | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // -- SHEET HANDLING
   const [open, setOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   // builds an object matching the shape required by BookingDetail
-  function getBookingForSheet(evt: Event) {
+  function getBookingForSheet(bk: Booking) {
     return {
-      id: evt.id,
+      id: bk.id,
       status: "Confirmed" as BookingStatus,
       createdAt: new Date(),
       updatedAt: new Date(),
       spot: {
         id: "",
-        name: evt.spot.name,
+        name: bk.spot.name,
         units: 0,
         duration: 0,
         durationType: "",
@@ -71,25 +71,25 @@ export function WeekView({
       spotId: "",
       customer: {
         id: "TEMP_ID",
-        name: evt.customer.name,
+        name: bk.customer.name,
         email: "",
-        phone: evt.customer.phone,
+        phone: bk.customer.phone,
       },
       subtotal: 0,
-      totalPrice: evt.totalPrice,
-      startDate: new Date(evt.startDate),
-      endDate: new Date(evt.endDate),
+      totalPrice: bk.totalPrice,
+      startDate: new Date(bk.startDate),
+      endDate: new Date(bk.endDate),
       note: "",
       customFields: [],
     };
   }
 
   const handleOpenSheet = (
-    evt: Event,
+    bk: Booking,
     e: React.MouseEvent<HTMLDivElement>
   ) => {
     e.stopPropagation();
-    setSelectedEvent(evt);
+    setSelectedBooking(bk);
     setOpen(true);
   };
   // --------------------
@@ -102,52 +102,53 @@ export function WeekView({
   const weekStart = startOfWeek(currentDate);
   const weekEnd = endOfWeek(currentDate);
 
-  const weekEvents = events.filter((event) => {
-    const eventStartDate = new Date(event.startDate);
-    const eventEndDate = new Date(event.endDate);
-    return eventEndDate >= weekStart && eventStartDate <= weekEnd;
+  const weekBookings = bookings.filter((booking) => {
+    const bookingStartDate = new Date(booking.startDate);
+    const bookingEndDate = new Date(booking.endDate);
+    return bookingEndDate >= weekStart && bookingStartDate <= weekEnd;
   });
 
-  const processedEvents = processEvents(weekEvents);
+  const processedBookings = processBookings(weekBookings);
 
-  function processEvents(events: Event[]) {
-    const processedEvents: (Event & { position: number })[] = [];
+  function processBookings(bookings: Booking[]) {
+    const processedBookings: (Booking & { position: number })[] = [];
     const positionsByDay: { [day: string]: number } = {};
 
-    events.sort(
-      (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    bookings.sort(
+      (a, b) =>
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
     );
 
-    events.forEach((event) => {
-      const eventStartDate = new Date(event.startDate);
-      const eventEndDate = new Date(event.endDate);
-      const eventStart = max([eventStartDate, weekStart]);
-      const eventEnd = min([eventEndDate, weekEnd]);
+    bookings.forEach((booking) => {
+      const bookingStartDate = new Date(booking.startDate);
+      const bookingEndDate = new Date(booking.endDate);
+      const bookingStart = max([bookingStartDate, weekStart]);
+      const bookingEnd = min([bookingEndDate, weekEnd]);
 
-      const startDayIndex = differenceInCalendarDays(eventStart, weekStart);
-      const endDayIndex = differenceInCalendarDays(eventEnd, weekStart);
+      const startDayIndex = differenceInCalendarDays(bookingStart, weekStart);
+      const endDayIndex = differenceInCalendarDays(bookingEnd, weekStart);
 
-      let maxPositionForEvent = 0;
+      let maxPositionForBooking = 0;
       for (let day = startDayIndex; day <= endDayIndex; day++) {
         const dayKey = day.toString();
         const position = positionsByDay[dayKey] || 0;
-        maxPositionForEvent = Math.max(maxPositionForEvent, position);
+        maxPositionForBooking = Math.max(maxPositionForBooking, position);
       }
-      const eventPosition = maxPositionForEvent;
+      const bookingPosition = maxPositionForBooking;
 
       for (let day = startDayIndex; day <= endDayIndex; day++) {
         const dayKey = day.toString();
-        positionsByDay[dayKey] = eventPosition + 1;
+        positionsByDay[dayKey] = bookingPosition + 1;
       }
 
-      processedEvents.push({ ...event, position: eventPosition });
+      processedBookings.push({ ...booking, position: bookingPosition });
     });
 
-    return processedEvents;
+    return processedBookings;
   }
 
   const maxPosition = Math.max(
-    ...processedEvents.map((event) => event.position),
+    ...processedBookings.map((booking) => booking.position),
     0
   );
   const containerHeight = (maxPosition + 1) * 28;
@@ -192,102 +193,100 @@ export function WeekView({
           className="relative h-screen"
           style={{ minHeight: `${containerHeight}px` }}
         >
-          {processedEvents.map((event) => {
-            const eventStartDate = new Date(event.startDate);
-            const eventEndDate = new Date(event.endDate);
-            const eventStart = max([eventStartDate, weekStart]);
-            const eventEnd = min([eventEndDate, weekEnd]);
+          {processedBookings.map((booking) => {
+            const bookingStartDate = new Date(booking.startDate);
+            const bookingEndDate = new Date(booking.endDate);
+            const bookingStart = max([bookingStartDate, weekStart]);
+            const bookingEnd = min([bookingEndDate, weekEnd]);
 
             const totalDays = 7;
-            let eventLeft =
-              (differenceInCalendarDays(eventStart, weekStart) / totalDays) *
+            let bookingLeft =
+              (differenceInCalendarDays(bookingStart, weekStart) / totalDays) *
               100;
-            let eventDurationDays =
-              differenceInCalendarDays(eventEnd, eventStart) + 1;
-            let eventWidth = (eventDurationDays / totalDays) * 100;
+            let bookingDurationDays =
+              differenceInCalendarDays(bookingEnd, bookingStart) + 1;
+            let bookingWidth = (bookingDurationDays / totalDays) * 100;
 
-            const eventTop = event.position * 28;
-            const spansMultipleDays = !isSameDay(eventStartDate, eventEndDate);
+            const bookingTop = booking.position * 28;
+            const spansMultipleDays = !isSameDay(bookingStartDate, bookingEndDate);
 
             if (spansMultipleDays) {
               const minutesInDay = 24 * 60;
 
               let startOffsetPercent = 0;
-              if (isSameDay(eventStart, eventStartDate)) {
+              if (isSameDay(bookingStart, bookingStartDate)) {
                 const minutesSinceStartOfDay =
-                  eventStartDate.getHours() * 60 +
-                  eventStartDate.getMinutes();
+                  bookingStartDate.getHours() * 60 +
+                  bookingStartDate.getMinutes();
                 startOffsetPercent =
                   (minutesSinceStartOfDay / minutesInDay) * 100;
               }
 
               let endOffsetPercent = 0;
-              if (isSameDay(eventEnd, eventEndDate)) {
+              if (isSameDay(bookingEnd, bookingEndDate)) {
                 const minutesUntilEndOfDay =
-                  eventEndDate.getHours() * 60 + eventEndDate.getMinutes();
+                  bookingEndDate.getHours() * 60 + bookingEndDate.getMinutes();
                 const endOffset = minutesUntilEndOfDay / minutesInDay;
                 endOffsetPercent = (1 - endOffset) * 100;
               }
 
-              eventLeft += (startOffsetPercent / 100) * (100 / totalDays);
-              eventWidth -=
+              bookingLeft += (startOffsetPercent / 100) * (100 / totalDays);
+              bookingWidth -=
                 (startOffsetPercent / 100) * (100 / totalDays) +
                 (endOffsetPercent / 100) * (100 / totalDays);
             }
 
-            const isContinuingEvent = isBefore(eventStartDate, weekStart);
-            const eventBgColor = isContinuingEvent
+            const isContinuingBooking = isBefore(bookingStartDate, weekStart);
+            const bookingBgColor = isContinuingBooking
               ? "bg-gray-500"
               : "bg-violet-500";
 
             return (
               <Sheet
-                key={event.id}
-                open={open && selectedEvent?.id === event.id}
+                key={booking.id}
+                open={open && selectedBooking?.id === booking.id}
                 onOpenChange={setOpen}
               >
                 <SheetTrigger asChild>
                   <div
-                    onMouseEnter={() => setHoveredEvent(event)}
-                    onMouseLeave={() => setHoveredEvent(null)}
+                    onMouseEnter={() => setHoveredBooking(booking)}
+                    onMouseLeave={() => setHoveredBooking(null)}
                     onMouseMove={(e) =>
                       setMousePosition({ x: e.clientX, y: e.clientY })
                     }
                   >
-                   
-                      <div
-                        className={`${eventBgColor} absolute text-white text-sm rounded px-1 py-0.5 cursor-pointer overflow-hidden border border-background`}
-                        style={{
-                          top: `${eventTop}px`,
-                          left: `${eventLeft}%`,
-                          width: `${eventWidth}%`,
-                          height: `24px`,
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenSheet(event, e);
-                        }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{event.spot.name}</span>
-                          {event.isNewEvent && (
-                            <div className="w-2 h-2 bg-white rounded-full" />
-                          )}
-                        </div>
-                        <div className="text-xs">{event.customer.name}</div>
+                    <div
+                      className={`${bookingBgColor} absolute text-white text-sm rounded px-1 py-0.5 cursor-pointer overflow-hidden border border-background`}
+                      style={{
+                        top: `${bookingTop}px`,
+                        left: `${bookingLeft}%`,
+                        width: `${bookingWidth}%`,
+                        height: `24px`,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenSheet(booking, e);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{booking.spot.name}</span>
+                        {booking.isNewBooking && (
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        )}
                       </div>
-                
+                      <div className="text-xs">{booking.customer.name}</div>
+                    </div>
                   </div>
                 </SheetTrigger>
                 <SheetContent className="p-0 min-w-full md:min-w-[500px] xl:min-w-[600px]">
-                  {selectedEvent && selectedEvent.id === event.id && (
-                    <BookingDetail booking={getBookingForSheet(selectedEvent)} />
+                  {selectedBooking && selectedBooking.id === booking.id && (
+                    <BookingDetail booking={getBookingForSheet(selectedBooking)} />
                   )}
                 </SheetContent>
               </Sheet>
             );
           })}
-          {hoveredEvent && (
+          {hoveredBooking && (
             <div
               className="w-64 p-4 bg-black text-white rounded-lg"
               style={{
@@ -298,35 +297,35 @@ export function WeekView({
               }}
             >
               <PreviewContent
-                Id={hoveredEvent.id}
-                customerName={hoveredEvent.customer.name}
-                customerPhone={hoveredEvent.customer.phone}
+                Id={hoveredBooking.id}
+                customerName={hoveredBooking.customer.name}
+                customerPhone={hoveredBooking.customer.phone}
                 eventDateRange={
                   isSameDay(
-                    new Date(hoveredEvent.startDate),
-                    new Date(hoveredEvent.endDate)
+                    new Date(hoveredBooking.startDate),
+                    new Date(hoveredBooking.endDate)
                   )
-                    ? format(new Date(hoveredEvent.startDate), "MMM d")
+                    ? format(new Date(hoveredBooking.startDate), "MMM d")
                     : `${format(
-                        new Date(hoveredEvent.startDate),
+                        new Date(hoveredBooking.startDate),
                         "MMM d"
                       )} - ${format(
-                        new Date(hoveredEvent.endDate),
+                        new Date(hoveredBooking.endDate),
                         "MMM d"
                       )}`
                 }
                 eventTimeRange={`${format(
-                  new Date(hoveredEvent.startDate),
+                  new Date(hoveredBooking.startDate),
                   "hh:mm a"
                 )} - ${format(
-                  new Date(hoveredEvent.endDate),
+                  new Date(hoveredBooking.endDate),
                   "hh:mm a"
                 )}`}
-                startDate={new Date(hoveredEvent.startDate).toISOString()}
-                endDate={new Date(hoveredEvent.endDate).toISOString()}
-                spot={hoveredEvent.spot.name}
-                totalPrice={hoveredEvent.totalPrice}
-                isNewEvent={hoveredEvent.isNewEvent}
+                startDate={new Date(hoveredBooking.startDate).toISOString()}
+                endDate={new Date(hoveredBooking.endDate).toISOString()}
+                spot={hoveredBooking.spot.name}
+                totalPrice={hoveredBooking.totalPrice}
+                isNewEvent={hoveredBooking.isNewBooking}
               />
             </div>
           )}

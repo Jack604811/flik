@@ -210,6 +210,15 @@ bookingRoutes.openapi(updateBookingRoute, async (c) => {
 const getBookingsRoute = createRoute({
     method: "get",
     path: "/",
+    request: {
+        query: z.object({
+            startDate: z.string().optional(), 
+            endDate: z.string().optional(),    
+            status: z.string().optional(),     
+            customerId: z.string().optional(), 
+            spotId: z.string().optional(),     
+        }),
+    },
     responses: {
         200: {
             description: "List of bookings",
@@ -218,23 +227,51 @@ const getBookingsRoute = createRoute({
                     schema: z.object({
                         status: z.literal("success"),
                         type: z.literal("bookings"),
-                        data: z.array(bookingSchema)
-                    })
-                }
-            }
-        }
+                        data: z.array(bookingSchema),
+                    }),
+                },
+            },
+        },
     },
     security: [
         {
-            "x-token": []
-        }
-    ]
+            "x-token": [],
+        },
+    ],
 });
 
 bookingRoutes.openapi(getBookingsRoute, async (c) => {
-    const data = await getBookings(c.get("workspace").id) as z.infer<typeof bookingSchema>[];
-    return c.json({ status: "success" as const, type: "bookings" as const, data }, 200);
+    const { startDate, endDate, status, customerId, spotId } = c.req.valid("query");
+    const workspaceId = c.get("workspace").id;
+
+    let bookings = await getBookings(workspaceId) as z.infer<typeof bookingSchema>[];
+
+    
+    bookings = bookings.filter((booking) => {
+        if (startDate) {
+            const startOfDay = new Date(startDate);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            const endOfDay = new Date(startDate);
+            endOfDay.setUTCHours(23, 59, 59, 999);
+            if (!(new Date(booking.startDate) >= startOfDay && new Date(booking.startDate) <= endOfDay)) {
+                return false;
+            }
+        }
+
+        if (endDate) {
+            if (new Date(booking.endDate) > new Date(endDate)) return false;
+        }
+
+        if (status && booking.status !== status) return false;
+        if (customerId && booking.customer?.id !== customerId) return false;
+        if (spotId && booking.spotId !== spotId) return false;
+
+        return true;
+    });
+
+    return c.json({ status: "success" as const, type: "bookings" as const, data: bookings }, 200);
 });
+
 
 const getBookingByIdRoute = createRoute({
     method: "get",
