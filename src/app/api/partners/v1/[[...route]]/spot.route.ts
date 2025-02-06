@@ -20,6 +20,7 @@ const addSpotSchema = z.object({
     allowAdditionalGuest: z.boolean().optional(),
     additionalGuestPrice: z.number().optional(),
     workingHours: z.array(z.any()).optional(),
+    files: z.array(z.instanceof(File)).openapi({ type: "array", items: { type: "string", format: "binary" }})
 });
 
 const addSpotRoute = createRoute({
@@ -65,10 +66,6 @@ const addSpotRoute = createRoute({
         }
     ]
 });
-
-
-
-
 
 
 const getSpotsRoute = createRoute({

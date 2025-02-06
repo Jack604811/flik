@@ -195,6 +195,15 @@ export const getCategories = async ({ workspaceId }: { workspaceId: string }) =>
   }
 };
 
+export const getCategory = async({workspaceId, id}: {workspaceId: string, id: string}) => {
+  const category = await db.category.findFirst({
+    where: { workspaceId, id },
+    include: { subCategories: true },
+  });
+
+  return category;
+}
+
 
 export const updateCategory = async ({
   id,

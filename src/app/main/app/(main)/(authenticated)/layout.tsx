@@ -1,40 +1,26 @@
-import { NON_AUTHENTICATED_REDIRECT_URL } from "@/app-settings";
+import Sidebar from "@/components/main/sidebar";
+import Docker from "@/components/main/docker";
 import { TailwindScreen } from "@/components/main/tailwind-screen";
 import ModalAndSheetProvider from "@/components/providers/ModalAndSheetProvider";
-import { getCurrentWorkspace } from "@/server/actions/user.action";
-import { auth } from "@/server/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
 export default async function Layout({
   children,
-  searchParams,
-}: Readonly<{ children: React.ReactNode; searchParams: { invite?: string } }>) {
-  const header = headers();
-  const session = await auth();
-  const currentPath = header.get("x-current-path");
-
-  if (!session?.user) {
-    const redirectUrl = `${NON_AUTHENTICATED_REDIRECT_URL}${
-      searchParams?.invite ? `?invite=${searchParams.invite}` : ""
-    }`;
-    return redirect(redirectUrl);
-  }
-
-  const currentWorkspace = await getCurrentWorkspace().catch((err) => {
-    console.error("Error fetching workspace:", err);
-    return null;
-  });
-
-  if (!currentWorkspace && !currentPath?.startsWith("/workspaces")) {
-    return redirect("/workspaces");
-  }
-
+}: Readonly<{ children: React.ReactNode;}>) {
   return (
-    <>
-      <ModalAndSheetProvider />
-      {children}
-      {process.env.NODE_ENV === "development" && <TailwindScreen />}
-    </>
+    <div className="flex h-screen w-full flex-row relative overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
+        <ModalAndSheetProvider />
+        {children}
+        {process.env.NODE_ENV === "development" && <TailwindScreen />}
+      </div>
+
+      {/* Docker */}
+      <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 lg:hidden">
+        <Docker />
+      </div>
+    </div>
   );
 }

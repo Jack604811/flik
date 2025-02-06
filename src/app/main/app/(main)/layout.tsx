@@ -1,24 +1,56 @@
-"use client";
+import { NON_AUTHENTICATED_REDIRECT_URL } from "@/app-settings";
+import { getCurrentWorkspace } from "@/server/actions/user.action";
+import { hasWorkspace } from "@/server/actions/workspace.action";
+import { auth } from "@/server/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-import React from "react";
-import Sidebar from "@/components/main/sidebar";
-import Docker from "@/components/main/docker";
+export default async function MainLayout({
+  children,
+}: Readonly<{ children: React.ReactNode; }>) {
+  const header = headers();
+  const session = await auth();
+  const currentPath = header.get("x-current-path");
+  const searchParams = new URLSearchParams(header.get("x-search-params")!);
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+  if (!session?.user) {
+    const redirectUrl = `${NON_AUTHENTICATED_REDIRECT_URL}${
+      searchParams.get("invite") ? `?invite=${searchParams.get("invite")}` : ""
+    }`;
+    return redirect(redirectUrl);
+  }
+  // If email is not verified, redirect to verification
+  if (!session.user.emailVerified) {
+    return redirect(`/verify-request${
+      searchParams.get("invite") ? `?invite=${searchParams.get("invite")}` : ""
+    }`);
+  }
+  console.log(searchParams.get("invite"))
+// If invited to a workspace, redirect to accept invite page
+  if (searchParams.get("invite") && currentPath !== "/invite") {
+    return redirect(`/invite?invite=${searchParams.get("invite")}`);
+  }
+  
+
+  // If onboarding is not completed, redirect to onboarding
+  const isWorkspaceExists = await hasWorkspace()
+  if (!session.user.onboardingComplete && !currentPath?.startsWith("/onboarding")) {
+    if(isWorkspaceExists) return redirect("/onboarding/invite-team");
+    return redirect("/onboarding");
+  }
+
+  const currentWorkspace = await getCurrentWorkspace()
+  if(session.user.onboardingComplete && currentPath?.includes("/onboarding")){
+    if(currentWorkspace) return redirect("/dashboard");
+    redirect("/workspaces")
+  }
+
+  if (!currentWorkspace && session.user.onboardingComplete && !currentPath?.startsWith("/workspaces")) {
+    return redirect("/workspaces");
+  }
+
+
   return (
-    <div className="flex h-screen w-full flex-row relative overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
-        {children}
-      </div>
-
-      {/* Docker */}
-      <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 lg:hidden">
-        <Docker />
-      </div>
-    </div>
+    <>{children}</>
   );
 }

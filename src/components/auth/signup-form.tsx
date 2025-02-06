@@ -11,6 +11,7 @@ import { z } from "zod";
 import { AFTER_SIGNUP_REDIRECT_URL } from "@/app-settings";
 import { OauthProvider } from "@/components/auth/oauth-provider";
 import { registerUser } from "@/server/actions/auth.action";
+import { signIn } from "next-auth/react";
 
 // Validation schema
 const formSchema = z.object({
@@ -65,8 +66,9 @@ const SignupForm = ({
       if (response.error) {
         setError(response.error);
       } else {
+        await signIn("signin", { redirectTo: `/verify-request${searchParams.invite ? `?invite=${searchParams.invite}`:""}`, email: emailValue, password: passwordValue})
         // Pass the email parameter during redirection
-        router.push(`/verify-request?email=${encodeURIComponent(emailValue)}`);
+        // router.push(`/verify-request?email=${encodeURIComponent(emailValue)}`);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

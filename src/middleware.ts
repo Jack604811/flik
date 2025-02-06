@@ -22,6 +22,7 @@ export const config = {
 };
 
 export default async function middleware(req: NextRequest) {
+  const headers = new Headers(req.headers);
   const url = req.nextUrl;
 
   // Get hostname of request (e.g. demo.vercel.pub, demo.localhost:3000)
@@ -30,13 +31,13 @@ export default async function middleware(req: NextRequest) {
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
   const searchParams = req.nextUrl.searchParams.toString();
+
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = `${url.pathname}${
     searchParams.length > 0 ? `?${searchParams}` : ""
   }`;
 
   if (hostname === "localhost:3000" || hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
-    const headers = new Headers(req.headers);
     headers.set("x-current-path", req.nextUrl.pathname);
   
     return NextResponse.rewrite(
@@ -46,7 +47,6 @@ export default async function middleware(req: NextRequest) {
   
   
   if (hostname == `api.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
-    const headers = new Headers(req.headers);
 
     return NextResponse.rewrite(
       new URL(`/api/partners${path === "/" ? "" : path}`, req.url), {headers}
@@ -57,8 +57,8 @@ export default async function middleware(req: NextRequest) {
 
   // rewrites for app pages
   if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
-    const headers = new Headers(req.headers);
     headers.set("x-current-path", req.nextUrl.pathname);
+    headers.set("x-search-params",  req.nextUrl.searchParams.toString());
 
     return NextResponse.rewrite(
       new URL(`/main/app${path === "/" ? "" : path}`, req.url), {headers}
@@ -67,7 +67,6 @@ export default async function middleware(req: NextRequest) {
 
   // rewrites for app pages
   if (hostname == `admin.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
-    const headers = new Headers(req.headers);
     headers.set("x-current-path", req.nextUrl.pathname);
 
     return NextResponse.rewrite(

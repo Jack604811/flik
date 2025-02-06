@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp';
@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { validateVerificationCodeOTP, generateVerificationCodeOTP } from '@/server/actions/auth.action';
 import { AFTER_VERIFY_REDIRECT_URL } from '@/app-settings';
+import { useSession } from 'next-auth/react';
 
 export default function OTPVerification({ email }: { email: string }) {
+  const searchParams = useSearchParams()
   const router = useRouter();
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +20,7 @@ export default function OTPVerification({ email }: { email: string }) {
   const [isResending, setIsResending] = useState(false);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const {update: updateSession} = useSession()
 
   const BACK_BUTTON_URL = '/signup';
 
@@ -59,9 +62,15 @@ export default function OTPVerification({ email }: { email: string }) {
       if (result.error) {
         throw new Error(result.error);
       }
+      await updateSession({
+        user: {
+          emailVerified: result.emailVerified
+        }
+      });
   
       // Redirect to the dashboard after successful verification and login
-      router.push(AFTER_VERIFY_REDIRECT_URL);
+      router.push(`${AFTER_VERIFY_REDIRECT_URL}${
+        searchParams.get("invite")? `?invite=${searchParams.get("invite")}` : ""}`);
     } catch (err) {
       setError((err as Error).message || "An unexpected error occurred. Please try again.");
     } finally {
@@ -76,7 +85,6 @@ export default function OTPVerification({ email }: { email: string }) {
 
     try {
       const result = await generateVerificationCodeOTP(email);
-
       if (result.success) {
         setError('A new code has been sent to your email.');
         startResendTimer(); // Start the timer after sending OTP

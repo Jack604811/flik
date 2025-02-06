@@ -52,11 +52,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ searchParams, authProviders }) =>
     setError(null);
 
     try {
+
       const res = await signIn("signin", {
         email: emailValue,
         password: passwordValue,
         redirect: false,
-        callbackUrl: AFTER_SIGNIN_REDIRECT_URL,
+        callbackUrl: `${AFTER_SIGNIN_REDIRECT_URL}${
+                  searchParams.invite ? `?invite=${searchParams.invite}` : ""
+                }`,
       });
 
       if (res?.error) {

@@ -1,2 +1,2 @@
-import { EventCallbacks } from "next-auth";
-export const events: Partial<EventCallbacks> = {};
+import { NextAuthConfig } from "next-auth";
+export const events: Partial<NextAuthConfig["events"]> = {};

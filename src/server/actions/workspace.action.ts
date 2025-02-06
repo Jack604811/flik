@@ -3,12 +3,17 @@
 import { env } from "@/env";
 import { db } from "../db";
 import { uploadSiteImage } from "./supabase.action";
-import { addDomainToVercel, clearDomainCache, removeDomainFromVercelProject, validDomainRegex } from "../helpers/domains";
+import {
+  addDomainToVercel,
+  clearDomainCache,
+  removeDomainFromVercelProject,
+  validDomainRegex,
+} from "../helpers/domains";
 import { getCurrentUser } from "../auth";
 import { revalidatePath } from "next/cache";
-import { updateCurrentWorkspace } from "./user.action"; 
-import { v4 as uuidv4 } from 'uuid';
-import { createHmac } from 'crypto';
+import { updateCurrentWorkspace } from "./user.action";
+import { v4 as uuidv4 } from "uuid";
+import { createHmac } from "crypto";
 import { WorkspaceInviteMagicLinkTemplate } from "@/emails/workspace/new-invitation";
 import { WorkspaceRemovalNotificationTemplate } from "@/emails/workspace/delete-user";
 import { Resend } from "resend";
@@ -18,24 +23,28 @@ import { FORBIDDEN_SUBDOMAINS } from "@/app-settings";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
-export const createWorkspace = async (siteName: string) => {
+export const createWorkspace = async (formData: FormData) => {
+  const siteName = formData.get("siteName") as string;
+  const subdomain = formData.get("subdomain") as string;
+  const aboutUs = formData.get("aboutUs") as string;
+  const logo = formData.get("logo") as File | null | undefined;
+  const favicon = formData.get("favicon") as File | null | undefined;
+
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     throw new Error("User not authenticated");
   }
 
-  // Debugging siteName and currentUser
-  console.log("Received siteName:", siteName);
-  console.log("Current user ID:", currentUser.id);
-
-  if (!siteName || typeof siteName !== "string" || siteName.trim() === "") {
-    throw new Error("Invalid site name");
+  if (!siteName || !aboutUs) {
+    throw new Error("Missing required fields");
   }
 
   const newWorkspace = await db.workspace.create({
     data: {
       siteName: siteName.trim(),
+      aboutUs,
+      subdomain,
       ownerId: currentUser.id,
       teamMembers: {
         create: {
@@ -46,14 +55,40 @@ export const createWorkspace = async (siteName: string) => {
       },
     },
   });
-
-  console.log("New workspace created:", newWorkspace);
+  const logoUrl = logo
+    ? await uploadSiteImage(newWorkspace.id, `logo.webp`, logo)
+    : null;
+  const faviconUrl = favicon
+    ? await uploadSiteImage(newWorkspace.id, `favicon.webp`, favicon)
+    : null;
+  const workspace = await db.workspace.update({
+    where: { id: newWorkspace.id },
+    data: { logo: logoUrl, favicon: faviconUrl },
+  });
 
   await updateCurrentWorkspace(currentUser.id, newWorkspace.id);
 
-  return newWorkspace;
+  return workspace;
 };
 
+export const hasWorkspace = async () => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
+  // Fetch the user's currentWorkspaceId
+  const workspaces = await db.workspace.count({
+    where: {
+      OR: [
+        { teamMembers: { some: { userId: currentUser.id } } },
+        { ownerId: currentUser.id },
+      ],
+    },
+    select: { id: true },
+  });
+
+  return workspaces.id > 0;
+};
 
 export const getWorkspaces = async () => {
   const currentUser = await getCurrentUser();
@@ -64,8 +99,13 @@ export const getWorkspaces = async () => {
 
   // Fetch the workspaces owned by the current user
   const workspaces = await db.workspace.findMany({
-    where: { OR: [{ teamMembers: { some: { userId: currentUser.id } } }, {ownerId: currentUser.id}] },
-    select: { id: true, siteName: true, logo: true, },
+    where: {
+      OR: [
+        { teamMembers: { some: { userId: currentUser.id } } },
+        { ownerId: currentUser.id },
+      ],
+    },
+    select: { id: true, siteName: true, logo: true },
   });
 
   // Fetch the user's currentWorkspaceId
@@ -77,8 +117,8 @@ export const getWorkspaces = async () => {
   return {
     workspaces,
     currentWorkspaceId: user?.currentWorkspaceId || null,
-  }
-}
+  };
+};
 
 export const getWorkspace = (id: string) => {
   const workspace = db.workspace.findFirst({ where: { id } });
@@ -97,9 +137,10 @@ export const updateWorkspace = async (
   return workspace;
 };
 
-
-
-export const deleteWorkspace = async (workspaceId: string, password: string) => {
+export const deleteWorkspace = async (
+  workspaceId: string,
+  password: string
+) => {
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("User not authenticated");
 
@@ -121,11 +162,11 @@ export const deleteWorkspace = async (workspaceId: string, password: string) => 
   return true; // Workspace and related data deleted
 };
 
-
-
 export const updateSubdomain = async (id: string, subdomain: string) => {
   if (FORBIDDEN_SUBDOMAINS.includes(subdomain.toLowerCase())) {
-    throw new Error("The chosen subdomain is not allowed. Please choose a different subdomain.");
+    throw new Error(
+      "The chosen subdomain is not allowed. Please choose a different subdomain."
+    );
   }
 
   await db.workspace.update({
@@ -176,7 +217,10 @@ export const getSubdomain = async (id: string) => {
   return workspace?.subdomain;
 };
 
-export const updateStripeConnection = async (id: string, stripeAccountId: string) => {
+export const updateStripeConnection = async (
+  id: string,
+  stripeAccountId: string
+) => {
   await db.workspace.update({
     where: { id },
     data: { stripeAccountId },
@@ -185,7 +229,10 @@ export const updateStripeConnection = async (id: string, stripeAccountId: string
   return true;
 };
 
-export const updateWompiConnection = async (id: string, wompiAccountId: Record<string, any>) => {
+export const updateWompiConnection = async (
+  id: string,
+  wompiAccountId: Record<string, any>
+) => {
   await db.workspace.update({
     where: { id },
     data: { wompiAccountId },
@@ -233,17 +280,19 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
     subdomain?: string;
   } = {};
 
-  if(subdomain) {
+  if (subdomain) {
     if (FORBIDDEN_SUBDOMAINS.includes(subdomain.toLowerCase())) {
-      throw new Error("The chosen subdomain is not allowed. Please choose a different subdomain.");
+      throw new Error(
+        "The chosen subdomain is not allowed. Please choose a different subdomain."
+      );
     }
     data.subdomain = subdomain;
   }
-  if(siteName) data.siteName = siteName;
-  if(aboutUs) data.aboutUs = aboutUs;
-  if(country) data.country = country;
-  if(currency) data.currency = currency;
-  if(defaultPaymentMethod) data.defaultPaymentMethod = defaultPaymentMethod;
+  if (siteName) data.siteName = siteName;
+  if (aboutUs) data.aboutUs = aboutUs;
+  if (country) data.country = country;
+  if (currency) data.currency = currency;
+  if (defaultPaymentMethod) data.defaultPaymentMethod = defaultPaymentMethod;
 
   if (logo) {
     data.logo = await uploadSiteImage(id, `logo.webp`, logo);
@@ -259,19 +308,24 @@ export const updateSiteSetting = async (id: string, formData: FormData) => {
   return updatedSettings;
 };
 
-
-export const sendInviteToWorkspace = async (workspaceId: string, email: string, permission: string) => {
+export const sendInviteToWorkspace = async (
+  workspaceId: string,
+  email: string,
+  permission: string
+) => {
   const currentUser = await getCurrentUser();
-  const workspace = await db.workspace.findFirst({ where: { id: workspaceId } });
+  const workspace = await db.workspace.findFirst({
+    where: { id: workspaceId },
+  });
 
   if (!currentUser || !workspace) {
     throw new Error("User not authenticated");
   }
 
   // Send invitation email to the user and add them to the invited list
-  const token = createHmac('sha256', env.NEXTAUTH_SECRET)
+  const token = createHmac("sha256", env.NEXTAUTH_SECRET)
     .update(`${uuidv4()}${email}`)
-    .digest('hex');
+    .digest("hex");
 
   await db.invitation.create({
     data: {
@@ -282,21 +336,25 @@ export const sendInviteToWorkspace = async (workspaceId: string, email: string, 
           workspaceId,
           role: permission,
           status: TeamMemberStatus.Pending,
-        }
-      }
+        },
+      },
     },
   });
 
   await resend.emails.send({
     from: env.EMAIL_FROM,
     to: email,
-    subject: 'You have been invited to join a workspace',
-    react: WorkspaceInviteMagicLinkTemplate({ link: `${env.NEXTAUTH_URL}/invite?token=${token}`, invitedBy: currentUser.name ?? "Someone", workspaceName: workspace.siteName! }),
+    subject: "You have been invited to join a workspace",
+    react: WorkspaceInviteMagicLinkTemplate({
+      link: `${env.NEXTAUTH_URL}/invite?invite=${token}`,
+      invitedBy: currentUser.name ?? "Someone",
+      workspaceName: workspace.siteName!,
+    }),
     html: "",
   });
 
   return true;
-}
+};
 
 export const deleteTeamMember = async (id: string) => {
   const currentUser = await getCurrentUser();
@@ -304,9 +362,12 @@ export const deleteTeamMember = async (id: string) => {
     throw new Error("User not authenticated");
   }
   await db.teamMember.delete({ where: { id } });
-}
+};
 
-export const updateTeamMember = async (id: string, data: Partial<TeamMember>) => {
+export const updateTeamMember = async (
+  id: string,
+  data: Partial<TeamMember>
+) => {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
     throw new Error("User not authenticated");
@@ -316,15 +377,24 @@ export const updateTeamMember = async (id: string, data: Partial<TeamMember>) =>
     data,
   });
   return updatedTeamMember;
-}
+};
 
 export const checkIfInvitationExists = async (token: string) => {
-  const invitation = await db.invitation.findFirst({ where: { token } });
+  const invitation = await db.invitation.findFirst({
+    where: { token },
+    include: {
+      teamMember: {
+        include: {
+          workspace: { select: { id: true, siteName: true, logo: true } },
+        },
+      },
+    },
+  });
   return invitation;
-}
+};
 
 export const acceptWorkspaceInvite = async (token: string, userId: string) => {
-  const invitation = await db.invitation.findFirst({ where: { token }});
+  const invitation = await db.invitation.findFirst({ where: { token } });
   const user = await getUserById(userId);
   if (!invitation) {
     throw new Error("Invalid invitation token");
@@ -333,30 +403,31 @@ export const acceptWorkspaceInvite = async (token: string, userId: string) => {
     throw new Error("User not found");
   }
 
-  if(invitation.email !== user.email){
+  if (invitation.email !== user.email) {
     throw new Error("Email does not match the invitation");
   }
 
   // Add the user to the workspace
   await db.teamMember.update({
-    where:  { id: invitation.teamMemberId },
+    where: { id: invitation.teamMemberId },
     data: {
       userId: user.id,
       status: TeamMemberStatus.Active,
       joinedAt: new Date(),
     },
-    
   });
 
   // Delete the user
   await db.invitation.delete({ where: { token } });
 
   return true;
-}
+};
 
 export const getTeamMembers = async (workspaceId: string) => {
   const currentUser = await getCurrentUser();
-  const workspace = await db.workspace.findFirst({ where: { id: workspaceId } });
+  const workspace = await db.workspace.findFirst({
+    where: { id: workspaceId },
+  });
 
   if (!currentUser || !workspace) {
     throw new Error("User not authenticated");
@@ -367,13 +438,16 @@ export const getTeamMembers = async (workspaceId: string) => {
   });
 
   return teamMembers;
-}
+};
 
-
-
-export const removeUserFromWorkspace = async (workspaceId: string, email: string) => {
+export const removeUserFromWorkspace = async (
+  workspaceId: string,
+  email: string
+) => {
   const currentUser = await getCurrentUser();
-  const workspace = await db.workspace.findFirst({ where: { id: workspaceId } });
+  const workspace = await db.workspace.findFirst({
+    where: { id: workspaceId },
+  });
 
   if (!currentUser || !workspace) {
     throw new Error("User not authenticated or workspace not found");
@@ -409,7 +483,7 @@ export const removeUserFromWorkspace = async (workspaceId: string, email: string
     await resend.emails.send({
       from: env.EMAIL_FROM,
       to: email,
-      subject: 'You have been removed from the workspace',
+      subject: "You have been removed from the workspace",
       react: WorkspaceRemovalNotificationTemplate({
         removedBy: currentUser.name ?? "Admin",
         workspaceName: workspace.siteName!,
@@ -420,4 +494,3 @@ export const removeUserFromWorkspace = async (workspaceId: string, email: string
 
   return true;
 };
-

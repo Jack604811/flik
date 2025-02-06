@@ -5,11 +5,12 @@ import bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import { Resend } from "resend";
 import { env } from "@/env";
-import { EmailVerificationLinkTemplate } from "@/emails/auth/email-verification-link";
 import { EmailVerificationOTPTemplate } from "@/emails/auth/email-verification-otp";
 import { APP_NAME } from "@/app-settings";
 import { PasswordResetLinkTemplate } from "@/emails/auth/password-reset-link";
 import { acceptWorkspaceInvite } from "./workspace.action";
+import { getCurrentUser, signIn, updateSession } from "../auth";
+
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -96,12 +97,37 @@ export const validateVerificationCodeOTP = async (otpCode: string) => {
 
   await db.verificationToken.delete({ where: { token: otpCode } });
 
-  await db.user.update({
+  const updatedUser = await db.user.update({
     where: { email: verificationToken.identifier },
     data: { emailVerified: new Date() },
   });
 
-  return { success: "Verified successfully!" };
+  // update emailVerified in session.user 
+
+  await updateSession({
+    user: {
+      emailVerified: updatedUser.emailVerified,
+    }
+  })
+
+  return { success: "Verified successfully!", emailVerified: updatedUser.emailVerified };
+};
+
+export const updateOnboardingState = async () => {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return { error: "User not found" };
+  }
+  const updatedUser = await db.user.update({
+    where: { id: currentUser.id },
+    data: { onboardingComplete: new Date() },
+  });
+  await updateSession({
+    user: {
+      onboardingComplete: updatedUser.onboardingComplete
+    }
+  })
+  return { onboardingComplete: updatedUser.onboardingComplete };
 };
 
 export const generatePasswordResetToken = async (email: string) => {
@@ -147,31 +173,14 @@ export const registerUser = async (
       },
     });
   
-    if (inviteToken) {
-      try {
-        await acceptWorkspaceInvite(inviteToken, user.id);
-      } catch (error) {}
-    }
+    // if (inviteToken) {
+    //   try {
+    //     await acceptWorkspaceInvite(inviteToken, user.id);
+    //   } catch (error) {}
+    // }
   
     // Generate and save OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
-    await db.verificationToken.create({
-      data: {
-        identifier: email,
-        token: otpCode,
-        expires: otpExpiration,
-      },
-    });
-  
-    // Send OTP via email
-    await resend.emails.send({
-        from: `${APP_NAME}<${env.EMAIL_FROM}>`,
-        to: email,
-        subject: `Your code for ${APP_NAME}`,
-        react: EmailVerificationOTPTemplate({ otpCode: otpCode }), // Match the property name here
-        html: "", // Include only if you need fallback HTML
-      });
+    // await generateVerificationCodeOTP(email);
   
     return { success: "Code sent to your email!" };
   };

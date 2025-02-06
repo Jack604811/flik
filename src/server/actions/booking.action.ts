@@ -121,8 +121,27 @@ export const addBooking = async (data: {
   phone: string;
   note?: string;
   customFields?: { customFieldId: string; value: string }[];
-  extras?: { extraId: string; price: number; quantity: number }[];
+  extras?: { extraId: string; quantity: number }[];
 }) => {
+  let extras: { extraId: string; price: number; quantity: number }[]  = [];
+
+  if(data.extras){
+    const availableExtras = await db.extras.findMany({
+      where: { id: {in: data.extras?.map(e => e.extraId)} },
+      select: {id: true, price: true}
+    });
+  
+    extras = data.extras?.map(e => {
+      const extra = availableExtras.find(ex => ex.id === e.extraId);
+      if(!extra) throw new Error("Extra not found");
+      return {
+        extraId: e.extraId,
+        price: extra.price,
+        quantity: e.quantity,
+      }
+    });
+  }
+
   const booking = await db.booking.create({
     data: {
       status: "In_progress",
@@ -149,7 +168,7 @@ export const addBooking = async (data: {
         ? {
           bookingExtras: {
               createMany: {
-                data: data.extras.map((field) => ({
+                data: extras.map((field) => ({
                   extraId: field.extraId,
                   quantity: field.quantity,
                   price: field.price
@@ -197,11 +216,23 @@ export const addBooking = async (data: {
   return { ...booking, customer };
 };
 export const addExtrasToBooking = async (data: {
-  extras: { extraId: string; price: number; quantity: number }[];
+  extras: { extraId: string; quantity: number }[];
   bookingId: string;
 }) => {
+  const availableExtras = await db.extras.findMany({
+    where: { id: {in: data.extras?.map(e => e.extraId)} },
+    select: {id: true, price: true}
+  });
+  const extras = data.extras.map((extra) => {
+    const extraData = availableExtras.find((ex) => ex.id === extra.extraId);
+    if (!extraData) throw new Error("Extra not found");
+    return {
+      ...extra,
+      price: extraData.price,
+    };
+  });
   const addedExtras = await db.bookingExtras.createMany({
-    data: data.extras.map((extra) => ({
+    data: extras.map((extra) => ({
       bookingId: data.bookingId,
       extraId: extra.extraId,
       quantity: extra.quantity,
@@ -293,9 +324,10 @@ export const updateBooking = async (data: {
   note?: string;
   customFields?: { id?: string | null; value: string; customFieldId: string }[];
   spotId?: string;
-  extras?: { extraId: string; price: number; quantity: number }[];
+  extras?: { extraId: string; quantity: number }[];
   totalPrice?: number;
 }) => {
+  let extras: { extraId: string; price: number; quantity: number }[]  = [];
   // 1) If the user is updating spotId, find the new Spot’s price
   if (data.spotId) {
     const newSpot = await db.spot.findUnique({
@@ -320,6 +352,24 @@ export const updateBooking = async (data: {
     // 4) Now set data.subtotal and data.totalPrice for your DB update
     data.subtotal = newSubtotal;
     data.totalPrice = newSubtotal + extrasTotal;
+  }
+  
+
+  if(data.extras){
+    const availableExtras = await db.extras.findMany({
+      where: { id: {in: data.extras?.map(e => e.extraId)} },
+      select: {id: true, price: true}
+    });
+  
+    extras = data.extras?.map(e => {
+      const extra = availableExtras.find(ex => ex.id === e.extraId);
+      if(!extra) throw new Error("Extra not found");
+      return {
+        extraId: e.extraId,
+        price: extra.price,
+        quantity: e.quantity,
+      }
+    });
   }
   const booking = await db.booking.update({
     where: { id: data.id },
@@ -351,7 +401,7 @@ export const updateBooking = async (data: {
         ? {
           bookingExtras: {
               createMany: {
-                data: data.extras.map((field) => ({
+                data: extras.map((field) => ({
                   extraId: field.extraId,
                   quantity: field.quantity,
                   price: field.price

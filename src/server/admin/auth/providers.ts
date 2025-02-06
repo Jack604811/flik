@@ -1,12 +1,11 @@
-import { type Provider } from "next-auth/providers/index";
 import Credentials from "next-auth/providers/credentials";
 import { getAdminByEmail } from "@/server/actions/auth.action";
 import bcrypt from "bcrypt";
-import { User } from "next-auth";
+import { User, NextAuthConfig } from "next-auth";
 
 
 
-export const providers: Provider[] = [
+export const providers: NextAuthConfig["providers"] = [
   Credentials({
     id: "admin-signin",
     name: "admin-signin",
@@ -27,11 +26,11 @@ export const providers: Provider[] = [
         } as unknown as User
       }
 
-      const existingUser = await getAdminByEmail(credentials.email);
+      const existingUser = await getAdminByEmail(credentials.email as string);
       if(!existingUser) throw new Error("Invalid credentials, please check your email and password.");
       if(!existingUser.password) throw new Error("Invited admins must sign in with the magic link sent to their email.");
 
-      const isPasswordValid = await bcrypt.compare(credentials.password, existingUser.password);
+      const isPasswordValid = await bcrypt.compare(credentials.password as string, existingUser.password);
       if(!isPasswordValid)  throw new Error("Invalid credentials, please check your email and password.");
 
       return {...existingUser, isAdmin: true} as unknown as User
