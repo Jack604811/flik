@@ -17,8 +17,10 @@ export default async function Page({ searchParams }: Params) {
 
   // Pass only Google provider
   const authProviders = providers
+  //@ts-ignore
     .filter((p) => p.id === "google")
     .map((p) => ({
+      //@ts-ignore
       id: p.id,
       name: p.name,
     }));

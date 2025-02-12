@@ -112,7 +112,7 @@ export default function OTPVerification({ email }: { email: string }) {
 
       <div className="w-full max-w-[400px] space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold text-left">Verify your email!</h1>
+          <h1 className="text-2xl font-semibold text-center">Verify your email!</h1>
           <p className="text-muted-foreground text-sm">
             Please enter the 6-digit verification code sent to your email.
           </p>

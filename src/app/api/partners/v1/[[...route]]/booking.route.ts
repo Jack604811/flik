@@ -28,7 +28,7 @@ const addBookingSchema = z.object({
     extras: z.array(z.object({
         extraId: z.string().openapi({description: "The ID of the Extra that you want to add to the booking."}),
         quantity: z.number().openapi({description: "The quantity of the Extra that you want to add to the booking."}),
-    })),
+    })).optional(),
     note: z.string().optional(),
 });
 
@@ -148,7 +148,7 @@ const updateBookingSchema = z.object({
     extras: z.array(z.object({
         extraId: z.string().openapi({description: "The ID of the Extra that you want to add to the booking."}),
         quantity: z.number().openapi({description: "The quantity of the Extra that you want to add to the booking."}),
-    })),
+    })).optional(),
 });
 
 const updateBookingRoute = createRoute({

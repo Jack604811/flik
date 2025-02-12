@@ -1,6 +1,5 @@
 "use client";
 import { Button } from '@/components/ui/button';
-import Link from 'next/link'
 import { useRouter } from 'next/navigation';
  
 export default function NotFound() {
@@ -11,11 +10,7 @@ export default function NotFound() {
             <h2 className='mt-6 xl:mt-12 text-lg xl:text-xl'>Could not find requested resource</h2>
             <Button
                 className='mt-4'
-                onClick={
-                    // Attempt to recover by trying to re-render the segment
-                    () => router.push('/')
-                }
-            >
+                onClick={() => router.push('/')}>
                 Go home
             </Button>
         </div>

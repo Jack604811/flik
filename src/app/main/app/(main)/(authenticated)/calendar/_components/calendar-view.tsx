@@ -19,6 +19,7 @@ import MonthView from "@/components/calendar/views/month-view";
 import { SpotFilter } from "@/components/calendar/filter/spot-filter";
 import { StatusFilter } from "@/components/calendar/filter/status-filter";
 import { FilterPopover } from "@/components/calendar/filter/filter-popover";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function CalendarView({
   bookings,
@@ -92,6 +93,7 @@ export default function CalendarView({
   return (
     <>
       <header className="hidden md:flex flex-row w-full h-16 px-4 items-center justify-between gap-2 border-b">
+      <SidebarTrigger className="-ml-1 h-4 w-5 text-muted-foreground" />
         <div className="flex w-full items-center gap-2">
           <h1
             className={`text-lg font-semibold whitespace-nowrap ${

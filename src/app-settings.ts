@@ -26,7 +26,7 @@ export const APP_ROUTES: Route[] = [
 ];
 //this routes will show in the user dropdown of the header (signout is already included by default)
 export const USER_ROUTES = [
-  { name: "Profile", path: "/profile" },
+  { name: "Account", path: "/account" },
   { name: "Settings", path: "/settings" },
   { name: "Dashboard", path: "/dashboard" },
 
@@ -35,11 +35,9 @@ export const USER_ROUTES = [
 export const SIDEBAR_ROUTES = [
 { name: "Dashboard", icon: Square, path: "/dashboard" },
 { name: "Calendar", icon: Calendar, path: "/calendar" },
-{ name: "Transactions", icon: Landmark, path: "/transactions" },
+// { name: "Transactions", icon: Landmark, path: "/transactions" },
 { name: "Extras", icon: ShoppingCart, path: "/extras" },
 { name: "Spots", icon: MapPin, path: "/spots" },
-{ name: "Integrations", icon: Zap, path: "/integrations" },
-{ name: "Billing", icon: CreditCard, path: "/billing" },
 { name: "Settings", icon: Settings, path: "/settings" },
 ];
 

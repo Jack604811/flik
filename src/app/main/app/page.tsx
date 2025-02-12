@@ -1,3 +1,4 @@
+
 import { redirect } from "next/navigation";
 import { AFTER_SIGNIN_REDIRECT_URL } from "@/app-settings";
 import { auth, providers } from "@/server/auth";
@@ -23,8 +24,10 @@ export default async function Page({ searchParams }: Params) {
 
   // Pass only Google provider to the LoginForm component
   const authProviders = providers
+  //@ts-ignore
     .filter((p) => p.id === "google") // Filter only the Google provider
     .map((p) => ({
+      //@ts-ignore
       id: p.id,
       name: p.name,
     }));

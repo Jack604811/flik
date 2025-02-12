@@ -24,9 +24,9 @@ class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-screen text-center p-6">
-          <h1 className="text-2xl font-bold mb-4">Oops! Something went wrong.</h1>
-          <p className="text-lg mb-6 text-muted-foreground">
+        <div className="flex flex-col items-center justify-center h-screen text-center p-4">
+          <h1 className="text-2xl font-bold">Oops! Something went wrong.</h1>
+          <p className="text-lg mb-4 text-muted-foreground">
             We encountered an error. Please try reloading the page.
           </p>
           <Button onClick={this.handleReload} variant="default">

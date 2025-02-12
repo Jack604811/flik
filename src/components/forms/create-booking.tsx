@@ -116,7 +116,7 @@ export function CreateBooking({ workspaceId, refreshBookings }: CreateBookingPro
         endDate: selectedDate.to!,
         note: values.note,
         subtotal: selectedSpot.price,
-        totalPrice: selectedSpot.price + 20, 
+        totalPrice: selectedSpot.price, 
       });
       toast.success("Booking created successfully");
       setIsCredenzaOpen(false); 
