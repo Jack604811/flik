@@ -9,8 +9,8 @@ export default function Page() {
   return (
     <section className="flex flex-col items-center justify-center w-full min-h-screen relative">
       <div className="absolute top-4 left-4">
-        <Button size="sm" variant="outline" asChild>
-          <Link href={BACK_BUTTON_URL}>
+        <Button size="sm" variant="outline">
+          <Link href={BACK_BUTTON_URL} className="flex items-center">
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back
           </Link>
@@ -25,7 +25,7 @@ export default function Page() {
           </p>
         </div>
 
-        <OnboardingWorkspaceForm />
+        <OnboardingWorkspaceForm isOnboarding />
       </div>
     </div>
     </section>

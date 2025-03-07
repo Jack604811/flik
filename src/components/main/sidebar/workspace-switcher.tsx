@@ -169,7 +169,7 @@ export function WorkspaceSwitcher() {
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                 <Plus className="size-4 text-muted-foreground" />
               </div>
-              <Link href="/create-workspace" className="font-medium text-muted-foreground">
+              <Link href="/create-new-workspace" className="font-medium text-muted-foreground">
                 Add workspace
               </Link>
             </DropdownMenuItem>

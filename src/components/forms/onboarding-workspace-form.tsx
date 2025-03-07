@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createWorkspace } from "@/server/actions/workspace.action";
 import { toast } from "sonner";
 
-export function OnboardingWorkspaceForm() {
+export function OnboardingWorkspaceForm({ isOnboarding } : { isOnboarding?: boolean}) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("/assets/placeholder.svg");
@@ -45,7 +45,7 @@ export function OnboardingWorkspaceForm() {
       
       if (workspace) {
         toast.success("Workspace created successfully!");
-        router.push("/invite-team");
+        router.push(isOnboarding ? "/invite-team" : "/settings");
       }
     } catch (error) {
       toast.error("Failed to create workspace");

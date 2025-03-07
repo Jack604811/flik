@@ -19,7 +19,9 @@ import { WorkspaceRemovalNotificationTemplate } from "@/emails/workspace/delete-
 import { Resend } from "resend";
 import { TeamMember, TeamMemberStatus } from "@prisma/client";
 import { getUserById, validatePassword } from "./auth.action";
-import { FORBIDDEN_SUBDOMAINS } from "@/app-settings";
+import { APP_NAME, FORBIDDEN_SUBDOMAINS } from "@/app-settings";
+import { WorkspaceWelcomeEmail } from "@/emails/workspace/welcome";
+import { WorkspaceTrialStartedEmail } from "@/emails/workspace/trial-started";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -67,6 +69,38 @@ export const createWorkspace = async (formData: FormData) => {
   });
 
   await updateCurrentWorkspace(currentUser.id, newWorkspace.id);
+
+  // Send welcome email
+  await resend.emails.send({
+    from: env.EMAIL_FROM,
+    to: currentUser.email!,
+    subject: `Welcome to your new workspace on ${APP_NAME}!`,
+    react: WorkspaceWelcomeEmail({
+      workspaceName: siteName,
+      ownerName: currentUser.name ?? "there",
+    }),
+    html: "",
+  });
+
+  // Send trial started email
+  const trialEndDate = new Date();
+  trialEndDate.setDate(trialEndDate.getDate() + 14);
+
+  await resend.emails.send({
+    from: env.EMAIL_FROM,
+    to: currentUser.email!,
+    subject: `Your ${APP_NAME} trial has started!`,
+    react: WorkspaceTrialStartedEmail({
+      workspaceName: siteName,
+      ownerName: currentUser.name ?? "there",
+      trialEndDate: trialEndDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      }),
+    }),
+    html: "",
+  });
 
   return workspace;
 };

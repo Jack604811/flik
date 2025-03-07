@@ -27,8 +27,8 @@ import { ChevronLeft } from "lucide-react";
   return (
     <section className="flex flex-col items-center justify-center min-h-screen relative">
       <div className="absolute top-4 left-4">
-        <Button size="sm" variant="outline" asChild>
-          <Link href={BACK_BUTTON_URL}>
+        <Button size="sm" variant="outline">
+          <Link href={BACK_BUTTON_URL} className="flex items-center">
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back
           </Link>

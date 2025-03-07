@@ -48,7 +48,7 @@ export function BookingList({ workspaceId }: Params) {
             {moment(startDate).format("DD MMMM")} - {moment(endDate).format("DD MMMM")}
           </CardDescription>
         </div>
-        <Button asChild size="sm" className="hidden w-full sm:w-auto ml-auto sm:ml-0 gap-1">
+        <Button size="sm" className="hidden w-full sm:w-auto ml-auto sm:ml-0 gap-1">
           <Link href="/bookings" prefetch={false} className="flex justify-center">
             View All
             <ArrowUpRightIcon className="h-4 w-4" />
