@@ -1,7 +1,7 @@
 import { handle } from "hono/vercel";
-import { rateLimiter } from "hono-rate-limiter";
-import { RedisStore } from "@hono-rate-limiter/redis";
-import { kv } from "@vercel/kv";
+// import { rateLimiter } from "hono-rate-limiter";
+// import { RedisStore } from "@hono-rate-limiter/redis";
+// import { kv } from "@vercel/kv";
 import bookingRoutes from "./booking.route";
 import hookRoutes from "./hooks.route";
 import { API_APP_TYPE } from "@/types/api";
@@ -15,15 +15,15 @@ import { getWorkspace } from "@/server/actions/workspace.action";
 import extraRoutes from "./extra.route";
 
 const app = new OpenAPIHono<API_APP_TYPE>().basePath("/v1");
-app.use(
-  rateLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-    standardHeaders: "draft-6", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-    keyGenerator: (c) => c.req.header("cf-connecting-ip") ?? c.req.header("x-token")!.toString(), // Method to generate custom identifiers for clients.
-    store: new RedisStore({client: kv})
-  })
-);
+// app.use(
+//   rateLimiter({
+//     windowMs: 15 * 60 * 1000, // 15 minutes
+//     limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+//     standardHeaders: "draft-6", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+//     keyGenerator: (c) => c.req.header("cf-connecting-ip") ?? c.req.header("x-token")!.toString(), // Method to generate custom identifiers for clients.
+//     store: new RedisStore({client: kv})
+//   })
+// );
 
 app.get("/", swaggerUI({ url: "/v1/doc", syntaxHighlight: true }));
 
