@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import BookingDetail from "@/components/calendar/booking-details";
+import BookingDetail from "@/components/booking-details/booking-details";
 import { BookingStatus } from "@prisma/client"; 
 
 type Booking = {
@@ -98,7 +98,7 @@ export default function MonthView({
   return (
     <TooltipProvider>
       <div className="flex justify-center w-full">
-        <div className="max-w-7xl w-full">
+        <div className="h-full w-full">
           <div className="grid grid-cols-7 text-center text-sm font-medium mb-2">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div key={day} className="py-2">
@@ -107,7 +107,7 @@ export default function MonthView({
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-1 max-h-[240px]">
             {daysToRender.map((date, index) => {
               const isToday = isSameDay(date, new Date());
               const isCurrentMonth = isSameMonth(date, currentDate);
@@ -122,13 +122,12 @@ export default function MonthView({
               return (
                 <div
                   key={index}
-                  className={`relative flex flex-col aspect-square border border-neutral-200 dark:border-neutral-800 p-1 group cursor-pointer ${
-                    isToday ? 'bg-neutral-100 dark:bg-neutral-900' : ''
+                  className={`relative flex flex-col max-h-[240px] min-w-full aspect-square border border-neutral-200 dark:border-neutral-800 p-1 group cursor-pointer ${
+                    isToday ? 'bg-muted' : ''
                   } ${
-                    !isCurrentMonth ? 'bg-neutral-100 dark:bg-neutral-900' : ''
+                    !isCurrentMonth ? 'bg-muted/50' : ''
                   }`}
-                  // Removed onClick={() => onDaySelected(date)}
-                  // to avoid changing the view on click
+                  onClick={() => onDaySelected(date)}
                 >
                   <time
                     dateTime={format(date, 'yyyy-MM-dd')}

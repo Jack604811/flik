@@ -6,7 +6,6 @@ import { APP_NAME, USER_ROUTES } from "@/app-settings";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { LogoutButton } from "../auth/logout-button";
 import Image from "next/image";
-import SidebarProfileDropdown from "./sidebar-profile-dropdown";
 import { auth } from "@/server/auth";
 
 export async function Header() {

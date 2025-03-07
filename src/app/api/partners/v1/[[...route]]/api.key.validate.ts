@@ -10,7 +10,7 @@ export const validateAPIKey = async (c: Context, next: Next) => {
         error: "Invalid or missing API Key",
       }, 401);
     } 
-    const apiKey = await db.apiKey.findFirst({where: {key: token}, include: {workspace: true}}); // Replace with your actual token
+    const apiKey = await db.apiKey.findFirst({where: {key: token}, include: {workspace: true}});
   
     if (!apiKey) {
       return c.json({

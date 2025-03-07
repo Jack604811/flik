@@ -46,9 +46,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsByWorkspace } from "@/server/actions/spot.action";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
-import BookingExtras from "../booking/BookingExtras";
+import BookingExtras from "./booking-extras";
 import { getCustomFields } from "@/server/actions/custom-field.action";
-import SpotSelector from "./spot-selector";
+import SpotSelector from "../calendar/spot-selector";
 
 const bookingSchema = z.object({
   id: z.string().min(1, { message: "ID is required" }),

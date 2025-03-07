@@ -19,7 +19,7 @@ import { Edit, Trash2 } from "lucide-react";
 
 // -- import Sheet components and BookingDetail
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import BookingDetail from "@/components/calendar/booking-details";
+import BookingDetail from "@/components/booking-details/booking-details";
 
 interface RowActionsProps<TData> {
   booking: Booking;

@@ -15,7 +15,7 @@ import Link from "next/link";
 import { PreviewContent } from "../preview-content";
 import { CreateBooking } from "@/components/forms/create-booking";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import BookingDetail from "@/components/calendar/booking-details";
+import BookingDetail from "@/components/booking-details/booking-details";
 import { BookingStatus } from "@prisma/client"; 
 
 type Booking = {

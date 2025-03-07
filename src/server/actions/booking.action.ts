@@ -121,9 +121,9 @@ export const addBooking = async (data: {
   phone: string;
   note?: string;
   customFields?: { customFieldId: string; value: string }[];
-  extras?: { extraId: string; quantity: number }[];
+  extras?: { extraId: string; quantity: number; description?: string }[];
 }) => {
-  let extras: { extraId: string; price: number; quantity: number }[]  = [];
+  let extras: { extraId: string; price: number; quantity: number; description?: string }[]  = [];
 
   if(data.extras){
     const availableExtras = await db.extras.findMany({
@@ -138,6 +138,7 @@ export const addBooking = async (data: {
         extraId: e.extraId,
         price: extra.price,
         quantity: e.quantity,
+        description: e.description,
       }
     });
   }
@@ -171,6 +172,7 @@ export const addBooking = async (data: {
                 data: extras.map((field) => ({
                   extraId: field.extraId,
                   quantity: field.quantity,
+                  description: field.description ?? "",
                   price: field.price
                 })),
               }
@@ -197,6 +199,7 @@ export const addBooking = async (data: {
           id: true,
           extraId: true,
           quantity: true,
+          description: true,
           price: true,
         },
       }
@@ -216,7 +219,7 @@ export const addBooking = async (data: {
   return { ...booking, customer };
 };
 export const addExtrasToBooking = async (data: {
-  extras: { extraId: string; quantity: number }[];
+  extras: { extraId: string; quantity: number; description?: string }[];
   bookingId: string;
 }) => {
   const availableExtras = await db.extras.findMany({
@@ -236,6 +239,7 @@ export const addExtrasToBooking = async (data: {
       bookingId: data.bookingId,
       extraId: extra.extraId,
       quantity: extra.quantity,
+      description: extra.description ?? "",
       price: extra.price,
     })),
   });
@@ -324,10 +328,10 @@ export const updateBooking = async (data: {
   note?: string;
   customFields?: { id?: string | null; value: string; customFieldId: string }[];
   spotId?: string;
-  extras?: { extraId: string; quantity: number }[];
+  extras?: { extraId: string; quantity: number; description?: string; }[];
   totalPrice?: number;
 }) => {
-  let extras: { extraId: string; price: number; quantity: number }[]  = [];
+  let extras: { extraId: string; price: number; quantity: number; description?: string }[]  = [];
   // 1) If the user is updating spotId, find the new Spot’s price
   if (data.spotId) {
     const newSpot = await db.spot.findUnique({
@@ -368,6 +372,7 @@ export const updateBooking = async (data: {
         extraId: e.extraId,
         price: extra.price,
         quantity: e.quantity,
+        description:e.description,
       }
     });
   }
@@ -404,6 +409,7 @@ export const updateBooking = async (data: {
                 data: extras.map((field) => ({
                   extraId: field.extraId,
                   quantity: field.quantity,
+                  description: field.description ?? "",
                   price: field.price
                 })),
               }
@@ -425,6 +431,7 @@ export const updateBooking = async (data: {
           id: true,
           extraId: true,
           quantity: true,
+          description: true,
           price: true,
         },
       }

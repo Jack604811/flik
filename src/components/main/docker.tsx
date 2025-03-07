@@ -99,7 +99,7 @@ export function Docker() {
         </div>
         <div className="h-6 border-l border-gray-600 mx-2"></div>
         <div className="flex items-center space-x-1">
-          <Link href="/profile">
+          <Link href="/account">
             <Image
               src="/assets/profile-placeholder.svg"
               alt="Profile Placeholder"

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Transaction, TransactionStatus } from "@prisma/client";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import BookingDetail from "@/components/calendar/booking-details";
+import BookingDetail from "@/components/booking-details/booking-details";
 import { BookingStatus } from "@prisma/client";
 
 type PreviewContentProps = {

@@ -7,6 +7,7 @@ import { validateAPIKey } from "./api.key.validate";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { bookingSchema } from "@/schemas/booking.schema";
 import { BookingStatus } from "@prisma/client";
+import { db } from "@/server/db"; 
 import { addExtrasToBooking, updateBookingExtra, removeExtraFromBooking } from "@/server/actions/booking.action";
 
 const bookingRoutes = new OpenAPIHono<API_APP_TYPE>();
@@ -123,7 +124,7 @@ bookingRoutes.openapi(addBookingRoute, async (c) => {
             extras: body.extras,
         });
 
-        return c.json({ status: "success" as const, type: "booking.create" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
+        return c.json({ status: "success" as const, type: "booking.create" as const, data: booking as unknown as z.infer<typeof addBookingResponseSchema>}, 200);
     } catch (e) {
         return c.json({ status: "error" as const, error: "Invalid request!" }, 400);
     }
@@ -214,7 +215,7 @@ bookingRoutes.openapi(updateBookingRoute, async (c) => {
             customFields: body.customFields?.filter(cf => cf.value !== "" && cf.value !== "null"),
             extras: body.extras
         });
-        return c.json({ status: "success" as const, type: "booking.update" as const, data: booking as z.infer<typeof addBookingResponseSchema>}, 200);
+        return c.json({ status: "success" as const, type: "booking.update" as const, data: booking as unknown as z.infer<typeof addBookingResponseSchema>}, 200);
     } catch (e) {
         return c.json({ status: "error" as const, error: "Invalid request!" }, 400);
     }
@@ -389,6 +390,7 @@ const addBookingExtraSchema = z.object({
     extras: z.array(z.object({
         extraId: z.string(),
         quantity: z.number().min(1),
+      
     }))
 });
 
@@ -450,6 +452,7 @@ bookingRoutes.openapi(addBookingExtraRoute, async (c) => {
     }
 });
 
+
 const updateBookingExtraRoute = createRoute({
     method: "put",
     description: "Update an extra in a booking",
@@ -463,7 +466,8 @@ const updateBookingExtraRoute = createRoute({
             content: {
                 "application/json": {
                     schema: z.object({
-                        quantity: z.number().min(1)
+                        quantity: z.number().min(1),
+                        price: z.number().min(0).optional()
                     })
                 }
             }
@@ -499,14 +503,21 @@ const updateBookingExtraRoute = createRoute({
 bookingRoutes.openapi(updateBookingExtraRoute, async (c) => {
     const { bookingId, extraId } = c.req.valid("param");
     const body = c.req.valid("json");
+
     try {
-       await updateBookingExtra(extraId, {
-            quantity: body.quantity
-        }) as unknown as z.infer<typeof bookingSchema>;
+        const updateData: Record<string, any> = { quantity: body.quantity };
+
+        if (body.price !== undefined) {
+            updateData.price = body.price; 
+        }
+
+        await updateBookingExtra(extraId, updateData);
+
         return c.json({ 
             status: "success" as const, 
             type: "booking.extra.update" as const, 
         }, 200);
+
     } catch (e) {
         return c.json({ status: "error" as const, error: "Failed to update extra" }, 400);
     }

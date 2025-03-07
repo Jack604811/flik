@@ -23,15 +23,21 @@ type Member = {
   status: 'Active' | 'Invited'
   dateJoined: string
 }
+
 type Params = {
   workspaceId: string
+  isOnboarding?: boolean
 }
 
-export default function TeamManagement({workspaceId} : Params) {
+export default function TeamManagement({ workspaceId, isOnboarding = false }: Params) {
   const [DeleteConfirmDialog, deleteConfirm] = useConfirm('Are you sure?', 'This action is irrevesible.');
   const [UpdateConfirmDialog, updateConfirm] = useConfirm('Are you sure?', 'Are you sure you want to update the status of the team member?');
 
-  const {data: teamMembers, isLoading, mutate } = useSWR(`workspace/${workspaceId}/team-members`, () => getTeamMembers(workspaceId), {fallbackData: []});
+  const { data: teamMembers, isLoading, mutate } = useSWR(
+    `workspace/${workspaceId}/team-members`, 
+    () => getTeamMembers(workspaceId), 
+    { fallbackData: [] }
+  );
 
   const inviteMutation = useMutation({
     mutationKey: ['workspace/team-member', workspaceId],
@@ -50,7 +56,6 @@ export default function TeamManagement({workspaceId} : Params) {
     },
   });
   
-
   const [email, setEmail] = useState('')
   const [isValidEmail, setIsValidEmail] = useState(false)
   const [permission, setPermission] = useState<Permission>('Admin')
@@ -62,9 +67,12 @@ export default function TeamManagement({workspaceId} : Params) {
   }, [email])
 
   const handleInvite = () => {
-    if (isValidEmail && !teamMembers.some(member => member.user?.email=== email || member.invitation?.email === email)) {
-      inviteMutation.mutate({ email, permission });
-
+    // Check if email is valid and does not already exist among team members
+    if (
+      isValidEmail && 
+      !teamMembers.some(member => member.user?.email === email || member.invitation?.email === email)
+    ) {
+      inviteMutation.mutate({ email, permission })
       // Reset form
       setEmail('')
       setPermission('Editor')
@@ -72,88 +80,100 @@ export default function TeamManagement({workspaceId} : Params) {
   }
 
   const handleRemove = async (id: string) => {
-    const confirm = await deleteConfirm();
-  
+    const confirm = await deleteConfirm()
     if (confirm) {
-      const toastId = toast.loading("Removing team member...");
+      const toastId = toast.loading("Removing team member...")
       try {
-        await deleteTeamMember(id);
-        mutate();
-        toast.success("Team member removed successfully");
+        await deleteTeamMember(id)
+        mutate()
+        toast.success("Team member removed successfully")
       } catch (error) {
-        toast.error("Failed to remove team member. Please try again.");
+        toast.error("Failed to remove team member. Please try again.")
       } finally {
-        toast.dismiss(toastId);
+        toast.dismiss(toastId)
       }
     }
   }
-  
 
   const handlePermissionChange = async (id: string, role: Permission) => {
-    const confirm = await updateConfirm();
+    const confirm = await updateConfirm()
     if (confirm) {
-      const toastId = toast.loading("Updating team member role...");
+      const toastId = toast.loading("Updating team member role...")
       try {
-        await updateTeamMember(id, { role });
-        mutate();
-        toast.success("Team member updated successfully");
+        await updateTeamMember(id, { role })
+        mutate()
+        toast.success("Team member updated successfully")
       } catch (error) {
-        toast.error("Failed to update team member role. Please try again.");
+        toast.error("Failed to update team member role. Please try again.")
       } finally {
-        toast.dismiss(toastId);
+        toast.dismiss(toastId)
       }
     }
   }
   
-
   return (
-    <div className="py-6 min-h-screen">
+    <div className="py-6">
       <DeleteConfirmDialog />
       <UpdateConfirmDialog />
+
       <div className="max-w-6xl space-y-12">
+        {/* =========== FIRST SECTION: Invite a new member =========== */}
         <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
-          <div className="w-full xl:w-1/3">
+          {/* Hide the text if isOnboarding is true */}
+          <div className={`w-full xl:w-1/3 ${isOnboarding ? 'hidden' : ''}`}>
             <h2 className="text-xl font-semibold mb-2">Invite a new member</h2>
             <p className="text-sm text-muted-foreground">Invite new members by email address</p>
           </div>
-          <div className="w-full xl:w-2/3">
-            <h3 className="text-sm font-medium mb-2">Email address</h3>
+
+          {/* Remove xl:w-2/3 if isOnboarding is true */}
+          <div className={`w-full ${isOnboarding ? '' : 'xl:w-2/3'}`}>
+            {/* Hide "Email address" label if isOnboarding is true */}
+            {!isOnboarding && (
+              <h3 className="text-sm font-medium mb-2">Email address</h3>
+            )}
             <div className="flex gap-4">
               <Input
                 type="email"
                 placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className=""
               />
-              <Select value={permission} onValueChange={(value: Permission)  => setPermission(value)}>
+              <Select 
+                value={permission} 
+                onValueChange={(value: Permission) => setPermission(value)}
+              >
                 <SelectTrigger className="w-[200px] bg-transparent border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
                   <SelectValue placeholder="Select permission" />
                 </SelectTrigger>
-                <SelectContent className="">
+                <SelectContent>
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Manager">Editor</SelectItem>
                   <SelectItem value="Read-Only">Read-Only</SelectItem>
                 </SelectContent>
               </Select>
-              <Button 
-                onClick={handleInvite} 
+              <Button
+                onClick={handleInvite}
                 variant="default"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isValidEmail}
               >
-                <UserPlus className="mr-0 md:mr-2 h-4 w-4" /> <span className="hidden md:block">Invite member</span>
+                <UserPlus className="mr-0 md:mr-2 h-4 w-4" /> 
+                <span className="hidden md:block">Invite member</span>
               </Button>
             </div>
           </div>
         </div>
 
+        {/* =========== SECOND SECTION: Team members =========== */}
         <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
-          <div className="w-full xl:w-1/3">
+          {/* Hide the text if isOnboarding is true */}
+          <div className={`w-full xl:w-1/3 ${isOnboarding ? 'hidden' : ''}`}>
             <h2 className="text-xl font-semibold mb-2">Team members</h2>
             <p className="text-sm text-muted-foreground">The members in your organization</p>
           </div>
-          <div className="w-full xl:w-2/3">
+
+          {/* Remove xl:w-2/3 if isOnboarding is true */}
+          <div className={`w-full ${isOnboarding ? '' : 'xl:w-2/3'}`}>
             <div className="bg-transparent rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
               <div className="overflow-x-auto">
                 <Table className="min-w-full">
@@ -170,37 +190,52 @@ export default function TeamManagement({workspaceId} : Params) {
                     {isLoading ? (
                       Array.from({ length: 3 }).map((_, index) => (
                         <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
-                          <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                          <TableCell><Skeleton className="h-8 w-8 rounded-full" /></TableCell>
+                          <TableCell>
+                            <Skeleton className="h-4 w-[200px]" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-4 w-[100px]" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-4 w-[60px]" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-4 w-[80px]" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-8 w-8 rounded-full" />
+                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       teamMembers.map((member, index) => (
-                        <TableRow key={member.id} className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700">
-                          <TableCell className="font-medium"> {
-                              member.user?.name ? (<div className="flex flex-col">
+                        <TableRow 
+                          key={member.id} 
+                          className="whitespace-nowrap border-b border-gray-200 dark:border-gray-700"
+                        >
+                          <TableCell className="font-medium">
+                            {member.user?.name ? (
+                              <div className="flex flex-col">
                                 <span className="font-medium">{member.user.name}</span>
-                                <span className="text-muted-foreground">
-                                  {member.user.email}
-                                </span>
-                              </div>) : member.invitation?.email
-                            }</TableCell>
+                                <span className="text-muted-foreground">{member.user.email}</span>
+                              </div>
+                            ) : (
+                              member.invitation?.email
+                            )}
+                          </TableCell>
                           <TableCell>
                             {member.role === "OWNER" ? (
                               <span className="text-gray-600 dark:text-gray-400">Owner</span>
                             ) : (
-                              <Select 
-                                value={member.role} 
+                              <Select
+                                value={member.role}
                                 onValueChange={(value: Permission) => handlePermissionChange(member.id, value)}
                                 disabled={member.role === 'Owner'}
                               >
                                 <SelectTrigger className="w-[140px] bg-transparent border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
                                   <SelectValue placeholder="Select permission" />
                                 </SelectTrigger>
-                                <SelectContent className="">
+                                <SelectContent>
                                   <SelectItem value="Admin">Admin</SelectItem>
                                   <SelectItem value="Manager">Editor</SelectItem>
                                   <SelectItem value="Read-Only">Read-Only</SelectItem>
@@ -220,10 +255,12 @@ export default function TeamManagement({workspaceId} : Params) {
                             )}
                           </TableCell>
                           <TableCell>
-                            {member.status === TeamMemberStatus.Pending ? 'Pending' : moment(member.createdAt).format("MMM D, YYYY")}
+                            {member.status === TeamMemberStatus.Pending
+                              ? 'Pending'
+                              : moment(member.createdAt).format("MMM D, YYYY")}
                           </TableCell>
                           <TableCell>
-                            {member.role !== "OWNER"  && (
+                            {member.role !== "OWNER" && (
                               <Button
                                 onClick={() => handleRemove(member.id)}
                                 variant="ghost"

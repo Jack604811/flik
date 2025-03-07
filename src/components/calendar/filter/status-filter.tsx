@@ -62,29 +62,28 @@ export function StatusFilter<TData, TValue>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+     <PopoverTrigger asChild>
         <Button
           variant="outline"
           size="sm"
           className="w-full h-auto min-h-10 font-normal text-muted-foreground flex flex-wrap justify-start items-center gap-2"
         >
-       
-          {selectedStatuses.length > 0 && (
-            <>
-
-              <div className="flex flex-wrap gap-1 py-2">
-                {statusOptions
-                  .filter((option) => selectedStatuses.includes(option.value))
-                  .map((option) => (
-                    <Badge key={option.value} variant="secondary" className="rounded-sm px-1 font-normal">
-                      {option.label}
-                    </Badge>
-                  ))}
-              </div>
-            </>
+          {selectedStatuses.length > 0 ? (
+            <div className="flex flex-wrap gap-1 py-2">
+              {statusOptions
+                .filter((option) => selectedStatuses.includes(option.value))
+                .map((option) => (
+                  <Badge key={option.value} variant="secondary" className="rounded-sm px-1 font-normal">
+                    {option.label}
+                  </Badge>
+                ))}
+            </div>
+          ) : (
+            <span className="text-muted-foreground">Select an option</span>
           )}
         </Button>
       </PopoverTrigger>
+
       <PopoverContent align="start" className="bg-background w-[216px] space-y-2 p-0">
         <Command>
           <CommandInput placeholder={title} />
@@ -104,7 +103,7 @@ export function StatusFilter<TData, TValue>({
                     {selectedStatuses.includes(option.value) && <CheckIcon className="h-4 w-4" />}
                   </div>
                   <span>{option.label}</span>
-                  <span className="ml-auto text-muted-foreground">{statusCounts[option.value] || 0}</span>
+                  {/* <span className="ml-auto text-muted-foreground">{statusCounts[option.value] || 0}</span> */}
                 </CommandItem>
               ))}
             </CommandGroup>

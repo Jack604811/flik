@@ -8,7 +8,6 @@ import { getUser } from '@/server/actions/user.action';
 import { getCurrentUser } from '@/server/auth';
 import PersonalInfoForm from '@/components/forms/personal-info';
 import { User } from '@prisma/client';
-import WorkspaceSwitcher from '@/components/main/workspace-switcher';
 import ThemeToggle from '@/components/main/theme-toggle-profile';
 import { LogoutButton } from '@/components/auth/logout-button';
 
@@ -35,7 +34,7 @@ async function Profile() {
             <div className="flex flex-col gap-4">
               <div className="space-y-2">
                 <Label htmlFor="workspace">Workspace</Label>
-                <WorkspaceSwitcher/>
+             
               </div>
               <div className="space-y-2">
                 <Label htmlFor="siteName">Theme</Label>

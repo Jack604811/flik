@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { EmptyState } from "@/components/main/empty-state";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 type Workspace = {
   id: string;
@@ -114,39 +116,51 @@ export default function WorkspaceView() {
 
   return (
     <TooltipProvider>
-      <div className="container mx-auto px-4 py-8">
         {/* Header and Search */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <h1 className="text-3xl font-bold">Workspaces</h1>
-          <div className="flex gap-4 w-full md:w-auto">
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <Input
-                type="text"
-                placeholder="Search workspaces..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full"
-              />
-            </div>
-            <Link href="/create-workspace">
-              <Button className="flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark">
-                <Plus className="mr-2 h-4 w-4" /> New Workspace
-              </Button>
-            </Link>
-          </div>
+        <header className="sticky top-0 z-10 hidden md:flex flex-row w-full h-16 bg-background px-4 items-center justify-between gap-2 border-b">
+        <div className="flex w-full items-center gap-2 py-5">
+          {/* <SidebarTrigger className="-ml-1 h-4 w-5 text-muted-foreground" />
+          <Separator orientation="vertical" className="mr-2 h-4" /> */}
+          <h1 className="text-lg font-semibold whitespace-nowrap">Workspaces</h1>
         </div>
-
-        {/* Content */}
+        <div className="relative w-[460px]">
+          <Input
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pr-16"
+          />
+          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            <span className="text-xs text-gray-500 border bg-muted/50 rounded px-1 py-0.5">
+              ⌘ K
+            </span>
+          </span>
+        </div>
+        <Link href="/create-workspace">
+          <Button 
+          variant="add"
+          className="h-10 gap-1 xs:rounded-full lg:rounded-md"
+          >
+            New Workspace
+          </Button>
+        </Link>
+      </header>
+        <div className="mt-16 mx-4">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
+            {[...Array(12)].map((_, index) => (
               <Skeleton key={index} className="h-40 w-full" />
             ))}
           </div>
         ) : workspaces.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-xl text-gray-500">No workspaces found</p>
+          <div className="h-[80vh]">
+            <EmptyState
+            title={searchTerm ? "No results found" : "No workspaces found"}
+            description={searchTerm ? "Try adjusting your search or filters." : "Start by adding a new workspace to see it here."}
+            imageUrl="/placeholder.svg"
+            buttonLabel="Add Workspace"
+            onButtonClick={() => window.location.href = "/create-workspace"}
+          />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -165,6 +179,7 @@ export default function WorkspaceView() {
                         width={40}
                         height={40}
                         className="rounded-full w-12 h-12 object-cover"
+                        priority={true}
                       />
                       <span className="text-xl font-bold">{workspace.name}</span>
                     </div>
@@ -200,7 +215,7 @@ export default function WorkspaceView() {
             ))}
           </div>
         )}
-      </div>
+        </div>
     </TooltipProvider>
   );
 }

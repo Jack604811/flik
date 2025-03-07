@@ -167,7 +167,7 @@ export function WorkspaceSwitcher() {
             {/* Add New Workspace */}
             <DropdownMenuItem className="gap-2 p-2">
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
+                <Plus className="size-4 text-muted-foreground" />
               </div>
               <Link href="/create-workspace" className="font-medium text-muted-foreground">
                 Add workspace

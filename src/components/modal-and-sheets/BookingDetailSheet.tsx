@@ -48,7 +48,7 @@ import { useBookingDetail } from "@/hooks/use-booking-detail";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotsByWorkspace } from "@/server/actions/spot.action";
 import { getCurrentWorkspace } from "@/server/actions/user.action";
-import BookingExtras from "../booking/BookingExtras";
+import BookingExtras from "../booking-details/booking-extras";
 import { getCustomFields } from "@/server/actions/custom-field.action";
 
 const bookingSchema = z.object({

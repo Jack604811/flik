@@ -30,7 +30,7 @@ export function FilterPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-10 font-normal flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="h-10 font-normal flex items-center gap-2 bg-muted/50">
           <Filter className="h-4 w-4" /> <span className="hidden md:block">Filter</span>
           {hasFilters && <span className="text-xs px-2 py-1 bg-primary/10 rounded-md">{selectedSpots.length + selectedStatuses.length}</span>}
         </Button>

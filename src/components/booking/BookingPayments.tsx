@@ -39,7 +39,7 @@ function BookingPayments({ bookingId, bookingPrice=0 }: { bookingId: string, boo
           <span>${new Intl.NumberFormat('de-DE').format(totalPayment).replace(',', '.')}</span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-muted-foreground">Outstanding</span>
+          <span className="text-muted-foreground">Amount Due</span>
           <span>${new Intl.NumberFormat('de-DE').format(totalOutstandingPayments).replace(',', '.')}</span>
         </li>
         <li className="flex items-center justify-between font-semibold">

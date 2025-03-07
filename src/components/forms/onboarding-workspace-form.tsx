@@ -45,7 +45,7 @@ export function OnboardingWorkspaceForm() {
       
       if (workspace) {
         toast.success("Workspace created successfully!");
-        router.push("/onboarding/invite-team");
+        router.push("/invite-team");
       }
     } catch (error) {
       toast.error("Failed to create workspace");
@@ -57,7 +57,7 @@ export function OnboardingWorkspaceForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4 text-gray-600">
+      <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="siteLogo">Workspace Logo</Label>
           <div className="flex items-center gap-4">

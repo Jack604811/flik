@@ -1,4 +1,3 @@
-import Sidebar from "@/components/main/sidebar";
 import { AppSidebar } from "@/components/main/sidebar/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { cookies } from "next/headers";
@@ -27,7 +26,7 @@ export default async function Layout({
          <SidebarInset>
       {/* Main Content */}
       <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
-        <ModalAndSheetProvider />
+        {/* <ModalAndSheetProvider /> */}
         {children}
         {process.env.NODE_ENV === "development" && <TailwindScreen />}
       </div>

@@ -23,7 +23,7 @@ import { addBooking, getBookingsBySpot } from "@/server/actions/booking.action";
 import SpotSelector from "@/components/calendar/spot-selector";
 import { Calendar, Plus, X } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import CalendarAvailability from "@/components/calendar/calendar-availability";
+import CalendarAvailability from "@/components/booking-details/calendar-availability";
 import { DateRange } from "react-day-picker";
 
 type Spot = {
@@ -136,8 +136,7 @@ export function CreateBooking({ workspaceId, refreshBookings }: CreateBookingPro
   return (
     <Credenza open={isCredenzaOpen} onOpenChange={setIsCredenzaOpen}>
       <CredenzaTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button variant="add">
           New Booking
         </Button>
       </CredenzaTrigger>

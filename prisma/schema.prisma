@@ -241,15 +241,16 @@ model Customer {
 }
 
 model BookingExtras {
-  id        String    @id @default(cuid())
-  bookingId String
-  extraId   String
-  quantity  Int       @default(1)
-  price     Float
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @default(now())
-  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  extra     Extras    @relation(fields: [extraId], references: [id])
+  id          String    @id @default(cuid())
+  bookingId   String
+  extraId     String
+  quantity    Int       @default(1)
+  description String?
+  price       Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now())
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  extra       Extras    @relation(fields: [extraId], references: [id])
 }
 
 model Category {

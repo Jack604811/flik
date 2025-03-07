@@ -23,7 +23,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import BookingDetail from "@/components/calendar/booking-details";
+import BookingDetail from "@/components/booking-details/booking-details";
 import { BookingStatus } from "@prisma/client"; 
 
 type Booking = {

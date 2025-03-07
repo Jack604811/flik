@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Edit2, CirclePlus, MoreVertical, Circle } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Edit2,
+  CirclePlus,
+  MoreVertical,
+  Circle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Accordion,
@@ -37,13 +44,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { DialogClose } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -51,7 +58,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 type Option = {
@@ -68,7 +75,7 @@ export function FancyBox({
   onEdit,
   isEditable,
   label = "item",
-  isDisabled
+  isDisabled,
 }: {
   options: Option[];
   values: string[];
@@ -78,25 +85,25 @@ export function FancyBox({
   onSelect: (value: string) => void;
   isEditable?: boolean;
   isDisabled?: boolean;
-  label?: string
+  label?: string;
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [openCombobox, setOpenCombobox] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
   const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
-  const [editingItem, setEditingItem] = React.useState<string | null>(null); 
-  const [editingValue, setEditingValue] = React.useState<string>(""); 
+  const [editingItem, setEditingItem] = React.useState<string | null>(null);
+  const [editingValue, setEditingValue] = React.useState<string>("");
 
   const onComboboxOpenChange = (value: boolean) => {
     setOpenCombobox(value);
   };
 
   const handleSelect = (value: string) => {
-    handleCommandItemSelect(); 
+    handleCommandItemSelect();
     onSelect(value);
-    setOpenCombobox(false); 
-    setEditingItem(null); 
+    setOpenCombobox(false);
+    setEditingItem(null);
   };
 
   const handleCreate = (newValue: string) => {
@@ -104,7 +111,7 @@ export function FancyBox({
     onCreate?.(newValue);
     setInputValue("");
     setOpenCombobox(true);
-    onSelect(newValue); 
+    onSelect(newValue);
     setEditingItem(null);
   };
 
@@ -125,8 +132,8 @@ export function FancyBox({
   const handleRename = (value: string) => {
     setEditingItem(value);
     setEditingValue(options.find(option => option.value === value)?.label || ''); 
-    setOpenCombobox(true); 
-    
+    setOpenCombobox(true);
+
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
@@ -135,152 +142,171 @@ export function FancyBox({
   const handleEditSubmit = () => {
     if (editingItem) {
       onEdit?.({ value: editingItem, label: editingValue });
-      setEditingItem(null); 
+      setEditingItem(null);
     }
   };
 
   const handleCommandItemSelect = () => {
-    setEditingItem(null); 
+    setEditingItem(null);
   };
 
   return (
     <div className="w-full">
       <Popover open={openCombobox} onOpenChange={onComboboxOpenChange}>
-  <PopoverTrigger asChild disabled={isDisabled}>
-    <Button
-      variant="outline"
-      role="combobox"
-      aria-expanded={openCombobox}
-      className="w-full justify-between text-foreground"
-    >
-      <span className="truncate">
-        {values.length === 0 && `Select ${label}`}
-        {values.length === 1 && options.find((opt) => opt.value === values[0])?.label}
-      </span>
-      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="p-0 hover:bg-inherit">
-    <Command loop>
-      <CommandInput
-        ref={inputRef}
-        placeholder={`Search or Create new ${label}...`}
-        value={inputValue}
-        onValueChange={setInputValue}
-      />
-      <CommandList>
-        {options.length === 0 && inputValue === "" ? (
-          <div className="flex justify-center px-8 py-8 text-muted-foreground">
-            Write something to create your first {label}.
-          </div>
-        ) : (
-          <>
-            <CommandGroup className="max-h-[145px] overflow-auto w-full">
-              {options.map((option) => {
-                const isActive = values.includes(option.value);
-                return (
-                  <Button
-                  asChild
-                  variant="ghost"
-                  className={cn(
-                    "justify-start px-2 w-full h-[32px] cursor-pointer",
-                    isActive ? "bg-blue-100 dark:bg-blue-900" : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                  )}
-                  key={option.value}
-                >
-                  <CommandItem
+        <PopoverTrigger asChild disabled={isDisabled}>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openCombobox}
+            className="w-full justify-between text-foreground"
+          >
+            {/* Wrap icon + text in a single <span> */}
+            <span className="flex items-center justify-between w-full">
+              <span className="truncate">
+                {values.length === 0 && `Select ${label}`}
+                {values.length === 1 &&
+                  options.find((opt) => opt.value === values[0])?.label}
+              </span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="p-0 hover:bg-inherit">
+          <Command loop>
+            <CommandInput
+              ref={inputRef}
+              placeholder={`Search or Create new ${label}...`}
+              value={inputValue}
+              onValueChange={setInputValue}
+            />
+            <CommandList>
+              {options.length === 0 && inputValue === "" ? (
+                <div className="flex justify-center px-8 py-8 text-muted-foreground">
+                  Write something to create your first {label}.
+                </div>
+              ) : (
+                <>
+                  <CommandGroup className="max-h-[145px] w-full overflow-auto">
+                    {options.map((option) => {
+                      const isActive = values.includes(option.value);
+                      return (
+                        // We wrap the entire item in a single Button asChild
+                        <Button
+                          asChild
+                          variant="ghost"
+                          className={cn(
+                            "w-full h-[32px] justify-start px-2 cursor-pointer",
+                            isActive
+                              ? "bg-blue-100 dark:bg-blue-900"
+                              : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                          )}
+                          key={option.value}
+                        >
+                          <CommandItem
                   key={option.value}
                   className={cn(
                     "h-10 cursor-pointer",
                   
                   )}
-                  onSelect={() => {
-                    if (editingItem !== option.value) {
-                      handleCommandItemSelect();
-                      handleSelect(option.value);
-                    }
-                  }}
-                >
+                            onSelect={() => {
+                              if (editingItem !== option.value) {
+                                handleCommandItemSelect();
+                                handleSelect(option.value);
+                              }
+                            }}
+                          >
                    {/* <Circle
                       className={cn(
                         "mr-2 h-4 w-4",
                         isActive ? "opacity-100" : "opacity-0"
                       )}
                     />  */}
-                    <div className="flex-1 w-full">
-                      {editingItem === option.value ? (
-                        <Input
-                          ref={inputRef}
-                          value={editingValue}
+                            <div className="flex-1 w-full">
+                              {editingItem === option.value ? (
+                                <Input
+                                  ref={inputRef}
+                                  value={editingValue}
                           onChange={(e) => setEditingValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleEditSubmit();
-                            }
-                          }}
-                          className={`border ${
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      handleEditSubmit();
+                                    }
+                                  }}
+                                  className={`border ${
                             editingItem === option.value ? "border-2" : "border-transparent"
-                          } h-8`}
-                        />
-                      ) : (
-                        <span>{option.label}</span>
-                      )}
-                    </div>
+                                  } h-8`}
+                                />
+                              ) : (
+                                <span>{option.label}</span>
+                              )}
+                            </div>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
+                            {/* 
+                              2) Another Trigger: DropdownMenuTrigger asChild
+                                 Must have exactly 1 child
+                            */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  aria-haspopup="true"
+                                  size="icon"
+                                  variant="ghost"
+                                >
+                                  {/* Wrap icon + text in a single span, even if the text is sr-only */}
+                                  <span className="flex items-center gap-1">
+                                    <MoreVertical className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                  </span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                  onSelect={(e) => {
+                                    e.preventDefault();
+                                    handleRename(option.value);
+                                  }}
+                                >
+                                  Rename
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onSelect={(e) => {
+                                    e.preventDefault();
+                                    handleDelete(option.value);
+                                  }}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </CommandItem>
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            handleRename(option.value);
-                          }}
-                        >
-                          Rename
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            handleDelete(option.value);
-                          }}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </CommandItem>
-                  </Button>
-                );
-              })}
-              {onCreate && (
-                <CommandItemCreate
-                label={label}
-                onSelect={() => handleCreate(inputValue)}
-                {...{ inputValue, options }}
-              />
+                      );
+                    })}
+                    {onCreate && (
+                      <CommandItemCreate
+                        label={label}
+                        onSelect={() => handleCreate(inputValue)}
+                        {...{ inputValue, options }}
+                      />
+                    )}
+                  </CommandGroup>
+                  {editingItem && inputValue === "" && (
+                    <>
+                      <CommandSeparator />
+                      <div className="p-2 text-xs text-muted-foreground">
+                        Press Enter to save
+                      </div>
+                    </>
+                  )}
+                </>
               )}
-            </CommandGroup>
-            {editingItem && inputValue === "" && (
-              <>
-                <CommandSeparator />
-                <div className="p-2 text-xs text-muted-foreground">
-                  Press Enter to save
-                </div>
-              </>
-            )}
-          </>
-        )}
-      </CommandList>
-    </Command>
-  </PopoverContent>
-</Popover>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
+      {/* Dialog for Editing Labels */}
       <Dialog
         open={openDialog}
         onOpenChange={(open) => {
@@ -305,7 +331,7 @@ export function FancyBox({
                   key={option.value}
                   onDelete={() => onDelete && onDelete(option.value)}
                   onSubmit={(updatedOption) => {
-                    onEdit && onEdit(updatedOption)
+                    onEdit && onEdit(updatedOption);
                   }}
                   {...option}
                 />
@@ -313,12 +339,15 @@ export function FancyBox({
             })}
           </div>
           <DialogFooter className="bg-opacity-40">
+            {/* This close button is fine since it's a single child */}
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* AlertDialog for Deletion Confirmation */}
       <AlertDialog
         open={!!selectedItem}
         onOpenChange={(open) => {
@@ -331,11 +360,14 @@ export function FancyBox({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete?</AlertDialogTitle>
             <AlertDialogDescription>
-              You are about to delete the label <Badge variant="outline">{selectedItemLabel}</Badge>.
+              You are about to delete the label{" "}
+              <Badge variant="outline">{selectedItemLabel}</Badge>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSelectedItem(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setSelectedItem(null)}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -344,11 +376,12 @@ export function FancyBox({
   );
 }
 
+// Helper Component: Create a new item
 const CommandItemCreate = ({
   inputValue,
   options,
   onSelect,
-  label
+  label,
 }: {
   inputValue: string;
   options: Option[];
@@ -357,17 +390,16 @@ const CommandItemCreate = ({
 }) => {
   const hasNoOption = !options
     .map(({ label }) => label.toLowerCase())
-    .includes(`${inputValue.toLowerCase()}`);
+    .includes(inputValue.toLowerCase());
 
   const render = inputValue !== "" && hasNoOption;
-
   if (!render) return null;
 
   return (
     <CommandItem
-      key={`${inputValue}`}
-      value={`${inputValue}`}
-      className="text-sm text-muted-foreground cursor-pointer flex items-center hover:bg-green-200"
+      key={inputValue}
+      value={inputValue}
+      className="flex cursor-pointer items-center text-sm text-muted-foreground hover:bg-green-200"
       onSelect={onSelect}
     >
       <CirclePlus className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -376,6 +408,7 @@ const CommandItemCreate = ({
   );
 };
 
+// Helper Component: Dialog list item
 const DialogListItem = ({
   value,
   label,
@@ -422,14 +455,12 @@ const DialogListItem = ({
                   <AlertDialogTitle>Are you sure sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     You are about to delete the label{" "}
-                    <Badge variant="outline">{label}</Badge> .
+                    <Badge variant="outline">{label}</Badge>.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onDelete}>
-                    Delete
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

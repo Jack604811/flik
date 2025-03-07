@@ -77,11 +77,11 @@ function ExtrasForm({
   workspaceId: string;
   extra?: Extras & { images: Record<string, string>[] };
 }) {
-  const { data: categories, refetch: fetchCategories } = useQuery({
+  const { data: categories = [], refetch: fetchCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => getCategories({ workspaceId }),
     initialData: [],
-  });
+  });  
 
   const { mutate: addNewCategory } = useMutation({
     mutationFn: async (categoryName: string) =>

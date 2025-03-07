@@ -83,19 +83,23 @@ export function SpotFilter<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full h-auto min-h-10 font-normal text-muted-foreground flex flex-wrap justify-start items-center gap-2">
-          {selectedSpots.length > 0 && (
-            <>
-              <div className="flex flex-wrap gap-1 py-2 overflow-hidden">
-                {spots
-                  .filter((spot) => selectedSpots.includes(spot.id))
-                  .map((spot) => (
-                    <Badge key={spot.id} variant="secondary" className="rounded-sm px-1 font-normal">
-                      {spot.name}
-                    </Badge>
-                  ))}
-              </div>
-            </>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full h-auto min-h-10 font-normal text-muted-foreground flex flex-wrap justify-start items-center gap-2"
+        >
+          {selectedSpots.length > 0 ? (
+            <div className="flex flex-wrap gap-1 py-2 overflow-hidden">
+              {spots
+                .filter((spot) => selectedSpots.includes(spot.id))
+                .map((spot) => (
+                  <Badge key={spot.id} variant="secondary" className="rounded-sm px-1 font-normal">
+                    {spot.name}
+                  </Badge>
+                ))}
+            </div>
+          ) : (
+            <span className="text-muted-foreground">Select an option</span> 
           )}
         </Button>
       </PopoverTrigger>
@@ -120,7 +124,7 @@ export function SpotFilter<TData, TValue>({
                       {selectedSpots.includes(spot.id) && <CheckIcon className="h-4 w-4" />}
                     </div>
                     <span>{spot.name}</span>
-                    <span className="ml-auto text-muted-foreground">{spotCounts[spot.id] || 0}</span>
+                    {/* <span className="ml-auto text-muted-foreground">{spotCounts[spot.id] || 0}</span> */}
                   </CommandItem>
                 ))}
               </CommandGroup>

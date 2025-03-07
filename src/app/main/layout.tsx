@@ -1,5 +1,5 @@
 import { APP_LANG } from "@/app-settings";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+// import { SpeedInsights } from "@vercel/speed-insights/next"
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
 
@@ -37,7 +37,7 @@ export default function RootLayout({
       </head>
 
       <body suppressHydrationWarning={true}>
-      <SpeedInsights />
+      {/* <SpeedInsights /> */}
       {children}
       </body>
     </html>

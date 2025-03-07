@@ -22,6 +22,6 @@ export default function CompleteOnboardingButton() {
         }
     });
   return (
-    <Button disabled={isPending} onClick={() => mutate()}>Complete Onboarding</Button>
+    <Button className="w-full" disabled={isPending} onClick={() => mutate()}>Continue</Button>
   )
 }
