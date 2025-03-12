@@ -8,20 +8,20 @@ export default async function Page() {
   // Handle the loading state if workspace data is not yet available
   if (!workspace) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center h-screen rounded-lg">
         <Image
-          src="/assets/logo.svg"
+          src="/logo.svg"
           alt="Loading..."
           width={100}
           height={100}
-          className="animate-pulse duration-700"
+          className="animate-pulse duration-700 rounded-xl"
         />
       </div>
     );
   }
 
   // Determine the logo URL
-  const logoUrl = workspace.logo || "/assets/logo.svg";
+  const logoUrl = workspace.logo || "/logo.svg";
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
@@ -30,7 +30,7 @@ export default async function Page() {
         alt="Workspace Logo"
         width={100}
         height={100}
-        className="animate-pulse duration-700"
+        className="animate-pulse duration-700 rounded-xl"
         unoptimized
       />
     </div>
@@ -41,11 +41,11 @@ export function Loading() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <Image
-        src="/assets/logo.svg"
+        src="/logo.svg"
         alt="Loading..."
         width={100}
         height={100}
-        className="animate-pulse duration-700"
+        className="animate-pulse duration-700 rounded-xl"
       />
     </div>
   );

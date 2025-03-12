@@ -17,6 +17,7 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { BadgeCheck, LogOut, PlayCircle, BookOpen, Sun, Moon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 export function NavUser() {
   const { data: session, status } = useSession();
@@ -37,7 +38,7 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="bg-neutral-50 dark:bg-transparent py-8 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="bg-neutral-50 dark:bg-transparent border py-8 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               {/* Avatar */}
               <Avatar className="h-8 w-8 rounded-lg">
@@ -128,12 +129,10 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               asChild
-              className="gap-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-500 focus:bg-red-50 focus:text-red-500 dark:focus:bg-red-500"
-            >
-              <Link href="/logout" className="flex items-center w-full text-red-500">
-                <LogOut className="h-4 w-4" />
-                Log out
-              </Link>
+              className="
+  "
+>
+             <LogoutButton />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

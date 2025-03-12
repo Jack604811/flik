@@ -11,6 +11,8 @@ import Billing from "@/components/settings/billing";
 import CustomFields from "@/components/settings/custom-fields";
 import Integrations from "@/components/settings/integrations/page";
 import APIKeys from "@/components/settings/api-keys";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@radix-ui/react-separator";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -34,57 +36,58 @@ export default async function Page() {
   }
 
   return (
-    <div className="flex-1 pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-        <p className="text-muted-foreground">
-          Setup your business like a boss.
-        </p>
+    <>
+    <header className="sticky top-0 z-10 hidden md:flex flex-row w-full h-16 bg-background px-4 items-center justify-between gap-2 border-b">
+      <div className="flex w-full items-center gap-2 py-5">
+        <SidebarTrigger className="-ml-1 h-4 w-5 text-muted-foreground" />
+        <Separator orientation="vertical" className="mr-2 h-4" />
+        <h1 className="text-lg font-semibold whitespace-nowrap">Settings</h1>
       </div>
-      <Tabs defaultValue="main">
-        <div className="overflow-x-auto space-y-8">
-          <TabsList className="min-w-full md:min-w-[300px]">
-            <TabsTrigger value="main">Main</TabsTrigger>
-            <TabsTrigger value="site">Website</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
-            <TabsTrigger value="integrations">Integrations</TabsTrigger>
-            <TabsTrigger value="fields">Custom Fields</TabsTrigger>
-            <TabsTrigger value="api-keys">API Keys</TabsTrigger>
-            {/* <TabsTrigger value="webhooks">Webhooks</TabsTrigger> */}
-            <TabsTrigger value="billing">Billing</TabsTrigger>
-          </TabsList>
-        </div>
-        <TabsContent value="main">
-          <MainSettings workspace={currentWorkspace} />
-          <DeleteWorkspace workspace={currentWorkspace} />
-        </TabsContent>
-        <TabsContent value="site">
-          <SiteSettings
-            subdomain={currentWorkspace.subdomain ?? ""}
-            customDomain={currentWorkspace.customDomain ?? ""}
-            workspaceId={currentWorkspace.id}
-            favicon={currentWorkspace.favicon}
-          />
-        </TabsContent>
-        <TabsContent value="team">
-          <TeamManagement workspaceId={currentWorkspace.id} />
-        </TabsContent>
-        <TabsContent value="integrations">
-          <Integrations />
-        </TabsContent>
-        <TabsContent value="fields">
-          <CustomFields workspaceId={currentWorkspace.id} />
-        </TabsContent>
-        <TabsContent value="api-keys">
-          <APIKeys workspaceId={currentWorkspace.id} />
-        </TabsContent>
-        <TabsContent value="webhooks">
-          <CustomFields workspaceId={currentWorkspace.id} />
-        </TabsContent>
-        <TabsContent value="billing">
-          <Billing />
-        </TabsContent>
-      </Tabs>
-    </div>
+    </header>
+    <div className="flex-1 pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
+        <Tabs defaultValue="main">
+          <div className="overflow-x-auto space-y-8">
+            <TabsList className="min-w-full md:min-w-[300px]">
+              <TabsTrigger value="main">Main</TabsTrigger>
+              <TabsTrigger value="site">Website</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
+              <TabsTrigger value="integrations">Integrations</TabsTrigger>
+              <TabsTrigger value="fields">Custom Fields</TabsTrigger>
+              <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+              {/* <TabsTrigger value="webhooks">Webhooks</TabsTrigger> */}
+              <TabsTrigger value="billing">Billing</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="main">
+            <MainSettings workspace={currentWorkspace} />
+            <DeleteWorkspace workspace={currentWorkspace} />
+          </TabsContent>
+          <TabsContent value="site">
+            <SiteSettings
+              subdomain={currentWorkspace.subdomain ?? ""}
+              customDomain={currentWorkspace.customDomain ?? ""}
+              workspaceId={currentWorkspace.id}
+              favicon={currentWorkspace.favicon} />
+          </TabsContent>
+          <TabsContent value="team">
+            <TeamManagement workspaceId={currentWorkspace.id} />
+          </TabsContent>
+          <TabsContent value="integrations">
+            <Integrations />
+          </TabsContent>
+          <TabsContent value="fields">
+            <CustomFields workspaceId={currentWorkspace.id} />
+          </TabsContent>
+          <TabsContent value="api-keys">
+            <APIKeys workspaceId={currentWorkspace.id} />
+          </TabsContent>
+          <TabsContent value="webhooks">
+            <CustomFields workspaceId={currentWorkspace.id} />
+          </TabsContent>
+          <TabsContent value="billing">
+            <Billing />
+          </TabsContent>
+        </Tabs>
+      </div></>
   );
 }

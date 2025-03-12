@@ -222,7 +222,7 @@ export default function ListView({
                                   initial={{ opacity: 0, y: 10 }}
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{ duration: 0.3 }}
-                                  className="flex w-full rounded-lg py-2 bg-muted/50 cursor-pointer hover:transform"
+                                  className="flex w-full rounded-lg py-2 bg-muted/50 border cursor-pointer hover:transform"
                                   onClick={() => handleOpenSheet(booking)}
                                 >
                                   <div className="flex w-full">

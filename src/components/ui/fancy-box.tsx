@@ -127,11 +127,14 @@ export function FancyBox({
     setOpenDialog(false);
   };
 
-  const selectedItemLabel = options.find(option => option.value === selectedItem)?.label || '';
+  const selectedItemLabel =
+    options.find((option) => option.value === selectedItem)?.label || "";
 
   const handleRename = (value: string) => {
     setEditingItem(value);
-    setEditingValue(options.find(option => option.value === value)?.label || ''); 
+    setEditingValue(
+      options.find((option) => option.value === value)?.label || ""
+    );
     setOpenCombobox(true);
 
     setTimeout(() => {
@@ -190,50 +193,39 @@ export function FancyBox({
                     {options.map((option) => {
                       const isActive = values.includes(option.value);
                       return (
-                        // We wrap the entire item in a single Button asChild
-                        <Button
-                          asChild
-                          variant="ghost"
-                          className={cn(
-                            "w-full h-[32px] justify-start px-2 cursor-pointer",
-                            isActive
-                              ? "bg-blue-100 dark:bg-blue-900"
-                              : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                          )}
+                        // Instead of <Button asChild> (which can cause multi-children issues),
+                        // we directly use <CommandItem> as the clickable element.
+                        <CommandItem
                           key={option.value}
+                          className={cn(
+                            "relative h-10 cursor-pointer px-2",
+                            // data-[highlighted] for Radix highlight
+                            "data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-800"
+                          )}
+                          onSelect={() => {
+                            if (editingItem !== option.value) {
+                              handleCommandItemSelect();
+                              handleSelect(option.value);
+                            }
+                          }}
                         >
-                          <CommandItem
-                  key={option.value}
-                  className={cn(
-                    "h-10 cursor-pointer",
-                  
-                  )}
-                            onSelect={() => {
-                              if (editingItem !== option.value) {
-                                handleCommandItemSelect();
-                                handleSelect(option.value);
-                              }
-                            }}
-                          >
-                   {/* <Circle
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        isActive ? "opacity-100" : "opacity-0"
-                      )}
-                    />  */}
-                            <div className="flex-1 w-full">
+                          {/* Single parent to avoid multiple children */}
+                          <div className="flex w-full items-center justify-between">
+                            <div className="flex-1">
                               {editingItem === option.value ? (
                                 <Input
                                   ref={inputRef}
                                   value={editingValue}
-                          onChange={(e) => setEditingValue(e.target.value)}
+                                  onChange={(e) => setEditingValue(e.target.value)}
                                   onKeyDown={(e) => {
                                     if (e.key === "Enter") {
                                       handleEditSubmit();
                                     }
                                   }}
                                   className={`border ${
-                            editingItem === option.value ? "border-2" : "border-transparent"
+                                    editingItem === option.value
+                                      ? "border-2"
+                                      : "border-transparent"
                                   } h-8`}
                                 />
                               ) : (
@@ -241,10 +233,7 @@ export function FancyBox({
                               )}
                             </div>
 
-                            {/* 
-                              2) Another Trigger: DropdownMenuTrigger asChild
-                                 Must have exactly 1 child
-                            */}
+                            {/* If you want an "active" style, use data-[highlighted]: classes */}
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
@@ -252,7 +241,6 @@ export function FancyBox({
                                   size="icon"
                                   variant="ghost"
                                 >
-                                  {/* Wrap icon + text in a single span, even if the text is sr-only */}
                                   <span className="flex items-center gap-1">
                                     <MoreVertical className="h-4 w-4" />
                                     <span className="sr-only">Toggle menu</span>
@@ -279,8 +267,8 @@ export function FancyBox({
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </CommandItem>
-                        </Button>
+                          </div>
+                        </CommandItem>
                       );
                     })}
                     {onCreate && (
@@ -339,7 +327,6 @@ export function FancyBox({
             })}
           </div>
           <DialogFooter className="bg-opacity-40">
-            {/* This close button is fine since it's a single child */}
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
             </DialogClose>
@@ -399,7 +386,7 @@ const CommandItemCreate = ({
     <CommandItem
       key={inputValue}
       value={inputValue}
-      className="flex cursor-pointer items-center text-sm text-muted-foreground hover:bg-green-200"
+      className="flex cursor-pointer items-center text-sm text-muted-foreground data-[highlighted]:bg-green-200"
       onSelect={onSelect}
     >
       <CirclePlus className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -439,9 +426,7 @@ const DialogListItem = ({
     >
       <AccordionItem value={value}>
         <div className="flex items-center justify-between">
-          <div>
-            <Badge variant="outline">{label}</Badge>
-          </div>
+          <Badge variant="outline">{label}</Badge>
           <div className="flex items-center gap-4">
             <AccordionTrigger>Edit</AccordionTrigger>
             <AlertDialog>
