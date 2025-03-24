@@ -11,6 +11,7 @@ import Billing from "@/components/settings/billing";
 import CustomFields from "@/components/settings/custom-fields";
 import Integrations from "@/components/settings/integrations/page";
 import APIKeys from "@/components/settings/api-keys";
+import { NotificationSettings } from "@/components/settings/notification";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -52,6 +53,7 @@ export default async function Page() {
             <TabsTrigger value="api-keys">API Keys</TabsTrigger>
             {/* <TabsTrigger value="webhooks">Webhooks</TabsTrigger> */}
             <TabsTrigger value="billing">Billing</TabsTrigger>
+            <TabsTrigger value="notification">Notification</TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="main">
@@ -83,6 +85,9 @@ export default async function Page() {
         </TabsContent>
         <TabsContent value="billing">
           <Billing />
+        </TabsContent>
+        <TabsContent value="notification">
+          <NotificationSettings />
         </TabsContent>
       </Tabs>
     </div>
