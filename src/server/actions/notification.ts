@@ -1,5 +1,5 @@
 "use server";
-import { WebNotification } from "@prisma/client";
+
 import { db } from "../db";
 import webpush, { PushSubscription } from 'web-push'
  

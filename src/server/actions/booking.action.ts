@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { WOMPI_CENT_MULTIPLIER } from "@/app-settings";
 import moment from "moment";
 import { clearDomainCache } from "../helpers/domains";
+import { sendWebNotification } from "./notification";
 
 export const getBookings = async (ownerId: string) => {
   const bookings = await db.booking.findMany({
@@ -190,8 +191,9 @@ export const addBooking = async (data: {
       },
       spot: {
         select: {
-          workspace: { select: { subdomain: true, customDomain: true } },
+          workspace: { select: { subdomain: true, customDomain: true, ownerId: true } },
           workspaceId: true,
+          name: true,
         },
       },
       bookingExtras: {
@@ -210,6 +212,12 @@ export const addBooking = async (data: {
     bookingId: booking.id,
   });
 
+  sendWebNotification({
+    message: `New booking for ${booking.spot.name}`,
+    workspaceId: booking.spot.workspaceId,
+    userId: booking.spot.workspace.ownerId
+  });
+  
   clearDomainCache(
     booking.spot.workspace.subdomain,
     booking.spot.workspace.customDomain,

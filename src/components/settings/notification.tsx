@@ -18,19 +18,6 @@ export function NotificationSettings() {
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
   );
-
-  const { data, isLoading: fetchingSubscription, mutate,} = useSWR(null, async () => {
-    const serializedSub = JSON.parse(JSON.stringify(subscription))
-    const workspaceId = JSON.parse(localStorage.getItem("workspaceCache")??"{}").currentWorkspaceId;
-    const webNotification = await getWebNotificationSubscription(session?.user?.id!, workspaceId, serializedSub.auth);
-    if(webNotification){
-      setPermission("granted");
-    }
-    return webNotification;
-  }, {
-    revalidateOnMount: true,
-    keepPreviousData: true,
-  });
  
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -38,6 +25,17 @@ export function NotificationSettings() {
       registerServiceWorker()
     }
   }, [])
+
+  async function checkWebNotificationPermission(sub: PushSubscription | null) {
+    const serializedSub = JSON.parse(JSON.stringify(sub))
+    const workspaceId = JSON.parse(localStorage.getItem("workspaceCache")??"{}").currentWorkspaceId;
+    const webNotification = await getWebNotificationSubscription(session?.user?.id!, workspaceId, serializedSub.keys.auth);
+    if(webNotification){
+      setPermission("granted");
+    }else{
+      setPermission("default");
+    }
+  }
  
   async function registerServiceWorker() {
     const registration = await navigator.serviceWorker.register('/sw.js', {
@@ -45,6 +43,7 @@ export function NotificationSettings() {
       updateViaCache: 'none',
     })
     const sub = await registration.pushManager.getSubscription();
+    checkWebNotificationPermission(sub);
     setSubscription(sub)
   }
 
@@ -55,7 +54,7 @@ export function NotificationSettings() {
     
       if (permission === "granted") {
         const serializedSub = JSON.parse(JSON.stringify(subscription));
-        const final = await handleWebNotificationUnsubscribe(session?.user?.id!,workspaceId, serializedSub.auth);
+        const final = await handleWebNotificationUnsubscribe(session?.user?.id!,workspaceId, serializedSub.keys.auth);
         if(final){
           await subscription?.unsubscribe();
           setSubscription(null);
@@ -73,7 +72,7 @@ export function NotificationSettings() {
         setSubscription(sub)
         const serializedSub = JSON.parse(JSON.stringify(sub));
         
-        await handleWebNotificationSubscribe(session?.user?.id!, workspaceId, serializedSub.auth, serializedSub);
+        await handleWebNotificationSubscribe(session?.user?.id!, workspaceId, serializedSub.keys.auth, serializedSub);
         toast.success("Notifications enabled");
       }
     } catch (error) {
