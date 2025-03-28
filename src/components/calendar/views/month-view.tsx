@@ -107,7 +107,7 @@ export default function MonthView({
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1 max-h-[240px]">
+          <div className="grid grid-cols-7 gap-1 max-h-[240px] rounded-xl">
             {daysToRender.map((date, index) => {
               const isToday = isSameDay(date, new Date());
               const isCurrentMonth = isSameMonth(date, currentDate);
@@ -131,7 +131,7 @@ export default function MonthView({
                 >
                   <time
                     dateTime={format(date, 'yyyy-MM-dd')}
-                    className="text-xs font-semibold"
+                    className="text-xs font-semibold m-1"
                   >
                     {format(date, 'd')}
                   </time>
