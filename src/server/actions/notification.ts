@@ -75,11 +75,13 @@ export const sendWebNotification = async ({ message, workspaceId, userId}: {
       return;
     }
     for (const notification of webNotification) {
-        const subscription = JSON.parse(notification.subscription?.toString()!) as PushSubscription;
+        const subscription = notification.subscription as unknown as PushSubscription;
 
         const payload = JSON.stringify({
           title: "Flik - New Notification",
-          message,
+          body: message,
+          image: "/favicon.ico",
+          icon: "favicon.ico",
         })
         const options: webpush.RequestOptions = {
           TTL: 60,

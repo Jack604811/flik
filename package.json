@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "local": "next dev --experimental-https --experimental-https-cert ./certificates/localhost+1.pem --experimental-https-key ./certificates/localhost+1-key.pem",
     "dev": "next dev --experimental-https",
     "build": "prisma generate && next build",
     "start": "next start",
