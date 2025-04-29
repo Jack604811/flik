@@ -25,14 +25,15 @@ class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="h-screen">
-        <EmptyState
-          imageUrl="/placeholder.svg"
-          title="Oops! Something went wrong."
-          description="We encountered an error. Please try reloading the page."
-          buttonLabel="Reload Page"
-          onButtonClick={this.handleReload}
-        />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center text-center">
+            <EmptyState
+              imageUrl="/placeholder.svg"
+              title="Oops! Something went wrong."
+              description="We encountered an error. Please try reloading the page."
+            />
+            <Button onClick={this.handleReload}>Reload Page</Button>
+          </div>
         </div>
       );
     }

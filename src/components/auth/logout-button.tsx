@@ -8,8 +8,8 @@ export function LogoutButton() {
     <Button
   variant="ghost"
   onClick={() => signOut({ callbackUrl: AFTER_SIGNOUT_REDIRECT_URL })}
-  className="text-red-500 w-full h-8 flex items-center gap-2 bg-inherit hover:bg-transparent hover:text-red-500 justify-start text-left"
->
+  className="flex justify-start items-center gap-2 w-full py-0 px-3 text-red-500 hover:bg-red-50 hover:text-red-500 dark:bg-background">
+
   <LogOut size={15} className="text-red-500" />
   <span>Logout</span>
 </Button>

@@ -12,6 +12,8 @@ import CustomFields from "@/components/settings/custom-fields";
 import Integrations from "@/components/settings/integrations/page";
 import APIKeys from "@/components/settings/api-keys";
 import { NotificationSettings } from "@/components/settings/notification";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -35,6 +37,14 @@ export default async function Page() {
   }
 
   return (
+    <>
+    <header className="sticky top-0 z-10 hidden md:flex flex-row w-full h-16 bg-background px-4 items-center justify-between gap-2 border-b">
+      <div className="flex w-full items-center gap-2 py-5">
+        <SidebarTrigger className="-ml-1 h-4 w-5 text-muted-foreground" />
+        <Separator orientation="vertical" className="mr-2 h-4" />
+        <h1 className="text-lg font-semibold whitespace-nowrap">Settings</h1>
+      </div>
+    </header>
     <div className="flex-1 pt-4 space-y-8 gap-8 p-6 md:p-8 md:pt-6">
       <div className="mb-8">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
@@ -91,5 +101,6 @@ export default async function Page() {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 }

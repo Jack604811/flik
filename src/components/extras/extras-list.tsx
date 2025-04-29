@@ -91,7 +91,7 @@ export default function ExtrasList({ extras }: { extras: Extra[] }) {
                 {filteredExtras.map((extra) => (
                   <TableRow key={extra.id} className="border-none hover:bg-inherit cursor-pointer">
                     <Link href={`/extras/${extra.id}`}>
-                      <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center bg-muted/50 my-2 p-2 rounded-lg">
+                      <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center bg-muted/50 border my-2 p-2 rounded-lg">
                         <div className="flex flex-row">
                           <TableCell className="hidden sm:table-cell">
                             <Image

@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Home, Calendar, Landmark, MapPin } from "lucide-react";
+import { Settings, Home, Calendar, Landmark, MapPin, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,7 +22,7 @@ export function Docker() {
     <div
       className="fixed bottom-2 w-full flex justify-center items-center px-4 transition-opacity duration-500 opacity-100"
     >
-      <div className="flex justify-between items-center w-full max-w-[260px] border bg-black text-white rounded-full p-2 backdrop-blur-lg">
+      <div className="flex justify-between items-center w-full max-w-[240px] border bg-black text-white rounded-full p-2 backdrop-blur-lg">
         <div className="flex space-x-1">
         <Link href="/dashboard">
           <Button
@@ -60,6 +60,24 @@ export function Docker() {
             <span className="sr-only">Home</span>
           </Button>
         </Link>
+        <Link href="/extras">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "bg-transparent hover:bg-transparent",
+              isActive("/extras") && "bg-neutral-800 rounded-full"
+            )}
+          >
+            <ShoppingCart
+              className={cn(
+                "h-5 w-5 text-muted-foreground",
+                isActive("/extras") && "text-white"
+              )}
+            />
+            <span className="sr-only">Extras</span>
+          </Button>
+        </Link>
         <Link href="/spots">
           <Button
             variant="ghost"
@@ -75,7 +93,7 @@ export function Docker() {
                 isActive("/spots") && "text-white"
               )}
             />
-            <span className="sr-only">Home</span>
+            <span className="sr-only">Spots</span>
           </Button>
         </Link>
         <Link href="/settings">
@@ -93,11 +111,11 @@ export function Docker() {
                 isActive("/settings") && "text-white"
               )}
             />
-            <span className="sr-only">Home</span>
+            <span className="sr-only">Settings</span>
           </Button>
         </Link>
         </div>
-        <div className="h-6 border-l border-gray-600 mx-2"></div>
+        {/* <div className="h-6 border-l border-gray-600 mx-2"></div>
         <div className="flex items-center space-x-1">
           <Link href="/account">
             <Image
@@ -108,7 +126,7 @@ export function Docker() {
               className="rounded-full mr-3"
             />
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );

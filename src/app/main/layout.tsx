@@ -1,7 +1,14 @@
 import { APP_LANG } from "@/app-settings";
+import type { Viewport } from 'next'
 // import { SpeedInsights } from "@vercel/speed-insights/next"
 import "rsuite/dist/rsuite-no-reset.min.css";
 import "../globals.css";
+
+
+export const viewport: Viewport ={
+  maximumScale: 1,
+  userScalable: false,
+}
 
 
 

@@ -226,24 +226,40 @@ export const addBooking = async (data: {
 
   return { ...booking, customer };
 };
+
+
 export const addExtrasToBooking = async (data: {
-  extras: { extraId: string; quantity: number; description?: string }[];
+  extras: { extraId: string; quantity: number; description?: string; price?: number }[];
   bookingId: string;
 }) => {
-  const availableExtras = await db.extras.findMany({
-    where: { id: {in: data.extras?.map(e => e.extraId)} },
-    select: {id: true, price: true}
+  const booking = await db.booking.findUnique({
+    where: { id: data.bookingId },
+    select: { totalPrice: true }
   });
-  const extras = data.extras.map((extra) => {
-    const extraData = availableExtras.find((ex) => ex.id === extra.extraId);
+
+  if (!booking) throw new Error("Booking not found");
+
+  const availableExtras = await db.extras.findMany({
+    where: { id: { in: data.extras.map(e => e.extraId) } },
+    select: { id: true, price: true }
+  });
+
+  let extrasTotal = 0;
+  const extras = data.extras.map(extra => {
+    const extraData = availableExtras.find(ex => ex.id === extra.extraId);
     if (!extraData) throw new Error("Extra not found");
+
+    const finalPrice = extra.price ?? extraData.price;
+    extrasTotal += finalPrice * extra.quantity;
+
     return {
       ...extra,
-      price: extraData.price,
+      price: finalPrice,
     };
   });
-  const addedExtras = await db.bookingExtras.createMany({
-    data: extras.map((extra) => ({
+
+  await db.bookingExtras.createMany({
+    data: extras.map(extra => ({
       bookingId: data.bookingId,
       extraId: extra.extraId,
       quantity: extra.quantity,
@@ -252,25 +268,78 @@ export const addExtrasToBooking = async (data: {
     })),
   });
 
-  return addedExtras;
+  await db.booking.update({
+    where: { id: data.bookingId },
+    data: { totalPrice: booking.totalPrice + extrasTotal },
+  });
+
+  return extras;
 };
 
+
 export const removeExtraFromBooking = async (id: string) => {
-  const deletedBookingExtra = await db.bookingExtras.delete({ where: { id } });
-  return deletedBookingExtra;
+  const extra = await db.bookingExtras.findUnique({
+    where: { id },
+    include: { booking: true }
+  });
+
+  if (!extra) throw new Error("Extra not found");
+
+  const updatedTotal = extra.booking.totalPrice - (extra.price * extra.quantity);
+
+  await db.bookingExtras.delete({ where: { id } });
+
+  await db.booking.update({
+    where: { id: extra.bookingId },
+    data: { totalPrice: updatedTotal },
+  });
+
+  return { success: true };
 };
+
 
 export const updateBookingExtra = async (
   id: string,
-  data: { quantity?: number; price?: number }
+  data: { quantity?: number; price?: number; description?: string }
 ) => {
-  const updatedBookingExtra = await db.bookingExtras.update({
+  const extra = await db.bookingExtras.findUnique({
     where: { id },
-    data: { ...data, updatedAt: moment().toDate() },
+    include: { booking: true },
+  });
+  if (!extra) throw new Error("Extra not found");
+
+  // Calculate the new price/quantity for total
+  const oldTotal = extra.price * extra.quantity;
+  const newPrice = data.price ?? extra.price;
+  const newQuantity = data.quantity ?? extra.quantity;
+  const newTotal = newPrice * newQuantity;
+
+  // Build the 'data' object for updating
+  const updateData: any = {
+    price: newPrice,
+    quantity: newQuantity,
+    updatedAt: new Date(),
+  };
+  if (data.description !== undefined) {
+    updateData.description = data.description;
+  }
+
+  // Update bookingExtras
+  await db.bookingExtras.update({
+    where: { id },
+    data: updateData,
   });
 
-  return updatedBookingExtra;
+  // Update the booking total
+  const updatedTotalPrice = extra.booking.totalPrice - oldTotal + newTotal;
+  await db.booking.update({
+    where: { id: extra.bookingId },
+    data: { totalPrice: updatedTotalPrice },
+  });
+
+  return { success: true };
 };
+
 
 export const addOrUpdateTransaction = async (data: {
   amount: number;
