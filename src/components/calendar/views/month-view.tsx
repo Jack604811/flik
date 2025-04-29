@@ -107,7 +107,7 @@ export default function MonthView({
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1 max-h-[240px] rounded-xl">
+          <div className="grid grid-cols-7 gap-2 max-h-[240px]">
             {daysToRender.map((date, index) => {
               const isToday = isSameDay(date, new Date());
               const isCurrentMonth = isSameMonth(date, currentDate);
@@ -122,7 +122,7 @@ export default function MonthView({
               return (
                 <div
                   key={index}
-                  className={`relative flex flex-col max-h-[240px] min-w-full aspect-square border border-neutral-200 dark:border-neutral-800 p-1 group cursor-pointer ${
+                  className={`relative flex flex-col max-h-[240px] max-w-[240px] min-w-full aspect-square border border-neutral-200 dark:border-neutral-800 rounded-md p-1 group cursor-pointer ${
                     isToday ? 'bg-muted' : ''
                   } ${
                     !isCurrentMonth ? 'bg-muted/50' : ''
