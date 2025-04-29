@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Flik - Your Booking App",
+    "short_name": "Flik",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
