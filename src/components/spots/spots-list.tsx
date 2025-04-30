@@ -64,10 +64,10 @@ export default function SpotList({ initialSpots }: { initialSpots: Spot[] }) {
           </Button>
         </Link>
       </header>
-      <div className="flex justify-center mx-4 mt-16 py-2">
+      <div className="flex justify-start mx-4 mt-16 py-2">
       {loading ? (
-        <div className="flex justify-center">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 max-w-screen-xl">
+        <div className="flex justify-start">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="relative overflow-hidden rounded-xl bg-muted/50 p-4">
                 <Skeleton className="h-48 w-full rounded-lg aspect-video" />
@@ -83,23 +83,19 @@ export default function SpotList({ initialSpots }: { initialSpots: Spot[] }) {
             </div>
         </div>
         ) : filteredSpots.length > 0 ? (
-          <div className="grid grid-cols-1 items-center justify-center max-w-7xl gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid w-full gap-8 sm:grid-cols-1 lg:grid-cols-[repeat(auto-fit,_minmax(320px,_320px))] justify-start">
             {filteredSpots.map((spot) => (
               <div
                 className="group relative overflow-hidden rounded-xl border shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 key={spot.id}
               >
                 <Link href={`/spots/${spot.id}`}>
-                  <Image
-                    alt={spot.name}
-                    className="transition-all duration-300 group-hover:scale-110"
-                    height={80}
-                    src={spot.images[0]?.url ?? "/placeholder.svg"}
-                    style={{
-                      aspectRatio: "4/3",
-                      objectFit: "cover",
-                    }}
-                    width={500}
+                <Image
+                  alt={spot.name}
+                  src={spot.images[0]?.url ?? "/placeholder.svg"}
+                  width={320}
+                  height={240}
+                  className="w-full aspect-[4/3] object-cover transition-all duration-300 group-hover:scale-110"
                   />
                   <div className="p-4">
                     <div className="flex flex-row gap-2 justify-between items-center">
