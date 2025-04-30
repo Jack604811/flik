@@ -29,7 +29,7 @@ export function NotificationSettings() {
   async function checkWebNotificationPermission(sub: PushSubscription | null) {
     const serializedSub = JSON.parse(JSON.stringify(sub))
     const workspaceId = JSON.parse(localStorage.getItem("workspaceCache")??"{}").currentWorkspaceId;
-    const webNotification = await getWebNotificationSubscription(session?.user?.id!, workspaceId, serializedSub.keys.auth);
+    const webNotification = await getWebNotificationSubscription(session?.user?.id!, workspaceId, serializedSub?.keys?.auth);
     if(webNotification){
       setPermission("granted");
     }else{
@@ -54,7 +54,7 @@ export function NotificationSettings() {
     
       if (permission === "granted") {
         const serializedSub = JSON.parse(JSON.stringify(subscription));
-        const final = await handleWebNotificationUnsubscribe(session?.user?.id!,workspaceId, serializedSub.keys.auth);
+        const final = await handleWebNotificationUnsubscribe(session?.user?.id!,workspaceId, serializedSub?.keys?.auth);
         if(final){
           await subscription?.unsubscribe();
           setSubscription(null);
@@ -72,7 +72,8 @@ export function NotificationSettings() {
         setSubscription(sub)
         const serializedSub = JSON.parse(JSON.stringify(sub));
         
-        await handleWebNotificationSubscribe(session?.user?.id!, workspaceId, serializedSub.keys.auth, serializedSub);
+        await handleWebNotificationSubscribe(session?.user?.id!, workspaceId, serializedSub?.keys?.auth, serializedSub);
+        setPermission("granted");
         toast.success("Notifications enabled");
       }
     } catch (error) {

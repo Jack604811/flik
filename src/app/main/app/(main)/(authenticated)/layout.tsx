@@ -1,3 +1,6 @@
+import { hasWorkspace } from "@/server/actions/workspace.action";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/main/sidebar/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { cookies } from "next/headers";
@@ -9,13 +12,18 @@ import ModalAndSheetProvider from "@/components/providers/ModalAndSheetProvider"
 export default async function Layout({
   children,
 }: Readonly<{ children: React.ReactNode;}>) {
-  const cookieStore = await cookies();
-  const sidebarState = cookieStore.get("sidebar:state")?.value;
-
-
-  let defaultOpen = true;
-  if (sidebarState) {
-    defaultOpen = sidebarState === "true";
+  const session = await auth();
+  const isWorkspaceExists = await hasWorkspace();
+  // If user hasn't finished onboarding...
+  if (
+    !session?.user.onboardingComplete
+  ) {
+    
+    if (isWorkspaceExists) {
+      return redirect("/invite-team");
+    } else {
+      return redirect("/create-workspace");
+    }
   }
 
   return (
@@ -26,7 +34,7 @@ export default async function Layout({
          <SidebarInset>
       {/* Main Content */}
       <div className="flex flex-col w-full overflow-y-scroll pb-16 lg:pb-0">
-        {/* <ModalAndSheetProvider /> */}
+        <ModalAndSheetProvider />
         {children}
         {process.env.NODE_ENV === "development" && <TailwindScreen />}
       </div>

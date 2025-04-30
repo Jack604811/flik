@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 export const config = {
   matcher: [
     /*
@@ -57,8 +56,8 @@ export default async function middleware(req: NextRequest) {
 
   // rewrites for app pages
   if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
-    headers.set("x-current-path", req.nextUrl.pathname);
-    headers.set("x-search-params",  req.nextUrl.searchParams.toString());
+    headers.set("x-current-path", url.pathname);
+    headers.set("x-search-params",  url.searchParams.toString());
 
     return NextResponse.rewrite(
       new URL(`/main/app${path === "/" ? "" : path}`, req.url), {headers}

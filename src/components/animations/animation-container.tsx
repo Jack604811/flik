@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useRef } from "react";
 
 export default function Home() {
   return (
@@ -29,15 +29,8 @@ export function AnimationContainer({
   delay?: number;
   duration?: number;
 }) {
-  let ref = useRef(null);
-  let isInView = useInView(ref);
-  let [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isInView && !isVisible) {
-      setIsVisible(true);
-    }
-  }, [isInView, isVisible]);
+  const ref = useRef(null);
+  const isInView = useInView(ref);
 
   return (
     <motion.div
@@ -53,7 +46,7 @@ export function AnimationContainer({
         },
       }}
       initial="hidden"
-      animate={isVisible ? "visible" : "hidden"}
+      animate={isInView ? "visible" : "hidden"}
       transition={{ delay, type: "spring", duration }}
     >
       {children}

@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 
 const BACK_BUTTON_URL = `/dashboard`;
 
-export default function Page() {
+export default async function Page() {
   return (
     <section className="flex flex-col items-center justify-center w-full min-h-screen relative">
       <div className="absolute top-4 left-4">

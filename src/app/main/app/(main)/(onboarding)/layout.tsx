@@ -19,42 +19,27 @@ export default async function MainLayout({
   const searchParamsString = header.get("x-search-params") || "";
   const searchParams = new URLSearchParams(searchParamsString);
 
-  // ========================= 2) AUTH CHECKS ============================
-  // 2a. If user isn't authenticated
-  if (!session?.user) {
-    const inviteParam = searchParams.get("invite");
-    const redirectUrl = `${NON_AUTHENTICATED_REDIRECT_URL}${
-      inviteParam ? `?invite=${inviteParam}` : ""
-    }`;
-    return redirect(redirectUrl);
-  }
-
-  // 2b. If email isn't verified, redirect to /verify-request
-  if (!session.user.emailVerified) {
-    return redirect(
-      `/verify-request${
-        searchParams.get("invite") ? `?invite=${searchParams.get("invite")}` : ""
-      }`
-    );
-  }
 
   // 2c. If there's an invite param but we're not on /invite, go to /invite
   if (searchParams.get("invite") && currentPath !== "/invite") {
     return redirect(`/invite?invite=${searchParams.get("invite")}`);
   }
 
+
   // ===================== 4) ALREADY ONBOARDED? =======================
   const currentWorkspace = await getCurrentWorkspace();
 
-  // 4b. If they are onboarded but have no current workspace & not on /workspaces
+  // 4a. If user is done onboarding but is currently visiting /create-workspace or /invite-team
   if (
-    !currentWorkspace &&
-    session.user.onboardingComplete &&
-    currentPath !== "/workspaces"
+    session?.user.onboardingComplete &&
+    (currentPath === "/create-workspace" || currentPath === "/invite-team")
   ) {
+    if (currentWorkspace) {
+      return redirect("/dashboard");
+    }
     return redirect("/workspaces");
+    
   }
-
   // ===================== 5) EVERYTHING OK ============================
   return <>{children}</>;
 }

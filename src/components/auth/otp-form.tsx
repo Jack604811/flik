@@ -102,8 +102,8 @@ export default function OTPVerification({ email }: { email: string }) {
     <div className="min-h-screen w-full flex flex-col items-center justify-center relative px-4">
       {/* Back Button */}
       <div className="absolute top-4 left-4">
-        <Button size="sm" variant="outline" asChild>
-          <Link href={BACK_BUTTON_URL}>
+        <Button size="sm" variant="outline">
+          <Link href={BACK_BUTTON_URL} className="flex items-center">
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back
           </Link>
